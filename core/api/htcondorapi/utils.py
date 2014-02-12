@@ -4,7 +4,8 @@ htcondorapi.utils -- utilities for secured API
 """
 import logging
 import re
-from ...core.models import Users
+#from ...core.models import Users
+from ...common.models import Users
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('bigpandamon')

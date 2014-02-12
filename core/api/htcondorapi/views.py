@@ -1,5 +1,5 @@
 """ 
-htcondorapi.views
+api.htcondorapi.views
 
 """
 import sys
