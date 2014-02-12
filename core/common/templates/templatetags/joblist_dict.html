@@ -1,0 +1,494 @@
+{% load core_extras %}
+{% if tableid %}<div class="row"><a href="javascript:void(0)"><span id="sh-filter-{{ tableid }}">Show filter of {{ caption }}</span></a></div>
+{% empty_div %}{% comment %}
+<!-- <div>Filter summary</div> -->
+{% endcomment %}
+<div id="div-table-filter-{{ tableid }}" class="tableFilter">{% comment %}
+{% if caption %}<div class="row left"><emph>Filter {{ caption }}</emph></div>{% empty_div %}{% endif %}
+{% endcomment %}
+<table id="table-filter-{{ tableid }}" ></table>
+</div>
+<div id="div-table-filter-button-{{ tableid }}">
+  <button type="button" id="btnFilter-{{ tableid }}" class="ui-buttonset ui-button">Filter table!</button>
+  {% empty_div %}
+</div>
+{% comment %}
+{% if caption %}<div class="row left"><label>{{ caption }}</label></div>{% endif %}
+{% endcomment %}
+<div class="row left">
+<table id="{{ tableid }}"></table>
+</div>
+{% if showdatasrc %}{% empty_div %}
+<div class="row left"><a href="{{ datasrc }}" target="_blank">Show machine-readable data source</a></div>{% endif %}
+{% else %}No information is available.{% endif %}
+
+<script type="text/javascript">
+// AJAX setup with CSRF protection
+var csrftoken = $.cookie('csrftoken');
+
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function sameOrigin(url) {
+    // test that a given url is a same-origin URL
+    // url could be relative or scheme relative or absolute
+    var host = document.location.host; // host + port
+    var protocol = document.location.protocol;
+    var sr_origin = '//' + host;
+    var origin = protocol + sr_origin;
+    // Allow absolute or scheme relative URLs to same origin
+    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+}
+
+var pgst = 'ini';
+var filter = [];
+var colsOrig = {{ columns }};
+var colsDict = {};
+var shFilter = [];
+
+// hide filter table, show only filter summary
+hideFilter();
+$("#btnFilter-{{ tableid }}").hide();
+
+function buildFilterTableHTCondorJob()
+{
+    $("#table-filter-{{ tableid }}").append(
+    '<tr>' + 
+      '<td colspan=6>'+
+        '<b>Wildcard *</b> available for fields '+
+        'Owner, Global Job ID, Guessed status. '+
+        '<b>Interval mark :</b> available for fields ' +
+        'WMS ID, Run time, Priority. '+ 
+             'Use e.g. <b>1776</b> for exact match, or ' + 
+             '<b>:1750</b> for everything &le; 1750 , or ' +
+             '<b>1780:</b> for everything &ge; 1780 , or ' +
+             '<b>1720:1730</b> for interval including boundaries.' +
+             '<br />' +
+      ' </td>' +
+    '</tr>' + 
+    '<tr>' + 
+      '<td><b>Owner:</b></td>' +
+        '<td align=right><input id="fOwn"></td>' + 
+      '<td><b>WMS ID:</b></td>' +
+        '<td><input id="fWmsId"></td>' + 
+      '<td><b>Global Job ID:</b></td>' +
+        '<td ><input id="fGlJobId"></td>' + 
+    '</tr>' 
+    + '<tr>' + 
+      '<td rowspan=2><b>Submitted:</b></td>' +
+      '<td align=right>from: <input id="fSubFrom"></td>' + 
+      '<td rowspan=2><b>Status:</b></td>' +
+      '<td rowspan=2 colspan=3><select multiple id="fSt">' + 
+          '<option value="H">H = on hold</option>' + 
+          '<option value="R">R = running</option>' + 
+          '<option value="I">I = idle (waiting for a machine to execute on)</option>' + 
+          '<option value="C">C = completed</option>' + 
+          '<option value="X">X = removed</option>' + 
+          '<option value="lt">&lt; = transferring input (or queued to do so)</option>' + 
+          '<option value="gt">&gt; = transferring output (or queued to do so)</option>' + 
+          '</select></td>' + 
+    '</tr>' 
+    + '<tr>' + 
+      '<td align=right>to: <input id="fSubTo"></td>' +
+    '</tr>' 
+    + '<tr>' + 
+      '<td ><b>Run time:</b></td>' +
+      '<td align=right>[s] <input id="fRunT"></td>' + 
+      '<td ><b>Guessed status:</b></td>' +
+      '<td><input id="fStatus"></td>' + 
+      '<td ><b>Priority:</b></td>' +
+      '<td><input id="fPri"></td>' + 
+    '</tr>' 
+    );
+    $( "#fSubFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $( "#fSubTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $("#btnFilter-{{ tableid }}").show();
+}
+
+function buildFilterTablePandaJob()
+{
+    $("#table-filter-{{ tableid }}").append(
+    '<tr>' + 
+      '<td><b>Created:</b></td>' +
+      '<td>from: <input id="fCrFrom"></td>' + 
+      '<td>to: <input id="fCrTo"></td>' +
+    '</tr>' 
+    );
+    $( "#fCrFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $( "#fCrTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $("#btnFilter-{{ tableid }}").show();
+}
+
+function gFV(fieldName)
+// gFV ... getFieldValue : get value of input with id===fieldName
+{
+    return $.trim($("#"+fieldName).val());
+}
+function sFV(fieldName, val)
+// sFV ... setFieldValue : set value of input with id===fieldName
+{
+    $("#"+fieldName).val(val);
+}
+function sFVms(fieldName, valList)
+// sFVms ... setFieldValue : set option selected for multi select
+{
+    vals = valList.split(',');
+    $("#"+fieldName).val(vals);
+}
+
+function setValuesFilterTable(f)
+// setValuesFilterTable
+{
+    for (x in f){
+        if(f[x].value.indexOf(',') === -1){
+            sFV(f[x].name, f[x].value);
+        } else {
+            sFVms(f[x].name, f[x].value);
+        }
+    }
+}
+function getValuesFilterTableHTCondorJob()
+// getValuesFilterTableHTCondorJob
+{
+    var fields = ['fOwn', 'fWmsId', 'fGlJobId', 'fSubFrom', 'fSubTo', 'fRunT', 
+                  'fSt', 'fStatus', 'fPri']
+    var f = [];
+
+    for (i in fields){
+        k = fields[i];
+        val = gFV(k);
+        if(val.length>0){f.push({'name': k, 'value': val}); }
+    }
+    return f;
+}
+function getValuesFilterTablePandaJob()
+// getValuesFilterTablePandaJob
+{
+    var f = [];
+    // creationtime
+    val = gFV('fCrFrom');
+      if(val.length>0){ f.push({'name': 'fCrFrom', 'value': val}); }
+    val = gFV('fCrTo');
+    if(val.length>0){ f.push({'name': 'fCrTo', 'value': val}); }
+    return f;
+}
+
+
+$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
+{
+    if ( typeof sNewSource != 'undefined' && sNewSource != null )
+    {
+        oSettings.sAjaxSource = sNewSource;
+    }
+    this.oApi._fnProcessingDisplay( oSettings, true );
+    var that = this;
+    var iStart = oSettings._iDisplayStart;
+ 
+    this.fnDraw();
+}
+
+function upURL(f){
+// upURL -- update URL with filter
+//    f ... filter
+    var nH = "";
+    for (x in f)
+    {
+        if (x != 0){
+            nH += '&';
+        }
+        nH += encodeURIComponent(f[x].name) + '=' + encodeURIComponent(f[x].value) ;
+    }
+    window.location.hash = nH;
+    console.debug('nH='+nH);
+}
+
+function getHashParams() {
+// getHashParams
+    var hashParams = [];
+    var e,
+        a = /\+/g,  // Regex for replacing addition symbol with a space
+        r = /([^&;=]+)=?([^&;]*)/g,
+        d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+        q = window.location.hash.substring(1);
+    while (e = r.exec(q))
+       hashParams.push({ 'name': d(e[1]), 'value': d(e[2]) });
+    return hashParams;
+}
+
+function getFilterURL(){
+// get filter from URL to populate filter table
+    filter = getHashParams();
+    if ( typeof filter != 'undefined' && filter != null ){
+        pgst = 'fltr';
+    } else {
+        pgst = 'ini';
+    }
+}
+
+function drawTable(stFlag){
+// nuke old table with old data
+    if ( typeof oTable != 'undefined' && oTable != null ){
+        oTable.fnClearTable();
+    }
+
+// get filter parameters
+   var fltr=getValuesFilterTable{{ model }}();
+
+// create new table with new data
+    oTable = $("#{{ tableid }}").dataTable( {
+        "sPaginationType"   : "full_numbers",
+        "bDestroy": true,
+        "aLengthMenu"       : [ [10, 50, 100, 500, -1], [10, 50, 100, 500, "All"] ],
+        "sDom"              : '<"H"lfr><t><"F"ip>',
+        "iDisplayLength"    : 10,
+        "bProcessing": true,
+        "bServerSide": true,
+        "bFilter": false,
+        "sAjaxSource": "{{ datasrc }}",
+        "bScrollCollapse"   : true,
+        "sScrollX"          : "100%",
+        "bJQueryUI"         : true,
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+              aoData.push({'name': 'csrfmiddlewaretoken', 'value': csrftoken});
+              aoData.push({'name': 'pgst', 'value': stFlag});
+              $.merge( aoData, fltr )
+              $.ajax( {
+                "dataType": 'json',
+                "url": sSource,
+                "data": aoData,
+                "type": "POST", 
+                "success": fnCallback,
+                "async":true,
+                "error": function (xhr, error, thrown) {
+                    alert("THERE IS AN ERROR");
+                    if ( error == "parsererror" ) 
+                        apprise( "DataTables warning: JSON data" + 
+                            " from server could not be parsed. " +
+                            "This is caused by a JSON formatting " +
+                            "error." 
+                        );
+                }
+              } );
+            }, 
+        "aoColumns": colsOrig, 
+    } );
+
+// update GET parameters
+    upURL(fltr);
+
+}
+function showFilter(){
+    $("#div-table-filter-{{ tableid }}").show();
+    $("#div-table-filter-button-{{ tableid }}").show();
+    $("#sh-filter-{{ tableid }}").text("Hide filter of {{ caption }}");
+}
+function hideFilter(){
+    $("#div-table-filter-{{ tableid }}").hide();
+    $("#div-table-filter-button-{{ tableid }}").hide();
+    $("#sh-filter-{{ tableid }}").text("Show filter of {{ caption }}");
+}
+
+var oTable;
+$(document).ready(function() {
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+
+// get filter parameters from URL
+    getFilterURL();
+// filter table config
+    buildFilterTable{{ model }}();
+// set filter to values from URL
+    setValuesFilterTable(filter);
+
+// dataTable configuration
+    var anOpen = [];
+    var sImageUrl = "{{ STATIC_URL }}/images/";
+
+    drawTable(pgst);
+
+// Show/hide filter
+    $("#sh-filter-{{ tableid }}").click(function(){
+       var nTr = this.parentNode;
+       var i = $.inArray( nTr, shFilter );
+
+       if ( i === -1 ) {
+          showFilter();
+          shFilter.push( nTr );
+       } else {
+          hideFilter();
+          shFilter.splice( i, 1 );
+       }
+    });
+
+// Filter dataTable button
+    $("#btnFilter-{{ tableid }}").click(function(){ 
+        pgst='fltr';
+        drawTable(pgst);
+    });
+
+// clickable open/close row details
+$('#{{ tableid }}').on( 'click', 'td.control', function () {
+   var nTr = this.parentNode;
+   var i = $.inArray( nTr, anOpen );
+    
+   if ( i === -1 ) {
+      $('img', this).attr( 'src', sImageUrl+"details_close.png" );
+      oTable.fnOpen( nTr, fnFormatDetails(oTable, nTr), 'details' );
+      anOpen.push( nTr );
+    } else {
+      $('img', this).attr( 'src', sImageUrl+"details_open.png" );
+      oTable.fnClose( nTr );
+      anOpen.splice( i, 1 );
+    }
+} );
+
+// Fixed headers
+// new FixedHeader( oTable );
+
+}); // ready
+
+function getColumnTitles()
+{
+    for (var i=1;i<colsOrig.length; i++ ){
+        colsDict[colsOrig[i].mDataProp] = colsOrig[i].sTitle;
+    }
+}
+
+function gTV(key, tD, dD, colspan, tagType){
+    var ret = '<td><b>' + tD[key] + '</b></td><td';
+    if(typeof(colspan) != 'undefined')
+    {
+        cs = colspan * 2 - 1;
+        ret += ' colspan=' + cs + ' ';
+    }
+    ret += '>';
+    if (tagType=='a'){
+        ret += '<a href="' + dD[key] + '" target="_blank">'+ dD[key] + '</a>';
+    } else {
+        ret += dD[key];
+    }
+    ret += '</td>';
+    return ret;
+}
+
+function fnFormatDetailsHTCondorJob(tD, dD){
+//    fnFormatDetailsHTCondorJob: detail data formatting for HTCondorJob instances
+//    args:
+//        tD ... titleDict: dictionary with key=field name, value=title
+//        dD ... dataDict:  dictionary with key=field name, value=value of the field
+//    returns:
+//        HTML code of table rows
+    return '<tr>' 
+              + gTV("owner", tD, dD) 
+              + gTV("wmsid", tD, dD) 
+              + gTV("globaljobid", tD, dD) 
+          + '</tr>'
+          + '<tr>' 
+              + gTV("submitted", tD, dD)
+              + gTV("pri", tD, dD)
+              + gTV("condorid", tD, dD) 
+          + '</tr>'
+          + '<tr>' 
+              + gTV("st", tD, dD)
+              + gTV("run_time", tD, dD)
+              + gTV("size", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("status", tD, dD)
+              + gTV("cpu_time", tD, dD)
+              + gTV("manager", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("p_start_time", tD, dD)
+              + gTV("p_end_time", tD, dD)
+              + gTV("p_modif_time", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("host", tD, dD)
+              + gTV("p_factory", tD, dD)
+              + gTV("p_schedd", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("cmd", tD, dD, 2)
+              + gTV("executable", tD, dD, 2)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("p_stdout", tD, dD, 2, 'a')
+              + gTV("p_stderr", tD, dD, 2, 'a')
+          + '</tr>'
+          + '<tr>' 
+              + gTV("goodput", tD, dD)
+              + gTV("cpu_util", tD, dD)
+              + gTV("mbps", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("read_", tD, dD)
+              + gTV("write_", tD, dD)
+              + gTV("seek", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("xput", tD, dD)
+              + gTV("bufsize", tD, dD)
+              + gTV("blocksize", tD, dD)
+          + '</tr>'
+          + '<tr>' 
+              + gTV("p_description", tD, dD, 3)
+          + '</tr>'
+    ;
+}
+
+function fnFormatDetailsPandaJob(tD, dD){
+//  fnFormatDetailsPandaJob: detail data formatting for PandaJob children instances
+//    args:
+//        tD ... titleDict: dictionary with key=field name, value=title
+//        dD ... dataDict:  dictionary with key=field name, value=value of the field
+//    returns:
+//        HTML code of table rows
+    return '<tr>' 
+              + gTV("pandaid", tD, dD) 
+              + gTV("creationtime", tD, dD) 
+              + gTV("jobstatus", tD, dD) 
+          + '</tr>'
+          + '<tr>' 
+              + gTV("jobdefinitionid", tD, dD)
+              + gTV("modificationtime", tD, dD) 
+              + gTV("currentpriority", tD, dD)
+          + '</tr>'
+    ;
+}
+
+function fnFormatDetails( oTable, nTr )
+{
+    var oData = oTable.fnGetData( nTr );
+    if (Object.keys(colsDict).length === 0){
+        getColumnTitles();
+    }
+    var sOut =
+      '<div class="columns">'+
+        '<table cellpadding="5" cellspacing="0" border="0">'
+    ;
+    sOut += fnFormatDetails{{ model }}(colsDict, oData);
+    sOut += 
+        '</table>'+
+      '</div>';
+    return sOut;
+}
+</script>
+
+
