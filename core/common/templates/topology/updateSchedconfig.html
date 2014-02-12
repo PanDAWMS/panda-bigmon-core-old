@@ -1,0 +1,55 @@
+{% extends "_base_bigpandamon.html" %}{% load url from future %}{% load core_extras %}
+{% block subtitle %}Updating schedconfig information...{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'listSchedconfigQueues' %}">List of queues</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}<a href="#">Updated schedconfig information</a>{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}  
+{% block body %}
+{% if result %}
+	{% for item in result %}
+	<ul>
+		{% if item.action %}
+		<li>{{ item.action }} schedconfig information for queue
+			{% if item.nickname %}
+				<a href="{% url 'schedconfigDetails' item.nickname %}" target="_blank">{{ item.nickname }}</a>
+			{% else %}
+			???
+			{% endif %}
+			{% if item.diff %}
+			<ul>
+			{% for k,v in item.diff.items %}
+				<li>
+				Updated field "{{ k }}" 
+				<ul>
+				<li>from 
+				"{% if v.old %}
+				{{ v.old }}
+				{% else %}
+				n/a
+				{% endif %}"</li><li>to 
+				"
+				{% if v.new %}
+				{{ v.new }}
+				{% else %}
+				n/a
+				{% endif %}
+				"</li>
+				</ul>
+				</li>
+			{% endfor %}
+			</ul>
+			{% endif %}
+		{% endif %}
+		{% if item.msg %}
+		<li>{{ item.msg }}</li>
+		{% endif %}
+		{% empty_div %}
+		</li>
+	</ul>
+	{% endfor %}
+{% else %}
+	<p>No information for selected queue is available.</p>
+{% endif %}
+{% endblock %}
