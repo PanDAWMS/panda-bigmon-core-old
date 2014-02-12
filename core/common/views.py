@@ -44,8 +44,7 @@ def index(request):
     """
     data = {}
     data.update(getContextVariables(request))
-#    return render_to_response('core/_index_grid.html', data, RequestContext(request))
-    return render_to_response('_index_grid.html', data, RequestContext(request))
+    return render_to_response('common/_index_grid.html', data, RequestContext(request))
 
 
 def graceful404(request):
@@ -63,6 +62,6 @@ def testing(request):
     """
     data = {}
     data.update(getContextVariables(request))
-    return render_to_response('core/testing.html', data, RequestContext(request))
+    return render_to_response('common/testing.html', data, RequestContext(request))
 
 
