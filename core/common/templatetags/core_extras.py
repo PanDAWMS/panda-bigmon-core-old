@@ -5,7 +5,7 @@ core_extras -- template tags for core
 
 from django import template
 from django.template.loader import render_to_string
-from ..core.utils import getPrefix, getContextVariables
+from ..utils import getPrefix, getContextVariables
 
 register = template.Library()
 

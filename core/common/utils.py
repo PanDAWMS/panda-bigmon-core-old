@@ -4,9 +4,15 @@ utils
 """
 import logging
 from itertools import islice, chain
-from ..settings import STATIC_URL, ENV
+#from ..settings import STATIC_URL, ENV
+#from settings import STATIC_URL, FILTER_UI_ENV
+#from django.conf.settings import STATIC_URL, FILTER_UI_ENV
+from django.conf import settings
+#.settings import STATIC_URL, FILTER_UI_ENV
+
+
 try:
-    from ..settings import URL_PATH_PREFIX
+    from settings import URL_PATH_PREFIX
 except ImportError:
     URL_PATH_PREFIX = None
 
@@ -36,7 +42,7 @@ def getContextVariables(request):
     getContextVariables: build dictionary for context
     
     """
-    ret = { 'STATIC_URL': STATIC_URL, 'prefix': getPrefix(request) }
+    ret = { 'STATIC_URL': settings.STATIC_URL, 'prefix': getPrefix(request) }
     try:
         ret.update(ENV)
     except:

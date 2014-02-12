@@ -18,10 +18,13 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext, loader
 from django.core.exceptions import ObjectDoesNotExist
 #
-from ..topology.models import Schedconfig
-from ..settings import SOURCE_SCHEDCONFIG
-from ..core.utils import getPrefix
-from ..core.utils import getPrefix, getContextVariables
+#from ..topology.models import Schedconfig
+from models import Schedconfig
+#from ..settings import SOURCE_SCHEDCONFIG
+from ..common.settings import SOURCE_SCHEDCONFIG
+#from ..core.utils import getPrefix
+#from ..core.utils import getPrefix, getContextVariables
+from ..common.utils import getPrefix, getContextVariables
 
 _logger = logging.getLogger(__name__)
 
@@ -139,7 +142,7 @@ def updateSchedconfig(request, vo):
             cmd = schedconfigData[schedconfigQueue]["cmd"]
             errinfo = schedconfigData[schedconfigQueue]["errinfo"]
             nqueue = schedconfigData[schedconfigQueue]["nqueue"]
-            comment_ = schedconfigData[schedconfigQueue]["comment_"]
+            comment_field = schedconfigData[schedconfigQueue]["comment_"]
             appdir = schedconfigData[schedconfigQueue]["appdir"]
             datadir = schedconfigData[schedconfigQueue]["datadir"]
             tmpdir = schedconfigData[schedconfigQueue]["tmpdir"]
@@ -234,7 +237,7 @@ def updateSchedconfig(request, vo):
                 globusadd=globusadd, jdl=jdl, jdltxt=jdltxt, version=version, \
                 site=site, region=region, gstat=gstat, tags=tags, cmd=cmd, \
                 lastmod=lastmod, errinfo=errinfo, nqueue=nqueue, \
-                comment_=comment_, appdir=appdir, datadir=datadir, \
+                comment_field=comment_field, appdir=appdir, datadir=datadir, \
                 tmpdir=tmpdir, wntmpdir=wntmpdir, dq2url=dq2url, \
                 special_par=special_par, python_path=python_path, nodes=nodes, \
                 status=status, copytool=copytool, copysetup=copysetup, \
@@ -291,7 +294,7 @@ def updateSchedconfig(request, vo):
                 globusadd=globusadd, jdl=jdl, jdltxt=jdltxt, version=version, \
                 site=site, region=region, gstat=gstat, tags=tags, cmd=cmd, \
                 lastmod=lastmod, errinfo=errinfo, nqueue=nqueue, \
-                comment_=comment_, appdir=appdir, datadir=datadir, \
+                comment_field=comment_field, appdir=appdir, datadir=datadir, \
                 tmpdir=tmpdir, wntmpdir=wntmpdir, dq2url=dq2url, \
                 special_par=special_par, python_path=python_path, nodes=nodes, \
                 status=status, copytool=copytool, copysetup=copysetup, \
@@ -337,7 +340,7 @@ def updateSchedconfig(request, vo):
         'result': result, 'schedconfigQueues': schedconfigQueues,
     }
     data.update(getContextVariables(request))
-    return render_to_response('topology/updateSchedconfig.html', data, RequestContext(request))
+    return render_to_response('resource/updateSchedconfig.html', data, RequestContext(request))
 
 
 def listSchedconfigQueues(request):
@@ -351,7 +354,7 @@ def listSchedconfigQueues(request):
         'jobList': jobList,
     }
     data.update(getContextVariables(request))
-    return render_to_response('topology/listSchedconfigQueues.html', data, RequestContext(request))
+    return render_to_response('resource/listSchedconfigQueues.html', data, RequestContext(request))
 
 
 def schedconfigDetails(request, nickname):
@@ -377,6 +380,6 @@ def schedconfigDetails(request, nickname):
         'schedconfigInfo': jobInfo, 'name': name
     }
     data.update(getContextVariables(request))
-    return render_to_response('topology/schedconfigDetails.html', data, RequestContext(request))
+    return render_to_response('resource/schedconfigDetails.html', data, RequestContext(request))
 
 
