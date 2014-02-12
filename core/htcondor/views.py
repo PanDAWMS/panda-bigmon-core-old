@@ -15,12 +15,16 @@ from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_datatables_view.base_datatable_view import BaseDatatableView
-from ..settings import STATIC_URL, FILTER_UI_ENV
-from ..core.utils import getPrefix, getContextVariables, \
+#from ..settings import STATIC_URL, FILTER_UI_ENV
+from ..common.settings import STATIC_URL, FILTER_UI_ENV
+#from ..core.utils import getPrefix, getContextVariables, \
+#        getAoColumnsDictWithTitles
+from ..common.utils import getPrefix, getContextVariables, \
         getAoColumnsDictWithTitles
 from ..htcondor.models import HTCondorJob
 from ..api.htcondorapi.serializers import SerializerHTCondorJob
-from ..core.datatablesviews import ModelJobDictJson  # as HTCondorJobDictJson
+#from ..core.datatablesviews import ModelJobDictJson  # as HTCondorJobDictJson
+from ..table.views import ModelJobDictJson  # as HTCondorJobDictJson
 
 _logger = logging.getLogger(__name__)
 

@@ -30,7 +30,7 @@ class Schedconfig(models.Model):
     lastmod = models.DateTimeField(db_column='LASTMOD')  # Field name made lowercase.
     errinfo = models.CharField(max_length=240, db_column='ERRINFO', blank=True)  # Field name made lowercase.
     nqueue = models.IntegerField(db_column='NQUEUE')  # Field name made lowercase.
-    comment_ = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
+    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     appdir = models.CharField(max_length=1500, db_column='APPDIR', blank=True)  # Field name made lowercase.
     datadir = models.CharField(max_length=240, db_column='DATADIR', blank=True)  # Field name made lowercase.
     tmpdir = models.CharField(max_length=240, db_column='TMPDIR', blank=True)  # Field name made lowercase.
@@ -164,7 +164,7 @@ class Schedinstance(models.Model):
     errinfo = models.CharField(max_length=450, db_column='ERRINFO', blank=True)  # Field name made lowercase.
     ndone = models.IntegerField(db_column='NDONE')  # Field name made lowercase.
     totrunt = models.IntegerField(db_column='TOTRUNT')  # Field name made lowercase.
-    comment_ = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
+    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     class Meta:
         db_table = u'schedinstance'
 

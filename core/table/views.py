@@ -8,7 +8,8 @@ import pytz
 import re
 from datetime import datetime, timedelta
 from django_datatables_view.base_datatable_view import BaseDatatableView
-from ..settings import FILTER_UI_ENV
+#from ..settings import FILTER_UI_ENV
+from ..common.settings import STATIC_URL, FILTER_UI_ENV
 from ..htcondor.models import HTCondorJob
 from ..api.htcondorapi.serializers import SerializerHTCondorJob
 

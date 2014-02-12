@@ -8,15 +8,20 @@
 # Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
 # into your database.
 
+from __future__ import unicode_literals
+
 from django.db import models
-models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
-                                 'primaryColumns', 'secondaryColumns', \
-                                 'columnTitles', 'filterFields',)
+#models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
+#                                 'primaryColumns', 'secondaryColumns', \
+#                                 'columnTitles', 'filterFields',)
 
 class Cache(models.Model):
-    type = models.CharField(max_length=750, primary_key=True, db_column='TYPE') # Field name made lowercase.
-    value = models.CharField(max_length=750, primary_key=True, db_column='VALUE') # Field name made lowercase.
-    qurl = models.CharField(max_length=750, db_column='QURL') # Field name made lowercase.
+#    type = models.CharField(max_length=750, primary_key=True, db_column='TYPE') # Field name made lowercase.
+#    value = models.CharField(max_length=750, primary_key=True, db_column='VALUE') # Field name made lowercase.
+#    qurl = models.CharField(max_length=750, db_column='QURL') # Field name made lowercase.
+    type = models.CharField(db_column='TYPE', max_length=250)  # Field name made lowercase.
+    value = models.CharField(db_column='VALUE', max_length=250)  # Field name made lowercase.
+    qurl = models.CharField(db_column='QURL', max_length=250)  # Field name made lowercase.
     modtime = models.DateTimeField(db_column='MODTIME') # Field name made lowercase.
     usetime = models.DateTimeField(db_column='USETIME') # Field name made lowercase.
     updmin = models.IntegerField(null=True, db_column='UPDMIN', blank=True) # Field name made lowercase.
@@ -53,7 +58,8 @@ class Cloudconfig(models.Model):
     transtimelo = models.IntegerField(db_column='TRANSTIMELO') # Field name made lowercase.
     transtimehi = models.IntegerField(db_column='TRANSTIMEHI') # Field name made lowercase.
     waittime = models.IntegerField(db_column='WAITTIME') # Field name made lowercase.
-    comment_ = models.CharField(max_length=600, db_column='COMMENT_', blank=True) # Field name made lowercase.
+#    comment_ = models.CharField(max_length=600, db_column='COMMENT_', blank=True) # Field name made lowercase.
+    comment_field = models.CharField(max_length=600, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     space = models.IntegerField(db_column='SPACE') # Field name made lowercase.
     moduser = models.CharField(max_length=90, db_column='MODUSER', blank=True) # Field name made lowercase.
     modtime = models.DateTimeField(db_column='MODTIME') # Field name made lowercase.
@@ -106,15 +112,26 @@ class Datasets(models.Model):
     class Meta:
         db_table = u'datasets'
 
+#class DeftDataset(models.Model):
+#    dataset_id = models.CharField(max_length=768, primary_key=True, db_column='DATASET_ID') # Field name made lowercase.
+#    dataset_meta = models.BigIntegerField(null=True, db_column='DATASET_META', blank=True) # Field name made lowercase.
+#    dataset_state = models.CharField(max_length=48, db_column='DATASET_STATE', blank=True) # Field name made lowercase.
+#    dataset_source = models.BigIntegerField(null=True, db_column='DATASET_SOURCE', blank=True) # Field name made lowercase.
+#    dataset_target = models.BigIntegerField(null=True, db_column='DATASET_TARGET', blank=True) # Field name made lowercase.
+#    dataset_comment = models.CharField(max_length=384, db_column='DATASET_COMMENT', blank=True) # Field name made lowercase.
+#    class Meta:
+#        db_table = u'deft_dataset'
+#
 class DeftDataset(models.Model):
-    dataset_id = models.CharField(max_length=768, primary_key=True, db_column='DATASET_ID') # Field name made lowercase.
-    dataset_meta = models.BigIntegerField(null=True, db_column='DATASET_META', blank=True) # Field name made lowercase.
-    dataset_state = models.CharField(max_length=48, db_column='DATASET_STATE', blank=True) # Field name made lowercase.
-    dataset_source = models.BigIntegerField(null=True, db_column='DATASET_SOURCE', blank=True) # Field name made lowercase.
-    dataset_target = models.BigIntegerField(null=True, db_column='DATASET_TARGET', blank=True) # Field name made lowercase.
-    dataset_comment = models.CharField(max_length=384, db_column='DATASET_COMMENT', blank=True) # Field name made lowercase.
+    dataset_id = models.CharField(db_column='DATASET_ID', primary_key=True, max_length=255)  # Field name made lowercase.
+    dataset_meta = models.BigIntegerField(db_column='DATASET_META', blank=True, null=True)  # Field name made lowercase.
+    dataset_state = models.CharField(db_column='DATASET_STATE', max_length=16, blank=True)  # Field name made lowercase.
+    dataset_source = models.BigIntegerField(db_column='DATASET_SOURCE', blank=True, null=True)  # Field name made lowercase.
+    dataset_target = models.BigIntegerField(db_column='DATASET_TARGET', blank=True, null=True)  # Field name made lowercase.
+    dataset_comment = models.CharField(db_column='DATASET_COMMENT', max_length=128, blank=True)  # Field name made lowercase.
     class Meta:
-        db_table = u'deft_dataset'
+        managed = False
+        db_table = 'deft_dataset'
 
 class DeftMeta(models.Model):
     meta_id = models.BigIntegerField(primary_key=True, db_column='META_ID') # Field name made lowercase.
@@ -514,289 +531,6 @@ class JobsStatuslog(models.Model):
     class Meta:
         db_table = u'jobs_statuslog'
 
-class PandaJob(models.Model):
-    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.
-    jobdefinitionid = models.BigIntegerField(db_column='JOBDEFINITIONID') # Field name made lowercase.
-    schedulerid = models.CharField(max_length=384, db_column='SCHEDULERID', blank=True) # Field name made lowercase.
-    pilotid = models.CharField(max_length=600, db_column='PILOTID', blank=True) # Field name made lowercase.
-    creationtime = models.DateTimeField(db_column='CREATIONTIME') # Field name made lowercase.
-    creationhost = models.CharField(max_length=384, db_column='CREATIONHOST', blank=True) # Field name made lowercase.
-    modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME') # Field name made lowercase.
-    modificationhost = models.CharField(max_length=384, db_column='MODIFICATIONHOST', blank=True) # Field name made lowercase.
-    atlasrelease = models.CharField(max_length=192, db_column='ATLASRELEASE', blank=True) # Field name made lowercase.
-    transformation = models.CharField(max_length=750, db_column='TRANSFORMATION', blank=True) # Field name made lowercase.
-    homepackage = models.CharField(max_length=240, db_column='HOMEPACKAGE', blank=True) # Field name made lowercase.
-    prodserieslabel = models.CharField(max_length=60, db_column='PRODSERIESLABEL', blank=True) # Field name made lowercase.
-    prodsourcelabel = models.CharField(max_length=60, db_column='PRODSOURCELABEL', blank=True) # Field name made lowercase.
-    produserid = models.CharField(max_length=750, db_column='PRODUSERID', blank=True) # Field name made lowercase.
-    assignedpriority = models.IntegerField(db_column='ASSIGNEDPRIORITY') # Field name made lowercase.
-    currentpriority = models.IntegerField(db_column='CURRENTPRIORITY') # Field name made lowercase.
-    attemptnr = models.IntegerField(db_column='ATTEMPTNR') # Field name made lowercase.
-    maxattempt = models.IntegerField(db_column='MAXATTEMPT') # Field name made lowercase.
-    jobstatus = models.CharField(max_length=45, db_column='JOBSTATUS') # Field name made lowercase.
-    jobname = models.CharField(max_length=768, db_column='JOBNAME', blank=True) # Field name made lowercase.
-    maxcpucount = models.IntegerField(db_column='MAXCPUCOUNT') # Field name made lowercase.
-    maxcpuunit = models.CharField(max_length=96, db_column='MAXCPUUNIT', blank=True) # Field name made lowercase.
-    maxdiskcount = models.IntegerField(db_column='MAXDISKCOUNT') # Field name made lowercase.
-    maxdiskunit = models.CharField(max_length=12, db_column='MAXDISKUNIT', blank=True) # Field name made lowercase.
-    ipconnectivity = models.CharField(max_length=15, db_column='IPCONNECTIVITY', blank=True) # Field name made lowercase.
-    minramcount = models.IntegerField(db_column='MINRAMCOUNT') # Field name made lowercase.
-    minramunit = models.CharField(max_length=6, db_column='MINRAMUNIT', blank=True) # Field name made lowercase.
-    starttime = models.DateTimeField(null=True, db_column='STARTTIME', blank=True) # Field name made lowercase.
-    endtime = models.DateTimeField(null=True, db_column='ENDTIME', blank=True) # Field name made lowercase.
-    cpuconsumptiontime = models.BigIntegerField(db_column='CPUCONSUMPTIONTIME') # Field name made lowercase.
-    cpuconsumptionunit = models.CharField(max_length=384, db_column='CPUCONSUMPTIONUNIT', blank=True) # Field name made lowercase.
-    commandtopilot = models.CharField(max_length=750, db_column='COMMANDTOPILOT', blank=True) # Field name made lowercase.
-    transexitcode = models.CharField(max_length=384, db_column='TRANSEXITCODE', blank=True) # Field name made lowercase.
-    piloterrorcode = models.IntegerField(db_column='PILOTERRORCODE') # Field name made lowercase.
-    piloterrordiag = models.CharField(max_length=1500, db_column='PILOTERRORDIAG', blank=True) # Field name made lowercase.
-    exeerrorcode = models.IntegerField(db_column='EXEERRORCODE') # Field name made lowercase.
-    exeerrordiag = models.CharField(max_length=1500, db_column='EXEERRORDIAG', blank=True) # Field name made lowercase.
-    superrorcode = models.IntegerField(db_column='SUPERRORCODE') # Field name made lowercase.
-    superrordiag = models.CharField(max_length=750, db_column='SUPERRORDIAG', blank=True) # Field name made lowercase.
-    ddmerrorcode = models.IntegerField(db_column='DDMERRORCODE') # Field name made lowercase.
-    ddmerrordiag = models.CharField(max_length=1500, db_column='DDMERRORDIAG', blank=True) # Field name made lowercase.
-    brokerageerrorcode = models.IntegerField(db_column='BROKERAGEERRORCODE') # Field name made lowercase.
-    brokerageerrordiag = models.CharField(max_length=750, db_column='BROKERAGEERRORDIAG', blank=True) # Field name made lowercase.
-    jobdispatchererrorcode = models.IntegerField(db_column='JOBDISPATCHERERRORCODE') # Field name made lowercase.
-    jobdispatchererrordiag = models.CharField(max_length=750, db_column='JOBDISPATCHERERRORDIAG', blank=True) # Field name made lowercase.
-    taskbuffererrorcode = models.IntegerField(db_column='TASKBUFFERERRORCODE') # Field name made lowercase.
-    taskbuffererrordiag = models.CharField(max_length=900, db_column='TASKBUFFERERRORDIAG', blank=True) # Field name made lowercase.
-    computingsite = models.CharField(max_length=384, db_column='COMPUTINGSITE', blank=True) # Field name made lowercase.
-    computingelement = models.CharField(max_length=384, db_column='COMPUTINGELEMENT', blank=True) # Field name made lowercase.
-    jobparameters = models.TextField(db_column='JOBPARAMETERS', blank=True) # Field name made lowercase.
-    metadata = models.TextField(db_column='METADATA', blank=True) # Field name made lowercase.
-    proddblock = models.CharField(max_length=765, db_column='PRODDBLOCK', blank=True) # Field name made lowercase.
-    dispatchdblock = models.CharField(max_length=765, db_column='DISPATCHDBLOCK', blank=True) # Field name made lowercase.
-    destinationdblock = models.CharField(max_length=765, db_column='DESTINATIONDBLOCK', blank=True) # Field name made lowercase.
-    destinationse = models.CharField(max_length=750, db_column='DESTINATIONSE', blank=True) # Field name made lowercase.
-    nevents = models.IntegerField(db_column='NEVENTS') # Field name made lowercase.
-    grid = models.CharField(max_length=150, db_column='GRID', blank=True) # Field name made lowercase.
-    cloud = models.CharField(max_length=150, db_column='CLOUD', blank=True) # Field name made lowercase.
-    cpuconversion = models.DecimalField(decimal_places=4, null=True, max_digits=11, db_column='CPUCONVERSION', blank=True) # Field name made lowercase.
-    sourcesite = models.CharField(max_length=108, db_column='SOURCESITE', blank=True) # Field name made lowercase.
-    destinationsite = models.CharField(max_length=108, db_column='DESTINATIONSITE', blank=True) # Field name made lowercase.
-    transfertype = models.CharField(max_length=30, db_column='TRANSFERTYPE', blank=True) # Field name made lowercase.
-    taskid = models.IntegerField(null=True, db_column='TASKID', blank=True) # Field name made lowercase.
-    cmtconfig = models.CharField(max_length=750, db_column='CMTCONFIG', blank=True) # Field name made lowercase.
-    statechangetime = models.DateTimeField(null=True, db_column='STATECHANGETIME', blank=True) # Field name made lowercase.
-    proddbupdatetime = models.DateTimeField(null=True, db_column='PRODDBUPDATETIME', blank=True) # Field name made lowercase.
-    lockedby = models.CharField(max_length=384, db_column='LOCKEDBY', blank=True) # Field name made lowercase.
-    relocationflag = models.IntegerField(null=True, db_column='RELOCATIONFLAG', blank=True) # Field name made lowercase.
-    jobexecutionid = models.BigIntegerField(null=True, db_column='JOBEXECUTIONID', blank=True) # Field name made lowercase.
-    vo = models.CharField(max_length=48, db_column='VO', blank=True) # Field name made lowercase.
-    pilottiming = models.CharField(max_length=300, db_column='PILOTTIMING', blank=True) # Field name made lowercase.
-    workinggroup = models.CharField(max_length=60, db_column='WORKINGGROUP', blank=True) # Field name made lowercase.
-    processingtype = models.CharField(max_length=192, db_column='PROCESSINGTYPE', blank=True) # Field name made lowercase.
-    produsername = models.CharField(max_length=180, db_column='PRODUSERNAME', blank=True) # Field name made lowercase.
-    ninputfiles = models.IntegerField(null=True, db_column='NINPUTFILES', blank=True) # Field name made lowercase.
-    countrygroup = models.CharField(max_length=60, db_column='COUNTRYGROUP', blank=True) # Field name made lowercase.
-    batchid = models.CharField(max_length=240, db_column='BATCHID', blank=True) # Field name made lowercase.
-    parentid = models.BigIntegerField(null=True, db_column='PARENTID', blank=True) # Field name made lowercase.
-    specialhandling = models.CharField(max_length=240, db_column='SPECIALHANDLING', blank=True) # Field name made lowercase.
-    jobsetid = models.BigIntegerField(null=True, db_column='JOBSETID', blank=True) # Field name made lowercase.
-    corecount = models.IntegerField(null=True, db_column='CORECOUNT', blank=True) # Field name made lowercase.
-    ninputdatafiles = models.IntegerField(null=True, db_column='NINPUTDATAFILES', blank=True) # Field name made lowercase.
-    inputfiletype = models.CharField(max_length=96, db_column='INPUTFILETYPE', blank=True) # Field name made lowercase.
-    inputfileproject = models.CharField(max_length=192, db_column='INPUTFILEPROJECT', blank=True) # Field name made lowercase.
-    inputfilebytes = models.BigIntegerField(null=True, db_column='INPUTFILEBYTES', blank=True) # Field name made lowercase.
-    noutputdatafiles = models.IntegerField(null=True, db_column='NOUTPUTDATAFILES', blank=True) # Field name made lowercase.
-    outputfilebytes = models.BigIntegerField(null=True, db_column='OUTPUTFILEBYTES', blank=True) # Field name made lowercase.
-    jobmetrics = models.CharField(max_length=1500, db_column='JOBMETRICS', blank=True) # Field name made lowercase.
-    workqueue_id = models.IntegerField(null=True, db_column='WORKQUEUE_ID', blank=True) # Field name made lowercase.
-    jeditaskid = models.BigIntegerField(null=True, db_column='JEDITASKID', blank=True) # Field name made lowercase.
-
-    def __str__(self):
-        return 'PanDA:' + str(self.pandaid)
-
-    # __setattr__
-    def __setattr__(self, name, value):
-        super(PandaJob, self).__setattr__(name, value)
-
-    # __getattr__
-    def __getattr__(self, name):
-        return super(PandaJob, self).__getattr__(name)
-
-    # __getitem__
-    def __getitem__(self, name):
-#        return super(HTCondorJob, self).__getattr__(name)
-        return self.__dict__[name]
-
-    class Meta:
-        abstract = True
-        allColumns = [\
-        'pandaid', 'jobdefinitionid', 'schedulerid', 'pilotid', 'creationtime', \
-        'creationhost', 'modificationtime', 'modificationhost', 'atlasrelease', \
-        'transformation', 'homepackage', 'prodserieslabel', 'prodsourcelabel', \
-        'produserid', 'assignedpriority', 'currentpriority', 'attemptnr', \
-        'maxattempt', 'jobstatus', 'jobname', 'maxcpucount', 'maxcpuunit', \
-        'maxdiskcount', 'maxdiskunit', 'ipconnectivity', 'minramcount', \
-        'minramunit', 'starttime', 'endtime', 'cpuconsumptiontime', \
-        'cpuconsumptionunit', 'commandtopilot', 'transexitcode', \
-        'piloterrorcode', 'piloterrordiag', 'exeerrorcode', 'exeerrordiag', \
-        'superrorcode', 'superrordiag', 'ddmerrorcode', 'ddmerrordiag', \
-        'brokerageerrorcode', 'brokerageerrordiag', 'jobdispatchererrorcode', \
-        'jobdispatchererrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', \
-        'computingsite', 'computingelement', 'jobparameters', 'metadata', \
-        'proddblock', 'dispatchdblock', 'destinationdblock', 'destinationse', \
-        'nevents', 'grid', 'cloud', 'cpuconversion', 'sourcesite', \
-        'destinationsite', 'transfertype', 'taskid', 'cmtconfig', \
-        'statechangetime', 'proddbupdatetime', 'lockedby', 'relocationflag', \
-        'jobexecutionid', 'vo', 'pilottiming', 'workinggroup', 'processingtype', \
-        'produsername', 'ninputfiles', 'countrygroup', 'batchid', 'parentid', \
-        'specialhandling', 'jobsetid', 'corecount', 'ninputdatafiles', \
-        'inputfiletype', 'inputfileproject', 'inputfilebytes', \
-        'noutputdatafiles', 'outputfilebytes', 'jobmetrics', 'workqueue_id', \
-        'jeditaskid'
-            ]
-        primaryColumns = [ \
-            'pandaid', 'jobdefinitionid', 'creationtime', 'produserid', \
-            'currentpriority', 'jobstatus', 'modificationtime', 'cloud', \
-            'destinationsite'
-                ]
-        secondaryColumns = []
-        orderColumns = [\
-            'pandaid', 'jobdefinitionid', 'creationtime', 'modificationtime', \
-            'jobstatus', 'currentpriority', 'cloud', \
-#            'produserid', 'destinationsite'\
-                ]
-        columnTitles = [ \
-                        {'sort': True, 'vis': True, 'c': 'pandaid', 't': 'PanDA ID'}, \
-                        {'sort': True, 'vis': True, 'c': 'jobdefinitionid', 't': 'Job Definition ID'}, \
-                        {'sort': True, 'vis': True, 'c': 'creationtime', 't': 'Creation Time'}, \
-                        {'sort': True, 'vis': True, 'c': 'modificationtime', 't': 'Modification Time'}, \
-                        {'sort': True, 'vis': True, 'c': 'jobstatus', 't': 'Job Status'}, \
-                        {'sort': True, 'vis': True, 'c': 'currentpriority', 't': 'Current Priority'}, \
-                        {'sort': True, 'vis': True, 'c': 'cloud', 't': 'Cloud'}, \
-                        {'sort': True, 'vis': False, 'c': 'schedulerid', 't': 'Scheduler ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'pilotid', 't': 'Pilot ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'creationhost', 't': 'Creation Host'}, \
-                        {'sort': True, 'vis': False, 'c': 'modificationhost', 't': 'Modification Host'}, \
-                        {'sort': True, 'vis': False, 'c': 'atlasrelease', 't': 'ATLAS release'}, \
-                        {'sort': True, 'vis': False, 'c': 'transformation', 't': 'Transformation'}, \
-                        {'sort': True, 'vis': False, 'c': 'homepackage', 't': 'Home package'}, \
-                        {'sort': True, 'vis': False, 'c': 'prodserieslabel', 't': 'prodserieslabel'}, \
-                        {'sort': True, 'vis': False, 'c': 'prodsourcelabel', 't': 'prodsourcelabel'}, \
-                        {'sort': True, 'vis': False, 'c': 'produserid', 't': 'Prod User ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'assignedpriority', 't': 'Assigned Priority'}, \
-                        {'sort': True, 'vis': False, 'c': 'attemptnr', 't': 'Attempt #'}, \
-                        {'sort': True, 'vis': False, 'c': 'maxattempt', 't': 'Max Attempt'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobname', 't': 'Job name'}, \
-                        {'sort': True, 'vis': False, 'c': 'maxcpucount', 't': 'Max CPU count'}, \
-                        {'sort': True, 'vis': False, 'c': 'maxcpuunit', 't': 'Unit of Max CPU count'}, \
-                        {'sort': True, 'vis': False, 'c': 'maxdiskcount', 't': 'Max Disk count'}, \
-                        {'sort': True, 'vis': False, 'c': 'maxdiskunit', 't': 'Unit of Max Disk count'}, \
-                        {'sort': True, 'vis': False, 'c': 'ipconnectivity', 't': 'IP Connectivity'}, \
-                        {'sort': True, 'vis': False, 'c': 'minramcount', 't': 'Min RAM count'}, \
-                        {'sort': True, 'vis': False, 'c': 'minramunit', 't': 'Unit of Min RAM count'}, \
-                        {'sort': True, 'vis': False, 'c': 'starttime', 't': 'Start Time'}, \
-                        {'sort': True, 'vis': False, 'c': 'endtime', 't': 'End Time'}, \
-                        {'sort': True, 'vis': False, 'c': 'cpuconsumptiontime', 't': 'CPU Consumption time'}, \
-                        {'sort': True, 'vis': False, 'c': 'cpuconsumptionunit', 't': 'Unit of CPU Consumption time'}, \
-                        {'sort': True, 'vis': False, 'c': 'commandtopilot', 't': 'Command to pilot'}, \
-                        {'sort': True, 'vis': False, 'c': 'transexitcode', 't': 'Trans Exit Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'piloterrorcode', 't': 'Pilot Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'piloterrordiag', 't': 'Pilot Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'exeerrorcode', 't': 'Exe Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'exeerrordiag', 't': 'Exe Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'superrorcode', 't': 'Sup Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'superrordiag', 't': 'Sup Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'ddmerrorcode', 't': 'DDM Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'ddmerrordiag', 't': 'DDM Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'brokerageerrorcode', 't': 'Brokerage Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'brokerageerrordiag', 't': 'Brokerage Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobdispatchererrorcode', 't': 'Job Dispatcher Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobdispatchererrordiag', 't': 'Job Dispatcher Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'taskbuffererrorcode', 't': 'Taskbuffer Error Code'}, \
-                        {'sort': True, 'vis': False, 'c': 'taskbuffererrordiag', 't': 'Taskbuffer Error Diag'}, \
-                        {'sort': True, 'vis': False, 'c': 'computingsite', 't': 'Computing Site'}, \
-                        {'sort': True, 'vis': False, 'c': 'computingelement', 't': 'Computing Element'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobparameters', 't': 'Job Parameters'}, \
-                        {'sort': True, 'vis': False, 'c': 'metadata', 't': 'Metadata'}, \
-                        {'sort': True, 'vis': False, 'c': 'proddblock', 't': 'proddblock'}, \
-                        {'sort': True, 'vis': False, 'c': 'dispatchdblock', 't': 'dispatchdblock'}, \
-                        {'sort': True, 'vis': False, 'c': 'destinationdblock', 't': 'destinationdblock'}, \
-                        {'sort': True, 'vis': False, 'c': 'destinationse', 't': 'destinationse'}, \
-                        {'sort': True, 'vis': False, 'c': 'nevents', 't': 'N events'}, \
-                        {'sort': True, 'vis': False, 'c': 'grid', 't': 'Grid'}, \
-                        {'sort': True, 'vis': False, 'c': 'cpuconversion', 't': 'CPU Conversion'}, \
-                        {'sort': True, 'vis': False, 'c': 'sourcesite', 't': 'Source Site'}, \
-                        {'sort': True, 'vis': False, 'c': 'destinationsite', 't': 'Destination Site'}, \
-                        {'sort': True, 'vis': False, 'c': 'transfertype', 't': 'Transfer Type'}, \
-                        {'sort': True, 'vis': False, 'c': 'taskid', 't': 'Task ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'cmtconfig', 't': 'CMT config'}, \
-                        {'sort': True, 'vis': False, 'c': 'statechangetime', 't': 'State Change Time'}, \
-                        {'sort': True, 'vis': False, 'c': 'proddbupdatetime', 't': 'Prod DB Update Time'}, \
-                        {'sort': True, 'vis': False, 'c': 'lockedby', 't': 'Locked By'}, \
-                        {'sort': True, 'vis': False, 'c': 'relocationflag', 't': 'Relocation Flag'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobexecutionid', 't': 'Job Execution ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'vo', 't': 'VO'}, \
-                        {'sort': True, 'vis': False, 'c': 'pilottiming', 't': 'Pilot timing'}, \
-                        {'sort': True, 'vis': False, 'c': 'workinggroup', 't': 'Working Group'}, \
-                        {'sort': True, 'vis': False, 'c': 'processingtype', 't': 'Processing Type'}, \
-                        {'sort': True, 'vis': False, 'c': 'produsername', 't': 'Produsername'}, \
-                        {'sort': True, 'vis': False, 'c': 'ninputfiles', 't': 'N input files'}, \
-                        {'sort': True, 'vis': False, 'c': 'countrygroup', 't': 'Country Group'}, \
-                        {'sort': True, 'vis': False, 'c': 'batchid', 't': 'Batch ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'parentid', 't': 'Parent ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'specialhandling', 't': 'Special Handling'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobsetid', 't': 'Jobset ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'corecount', 't': 'Core Count'}, \
-                        {'sort': True, 'vis': False, 'c': 'ninputdatafiles', 't': 'N input data files'}, \
-                        {'sort': True, 'vis': False, 'c': 'inputfiletype', 't': 'Input file type'}, \
-                        {'sort': True, 'vis': False, 'c': 'inputfileproject', 't': 'Input file project'}, \
-                        {'sort': True, 'vis': False, 'c': 'inputfilebytes', 't': 'Input file bytes'}, \
-                        {'sort': True, 'vis': False, 'c': 'noutputdatafiles', 't': 'N output data files'}, \
-                        {'sort': True, 'vis': False, 'c': 'outputfilebytes', 't': 'Output file bytes'}, \
-                        {'sort': True, 'vis': False, 'c': 'jobmetrics', 't': 'Job Metrics'}, \
-                        {'sort': True, 'vis': False, 'c': 'workqueue_id', 't': 'Work queue ID'}, \
-                        {'sort': True, 'vis': False, 'c': 'jeditaskid', 't': 'JEDI Task ID'}, \
-              ]
-        filterFields = [ \
-#            # .starttime
-#            { 'name': 'fStartFrom', 'field': 'starttime', 'filterField': 'starttime__gte', 'type': 'datetime' }, \
-#            { 'name': 'fStartTo', 'field': 'starttime', 'filterField': 'starttime__lte', 'type': 'datetime'}, \
-            # .creationtime
-            { 'name': 'fCrFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
-            { 'name': 'fCrTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
-        ]
-
-
-class Jobsactive4(PandaJob):
-    class Meta:
-#        managed = False
-        db_table = u'jobsactive4'
-
-class Jobsarchived(PandaJob):
-#    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID')  # Field name made lowercase.
-#    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
-    class Meta:
-#        managed = False
-        db_table = u'jobsarchived'
-
-class Jobsarchived4(PandaJob):
-#    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.
-#    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
-    class Meta:
-#        managed = False
-        db_table = u'jobsarchived4'
-
-class Jobsdefined4(PandaJob):
-    class Meta:
-#        managed = False
-        db_table = u'jobsdefined4'
-
-
-    # __getitem__
-    def __getitem__(self, name):
-#        return super(HTCondorJob, self).__getattr__(name)
-        return self.__dict__[name]
-
-
-class Jobswaiting4(PandaJob):
-    class Meta:
-#        managed = False
-        db_table = u'jobswaiting4'
 
 class Jobsarch4Taskinfo59StatsOld(models.Model):
     modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
@@ -927,12 +661,14 @@ class Passwords(models.Model):
         db_table = u'passwords'
 
 class Pilotqueue(models.Model):
-    jobid = models.CharField(max_length=300, primary_key=True, db_column='JOBID') # Field name made lowercase.
+#    jobid = models.CharField(max_length=300, primary_key=True, db_column='JOBID') # Field name made lowercase.
+    jobid = models.CharField(db_column='JOBID', max_length=100, primary_key=True)  # Field name made lowercase.
     tpid = models.CharField(max_length=180, db_column='TPID') # Field name made lowercase.
     url = models.CharField(max_length=600, db_column='URL', blank=True) # Field name made lowercase.
     nickname = models.CharField(max_length=180, primary_key=True, db_column='NICKNAME') # Field name made lowercase.
     system = models.CharField(max_length=60, db_column='SYSTEM') # Field name made lowercase.
-    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
+#    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
+    user_field = models.CharField(max_length=180, db_column='USER_')  # Field name made lowercase.
     host = models.CharField(max_length=180, db_column='HOST') # Field name made lowercase.
     submithost = models.CharField(max_length=180, db_column='SUBMITHOST') # Field name made lowercase.
     queueid = models.CharField(max_length=180, db_column='QUEUEID') # Field name made lowercase.
@@ -964,7 +700,8 @@ class PilotqueueBnl(models.Model):
     url = models.CharField(max_length=600, db_column='URL') # Field name made lowercase.
     nickname = models.CharField(max_length=180, db_column='NICKNAME') # Field name made lowercase.
     system = models.CharField(max_length=60, db_column='SYSTEM') # Field name made lowercase.
-    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
+#    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
+    user_field = models.CharField(max_length=180, db_column='USER_')  # Field name made lowercase.
     host = models.CharField(max_length=180, db_column='HOST') # Field name made lowercase.
     submithost = models.CharField(max_length=180, db_column='SUBMITHOST') # Field name made lowercase.
     schedd_name = models.CharField(max_length=180, db_column='SCHEDD_NAME') # Field name made lowercase.
@@ -1563,7 +1300,8 @@ class PoolCollectionData1(models.Model):
         db_table = u'pool_collection_data_1'
 
 class PoolCollections(models.Model):
-    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
+#    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
+    collection_name = models.CharField(db_column='COLLECTION_NAME', primary_key=True, max_length=255)  # Field name made lowercase.
     data_table_name = models.CharField(max_length=1200, db_column='DATA_TABLE_NAME', blank=True) # Field name made lowercase.
     links_table_name = models.CharField(max_length=1200, db_column='LINKS_TABLE_NAME', blank=True) # Field name made lowercase.
     records_written = models.DecimalField(decimal_places=0, null=True, max_digits=11, db_column='RECORDS_WRITTEN', blank=True) # Field name made lowercase.
@@ -1574,7 +1312,8 @@ class PoolCollections(models.Model):
         db_table = u'pool_collections'
 
 class PoolCollectionsDesc(models.Model):
-    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
+#    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
+    collection_name = models.CharField(max_length=255, primary_key=True, db_column='COLLECTION_NAME')  # Field name made lowercase.
     variable_name = models.CharField(max_length=1200, db_column='VARIABLE_NAME', blank=True) # Field name made lowercase.
     variable_type = models.CharField(max_length=1200, db_column='VARIABLE_TYPE', blank=True) # Field name made lowercase.
     variable_maximum_size = models.DecimalField(decimal_places=0, null=True, max_digits=11, db_column='VARIABLE_MAXIMUM_SIZE', blank=True) # Field name made lowercase.
@@ -1594,7 +1333,8 @@ class ProdsysComm(models.Model):
         db_table = u'prodsys_comm'
 
 class Productiondatasets(models.Model):
-    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
+#    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
+    name = models.CharField(max_length=255, primary_key=True, db_column='NAME')  # Field name made lowercase.
     version = models.IntegerField(null=True, db_column='VERSION', blank=True) # Field name made lowercase.
     vuid = models.CharField(max_length=120, db_column='VUID') # Field name made lowercase.
     files = models.IntegerField(null=True, db_column='FILES', blank=True) # Field name made lowercase.
@@ -1622,19 +1362,34 @@ class Proxykey(models.Model):
         db_table = u'proxykey'
 
 class Redirect(models.Model):
-    service = models.CharField(max_length=90, db_column='SERVICE') # Field name made lowercase.
-    type = models.CharField(max_length=90, db_column='TYPE') # Field name made lowercase.
-    site = models.CharField(max_length=90, db_column='SITE') # Field name made lowercase.
-    description = models.CharField(max_length=360, db_column='DESCRIPTION') # Field name made lowercase.
-    url = models.CharField(max_length=750, primary_key=True, db_column='URL') # Field name made lowercase.
-    testurl = models.CharField(max_length=750, db_column='TESTURL', blank=True) # Field name made lowercase.
-    response = models.CharField(max_length=90, db_column='RESPONSE') # Field name made lowercase.
-    aliveresponse = models.CharField(max_length=90, db_column='ALIVERESPONSE') # Field name made lowercase.
-    responsetime = models.IntegerField(null=True, db_column='RESPONSETIME', blank=True) # Field name made lowercase.
-    rank = models.IntegerField(null=True, db_column='RANK', blank=True) # Field name made lowercase.
-    performance = models.IntegerField(null=True, db_column='PERFORMANCE', blank=True) # Field name made lowercase.
-    status = models.CharField(max_length=90, db_column='STATUS') # Field name made lowercase.
-    log = models.CharField(max_length=750, db_column='LOG', blank=True) # Field name made lowercase.
+#    service = models.CharField(max_length=90, db_column='SERVICE') # Field name made lowercase.
+#    type = models.CharField(max_length=90, db_column='TYPE') # Field name made lowercase.
+#    site = models.CharField(max_length=90, db_column='SITE') # Field name made lowercase.
+#    description = models.CharField(max_length=360, db_column='DESCRIPTION') # Field name made lowercase.
+#    url = models.CharField(max_length=750, primary_key=True, db_column='URL') # Field name made lowercase.
+#    testurl = models.CharField(max_length=750, db_column='TESTURL', blank=True) # Field name made lowercase.
+#    response = models.CharField(max_length=90, db_column='RESPONSE') # Field name made lowercase.
+#    aliveresponse = models.CharField(max_length=90, db_column='ALIVERESPONSE') # Field name made lowercase.
+#    responsetime = models.IntegerField(null=True, db_column='RESPONSETIME', blank=True) # Field name made lowercase.
+#    rank = models.IntegerField(null=True, db_column='RANK', blank=True) # Field name made lowercase.
+#    performance = models.IntegerField(null=True, db_column='PERFORMANCE', blank=True) # Field name made lowercase.
+#    status = models.CharField(max_length=90, db_column='STATUS') # Field name made lowercase.
+#    log = models.CharField(max_length=750, db_column='LOG', blank=True) # Field name made lowercase.
+#    statustime = models.DateTimeField(db_column='STATUSTIME') # Field name made lowercase.
+#    usetime = models.DateTimeField(db_column='USETIME') # Field name made lowercase.
+    service = models.CharField(db_column='SERVICE', max_length=30)  # Field name made lowercase.
+    type = models.CharField(db_column='TYPE', max_length=30)  # Field name made lowercase.
+    site = models.CharField(db_column='SITE', max_length=30)  # Field name made lowercase.
+    description = models.CharField(db_column='DESCRIPTION', max_length=120)  # Field name made lowercase.
+    url = models.CharField(db_column='URL', primary_key=True, max_length=250)  # Field name made lowercase.
+    testurl = models.CharField(db_column='TESTURL', max_length=250, blank=True)  # Field name made lowercase.
+    response = models.CharField(db_column='RESPONSE', max_length=30)  # Field name made lowercase.
+    aliveresponse = models.CharField(db_column='ALIVERESPONSE', max_length=30)  # Field name made lowercase.
+    responsetime = models.IntegerField(db_column='RESPONSETIME', blank=True, null=True)  # Field name made lowercase.
+    rank = models.IntegerField(db_column='RANK', blank=True, null=True)  # Field name made lowercase.
+    performance = models.IntegerField(db_column='PERFORMANCE', blank=True, null=True)  # Field name made lowercase.
+    status = models.CharField(db_column='STATUS', max_length=30)  # Field name made lowercase.
+    log = models.CharField(db_column='LOG', max_length=250, blank=True)  # Field name made lowercase.
     statustime = models.DateTimeField(db_column='STATUSTIME') # Field name made lowercase.
     usetime = models.DateTimeField(db_column='USETIME') # Field name made lowercase.
     class Meta:
@@ -1676,7 +1431,8 @@ class SchedconfigOld(models.Model):
     lastmod = models.DateTimeField(db_column='LASTMOD') # Field name made lowercase.
     errinfo = models.CharField(max_length=240, db_column='ERRINFO', blank=True) # Field name made lowercase.
     nqueue = models.IntegerField(db_column='NQUEUE') # Field name made lowercase.
-    comment_ = models.CharField(max_length=1500, db_column='COMMENT_', blank=True) # Field name made lowercase.
+#    comment_ = models.CharField(max_length=1500, db_column='COMMENT_', blank=True) # Field name made lowercase.
+    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     appdir = models.CharField(max_length=300, db_column='APPDIR', blank=True) # Field name made lowercase.
     datadir = models.CharField(max_length=240, db_column='DATADIR', blank=True) # Field name made lowercase.
     tmpdir = models.CharField(max_length=240, db_column='TMPDIR', blank=True) # Field name made lowercase.
@@ -1906,27 +1662,48 @@ class Sitehistory(models.Model):
         db_table = u'sitehistory'
 
 class Sitesinfo(models.Model):
-    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
-    nick = models.CharField(max_length=60, db_column='NICK') # Field name made lowercase.
-    contact = models.CharField(max_length=90, db_column='CONTACT', blank=True) # Field name made lowercase.
-    email = models.CharField(max_length=90, db_column='EMAIL', blank=True) # Field name made lowercase.
-    status = models.CharField(max_length=36, db_column='STATUS', blank=True) # Field name made lowercase.
-    lrc = models.CharField(max_length=360, db_column='LRC', blank=True) # Field name made lowercase.
-    gridcat = models.IntegerField(null=True, db_column='GRIDCAT', blank=True) # Field name made lowercase.
-    monalisa = models.CharField(max_length=60, db_column='MONALISA', blank=True) # Field name made lowercase.
-    computingsite = models.CharField(max_length=60, db_column='COMPUTINGSITE', blank=True) # Field name made lowercase.
-    mainsite = models.CharField(max_length=60, db_column='MAINSITE', blank=True) # Field name made lowercase.
-    home = models.CharField(max_length=360, db_column='HOME', blank=True) # Field name made lowercase.
-    ganglia = models.CharField(max_length=360, db_column='GANGLIA', blank=True) # Field name made lowercase.
-    goc = models.CharField(max_length=60, db_column='GOC', blank=True) # Field name made lowercase.
-    gocconfig = models.IntegerField(null=True, db_column='GOCCONFIG', blank=True) # Field name made lowercase.
-    prodsys = models.CharField(max_length=60, db_column='PRODSYS', blank=True) # Field name made lowercase.
-    dq2svc = models.CharField(max_length=60, db_column='DQ2SVC', blank=True) # Field name made lowercase.
-    usage = models.CharField(max_length=120, db_column='USAGE', blank=True) # Field name made lowercase.
-    updtime = models.IntegerField(null=True, db_column='UPDTIME', blank=True) # Field name made lowercase.
-    ndatasets = models.IntegerField(null=True, db_column='NDATASETS', blank=True) # Field name made lowercase.
-    nfiles = models.IntegerField(null=True, db_column='NFILES', blank=True) # Field name made lowercase.
-    timestamp = models.IntegerField(null=True, db_column='TIMESTAMP', blank=True) # Field name made lowercase.
+#    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
+#    nick = models.CharField(max_length=60, db_column='NICK') # Field name made lowercase.
+#    contact = models.CharField(max_length=90, db_column='CONTACT', blank=True) # Field name made lowercase.
+#    email = models.CharField(max_length=90, db_column='EMAIL', blank=True) # Field name made lowercase.
+#    status = models.CharField(max_length=36, db_column='STATUS', blank=True) # Field name made lowercase.
+#    lrc = models.CharField(max_length=360, db_column='LRC', blank=True) # Field name made lowercase.
+#    gridcat = models.IntegerField(null=True, db_column='GRIDCAT', blank=True) # Field name made lowercase.
+#    monalisa = models.CharField(max_length=60, db_column='MONALISA', blank=True) # Field name made lowercase.
+#    computingsite = models.CharField(max_length=60, db_column='COMPUTINGSITE', blank=True) # Field name made lowercase.
+#    mainsite = models.CharField(max_length=60, db_column='MAINSITE', blank=True) # Field name made lowercase.
+#    home = models.CharField(max_length=360, db_column='HOME', blank=True) # Field name made lowercase.
+#    ganglia = models.CharField(max_length=360, db_column='GANGLIA', blank=True) # Field name made lowercase.
+#    goc = models.CharField(max_length=60, db_column='GOC', blank=True) # Field name made lowercase.
+#    gocconfig = models.IntegerField(null=True, db_column='GOCCONFIG', blank=True) # Field name made lowercase.
+#    prodsys = models.CharField(max_length=60, db_column='PRODSYS', blank=True) # Field name made lowercase.
+#    dq2svc = models.CharField(max_length=60, db_column='DQ2SVC', blank=True) # Field name made lowercase.
+#    usage = models.CharField(max_length=120, db_column='USAGE', blank=True) # Field name made lowercase.
+#    updtime = models.IntegerField(null=True, db_column='UPDTIME', blank=True) # Field name made lowercase.
+#    ndatasets = models.IntegerField(null=True, db_column='NDATASETS', blank=True) # Field name made lowercase.
+#    nfiles = models.IntegerField(null=True, db_column='NFILES', blank=True) # Field name made lowercase.
+#    timestamp = models.IntegerField(null=True, db_column='TIMESTAMP', blank=True) # Field name made lowercase.
+    name = models.CharField(db_column='NAME', primary_key=True, max_length=120)  # Field name made lowercase.
+    nick = models.CharField(db_column='NICK', max_length=20)  # Field name made lowercase.
+    contact = models.CharField(db_column='CONTACT', max_length=30, blank=True)  # Field name made lowercase.
+    email = models.CharField(db_column='EMAIL', max_length=30, blank=True)  # Field name made lowercase.
+    status = models.CharField(db_column='STATUS', max_length=12, blank=True)  # Field name made lowercase.
+    lrc = models.CharField(db_column='LRC', max_length=120, blank=True)  # Field name made lowercase.
+    gridcat = models.IntegerField(db_column='GRIDCAT', blank=True, null=True)  # Field name made lowercase.
+    monalisa = models.CharField(db_column='MONALISA', max_length=20, blank=True)  # Field name made lowercase.
+    computingsite = models.CharField(db_column='COMPUTINGSITE', max_length=20, blank=True)  # Field name made lowercase.
+    mainsite = models.CharField(db_column='MAINSITE', max_length=20, blank=True)  # Field name made lowercase.
+    home = models.CharField(db_column='HOME', max_length=120, blank=True)  # Field name made lowercase.
+    ganglia = models.CharField(db_column='GANGLIA', max_length=120, blank=True)  # Field name made lowercase.
+    goc = models.CharField(db_column='GOC', max_length=20, blank=True)  # Field name made lowercase.
+    gocconfig = models.IntegerField(db_column='GOCCONFIG', blank=True, null=True)  # Field name made lowercase.
+    prodsys = models.CharField(db_column='PRODSYS', max_length=20, blank=True)  # Field name made lowercase.
+    dq2svc = models.CharField(db_column='DQ2SVC', max_length=20, blank=True)  # Field name made lowercase.
+    usage = models.CharField(db_column='USAGE', max_length=40, blank=True)  # Field name made lowercase.
+    updtime = models.IntegerField(db_column='UPDTIME', blank=True, null=True)  # Field name made lowercase.
+    ndatasets = models.IntegerField(db_column='NDATASETS', blank=True, null=True)  # Field name made lowercase.
+    nfiles = models.IntegerField(db_column='NFILES', blank=True, null=True)  # Field name made lowercase.
+    timestamp = models.IntegerField(db_column='TIMESTAMP', blank=True, null=True)  # Field name made lowercase.
     class Meta:
         db_table = u'sitesinfo'
 
@@ -2046,19 +1823,28 @@ class Tags(models.Model):
         db_table = u'tags'
 
 class Transfercosts(models.Model):
-    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
-    destsite = models.CharField(max_length=768, primary_key=True, db_column='DESTSITE') # Field name made lowercase.
-    type = models.CharField(max_length=768, primary_key=True, db_column='TYPE') # Field name made lowercase.
-    status = models.CharField(max_length=192, db_column='STATUS', blank=True) # Field name made lowercase.
-    last_update = models.DateTimeField(null=True, db_column='LAST_UPDATE', blank=True) # Field name made lowercase.
+#    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
+#    destsite = models.CharField(max_length=768, primary_key=True, db_column='DESTSITE') # Field name made lowercase.
+#    type = models.CharField(max_length=768, primary_key=True, db_column='TYPE') # Field name made lowercase.
+#    status = models.CharField(max_length=192, db_column='STATUS', blank=True) # Field name made lowercase.
+#    last_update = models.DateTimeField(null=True, db_column='LAST_UPDATE', blank=True) # Field name made lowercase.
+#    cost = models.BigIntegerField(db_column='COST') # Field name made lowercase.
+#    max_cost = models.BigIntegerField(null=True, db_column='MAX_COST', blank=True) # Field name made lowercase.
+#    min_cost = models.BigIntegerField(null=True, db_column='MIN_COST', blank=True) # Field name made lowercase.
+    sourcesite = models.CharField(db_column='SOURCESITE', max_length=256)  # Field name made lowercase.
+    destsite = models.CharField(db_column='DESTSITE', max_length=256)  # Field name made lowercase.
+    type = models.CharField(db_column='TYPE', max_length=256)  # Field name made lowercase.
+    status = models.CharField(db_column='STATUS', max_length=64, blank=True)  # Field name made lowercase.
+    last_update = models.DateTimeField(db_column='LAST_UPDATE', blank=True, null=True)  # Field name made lowercase.
     cost = models.BigIntegerField(db_column='COST') # Field name made lowercase.
-    max_cost = models.BigIntegerField(null=True, db_column='MAX_COST', blank=True) # Field name made lowercase.
-    min_cost = models.BigIntegerField(null=True, db_column='MIN_COST', blank=True) # Field name made lowercase.
+    max_cost = models.BigIntegerField(db_column='MAX_COST', blank=True, null=True)  # Field name made lowercase.
+    min_cost = models.BigIntegerField(db_column='MIN_COST', blank=True, null=True)  # Field name made lowercase.
     class Meta:
         db_table = u'transfercosts'
 
 class TransfercostsHistory(models.Model):
-    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
+#    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
+    sourcesite = models.CharField(db_column='SOURCESITE', primary_key=True, max_length=255)  # Field name made lowercase.
     destsite = models.CharField(max_length=768, db_column='DESTSITE') # Field name made lowercase.
     type = models.CharField(max_length=768, db_column='TYPE', blank=True) # Field name made lowercase.
     status = models.CharField(max_length=192, db_column='STATUS', blank=True) # Field name made lowercase.
@@ -2090,7 +1876,8 @@ class Usagereport(models.Model):
 
 class Usercacheusage(models.Model):
     username = models.CharField(max_length=384, db_column='USERNAME') # Field name made lowercase.
-    filename = models.CharField(max_length=768, primary_key=True, db_column='FILENAME') # Field name made lowercase.
+#    filename = models.CharField(max_length=768, primary_key=True, db_column='FILENAME') # Field name made lowercase.
+    filename = models.CharField(db_column='FILENAME', max_length=255, primary_key=True)  # Field name made lowercase.
     hostname = models.CharField(max_length=192, primary_key=True, db_column='HOSTNAME') # Field name made lowercase.
     creationtime = models.DateTimeField(primary_key=True, db_column='CREATIONTIME') # Field name made lowercase.
     modificationtime = models.DateTimeField(null=True, db_column='MODIFICATIONTIME', blank=True) # Field name made lowercase.
@@ -2227,7 +2014,8 @@ class Userstats(models.Model):
         db_table = u'userstats'
 
 class Usersubs(models.Model):
-    datasetname = models.CharField(max_length=765, primary_key=True, db_column='DATASETNAME') # Field name made lowercase.
+#    datasetname = models.CharField(max_length=765, primary_key=True, db_column='DATASETNAME') # Field name made lowercase.
+    datasetname = models.CharField(max_length=255, primary_key=True, db_column='DATASETNAME')  # Field name made lowercase.
     site = models.CharField(max_length=192, primary_key=True, db_column='SITE') # Field name made lowercase.
     creationdate = models.DateTimeField(null=True, db_column='CREATIONDATE', blank=True) # Field name made lowercase.
     modificationdate = models.DateTimeField(null=True, db_column='MODIFICATIONDATE', blank=True) # Field name made lowercase.
