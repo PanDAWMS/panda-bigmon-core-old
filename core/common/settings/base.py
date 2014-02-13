@@ -79,7 +79,7 @@ TEMPLATE_DIRS = (
 
 
 # installed apps
-INSTALLED_APPS = (
+INSTALLED_APPS_DJANGO_FRAMEWORK = (
     ### Django framework
     'django.contrib.admin',
     'django.contrib.auth',
@@ -87,9 +87,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+INSTALLED_APPS_DJANGO_PLUGINS = (
     ### Django plugins
     'rest_framework',  #pip install djangorestframework, version 2.3.10
     'django_datatables_view',  #pip install django-datatables-view, version 1.6
+)
+INSTALLED_APPS_BIGPANDAMON_CORE = (
     ### BigPanDAmon core
     'core.common',
     'core.table',
@@ -99,6 +103,11 @@ INSTALLED_APPS = (
     'core.htcondor',
 #    'core.task', #NOT-IMPLEMENTED
 )
+COMMON_INSTALLED_APPS = \
+    INSTALLED_APPS_DJANGO_FRAMEWORK + \
+    INSTALLED_APPS_DJANGO_PLUGINS
+INSTALLED_APPS = COMMON_INSTALLED_APPS + INSTALLED_APPS_BIGPANDAMON_CORE
+
 
 VERSION = core.common.__versionstr__
 
