@@ -148,7 +148,7 @@ MEDIA_ROOT = '/data/bigpandamon/bigpandamon/media/'
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 #MEDIA_URL = '/media/'
-MEDIA_URL_BASE = '/media/'
+MEDIA_URL_BASE = '/media-common/'
 
 
 # Absolute path to the directory static files should be collected to.
