@@ -5,7 +5,7 @@
 from os.path import dirname, join
 
 import core
-import lsst
+#import lsst
 #import atlas
 
 ADMINS = (
@@ -113,7 +113,7 @@ VERSION = core.common.__versionstr__
 
 VERSIONS = {
     'core': core.__versionstr__,
-    'lsst': lsst.__versionstr__,
+#    'lsst': lsst.__versionstr__,
 #    'atlas': atlas.__versionstr__,
 }
 
