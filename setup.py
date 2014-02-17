@@ -173,10 +173,12 @@ setup(
     author_email='hn-atlas-panda-pathena@cern.ch',
     url='https://twiki.cern.ch/twiki/bin/view/PanDA/BigPanDAmonitoring',
     packages=[ 
+        'core',
         'core.api',
         'core.api.htcondorapi', 
         'core.common',
         'core.common.settings', 
+        'core.common.templatetags', 
         'core.htcondor', 
         'core.pandajob', 
         'core.resource', 
