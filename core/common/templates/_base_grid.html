@@ -11,16 +11,16 @@
   <title>{% block page_title %}{{ title }}{% endblock %}</title>
 
   <!-- Included CSS Files -->
-{% comment %}  
+{% comment %}
   <link rel="stylesheet" href="{{ STATIC_URL }}/css/normalize.css">
 {% endcomment %}
   <link rel="stylesheet" href="{% static "css/normalize.css" %}">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/foundation.css">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/bigpandamon.css">
+  <link rel="stylesheet" href="{% static "css/foundation.css" %}">
+  <link rel="stylesheet" href="{% static "css/bigpandamon.css" %}">
   {% block base_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
 
-  <script src="{{ STATIC_URL }}/js/vendor/custom.modernizr.js"></script>
+  <script src="{% static "js/vendor/custom.modernizr.js" %}"></script>
   {% block base_js %}{% endblock %}
   {% block extra_js %}{% endblock %}
   <script>
@@ -28,7 +28,7 @@
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
+
     ga('create', '{% block gacode %}UA-44940804-1{% endblock %}', '{% block gaweb %}pandawms.org{% endblock %}');
     ga('send', 'pageview');
   </script>
@@ -163,7 +163,7 @@
           <a href="#">Help</a>
           <ul class="dropdown">
             <li><a href="http://pandawms.org/monreq">Monitoring requirements</a></li>
-            {% comment %}  
+            {% comment %}
             <li><a href="#">Dropdown Option</a></li>
             <li><a href="#">Dropdown Option</a></li>
             <li class="divider"></li>
@@ -183,14 +183,14 @@
 <!-- bread-crumbs -->
   <div>
 {% block header-nav-chain %}
-{% block header-nav-chain-1 %}<a href="{{ prefix }}/">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-2 %}<a href="{{ prefix }}/#">DEFT</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-3 %}<a href="{{ prefix }}/#">ItemSub2</a>{% endblock %}{% block header-nav-chain-3-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-4 %}<a href="{{ prefix }}/#">ItemSub3</a>{% endblock %}{% block header-nav-chain-4-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-5 %}<a href="{{ prefix }}/#">ItemSub4</a>{% endblock %}{% block header-nav-chain-5-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-6 %}<a href="{{ prefix }}/#">CurrentView</a>{% endblock %}  
+{% block header-nav-chain-1 %}<a href="{{ prefix }}/">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+{% block header-nav-chain-2 %}<a href="{{ prefix }}/#">DEFT</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+{% block header-nav-chain-3 %}<a href="{{ prefix }}/#">ItemSub2</a>{% endblock %}{% block header-nav-chain-3-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+{% block header-nav-chain-4 %}<a href="{{ prefix }}/#">ItemSub3</a>{% endblock %}{% block header-nav-chain-4-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+{% block header-nav-chain-5 %}<a href="{{ prefix }}/#">ItemSub4</a>{% endblock %}{% block header-nav-chain-5-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+{% block header-nav-chain-6 %}<a href="{{ prefix }}/#">CurrentView</a>{% endblock %}
 {% endblock %}
-  </div> 
+  </div>
 <!-- End bread-crumbs -->
 {% endcomment %}
 
@@ -205,12 +205,12 @@
     <!-- bread-crumbs -->
     <div class="right">
       {% block header-nav-chain %}
-        {% block header-nav-chain-1 %}<a href="{{ prefix }}/">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-        {% block header-nav-chain-2 %}<a href="{{ prefix }}/#">DEFT</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-        {% block header-nav-chain-3 %}<a href="{{ prefix }}/#">ItemSub2</a>{% endblock %}{% block header-nav-chain-3-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-        {% block header-nav-chain-4 %}<a href="{{ prefix }}/#">ItemSub3</a>{% endblock %}{% block header-nav-chain-4-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-        {% block header-nav-chain-5 %}<a href="{{ prefix }}/#">ItemSub4</a>{% endblock %}{% block header-nav-chain-5-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-        {% block header-nav-chain-6 %}<a href="{{ prefix }}/#">CurrentView</a>{% endblock %}  
+        {% block header-nav-chain-1 %}<a href="{{ prefix }}/">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+        {% block header-nav-chain-2 %}<a href="{{ prefix }}/#">DEFT</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+        {% block header-nav-chain-3 %}<a href="{{ prefix }}/#">ItemSub2</a>{% endblock %}{% block header-nav-chain-3-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+        {% block header-nav-chain-4 %}<a href="{{ prefix }}/#">ItemSub3</a>{% endblock %}{% block header-nav-chain-4-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+        {% block header-nav-chain-5 %}<a href="{{ prefix }}/#">ItemSub4</a>{% endblock %}{% block header-nav-chain-5-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
+        {% block header-nav-chain-6 %}<a href="{{ prefix }}/#">CurrentView</a>{% endblock %}
       {% endblock %}
     </div>
     <!-- End bread-crumbs -->
