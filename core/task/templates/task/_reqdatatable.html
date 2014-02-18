@@ -8,7 +8,7 @@
 {% if title %}{{ title }}{% else %}Datatable{% endif %}
 {% endblock %}
 
-{% block bl_extra_css %}
+{% block extra_css %}
 {{ block.super }}
 	<style type="text/css" title="currentStyle">
 	    @import "{% static "css/jquery-ui-1.10.3.custom.min.css" %}";
@@ -16,21 +16,21 @@
 	</style>
 {% endblock %}
 
-{% block bl_base_js %}
+{% block base_js %}
 {{ block.super }}
 <script type="text/javascript" src="{% static "js/jquery-1.9.1.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/jquery-ui-1.10.3.custom.min.js" %}"></script>
 {% endblock %}
 
-{% block bl_extra_js %}
+{% block extra_js %}
 {{ block.super }}
     <script type="text/javascript" src="{% static "js/jquery.dataTables.min.js" %}"></script>
 {% endblock %}
 
 
-{% block bl_content_body %}
+{% block body %}
 <!-- TODO: Replace next tables by independet from field objects   -->
-<script> 
+<script>
 $(document).ready(function(){
   $("#select_pattern").change(function(){
     {% for pattern in pattern_list %}
@@ -55,19 +55,19 @@ $(document).ready(function(){
   <th>Physic group:</th>
 </tr>
 <tr>
-  <td>{{ trequest.reqid}}</td> 
+  <td>{{ trequest.reqid}}</td>
   <td>{{ trequest.description}}</td>
   <td><a href={{trequest.ref_link}} >{{ trequest.ref_link}}</a></td>
   <td>{{ trequest.phys_group}}</td>
 </tr>
 </table>
-<button id="bind" title="Create step execution">Bind</button> 
+<button id="bind" title="Create step execution">Bind</button>
 <select id="select_pattern" >
 <option value="" disabled selected>Select pattern</option>
 {% for pattern in pattern_list %}
 <option value="{{ pattern }}">{{ pattern }}</option>
 {% endfor %}
-</select> 
+</select>
 
 <br>
 
@@ -94,7 +94,7 @@ $(document).ready(function(){
   <th>input data:</th>
 </tr>
 <tr>
-    {% for inputList in inputLists %} 
+    {% for inputList in inputLists %}
 	<tr>
 
 		<td>{{ inputList.id }}</td>
