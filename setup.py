@@ -3,7 +3,7 @@
 # Setup prog for Panda Server
 #
 #
-release_version='0.0.1'
+release_version = '0.0.2'
 prefix = '/data/atlpan/bigpandamon'
 lib_prefix = 'lib/python2.6/site-packages/'
 expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example']
@@ -183,6 +183,10 @@ setup(
         'core.pandajob', 
         'core.resource', 
         'core.table', 
+        'core.task',
+        'core.datatables',
+        'core.datatables.templatetags',
+        'core.gspread',
     ],
     data_files=[
                 # config files 
@@ -198,6 +202,9 @@ setup(
                                  "core/htcondor/templates",
                                  "core/pandajob/templates",
                                  "core/resource/templates",
+                                 "core/task/templates",
+                                 "core/datatables/templates",
+                                 "core/datatables/static",
                 )
     ,         
     cmdclass={'install': install_panda,
