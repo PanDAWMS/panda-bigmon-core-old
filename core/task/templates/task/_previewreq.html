@@ -2,14 +2,16 @@
 {% load url from future %}
 {% load static from staticfiles %}
 
-{% block bl_extra_css %}
+{% block extra_css %}
 {{ block.super }}
 	<style type="text/css" title="currentStyle">
 	</style>
 {% endblock %}
 
 
-{% block bl_content_body %}
+
+
+{% block body %}
 {{ pre_form_text }}
 <h1> Check </h1>
 {% if submit_url %}
@@ -37,5 +39,9 @@
 {% endif %}
 
 
+{% endblock %}
 
+{% block bl_entry_point %}
+    {{ block.super }}
+    $( "#form_submit" ).button();
 {% endblock %}
