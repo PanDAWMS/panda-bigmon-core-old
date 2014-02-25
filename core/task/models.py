@@ -227,7 +227,8 @@ class ProductionTask(models.Model):
     physics_tag = models.CharField(max_length=20, db_column='PHYSICS_TAG', null=True)
     
     def save(self):
-        self.id = self.getId()
+        if self.id == None:
+            self.id = self.getId()
         super(ProductionTask, self).save()
           
     def getId(self):
