@@ -11,17 +11,8 @@ import requests
 import xlrd
 
 
-def open_google_ss(google_key, output_format):
-        """Download google spread sheet to a local temp file. 
-
-        :param google_key: A key for google sreapsheet.
-        :param output_format: supported google download format(csv,xls,ods)
-
-        Returns a temp file path.
-        """
-        filename = tempfile.mkstemp(suffix='.%s' % output_format)[1]
-
-        url = "https://docs.google.com/spreadsheet/ccc?output=%s&key=%s" % (output_format, google_key)
+def open_tempfile_from_url(url,tempfile_suffix):
+        filename = tempfile.mkstemp(suffix=tempfile_suffix)[1]
         response = requests.get(url)
         response_status_code = response.status_code
         if (response.status_code != 200):
@@ -31,6 +22,17 @@ def open_google_ss(google_key, output_format):
             for buf in response.iter_content(65536):
                 output.write(buf)
         return filename
+
+def open_google_ss(google_key, output_format):
+        """Download google spread sheet to a local temp file. 
+
+        :param google_key: A key for google sreapsheet.
+        :param output_format: supported google download format(csv,xls,ods)
+
+        Returns a temp file path.
+        """
+        url = "https://docs.google.com/spreadsheet/ccc?output=%s&key=%s" % (output_format, google_key)
+        return open_tempfile_from_url(url,'.%s' % output_format)
 
 class XlrParser(object):
      
