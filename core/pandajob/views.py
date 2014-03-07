@@ -63,7 +63,7 @@ def listJobs(request):
                         modificationtime__range=[startdate, enddate]\
                     ), \
             )
-    _logger.debug('|jobList|=' + str(len(jobList)))
+    _logger.debug('|jobList|=' + str(jobList.count()))
     _logger.debug('jobList[:30]=' + str(jobList[:30]))
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
     _logger.debug('jobList[:30]=' + str(jobList[:30]))
