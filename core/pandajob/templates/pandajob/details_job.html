@@ -22,6 +22,7 @@
 	<th>Owner{% if job.workinggroup %}/WG{% endif %}{% if job.vo %}/VO{% endif %}</th>
 	<th>PanDA ID</th>
 	<th>Status</th>
+	<th>JEDI Task ID</th>
 	<th>Created</th>
 	<th>Modified</th>
 	<th>Start</th>
@@ -30,15 +31,22 @@
 	<th>Prio</th>
 </tr>
 <tr>
+	<th colspan="10">Job name</th>
+</tr>
+<tr>
 	<td><a href="{% url 'jobInfo' job.produsername|safe 3  %}">{{ job.produsername }}</a>{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if job.vo %}/{{ job.vo }}{% endif %}</td>
 	<td>{{ job.pandaid }}</td>
 	<td>{{ job.jobstatus }}</td>
+	<td>{{ job.jeditaskid }}</td>
 	<td>{{ job.creationtime|date:"M d, H:i" }}</td>
 	<td>{{ job.modificationtime|date:"M d, H:i" }}</td>
 	<td>{{ job.starttime|date:"M d, H:i" }}</td>
 	<td>{{ job.endtime|date:"M d, H:i" }}</td>
 	<td>{{ job.computingsite }}</td>
 	<td>{{ job.currentpriority }}</td>
+</tr>
+<tr>
+	<td colspan="10">{{ job.jobname }}</td>
 </tr>
 </table>
 <p>Time in UTC.</p>

@@ -18,7 +18,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 #from django.views.decorators.csrf import csrf_exempt
 from django_datatables_view.base_datatable_view import BaseDatatableView
 #from ..settings import CUSTOM_DB_FIELDS, FILTER_UI_ENV
-from ..common.settings import STATIC_URL, FILTER_UI_ENV
+from ..common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from .models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4
 from .serializers import SerializerPandaJob
 #from .utils import getPrefix, getContextVariables, \
@@ -28,38 +28,37 @@ from ..common.utils import getPrefix, getContextVariables, \
 #from .datatablesviews import ModelJobDictJson
 from ..table.views import ModelJobDictJson
 from rest_framework import viewsets
+LAST_N_DAYS = FILTER_UI_ENV['DAYS']
 LAST_N_HOURS = FILTER_UI_ENV['HOURS']
+LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 
 _logger = logging.getLogger(__name__)
 
-currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+#currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+currentDateFormat = defaultDatetimeFormat
 WILDCARDS = FILTER_UI_ENV['WILDCARDS']
 INTERVALWILDCARDS = FILTER_UI_ENV['INTERVALWILDCARDS']
 LAST_N_DAYS = FILTER_UI_ENV['DAYS']
+LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 
 # Create your views here.
 def listJobs(request):
+    startdate = (datetime.utcnow() - timedelta(hours=LAST_N_HOURS)\
+                 ).strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     jobList = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
-                        modificationtime__range=[ \
-                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
-                        datetime.utcnow(), \
-                    ]), \
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
                     Jobsactive4.objects.filter(\
-                        modificationtime__range=[ \
-                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
-                        datetime.utcnow(), \
-                    ]), \
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
                     Jobswaiting4.objects.filter(\
-                        modificationtime__range=[ \
-                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
-                        datetime.utcnow(), \
-                    ]), \
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
                     Jobsarchived4.objects.filter(\
-                        modificationtime__range=[ \
-                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
-                        datetime.utcnow(), \
-                    ]), \
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
             )
     _logger.debug('jobList=' + str(jobList))
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
@@ -79,11 +78,21 @@ def listJobs(request):
 
 
 def jobDetails(request, pandaid):
+    startdate = (datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)\
+                 ).strftime(defaultDatetimeFormat)
     jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(pandaid=pandaid), \
-                    Jobsactive4.objects.filter(pandaid=pandaid), \
-                    Jobswaiting4.objects.filter(pandaid=pandaid), \
-                    Jobsarchived4.objects.filter(pandaid=pandaid), \
+                    Jobsdefined4.objects.filter(\
+                        modificationtime__gt=startdate, pandaid=pandaid\
+                    ), \
+                    Jobsactive4.objects.filter(\
+                        modificationtime__gt=startdate, pandaid=pandaid\
+                    ), \
+                    Jobswaiting4.objects.filter(\
+                        modificationtime__gt=startdate, pandaid=pandaid\
+                    ), \
+                    Jobsarchived4.objects.filter(\
+                        modificationtime__gt=startdate, pandaid=pandaid\
+                    ), \
             )
     job = {}
     try:
@@ -117,7 +126,10 @@ def jobInfoDefault(request):
         return render_to_response('pandajob/msg.html', data, RequestContext(request))
 
 
-def jobInfo(request, prodUserName, ndays):
+def jobInfo(request, prodUserName, nhours=24):
+    if (nhours > LAST_N_DAYS_MAX * 24):
+        nhours = LAST_N_DAYS_MAX * 24
+
     ### replace + by space
     _logger.debug('prodUserName: ...%s...' % (prodUserName))
     try:
@@ -131,15 +143,15 @@ def jobInfo(request, prodUserName, ndays):
     jobKeys = ['pandaid', 'jobstatus', 'cpuconsumptiontime', 'creationtime', 'starttime', \
                'endtime', 'modificationhost', 'computingsite', 'produsername']
     datetimeJobKeys = ['creationtime', 'starttime', 'endtime']
+#    try:
+#        ndays = int(nhours) * 24
+#    except:
+#        _logger.error('Something wrong with ndays:' + str(ndays))
     try:
-        ndays = int(ndays)
-    except:
-        _logger.error('Something wrong with ndays:' + str(ndays))
-    try:
-        startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=ndays)
+        startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=nhours)
     except:
         _logger.error('Something wrong with startdate:')
-        startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=3)
+        startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=LAST_N_HOURS)
     enddate = datetime.utcnow().replace(tzinfo=pytz.utc)
     jobs.extend(Jobsactive4.objects.filter(\
                 produsername=prodUserName, \
@@ -177,10 +189,18 @@ def jobInfo(request, prodUserName, ndays):
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     data = {
             'prefix': getPrefix(request),
-            'jobInfo': jobs, 'name': name, 'ndays': ndays,
+            'jobInfo': jobs, 'name': name, 'nhours': nhours,
     }
     data.update(getContextVariables(request))
     return render_to_response('pandajob/info_jobs.html', data, RequestContext(request))
+
+
+def jobInfoHours(request, prodUserName, nhours=1):
+    return jobInfo(request, prodUserName, nhours)
+
+
+def jobInfoDays(request, prodUserName, nhours=1):
+    return jobInfo(request, prodUserName, nhours * 24)
 
 
 class JobsViewSet(viewsets.ModelViewSet):

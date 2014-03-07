@@ -17,7 +17,7 @@ ALLOWED_HOSTS = [
 ]
 
 # Make this unique, and don't share it with anybody.
-from local import dbaccess, MY_SECRET_KEY
+from local import dbaccess, MY_SECRET_KEY, defaultDatetimeFormat
 SECRET_KEY = MY_SECRET_KEY
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -215,6 +215,8 @@ ENV = {
 FILTER_UI_ENV = {
     ### default number of days of shown jobs active in last N days
     'DAYS': 1, \
+    ### max number of days of shown jobs active in last N days
+    'MAXDAYS': 30, \
     ### default number of hours of shown jobs active in last N hours
     'HOURS': 2, \
     ### wildcard for string pattern in filter form
