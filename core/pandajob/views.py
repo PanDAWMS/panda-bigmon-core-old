@@ -32,7 +32,8 @@ LAST_N_DAYS = FILTER_UI_ENV['DAYS']
 LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 
-_logger = logging.getLogger(__name__)
+#_logger = logging.getLogger(__name__)
+_logger = logging.getLogger('bigpandamon')
 
 #currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
 currentDateFormat = defaultDatetimeFormat
@@ -43,8 +44,8 @@ LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 
 # Create your views here.
 def listJobs(request):
-    startdate = (datetime.utcnow() - timedelta(hours=LAST_N_HOURS)\
-                 ).strftime(defaultDatetimeFormat)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+    startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     jobList = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
@@ -78,22 +79,25 @@ def listJobs(request):
 
 
 def jobDetails(request, pandaid):
-    startdate = (datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)\
-                 ).strftime(defaultDatetimeFormat)
+    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
     jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(\
-                        modificationtime__gt=startdate, pandaid=pandaid\
-                    ), \
-                    Jobsactive4.objects.filter(\
-                        modificationtime__gt=startdate, pandaid=pandaid\
-                    ), \
-                    Jobswaiting4.objects.filter(\
-                        modificationtime__gt=startdate, pandaid=pandaid\
-                    ), \
-                    Jobsarchived4.objects.filter(\
-                        modificationtime__gt=startdate, pandaid=pandaid\
-                    ), \
-            )
+        Jobsdefined4.objects.filter(\
+            modificationtime__gt=startdate.strftime(defaultDatetimeFormat), \
+            pandaid=pandaid\
+        ), \
+        Jobsactive4.objects.filter(\
+            modificationtime__gt=startdate.strftime(defaultDatetimeFormat), \
+            pandaid=pandaid\
+        ), \
+        Jobswaiting4.objects.filter(\
+            modificationtime__gt=startdate.strftime(defaultDatetimeFormat), \
+            pandaid=pandaid\
+        ), \
+        Jobsarchived4.objects.filter(\
+            modificationtime__gt=startdate.strftime(defaultDatetimeFormat), \
+            pandaid=pandaid\
+        ), \
+    )
     job = {}
     try:
         job = jobs[0]
@@ -126,9 +130,14 @@ def jobInfoDefault(request):
         return render_to_response('pandajob/msg.html', data, RequestContext(request))
 
 
-def jobInfo(request, prodUserName, nhours=24):
-    if (nhours > LAST_N_DAYS_MAX * 24):
-        nhours = LAST_N_DAYS_MAX * 24
+def jobInfo(request, prodUserName, nhours=LAST_N_HOURS):
+    _logger.debug('nhours: ...%s...' % (nhours))
+    try:
+        nhours = int(nhours)
+        if (nhours > LAST_N_DAYS_MAX * 24):
+            nhours = LAST_N_DAYS_MAX * 24
+    except:
+        _logger.error('Something wrong with nhours:' + str(nhours))
 
     ### replace + by space
     _logger.debug('prodUserName: ...%s...' % (prodUserName))
@@ -152,7 +161,8 @@ def jobInfo(request, prodUserName, nhours=24):
     except:
         _logger.error('Something wrong with startdate:')
         startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=LAST_N_HOURS)
-    enddate = datetime.utcnow().replace(tzinfo=pytz.utc)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().replace(tzinfo=pytz.utc).strftime(defaultDatetimeFormat)
     jobs.extend(Jobsactive4.objects.filter(\
                 produsername=prodUserName, \
                 modificationtime__range=[startdate, enddate] \
@@ -195,11 +205,11 @@ def jobInfo(request, prodUserName, nhours=24):
     return render_to_response('pandajob/info_jobs.html', data, RequestContext(request))
 
 
-def jobInfoHours(request, prodUserName, nhours=1):
+def jobInfoHours(request, prodUserName, nhours=LAST_N_HOURS):
     return jobInfo(request, prodUserName, nhours)
 
 
-def jobInfoDays(request, prodUserName, nhours=1):
+def jobInfoDays(request, prodUserName, nhours=LAST_N_DAYS * 24):
     return jobInfo(request, prodUserName, nhours * 24)
 
 
