@@ -82,8 +82,8 @@ class HTCondorJob(models.Model):
         allColumns = [\
             'owner', 'wmsid', 'globaljobid', 'condorid', 'submitted', \
             'run_time', 'st', 'pri', 'size', 'cmd', 'host', 'status', \
-            'manager', 'executable', 'goodput', 'cpu_util', 'mbps', 'read_', \
-            'write_', 'seek', 'xput', 'bufsize', 'blocksize', 'cpu_time', \
+            'manager', 'executable', 'goodput', 'cpu_util', 'mbps', 'read_field', \
+            'write_field', 'seek', 'xput', 'bufsize', 'blocksize', 'cpu_time', \
             'p_start_time', 'p_end_time', 'p_modif_time', 'p_factory', \
             'p_schedd', 'p_description', 'p_stdout', 'p_stderr' \
         ]
@@ -93,8 +93,8 @@ class HTCondorJob(models.Model):
         ]
         secondaryColumns = [\
             'condorid', 'size', 'cmd', 'host', \
-            'manager', 'executable', 'goodput', 'cpu_util', 'mbps', 'read_', \
-            'write_', 'seek', 'xput', 'bufsize', 'blocksize', 'cpu_time', \
+            'manager', 'executable', 'goodput', 'cpu_util', 'mbps', 'read_field', \
+            'write_field', 'seek', 'xput', 'bufsize', 'blocksize', 'cpu_time', \
             'p_start_time', 'p_end_time', 'p_modif_time', 'p_factory', \
             'p_schedd', 'p_description', 'p_stdout', 'p_stderr' \
         ]
@@ -125,8 +125,8 @@ class HTCondorJob(models.Model):
                 {'c': 'goodput', 't': 'goodput', 'sort': False, "vis": False}, \
                 {'c': 'cpu_util', 't': 'cpu_util', 'sort': False, "vis": False}, \
                 {'c': 'mbps', 't': 'mbps', 'sort': False, "vis": False}, \
-                {'c': 'read_', 't': 'read_', 'sort': False, "vis": False}, \
-                {'c': 'write_', 't': 'write_', 'sort': False, "vis": False}, \
+                {'c': 'read_field', 't': 'read_field', 'sort': False, "vis": False}, \
+                {'c': 'write_field', 't': 'write_field', 'sort': False, "vis": False}, \
                 {'c': 'seek', 't': 'seek', 'sort': False, "vis": False}, \
                 {'c': 'xput', 't': 'xput', 'sort': False, "vis": False}, \
                 {'c': 'bufsize', 't': 'bufsize', 'sort': False, "vis": False}, \

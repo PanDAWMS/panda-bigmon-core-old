@@ -28,6 +28,7 @@ from ..common.utils import getPrefix, getContextVariables, \
 #from .datatablesviews import ModelJobDictJson
 from ..table.views import ModelJobDictJson
 from rest_framework import viewsets
+LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 
 _logger = logging.getLogger(__name__)
 
@@ -39,10 +40,26 @@ LAST_N_DAYS = FILTER_UI_ENV['DAYS']
 # Create your views here.
 def listJobs(request):
     jobList = QuerySetChain(\
-                    Jobsdefined4.objects.order_by('pandaid'), \
-                    Jobsactive4.objects.order_by('pandaid'), \
-                    Jobswaiting4.objects.order_by('pandaid'), \
-                    Jobsarchived4.objects.order_by('pandaid'), \
+                    Jobsdefined4.objects.filter(\
+                        modificationtime__range=[ \
+                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
+                        datetime.utcnow(), \
+                    ]), \
+                    Jobsactive4.objects.filter(\
+                        modificationtime__range=[ \
+                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
+                        datetime.utcnow(), \
+                    ]), \
+                    Jobswaiting4.objects.filter(\
+                        modificationtime__range=[ \
+                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
+                        datetime.utcnow(), \
+                    ]), \
+                    Jobsarchived4.objects.filter(\
+                        modificationtime__range=[ \
+                        datetime.utcnow() - timedelta(hours=LAST_N_HOURS), \
+                        datetime.utcnow(), \
+                    ]), \
             )
     _logger.debug('jobList=' + str(jobList))
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
