@@ -19,10 +19,13 @@
 	<th>End</th>
 	<th>Site</th>
 	<th>Prio</th>
+<tr>
+	<th colspan="10">Job name</th>
+</tr>
 </tr>
     {% for job in jobList %}
 	<tr>
-		<td><a href="{% url 'jobInfo' job.produsername|safe 3  %}">{{ job.produsername }}</a>
+		<td><a href="{% url 'jobInfo' job.produsername|safe 12  %}">{{ job.produsername }}</a>
 			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}
 			{% if job.vo %}/{{ job.vo }}{% endif %}
 		</td>
@@ -34,6 +37,9 @@
 		<td>{{ job.endtime|date:"M d, H:i" }}</td>
 		<td>{{ job.computingsite }}</td>
 		<td>{{ job.currentpriority }}</td>
+	</tr>
+	<tr>
+		<td colspan="10">{{ job.jobname }}</td>
 	</tr>
     {% endfor %}
 </table>
