@@ -47,6 +47,8 @@ def listJobs(request):
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    _logger.debug("startdate = " + str(startdate))
+    _logger.debug("enddate = " + str(enddate))
     jobList = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
@@ -61,9 +63,10 @@ def listJobs(request):
                         modificationtime__range=[startdate, enddate]\
                     ), \
             )
-    _logger.debug('jobList=' + str(jobList))
+    _logger.debug('|jobList|=' + str(len(jobList)))
+    _logger.debug('jobList[:30]=' + str(jobList[:30]))
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
-    _logger.debug('jobList=' + str(jobList))
+    _logger.debug('jobList[:30]=' + str(jobList[:30]))
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
