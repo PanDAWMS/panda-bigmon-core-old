@@ -12,7 +12,7 @@ from django.contrib import admin
 
 common_patterns = patterns('',
     ### Applications
-    url(r'^api-auth/htcondorapi', include('core.api.htcondorapi.urls')),
+    url(r'^htcondor', include('core.api.htcondorapi.urls')),
 
 )
 
