@@ -266,7 +266,7 @@ class DataTable(object):
             if qfilter is None:
                 qfilter = q
             else:
-                qfilter |= q
+                qfilter &= q
         if qfilter:
             qs = qs.filter(qfilter)
         return qs
