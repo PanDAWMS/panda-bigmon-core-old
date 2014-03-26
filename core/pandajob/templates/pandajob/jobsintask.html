@@ -61,7 +61,7 @@
 					}
 				});
 
-				$('#example').dataTable( {
+				$('#{{ tableid_joblist }}').dataTable( {
 					"bProcessing": true,
 					"bServerSide": true,
 					"bPaginate": true,
@@ -149,7 +149,8 @@
 	</script>
 {% endblock %}
 {% block body %}
-<table id="example" width="100%">
+<table id="table-filter-{{ tableid_joblist }}" ></table>
+<table id="{{ tableid_joblist }}" width="100%">
 	<thead>
 		<tr>
 			<th width="25%">Owner</th>

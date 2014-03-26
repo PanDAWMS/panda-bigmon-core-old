@@ -469,14 +469,9 @@ def jediJobsInTask(request):
     ### get reverse url of the data view
     dataUrl = reverse(reverseUrl)
     ### get aoColumns pre-config
-#    aoColumns = [FILTER_UI_ENV['EXPAND_BUTTON']]
-#    aoColumns += getAoColumnsDictWithTitles(PandaJob._meta.columnTitles)
-
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
-
-
-
+    ### get indices of columns to refer by name in render javascript function
     fieldIndices = {}
     for col in ORDER_COLUMNS[reverseUrl]:
         i = None
@@ -485,15 +480,15 @@ def jediJobsInTask(request):
         except:
             pass
         fieldIndices[col] = i
-
-    _logger.debug('columns:' + str(COL_TITLES[reverseUrl]))
+    ### set request response data
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \
             'columns': json_dumps(aoColumns), \
-            'fieldIndices': json_dumps(fieldIndices) \
+            'fieldIndices': json_dumps(fieldIndices), \
+            'tableid_joblist': 'jediJobsInTask', \
     }
     data.update(getContextVariables(request))
-    return render_to_response('pandajob/jobsintask.html', data, RequestContext(request))
+    return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
 
 
