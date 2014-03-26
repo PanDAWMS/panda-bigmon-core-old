@@ -160,7 +160,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         _logger.debug('mark')
         data = serializer.data
         newData = self.skimData(data, self.columns)
-        newData = self.dataDictToList(newData, self.order_columns)
+#        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
         _logger.debug('data=' + str(newData))
 #        return data

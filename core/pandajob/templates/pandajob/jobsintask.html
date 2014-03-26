@@ -42,7 +42,10 @@
 		        // or any other URL that isn't scheme relative or absolute i.e relative.
 		        !(/^(\/\/|http:|https:).*/.test(url));
 		}
-			$(document).ready(function() {
+		
+		var colsOrig = {{ columns|safe }};
+		
+		$(document).ready(function() {
 				$.ajaxSetup({
 					beforeSend: function(xhr, settings) {
 						if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
@@ -58,13 +61,14 @@
 					"bProcessing": true,
 					"bServerSide": true,
 					"sAjaxSource": "{{ datasrc }}",
-					"sServerMethod": "POST"
+					"sServerMethod": "POST",
+					"aoColumns": colsOrig 
 				} );
 			} );
 		</script>  
 {% endblock %}
 {% block body %}
-<table id="example">
+<table id="example" width="100%">
 	<thead>
 		<tr>
 			<th>Owner</th>

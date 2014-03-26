@@ -475,7 +475,7 @@ def jediJobsInTask(request):
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
 
-
+    _logger.debug('columns:')
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \

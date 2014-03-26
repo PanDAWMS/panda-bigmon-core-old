@@ -66,11 +66,11 @@ def getAoColumnsDictWithTitles(columnDescriptionList):
             fvis = "false"
         fsort = fvis
         data.append({\
-                "sTitle": item['t'], \
-                "mDataProp": item['c'], \
-                "bSearchable": True, \
-                "bSortable": fsort, \
-                "bVisible": fvis, \
+                'sTitle': item['t'], \
+                'mDataProp': item['c'], \
+                'bSearchable': True, \
+                'bSortable': fsort, \
+                'bVisible': fvis, \
             })
     return data
 
