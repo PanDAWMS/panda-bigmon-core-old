@@ -3,18 +3,20 @@ utils
 
 """
 import logging
+import pytz
 from itertools import islice, chain
 #from ..settings import STATIC_URL, ENV
 #from settings import STATIC_URL, FILTER_UI_ENV
 #from django.conf.settings import STATIC_URL, FILTER_UI_ENV
 from django.conf import settings
 #.settings import STATIC_URL, FILTER_UI_ENV
-
+import datetime
 
 try:
     from settings import URL_PATH_PREFIX
 except ImportError:
     URL_PATH_PREFIX = None
+MINDATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=pytz.utc)
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('bigpandamon')
@@ -111,6 +113,10 @@ class QuerySetChain(object):
         else:
             return islice(self._all(), ndx, ndx + 1).next()
 
+    def sortNoneDatetime(self, x, field):
+        return x[field] or MINDATETIME
+        
+
     def order_by(self, *field_names):
         """
         Returns a new QuerySetChain instance with the ordering changed.
@@ -123,9 +129,17 @@ class QuerySetChain(object):
                 ### lambda x:-x[field[1:]] is failing with TypeError
                 ### for -datetime.datetime,
                 ###     --> use reverse instead
-                ret = sorted(ret, key=lambda x:x[field[1:]], reverse=True)
+#                ret = sorted(ret, key=lambda x:x[field[1:]], reverse=True)
+                try:
+                    ret = sorted(ret, key=operator.itemgetter(field[1:]), reverse=True)
+                except:
+                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field[1:]), reverse=True)
             else:
-                ret = sorted(ret, key=lambda x:x[field], reverse=False)
+#                ret = sorted(ret, key=lambda x:x[field], reverse=False)
+                try:
+                    ret = sorted(ret, key=operator.itemgetter(field), reverse=False)
+                except:
+                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field), reverse=False)
         return ret
 
     @property

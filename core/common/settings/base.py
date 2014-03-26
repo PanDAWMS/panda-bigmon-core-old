@@ -18,6 +18,8 @@ MANAGERS = ADMINS
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGE_NAME = 'English'
+LANGUAGE_NAME_LOCAL = 'English'
 
 TIME_ZONE = 'UTC'
 
@@ -29,6 +31,8 @@ USE_TZ = True
 
 # Site ID
 SITE_ID = 1
+
+
 
 
 # List of finder classes that know how to find static files in
@@ -98,16 +102,22 @@ INSTALLED_APPS_BIGPANDAMON_CORE = (
     ### BigPanDAmon core
     'core.common',
     'core.table',
-#    'core.graphics', #NOT-IMPLEMENTED
     'core.pandajob',
     'core.resource',
     'core.htcondor',
-#    'core.task', #NOT-IMPLEMENTED
+    'core.datatables',
+#    'core.graphic', #NOT-IMPLEMENTED
+    'core.gspread',
 )
 COMMON_INSTALLED_APPS = \
     INSTALLED_APPS_DJANGO_FRAMEWORK + \
     INSTALLED_APPS_DJANGO_PLUGINS
 INSTALLED_APPS = COMMON_INSTALLED_APPS + INSTALLED_APPS_BIGPANDAMON_CORE
+
+
+### Django.js config
+JS_I18N_APPS = ()
+JS_I18N_APPS_EXCLUDE = INSTALLED_APPS_BIGPANDAMON_CORE
 
 
 VERSION = core.common.__versionstr__

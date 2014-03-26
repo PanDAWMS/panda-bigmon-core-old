@@ -144,6 +144,23 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         return newData
 
 
+    def removeNones(self, data, orderColumns):
+        newData = []
+        for item in data:
+            newItem = {}
+            for col in orderColumns:
+                value = ""
+                try:
+                    value = item[col]
+                    if value is None:
+                        value = ""
+                    newItem[col] = value
+                except:
+                    pass
+            newData.append(newItem)
+        return newData
+
+
     def prepare_results(self, qs):
         """
             prepare_results super's prepare_results to get list of dicts instead of list of lists
@@ -160,6 +177,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         _logger.debug('mark')
         data = serializer.data
         newData = self.skimData(data, self.columns)
+        newData = self.removeNones(newData, self.columns)
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
         _logger.debug('data=' + str(newData))
@@ -173,7 +191,8 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                                   is described by 4 different models
         
         """
-###DEBUG###    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+###DEBUG###        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+###DEBUG###        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
         startdate = datetime.utcnow() - timedelta(minutes=2)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
@@ -193,8 +212,8 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #            )
         qs = QuerySetChain(\
                     Jobsactive4.objects.filter(\
-                            jeditaskid=4000195
-                        ,
+                            jeditaskid=4000195, \
+#                            modificationtime__range=[startdate, enddate], \
                     ), \
             )
         return qs
@@ -207,8 +226,8 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
     def filter_queryset(self, qs):
         qs = QuerySetChain(\
                     Jobsactive4.objects.filter(\
-                            jeditaskid=4000195
-                        ,
+                            jeditaskid=4000195, \
+#                            modificationtime__range=[startdate, enddate], \
                     ), \
             )
         return qs
@@ -278,6 +297,10 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 filter qs or querychain with the query
         """
         return QuerySetChain(\
+#                    Jobsactive4.objects.filter(\
+#                            jeditaskid=4000195, \
+#                            modificationtime__range=[startdate, enddate], \
+#                    ), \
                     Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
                     Jobswaiting4.objects.filter(**query), \

@@ -475,6 +475,8 @@ def jediJobsInTask(request):
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
 
+
+
     fieldIndices = {}
     for col in ORDER_COLUMNS[reverseUrl]:
         i = None
@@ -484,7 +486,7 @@ def jediJobsInTask(request):
             pass
         fieldIndices[col] = i
 
-    _logger.debug('columns:')
+    _logger.debug('columns:' + str(COL_TITLES[reverseUrl]))
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \

@@ -11,6 +11,9 @@ ALLOWED_HOSTS = [
     ### cern.ch
     '.cern.ch',  # Allow domain and subdomains
     '.cern.ch.',  # Also allow FQDN and subdomains
+    ### bigpanda.cern.ch
+    'bigpanda.cern.ch',  # Allow domain and subdomains
+    'bigpanda.cern.ch.',  # Also allow FQDN and subdomains
     ### pandawms.org
     '.pandawms.org',  # Allow domain and subdomains
     '.pandawms.org.',  # Also allow FQDN and subdomains

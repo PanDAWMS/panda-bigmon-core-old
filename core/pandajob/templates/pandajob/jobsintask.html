@@ -14,16 +14,15 @@
 </style>
 {% endblock %}
 {% block extra_js %}
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.cookie.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.dataTables.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
-{% comment %}
-		<script type="text/javascript" src="{{ STATIC_URL }}/js/djangojs/django.js"></script>
-{% endcomment %}
-		{% django_js jquery=false i18n=true csrf=false %}
-		<script type="text/javascript" charset="utf-8">
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
+
+	{% django_js jquery=false i18n=true csrf=false %}
+
+	<script type="text/javascript" charset="utf-8">
 		// AJAX setup with CSRF protection
 		var csrftoken = $.cookie('csrftoken');
 		
@@ -61,10 +60,11 @@
 						}
 					}
 				});
-			
+
 				$('#example').dataTable( {
 					"bProcessing": true,
 					"bServerSide": true,
+					"bPaginate": true,
 					"sAjaxSource": "{{ datasrc }}",
 					"sServerMethod": "POST",
 					"aoColumns": colsOrig, 
@@ -72,13 +72,20 @@
 						// produsername + workinggroup
 						{
 							"mRender": function ( data, type, row ) {
-								return data +'/'+ row.workinggroup;
+//								var a = '<a href="'
+//									+ '{{ prefix }}' 
+//									+ Django.url('jobInfo', {'prodUserName': data, 'nhours': 72})
+//									+ '" target="_blank">' +
+//									data + '</a>' +' / '+ row.workinggroup;
+//								return a;
+								return data + ' / ' + row.workinggroup;
 							},
 							"aTargets": [ fieldIndices.produsername ]
 						},
 						// JEDI Task ID
 						{
 							"mRender": function ( data, type, row ) {
+							// TODO: add link to task page
 								return data;
 							},
 							"aTargets": [ fieldIndices.jeditaskid ]
@@ -98,31 +105,65 @@
 						// Job status
 						{
 							"mRender": function ( data, type, row ) {
-								return data;
+								if (data === 'failed'){
+									var a = 
+										'<span style="color:red;">'
+										+ data
+										+ '</span>';
+									return a;
+								} else {
+									return data;
+								};
 							},
 							"aTargets": [ fieldIndices.jobstatus ]
 						},
+						// Date and time format
+						{
+							"mRender": function ( data, type, row ) {
+								if (data === ''){
+									return data;
+								} else {
+									var d = new Date(data);
+									return d.toLocaleFormat( "%m-%d %H:%M" );
+								}
+							},
+							"aTargets": [ 
+								fieldIndices.creationtime, 
+								fieldIndices.modificationtime, 
+								fieldIndices.starttime, 
+								fieldIndices.endtime, 
+							 ]
+						},
+						// Site+Cloud
+						{
+							"mRender": function ( data, type, row ) {
+							// TODO: add link to site activity page
+								return row.cloud + '.'+ data ;
+							},
+							"aTargets": [ fieldIndices.computingsite ]
+						},
+						{ "bVisible": false, "aTargets": [ fieldIndices.cloud ] }
 					]
 				} );
 			} );
-		</script>  
+	</script>
 {% endblock %}
 {% block body %}
 <table id="example" width="100%">
 	<thead>
 		<tr>
-			<th>Owner</th>
-			<th>WG</th>
-			<th>JEDI Task ID</th>
-			<th>PanDA ID</th>
-			<th>Status</th>
-			<th>Created</th>
-			<th>Modified</th>
-			<th>Start</th>
-			<th>End</th>
-			<th>Cloud</th>
-			<th>Site</th>
-			<th>Prio</th>
+			<th width="25%">Owner</th>
+			<th width="0%">WG</th>
+			<th width="10%">JEDI Task ID</th>
+			<th width="10%">PanDA ID</th>
+			<th width="7%">Status</th>
+			<th width="7%">Created</th>
+			<th width="7%">Modified</th>
+			<th width="7%">Start</th>
+			<th width="7%">End</th>
+			<th width="0%">Cloud</th>
+			<th width="15%">Site</th>
+			<th width="3%">Prio</th>
 		</tr>
 	</thead>
 	<tbody>

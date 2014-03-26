@@ -2,12 +2,16 @@
     pandajob.columns_config
 
 """
+import logging
+_logger = logging.getLogger('bigpandamon')
 
 COLUMNS = {}
 ORDER_COLUMNS = {}
 COL_TITLES = {}
 FILTERS = {}
+UPDATE_COL_TITLES = {}
 
+DEFAULT_COLDEF = {'sort': True, 'vis': True, 'c': '', 't': ''}
 
 def skimColumns(myColumnsID, allColumnsID):
     """
@@ -40,11 +44,26 @@ def getTitles(myColumnsID, allColumnsID):
     """
     titles = []
     try:
-        myCols = ORDER_COLUMNS[myColumnsID]
-        titles = [ x for colname in myCols for x in COL_TITLES[allColumnsID] if x['c'] == colname ]
+#        myCols = ORDER_COLUMNS[myColumnsID]
+#        titles = [ x for colname in myCols for x in COL_TITLES[allColumnsID] if x['c'] == colname ]
+        for colname in ORDER_COLUMNS[myColumnsID]:
+            colDef = {}
+            try:
+                colDef = [x for x in COL_TITLES[allColumnsID] \
+                          if x['c'] == colname ][0]
+                if colname in UPDATE_COL_TITLES[myColumnsID].keys():
+                    colDef.update(UPDATE_COL_TITLES[myColumnsID][colname])
+            except:
+                colDef = colDef.update(DEFAULT_COLDEF)
+                colDef['c'] = colname
+                colDef['t'] = colname
+            titles.append(colDef)
     except:
         return titles
+
     return titles
+
+
 
 
 
@@ -82,8 +101,8 @@ ORDER_COLUMNS['PanDAjob-all'] = [\
 COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': True, 'c': 'pandaid', 't': 'PanDA ID'}, \
     {'sort': True, 'vis': True, 'c': 'jobdefinitionid', 't': 'Job Definition ID'}, \
-    {'sort': True, 'vis': True, 'c': 'creationtime', 't': 'Creation Time'}, \
-    {'sort': True, 'vis': True, 'c': 'modificationtime', 't': 'Modification Time'}, \
+    {'sort': True, 'vis': True, 'c': 'creationtime', 't': 'Created'}, \
+    {'sort': True, 'vis': True, 'c': 'modificationtime', 't': 'Modified'}, \
     {'sort': True, 'vis': True, 'c': 'jobstatus', 't': 'Job Status'}, \
     {'sort': True, 'vis': True, 'c': 'currentpriority', 't': 'Current Priority'}, \
     {'sort': True, 'vis': True, 'c': 'cloud', 't': 'Cloud'}, \
@@ -108,8 +127,8 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'ipconnectivity', 't': 'IP Connectivity'}, \
     {'sort': True, 'vis': False, 'c': 'minramcount', 't': 'Min RAM count'}, \
     {'sort': True, 'vis': False, 'c': 'minramunit', 't': 'Unit of Min RAM count'}, \
-    {'sort': True, 'vis': True, 'c': 'starttime', 't': 'Start Time'}, \
-    {'sort': True, 'vis': True, 'c': 'endtime', 't': 'End Time'}, \
+    {'sort': True, 'vis': True, 'c': 'starttime', 't': 'Started'}, \
+    {'sort': True, 'vis': True, 'c': 'endtime', 't': 'Ended'}, \
     {'sort': True, 'vis': False, 'c': 'cpuconsumptiontime', 't': 'CPU Consumption time'}, \
     {'sort': True, 'vis': False, 'c': 'cpuconsumptionunit', 't': 'Unit of CPU Consumption time'}, \
     {'sort': True, 'vis': False, 'c': 'commandtopilot', 't': 'Command to pilot'}, \
@@ -151,7 +170,7 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'jobexecutionid', 't': 'Job Execution ID'}, \
     {'sort': True, 'vis': False, 'c': 'vo', 't': 'VO'}, \
     {'sort': True, 'vis': False, 'c': 'pilottiming', 't': 'Pilot timing'}, \
-    {'sort': True, 'vis': False, 'c': 'workinggroup', 't': 'Working Group'}, \
+    {'sort': True, 'vis': True, 'c': 'workinggroup', 't': 'Working Group'}, \
     {'sort': True, 'vis': False, 'c': 'processingtype', 't': 'Processing Type'}, \
     {'sort': True, 'vis': True, 'c': 'produsername', 't': 'Owner'}, \
     {'sort': True, 'vis': False, 'c': 'ninputfiles', 't': 'N input files'}, \
@@ -171,6 +190,7 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'workqueue_id', 't': 'Work queue ID'}, \
     {'sort': True, 'vis': True, 'c': 'jeditaskid', 't': 'JEDI Task ID'}, \
 ]
+UPDATE_COL_TITLES['PanDAjob-all'] = {}
 FILTERS['PanDAjob-all'] = [ \
 #            # .starttime
 #            { 'name': 'fStartFrom', 'field': 'starttime', 'filterField': 'starttime__gte', 'type': 'datetime' }, \
@@ -193,8 +213,17 @@ ORDER_COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
         'creationtime', 'modificationtime', 'starttime', 'endtime', \
         'cloud', 'computingsite', 'currentpriority' \
     ]
+UPDATE_COL_TITLES['api-datatables-jedi-jobs-in-task'] = { \
+    'workinggroup': {'vis': False, 'sort': False}, \
+    'cloud': {'vis': False, 'sort': False}, \
+}
 COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
     getTitles('api-datatables-jedi-jobs-in-task', 'PanDAjob-all')
+#COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
+#    updateTitles('api-datatables-jedi-jobs-in-task', \
+#                 COL_TITLES['api-datatables-jedi-jobs-in-task'], \
+#                 updateColTitlesData\
+#    )
 FILTERS['api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
 
 
