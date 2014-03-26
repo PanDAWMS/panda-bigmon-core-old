@@ -30,7 +30,9 @@ DATABASES = dbaccess
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-LOG_ROOT = '/data/bigpandamon/bigpandamon/logs/'
+#LOG_ROOT = '/data/bigpandamon/bigpandamon/logs/'
+LOG_ROOT = "/data/bigpandamon_virtualhosts/jedimon/logs"
+LOG_SIZE = 1000000000
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -49,7 +51,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': LOG_ROOT + "/logfile.bigpandamon",
-            'maxBytes': 1000000000,
+            'maxBytes': LOG_SIZE,
             'backupCount': 2,
             'formatter': 'verbose',
         },
@@ -57,7 +59,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': LOG_ROOT + "/logfile.django",
-            'maxBytes': 1000000000,
+            'maxBytes': LOG_SIZE,
             'backupCount': 2,
             'formatter': 'verbose',
         },
@@ -65,7 +67,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': LOG_ROOT + "/logfile.viewdatatables",
-            'maxBytes': 1000000000,
+            'maxBytes': LOG_SIZE,
             'backupCount': 2,
             'formatter': 'verbose',
         },
@@ -73,7 +75,15 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': LOG_ROOT + "/logfile.rest",
-            'maxBytes': 1000000000,
+            'maxBytes': LOG_SIZE,
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
+        'logfile-jedi_jobsintask': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_ROOT + "/logfile.jedi_jobsintask",
+            'maxBytes': LOG_SIZE,
             'backupCount': 2,
             'formatter': 'verbose',
         },
@@ -110,6 +120,10 @@ LOGGING = {
             'handlers': ['logfile-bigpandamon'],
             'level': 'DEBUG',
         },
+        'jedi_jobsintask': {
+            'handlers': ['logfile-jedi_jobsintask'],
+            'level': 'DEBUG',
+        },
     },
     'formatters': {
         'verbose': {
@@ -124,7 +138,7 @@ LOGGING = {
         'level':'DEBUG',
         'class':'logging.handlers.RotatingFileHandler',
         'filename': LOG_ROOT + "/logfile",
-        'maxBytes': 10000000,
+        'maxBytes': LOG_SIZE,
         'backupCount': 5,
         'formatter': 'verbose',
     },
@@ -133,27 +147,31 @@ LOGGING = {
 # media
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/data/bigpandamon/bigpandamon/media/'
+#MEDIA_ROOT = '/data/bigpandamon/bigpandamon/media/'
+MEDIA_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/media/"
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 #MEDIA_URL = '/media/'
-MEDIA_URL_BASE = '/media-common/'
+#MEDIA_URL_BASE = '/media-common/'
+MEDIA_URL_BASE = '/jedimonmedia/'
 
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/data/bigpandamon/bigpandamon/static/'
+#STATIC_ROOT = '/data/bigpandamon/bigpandamon/static/'
+STATIC_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/static/"
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 #STATIC_URL = '/static/'
-STATIC_URL_BASE = '/static-common/'
+#STATIC_URL_BASE = '/static-common/'
+STATIC_URL_BASE = '/jedimonstatic/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -170,10 +188,11 @@ STATICFILES_DIRS = (
 
 
 ### VIRTUALENV
-VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6'
+VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6__jedimon'
 
 ### WSGI
-WSGI_PATH = VIRTUALENV_PATH + '/bigpandamon'
+#WSGI_PATH = VIRTUALENV_PATH + '/bigpandamon'
+WSGI_PATH = VIRTUALENV_PATH + '/jedimon'
 
 
 ### topology
@@ -193,7 +212,8 @@ CUSTOM_DB_FIELDS = {
 
 ### URL_PATH_PREFIX for multi-developer apache/wsgi instance
 ### on EC2: URL_PATH_PREFIX = '/bigpandamon' or URL_PATH_PREFIX = '/developersprefix'
-URL_PATH_PREFIX = '/bigpandamon-common'
+#URL_PATH_PREFIX = '/bigpandamon-common'
+URL_PATH_PREFIX = '/jedimon'
 ### on localhost:8000: URL_PATH_PREFIX = '/.'
 #URL_PATH_PREFIX = ''
 #MEDIA_URL = URL_PATH_PREFIX + MEDIA_URL

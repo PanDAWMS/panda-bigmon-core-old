@@ -59,6 +59,7 @@ def getAoColumnsDict(columnList):
 def getAoColumnsDictWithTitles(columnDescriptionList):
     data = []
     for item in columnDescriptionList:
+        _logger.debug('item=' + str(item))
         try:
             fvis = item['vis']
         except KeyError:
