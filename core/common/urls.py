@@ -33,6 +33,7 @@ common_patterns = patterns('',
 #    url(r'^task/', include('core.task.urls')),
 
 
+
 #    ### TEST/Playground
 #    url(r'^test_playground/$', common_views.testing, name='testing'),
 #    url(r'^htc4/$', htcondor_views.list3HTCondorJobs, name='htc4'),
@@ -45,6 +46,7 @@ common_patterns = patterns('',
 
     ### Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+
 
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -475,11 +475,21 @@ def jediJobsInTask(request):
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
 
+    fieldIndices = {}
+    for col in ORDER_COLUMNS[reverseUrl]:
+        i = None
+        try:
+            i = ORDER_COLUMNS[reverseUrl].index(col)
+        except:
+            pass
+        fieldIndices[col] = i
+
     _logger.debug('columns:')
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \
             'columns': json_dumps(aoColumns), \
+            'fieldIndices': json_dumps(fieldIndices) \
     }
     data.update(getContextVariables(request))
     return render_to_response('pandajob/jobsintask.html', data, RequestContext(request))

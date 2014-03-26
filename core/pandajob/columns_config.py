@@ -151,7 +151,7 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'jobexecutionid', 't': 'Job Execution ID'}, \
     {'sort': True, 'vis': False, 'c': 'vo', 't': 'VO'}, \
     {'sort': True, 'vis': False, 'c': 'pilottiming', 't': 'Pilot timing'}, \
-    {'sort': True, 'vis': True, 'c': 'workinggroup', 't': 'Working Group'}, \
+    {'sort': True, 'vis': False, 'c': 'workinggroup', 't': 'Working Group'}, \
     {'sort': True, 'vis': False, 'c': 'processingtype', 't': 'Processing Type'}, \
     {'sort': True, 'vis': True, 'c': 'produsername', 't': 'Owner'}, \
     {'sort': True, 'vis': False, 'c': 'ninputfiles', 't': 'N input files'}, \

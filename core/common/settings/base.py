@@ -92,6 +92,7 @@ INSTALLED_APPS_DJANGO_PLUGINS = (
     ### Django plugins
     'rest_framework',  #pip install djangorestframework, version 2.3.10
     'django_datatables_view',  #pip install django-datatables-view, version 1.6
+    'djangojs',  #pip install django.js, version 0.8.1
 )
 INSTALLED_APPS_BIGPANDAMON_CORE = (
     ### BigPanDAmon core

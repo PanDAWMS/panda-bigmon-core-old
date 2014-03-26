@@ -1,4 +1,4 @@
-{% extends "_base_bigpandamon.html" %}{% load url from future %}
+{% extends "_base_bigpandamon.html" %}{% load url from future %}{% load js %}
 {% block subtitle %}List of jobs{% endblock %}
 {% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
 {% block header-nav-chain-2 %}<a href="{% url 'jobList' %}">List of jobs</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
@@ -19,6 +19,10 @@
 		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.dataTables.js"></script>
 		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
 		<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
+{% comment %}
+		<script type="text/javascript" src="{{ STATIC_URL }}/js/djangojs/django.js"></script>
+{% endcomment %}
+		{% django_js jquery=false i18n=true csrf=false %}
 		<script type="text/javascript" charset="utf-8">
 		// AJAX setup with CSRF protection
 		var csrftoken = $.cookie('csrftoken');
@@ -44,6 +48,7 @@
 		}
 		
 		var colsOrig = {{ columns|safe }};
+		var fieldIndices = {{ fieldIndices|safe }};
 		
 		$(document).ready(function() {
 				$.ajaxSetup({
@@ -62,7 +67,42 @@
 					"bServerSide": true,
 					"sAjaxSource": "{{ datasrc }}",
 					"sServerMethod": "POST",
-					"aoColumns": colsOrig 
+					"aoColumns": colsOrig, 
+					"aoColumnDefs": [
+						// produsername + workinggroup
+						{
+							"mRender": function ( data, type, row ) {
+								return data +'/'+ row.workinggroup;
+							},
+							"aTargets": [ fieldIndices.produsername ]
+						},
+						// JEDI Task ID
+						{
+							"mRender": function ( data, type, row ) {
+								return data;
+							},
+							"aTargets": [ fieldIndices.jeditaskid ]
+						},
+						// PanDA ID
+						{
+							"mRender": function ( data, type, row ) {
+							var a = '<a href="'
+										+ '{{ prefix }}' 
+										+ Django.url('jobDetails', {'pandaid': data})
+									+ '" target="_blank">' + data + '</a>'
+								;
+								return a;
+							},
+							"aTargets": [ fieldIndices.pandaid ]
+						},
+						// Job status
+						{
+							"mRender": function ( data, type, row ) {
+								return data;
+							},
+							"aTargets": [ fieldIndices.jobstatus ]
+						},
+					]
 				} );
 			} );
 		</script>  
