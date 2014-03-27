@@ -105,6 +105,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
     # define the columns that will be returned
 #    columns = PandaJob._meta.allColumns
     columns = COLUMNS[reverseUrl]
+    filterFields = FILTERS[reverseUrl]
 
     # define column names that will be used in sorting
     # order is important and should be same as order of columns
@@ -223,7 +224,12 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         return super(PandaJobDictJsonJobsInTask, self).get_context_data(*args, **kwargs)
 
 
-    def filter_queryset(self, qs):
+    def filter_querysetOld(self, qs):
+        # use request parameters to filter queryset
+        ### get the POST keys
+        POSTkeys = self.request.POST.keys()
+        _logger.debug('POSTkeys=' + str(POSTkeys))
+        _logger.debug('POSTvalues=' + str(self.request.POST))
         qs = QuerySetChain(\
                     Jobsactive4.objects.filter(\
                             jeditaskid=4000195, \
@@ -232,36 +238,36 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             )
         return qs
 
-#    def filter_queryset(self, qs):
-#        # use request parameters to filter queryset
-#        ### get the POST keys
-#        POSTkeys = self.request.POST.keys()
-#        ### see if we filtered from UI
-#        pgst = ''
-#        if 'pgst' in POSTkeys:
-#            pgst = self.request.POST['pgst']
-#        if pgst == 'ini':
-#            return qs
-#        ### assemble query from POST parameters for the filter
-#        query = {}
-#        for filterField in PandaJob._meta.filterFields:
-#            fName = filterField['name']
-#            if fName in POSTkeys:
-#                fValue = self.request.POST[fName]
-#                fField = filterField['field']
-#                fFilterField = filterField['filterField']
-#                fType = filterField['type']
-#                if fType == 'datetime':
-#                    try:
-#                        fValue = re.sub(' ', 'T', fValue) + ':00Z'
-#                        fValue = datetime.strptime(fValue, currentDateFormatPost).replace(tzinfo=pytz.UTC)
-#                    except ValueError:
-#                        ### unknown datetime format
-#                        _logger.error('Unknown datetime format for filter ' + \
-#                                'field [%s] with value [%s].' % (fName, fValue))
-#                    query.update({'%s' % (fFilterField) : fValue})
-#                else:
-#                    query.update({'%s' % (fFilterField) : fValue})
+    def filter_queryset(self, qs):
+        # use request parameters to filter queryset
+        ### get the POST keys
+        POSTkeys = self.request.POST.keys()
+        ### see if we filtered from UI
+        pgst = ''
+        if 'pgst' in POSTkeys:
+            pgst = self.request.POST['pgst']
+        if pgst == 'ini':
+            return qs
+        ### assemble query from POST parameters for the filter
+        query = {}
+        for filterField in self.filterFields:
+            fName = filterField['name']
+            if fName in POSTkeys:
+                fValue = self.request.POST[fName]
+                fField = filterField['field']
+                fFilterField = filterField['filterField']
+                fType = filterField['type']
+                if fType == 'datetime':
+                    try:
+                        fValue = re.sub(' ', 'T', fValue) + ':00Z'
+                        fValue = datetime.strptime(fValue, currentDateFormatPost).replace(tzinfo=pytz.UTC)
+                    except ValueError:
+                        ### unknown datetime format
+                        _logger.error('Unknown datetime format for filter ' + \
+                                'field [%s] with value [%s].' % (fName, fValue))
+                    query.update({'%s' % (fFilterField) : fValue})
+                else:
+                    query.update({'%s' % (fFilterField) : fValue})
 #        ### cleanup for datetime ranges
 #        ### .creationtime
 #        if 'fCrFrom' in POSTkeys or 'fCrTo' in POSTkeys:
@@ -281,15 +287,16 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #                creationtime_to = datetime(2013, 11, 22, 12, 10, tzinfo=pytz.utc)
 #            ### range instead
 #            query['creationtime__range'] = [creationtime_from, creationtime_to]
-#        ### execute filter on the queryset
-#        if pgst in ['fltr']:
-#            qs = QuerySetChain(\
+        _logger.debug('query=%s' % (str(query)))
+        ### execute filter on the queryset
+        if pgst in ['fltr']:
+            qs = QuerySetChain(\
 #                    Jobsdefined4.objects.filter(**query), \
-#                    Jobsactive4.objects.filter(**query), \
+                    Jobsactive4.objects.filter(**query), \
 #                    Jobswaiting4.objects.filter(**query), \
 #                    Jobsarchived4.objects.filter(**query) \
-#            )
-#        return qs
+            )
+        return qs
 
     def filterModel(self, query):
         """
@@ -297,14 +304,14 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 filter qs or querychain with the query
         """
         return QuerySetChain(\
-#                    Jobsactive4.objects.filter(\
-#                            jeditaskid=4000195, \
-#                            modificationtime__range=[startdate, enddate], \
-#                    ), \
-                    Jobsdefined4.objects.filter(**query), \
+##                    Jobsactive4.objects.filter(\
+##                            jeditaskid=4000195, \
+##                            modificationtime__range=[startdate, enddate], \
+##                    ), \
+#                    Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
-                    Jobswaiting4.objects.filter(**query), \
-                    Jobsarchived4.objects.filter(**query) \
+#                    Jobswaiting4.objects.filter(**query), \
+#                    Jobsarchived4.objects.filter(**query) \
             )
 
 

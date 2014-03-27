@@ -61,7 +61,7 @@ def getAoColumnsDict(columnList):
 def getAoColumnsDictWithTitles(columnDescriptionList):
     data = []
     for item in columnDescriptionList:
-        _logger.debug('item=' + str(item))
+#        _logger.debug('item=' + str(item))
         try:
             fvis = item['vis']
         except KeyError:
@@ -74,6 +74,15 @@ def getAoColumnsDictWithTitles(columnDescriptionList):
                 'bSortable': fsort, \
                 'bVisible': fvis, \
             })
+    return data
+
+
+def getFilterFieldIDs(filterDescriptionList):
+    data = []
+    try:
+        data = [ x['name'] for x in filterDescriptionList ]
+    except:
+        return data
     return data
 
 

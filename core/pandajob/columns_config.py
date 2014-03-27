@@ -192,12 +192,13 @@ COL_TITLES['PanDAjob-all'] = [ \
 ]
 UPDATE_COL_TITLES['PanDAjob-all'] = {}
 FILTERS['PanDAjob-all'] = [ \
-#            # .starttime
-#            { 'name': 'fStartFrom', 'field': 'starttime', 'filterField': 'starttime__gte', 'type': 'datetime' }, \
-#            { 'name': 'fStartTo', 'field': 'starttime', 'filterField': 'starttime__lte', 'type': 'datetime'}, \
-            # .creationtime
-    { 'name': 'fCrFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
-    { 'name': 'fCrTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
+##            # .starttime
+##            { 'name': 'fStartFrom', 'field': 'starttime', 'filterField': 'starttime__gte', 'type': 'datetime' }, \
+##            { 'name': 'fStartTo', 'field': 'starttime', 'filterField': 'starttime__lte', 'type': 'datetime'}, \
+#            # .creationtime
+#    { 'name': 'fCrFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
+#    { 'name': 'fCrTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
+    { 'name': 'JediTaskID', 'field': 'jeditaskid', 'filterField': 'jeditaskid', 'type': 'integer' }, \
 ]
 
 

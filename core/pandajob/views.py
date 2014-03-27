@@ -25,7 +25,8 @@ from .serializers import SerializerPandaJob
 #from .utils import getPrefix, getContextVariables, \
 #        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr
 from ..common.utils import getPrefix, getContextVariables, \
-        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr
+        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr, \
+        getFilterFieldIDs
 #from .datatablesviews import ModelJobDictJson
 from ..table.views import ModelJobDictJson
 from rest_framework import viewsets
@@ -471,6 +472,9 @@ def jediJobsInTask(request):
     ### get aoColumns pre-config
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
+    ### get filter fields
+#    filterFields = ['fJtaskID']
+    filterFields = getFilterFieldIDs(FILTERS[reverseUrl])
     ### get indices of columns to refer by name in render javascript function
     fieldIndices = {}
     for col in ORDER_COLUMNS[reverseUrl]:
@@ -487,6 +491,8 @@ def jediJobsInTask(request):
             'columns': json_dumps(aoColumns), \
             'fieldIndices': json_dumps(fieldIndices), \
             'tableid_joblist': 'jediJobsInTask', \
+            'filterFields': filterFields, \
+            'caption': 'jobs', \
     }
     data.update(getContextVariables(request))
     return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
