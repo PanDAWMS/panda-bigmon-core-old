@@ -39,6 +39,7 @@ LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 _logger = logging.getLogger('jedi_jobsintask')
 
 currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+shortUIDateFormat = "%m-%d %H:%M"
 
 
 #class PandaJobsViewSet(viewsets.ModelViewSet):
@@ -146,6 +147,10 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 
 
     def removeNones(self, data, orderColumns):
+        convertDatetimeToString = False
+        POSTkeys = self.request.POST.keys()
+        if 'pgst' in POSTkeys:
+            convertDatetimeToString = True
         newData = []
         for item in data:
             newItem = {}
@@ -155,9 +160,18 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                     value = item[col]
                     if value is None:
                         value = ""
-                    newItem[col] = value
                 except:
                     pass
+                if convertDatetimeToString and \
+                    (type(value) == type(datetime(1970, 1, 1)) ):
+                    try:
+                        _logger.debug('value=' + (str({"k": value})))
+                        valueStr = value.strftime(shortUIDateFormat)
+                        _logger.debug('valueStr=' + (str({"k": valueStr})))
+                        value = valueStr
+                    except:
+                        pass
+                newItem[col] = value
             newData.append(newItem)
         return newData
 

@@ -221,24 +221,6 @@ function drawTable(stFlag){
 					},
 					"aTargets": [ fieldIndices.jobstatus ]
 				},
-				// Date and time format
-				{
-					"mRender": function ( data, type, row ) {
-						if (data === ''){
-							return data;
-						} else {
-							var d = new Date(data);
-//							return d.toLocaleFormat( "%m-%d %H:%M" );
-							return d.toString( "MM-dd HH:mm" );
-						}
-					},
-					"aTargets": [ 
-						fieldIndices.creationtime, 
-						fieldIndices.modificationtime, 
-						fieldIndices.starttime, 
-						fieldIndices.endtime, 
-					 ]
-				},
 				// Site+Cloud
 				{
 					"mRender": function ( data, type, row ) {
