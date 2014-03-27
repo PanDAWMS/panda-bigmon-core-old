@@ -165,9 +165,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 if convertDatetimeToString and \
                     (type(value) == type(datetime(1970, 1, 1)) ):
                     try:
-                        _logger.debug('value=' + (str({"k": value})))
                         valueStr = value.strftime(shortUIDateFormat)
-                        _logger.debug('valueStr=' + (str({"k": valueStr})))
                         value = valueStr
                     except:
                         pass
@@ -208,29 +206,29 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         """
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
-        startdate = datetime.utcnow() - timedelta(minutes=2)
+        startdate = datetime.utcnow() - timedelta(minutes=1)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-#        qs = QuerySetChain(\
+        qs = QuerySetChain(\
 #                    Jobsdefined4.objects.filter(\
 #                        modificationtime__range=[startdate, enddate]\
 #                    ), \
-#                    Jobsactive4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
+                    Jobsactive4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
 #                    Jobswaiting4.objects.filter(\
 #                        modificationtime__range=[startdate, enddate]\
 #                    ), \
 #                    Jobsarchived4.objects.filter(\
 #                        modificationtime__range=[startdate, enddate]\
 #                    ), \
-#            )
-        qs = QuerySetChain(\
-                    Jobsactive4.objects.filter(\
-                            jeditaskid=4000195, \
-#                            modificationtime__range=[startdate, enddate], \
-                    ), \
             )
+#        qs = QuerySetChain(\
+#                    Jobsactive4.objects.filter(\
+#                            jeditaskid=4000195, \
+##                            modificationtime__range=[startdate, enddate], \
+#                    ), \
+#            )
         return qs
 
 
@@ -238,19 +236,20 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         return super(PandaJobDictJsonJobsInTask, self).get_context_data(*args, **kwargs)
 
 
-    def filter_querysetOld(self, qs):
-        # use request parameters to filter queryset
-        ### get the POST keys
-        POSTkeys = self.request.POST.keys()
-        _logger.debug('POSTkeys=' + str(POSTkeys))
-        _logger.debug('POSTvalues=' + str(self.request.POST))
-        qs = QuerySetChain(\
-                    Jobsactive4.objects.filter(\
-                            jeditaskid=4000195, \
-#                            modificationtime__range=[startdate, enddate], \
-                    ), \
-            )
-        return qs
+#    def filter_querysetOld(self, qs):
+#        # use request parameters to filter queryset
+#        ### get the POST keys
+#        POSTkeys = self.request.POST.keys()
+#        _logger.debug('POSTkeys=' + str(POSTkeys))
+#        _logger.debug('POSTvalues=' + str(self.request.POST))
+#        qs = QuerySetChain(\
+#                    Jobsactive4.objects.filter(\
+#                            jeditaskid=4000195, \
+##                            modificationtime__range=[startdate, enddate], \
+#                    ), \
+#            )
+#        return qs
+
 
     def filter_queryset(self, qs):
         # use request parameters to filter queryset
@@ -295,14 +294,16 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         ### cleanup for datetime ranges
         query = self.cleanupDatetimeRange(POSTkeys, query)
         ### execute filter on the queryset
-        if pgst in ['fltr']:
+        if pgst in ['fltr'] and query != {}:
             qs = QuerySetChain(\
 #                    Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
 #                    Jobswaiting4.objects.filter(**query), \
 #                    Jobsarchived4.objects.filter(**query) \
             )
-            _logger.debug('|qs|=%d' % (qs.count()))
+        else:
+            qs = self.get_initial_queryset()
+        _logger.debug('|qs|=%d' % (qs.count()))
         return qs
 
 

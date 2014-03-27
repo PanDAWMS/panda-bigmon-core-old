@@ -177,7 +177,7 @@ function drawTable(stFlag){
 				{
 					"mRender": function ( data, type, row ) {
 //						var a = '<a href="'
-//							+ '{{ prefix }}' 
+//							+ prefix 
 //							+ Django.url('jobInfo', {'prodUserName': data, 'nhours': 72})
 //							+ '" target="_blank">' +
 //							data + '</a>' +' / '+ row.workinggroup;
@@ -198,7 +198,7 @@ function drawTable(stFlag){
 				{
 					"mRender": function ( data, type, row ) {
 					var a = '<a href="'
-								+ '{{ prefix }}' 
+								+ prefix 
 								+ Django.url('jobDetails', {'pandaid': data})
 							+ '" target="_blank">' + data + '</a>'
 						;
