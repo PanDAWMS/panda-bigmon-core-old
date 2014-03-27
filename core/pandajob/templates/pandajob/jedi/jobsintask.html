@@ -38,6 +38,7 @@
 		var stFlag = 'ini';
 		var oTable;
 	</script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/date.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-csrf.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-filter.js"></script>
 {% endblock %}
@@ -57,6 +58,26 @@
 		<tr> 
 			<td><b>Jedi Task ID:</b></td>
 			<td align=right><input id="JediTaskID"></td> 
+		</tr>
+		<tr> 
+			<td><b>Job status:</b></td>
+			<td align=right>
+				<select multiple id="JobStatus"> 
+					<option value="pending">pending</option>
+					<option value="defined">defined</option>
+					<option value="waiting">waiting</option>
+					<option value="assigned">assigned</option>
+					<option value="activated">activated</option>
+					<option value="sent">sent</option>
+					<option value="starting">starting</option>
+					<option value="running">running</option>
+					<option value="holding">holding</option>
+					<option value="transferring">transferring</option>
+					<option value="finished">finished</option>
+					<option value="failed">failed</option>
+					<option value="cancelled">cancelled</option>
+				</select>
+			</td>
 		</tr>
 	</table>
 </div>

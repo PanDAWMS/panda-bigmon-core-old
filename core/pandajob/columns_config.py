@@ -199,6 +199,7 @@ FILTERS['PanDAjob-all'] = [ \
 #    { 'name': 'fCrFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
 #    { 'name': 'fCrTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
     { 'name': 'JediTaskID', 'field': 'jeditaskid', 'filterField': 'jeditaskid', 'type': 'integer' }, \
+    { 'name': 'JobStatus', 'field': 'jobstatus', 'filterField': 'jobstatus', 'type': 'stringMultiple' }, \
 ]
 
 

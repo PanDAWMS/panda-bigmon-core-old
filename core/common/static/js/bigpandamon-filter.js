@@ -228,7 +228,8 @@ function drawTable(stFlag){
 							return data;
 						} else {
 							var d = new Date(data);
-							return d.toLocaleFormat( "%m-%d %H:%M" );
+//							return d.toLocaleFormat( "%m-%d %H:%M" );
+							return d.toString( "MM-dd HH:mm" );
 						}
 					},
 					"aTargets": [ 

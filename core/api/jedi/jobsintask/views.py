@@ -257,37 +257,29 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 fField = filterField['field']
                 fFilterField = filterField['filterField']
                 fType = filterField['type']
+                ### process datetime types
                 if fType == 'datetime':
-                    try:
-                        fValue = re.sub(' ', 'T', fValue) + ':00Z'
-                        fValue = datetime.strptime(fValue, currentDateFormatPost).replace(tzinfo=pytz.UTC)
-                    except ValueError:
-                        ### unknown datetime format
-                        _logger.error('Unknown datetime format for filter ' + \
-                                'field [%s] with value [%s].' % (fName, fValue))
+                    fValue = self.getQueryValueDatetime(fName, fValue)
                     query.update({'%s' % (fFilterField) : fValue})
+                ### process string with multiple selection
+                elif fType == 'stringMultiple':
+                    val, suffix = self.getQueryValueStringmultiple(fName, fValue)
+                    query['%s%s' % (fField, suffix)] = val
+                ### process wildcarded strings
+                elif fType == 'string':
+                    retVal = self.getQueryValueStringWildcard(fValue)
+                    for val, suffix in retVal:
+                        query['%s%s' % (fField, suffix)] = val
+                ### process wildcarded integers
+                elif fType == 'integer':
+                    retVal = self.getQueryValueIntIntervalWildcard(fValue)
+                    for val, suffix in retVal:
+                        query['%s%s' % (fField, suffix)] = val
+                ### process anything else
                 else:
                     query.update({'%s' % (fFilterField) : fValue})
-#        ### cleanup for datetime ranges
-#        ### .creationtime
-#        if 'fCrFrom' in POSTkeys or 'fCrTo' in POSTkeys:
-#            ### interval start
-#            if 'creationtime__gte' in query.keys():
-#                submitted_from = query['creationtime__gte']
-#                del query['creationtime__gte']
-#            else:
-##                creationtime_from = datetime.utcnow() - timedelta(days=1)
-#                creationtime_from = datetime(2013, 11, 1, 10, 10, tzinfo=pytz.utc)
-#            ### interval end
-#            if 'creationtime__lte' in query.keys():
-#                creationtime_to = query['creationtime__lte']
-#                del query['creationtime__lte']
-#            else:
-##                creationtime_to = datetime.utcnow()
-#                creationtime_to = datetime(2013, 11, 22, 12, 10, tzinfo=pytz.utc)
-#            ### range instead
-#            query['creationtime__range'] = [creationtime_from, creationtime_to]
-        _logger.debug('query=%s' % (str(query)))
+        ### cleanup for datetime ranges
+        query = self.cleanupDatetimeRange(POSTkeys, query)
         ### execute filter on the queryset
         if pgst in ['fltr']:
             qs = QuerySetChain(\
@@ -296,7 +288,9 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #                    Jobswaiting4.objects.filter(**query), \
 #                    Jobsarchived4.objects.filter(**query) \
             )
+            _logger.debug('|qs|=%d' % (qs.count()))
         return qs
+
 
     def filterModel(self, query):
         """
