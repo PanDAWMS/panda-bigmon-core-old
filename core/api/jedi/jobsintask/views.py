@@ -206,19 +206,24 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         """
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
-        startdate = datetime.utcnow() - timedelta(minutes=1)
+###DEBUG###        startdate = datetime.utcnow() - timedelta(minutes=1)
+#        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         qs = QuerySetChain(\
-#                    Jobsdefined4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
+                    Jobsdefined4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                        , jeditaskid__isnull=False \
+                    ), \
                     Jobsactive4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
+                        , jeditaskid__isnull=False \
                     ), \
-#                    Jobswaiting4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
+                    Jobswaiting4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                        , jeditaskid__isnull=False \
+                    ), \
 #                    Jobsarchived4.objects.filter(\
 #                        modificationtime__range=[startdate, enddate]\
 #                    ), \
