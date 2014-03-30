@@ -271,18 +271,26 @@ class DataTable(object):
             qs = qs.filter(qfilter)
         return qs
 
-    def handle_ajax(self, request):
+    def parse_params(self, request):
         params = {}
         for name, value in request.GET.items():
             try:
                 params[name] = hungarian_to_python(name, value)
             except NameError:
                 pass
-        qs = self.get_queryset()
-        iTotalRecords = qs.count()
+        return params
+        
+    def apply_sort_search(self, qs, params):
         qs = self._handle_ajax_sorting(qs, params)
         qs = self._handle_ajax_global_search(qs, params)
         qs = self._handle_ajax_column_specific_search(qs, params)
+        return qs
+        
+    def prepare_ajax_data(self, request):
+        params = self.parse_params(request)        
+        qs = self.get_queryset()
+        iTotalRecords = qs.count()
+        qs = self.apply_sort_search(qs, params)
         iTotalDisplayRecords = qs.count()
         iDisplayStart = params.get('iDisplayStart', 0)
         iDisplayLength = params.get('iDisplayLength', -1)
@@ -302,6 +310,10 @@ class DataTable(object):
             #'sColumns': ,
             'aaData': aaData,
         }
+        return data
+        
+    def handle_ajax(self, request):
+        data = self.prepare_ajax_data(request)
         #print qs.query
         s = dumpjs(data)
         return HttpResponse(s, content_type='application/json')
