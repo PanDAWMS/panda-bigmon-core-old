@@ -36,6 +36,10 @@
 <!-- Filter -->
 {% jedi_table_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
+<!-- Summary of job list -->
+<div class="row">
+{% jedi_smry_jobs datasrcsmry=datasrcsmry data=data columns=columns|safe tableidsmry=tableidsmry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+</div>
 
 <!-- Job list -->
 <div class="row left">

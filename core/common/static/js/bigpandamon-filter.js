@@ -21,13 +21,28 @@ var stFlag;
 
 function buildFilterTable(tableid)
 {
-//    $( "#fSubFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
-//    $( "#fSubTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
     $( "#btnFilter-" + tableid).show();
     $( "#CreationFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
     $( "#CreationTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
     $( "#ModificationFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
     $( "#ModificationTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+}
+
+function buildSummary(divid, data)
+{
+	console.debug('divid='+divid);
+	$( "#" + divid).show();
+	if (typeof(data.aaData) != 'undefined'){
+		for (var key in data.aaData) {
+			console.log('key=' + key + ' data=' + data.aaData[key]);
+			$( "#" + divid).append('<span><strong>' +  key + ':</strong></span>&nbsp;');
+			for (var k in data.aaData[key]){
+				console.log('key=' + key + ' k=' + k + ' data=' + data.aaData[key][k]);
+				$( "#" + divid).append('<emph>' +  k + '</emph>' + '(' + data.aaData[key][k] + ')&nbsp;');
+			}
+			$( "#" + divid).append('<br/>');
+		}
+	}
 }
 
 function gFV(fieldName)
@@ -240,6 +255,32 @@ function drawTable(stFlag){
 				},
 				{ "bVisible": false, "aTargets": [ fieldIndices.cloud ] }
 			]
+		} );
+
+		var smryAoData = [];
+		smryAoData.push({'name': 'csrfmiddlewaretoken', 'value': csrftoken});
+		smryAoData.push({'name': 'pgst', 'value': stFlag});
+		$.merge( smryAoData, fltr )
+		$.ajax( {
+			"dataType": 'json',
+			"url": datasrcsmry,
+			"data": smryAoData,
+			"type": "POST", 
+			"success": function(data,status){
+				console.debug(data);
+				console.debug(data.aaData);
+				buildSummary(tableidsmry, data);
+			},
+			"async":true,
+			"error": function (xhr, error, thrown) {
+				alert("THERE IS AN ERROR");
+				if ( error == "parsererror" ) 
+					apprise( "DataTables warning: JSON data" + 
+						" from server could not be parsed. " +
+						"This is caused by a JSON formatting " +
+						"error." 
+					);
+			}
 		} );
 
 	// update GET parameters

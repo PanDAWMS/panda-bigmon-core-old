@@ -91,6 +91,15 @@ def getFilterFieldIDs(filterDescriptionList):
     return data
 
 
+def getFilterFieldRenderText(field, filterDescriptionList):
+    data = ''
+    try:
+        data = [ x['t'] for x in filterDescriptionList if x['c'] == field ][0]
+    except:
+        return data
+    return data
+
+
 class QuerySetChain(object):
     """
     Chains multiple subquerysets (possibly of different models) and behaves as
@@ -126,6 +135,12 @@ class QuerySetChain(object):
             return list(islice(self._all(), ndx.start, ndx.stop, ndx.step or 1))
         else:
             return islice(self._all(), ndx, ndx + 1).next()
+
+    def get(self):
+        res = []
+        for i in self._all():
+            res.append(i)
+        return res
 
     def sortNoneDatetime(self, x, field):
         return x[field] or MINDATETIME

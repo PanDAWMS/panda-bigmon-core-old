@@ -10,7 +10,7 @@ ORDER_COLUMNS = {}
 COL_TITLES = {}
 FILTERS = {}
 UPDATE_COL_TITLES = {}
-
+SUMMARY_FIELDS = {}
 DEFAULT_COLDEF = {'sort': True, 'vis': True, 'c': '', 't': ''}
 
 def skimColumns(myColumnsID, allColumnsID):
@@ -204,7 +204,18 @@ FILTERS['PanDAjob-all'] = [ \
     { 'name': 'ModificationFrom', 'field': 'modificationtime', 'filterField': 'modificationtime__gte', 'type': 'datetime' }, \
     { 'name': 'ModificationTo', 'field': 'modificationtime', 'filterField': 'modificationtime__lte', 'type': 'datetime'}, \
 ]
-
+SUMMARY_FIELDS['PanDAjob-all'] = [
+        'jobstatus', \
+        'produsername', \
+#        'atlasrelease', \
+#        'prodsourcelabel', \
+#        'processingtype', \
+#        'transformation',
+#        'workinggroup', \
+#        'computingsite', \
+#        'cloud', \
+#        'jeditaskid' \
+]
 
 ### reverse URL: 'api-datatables-jedi-jobs-in-task'
 COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
@@ -231,5 +242,5 @@ COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
 #                 updateColTitlesData\
 #    )
 FILTERS['api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
-
+SUMMARY_FIELDS['api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
 

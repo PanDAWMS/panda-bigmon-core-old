@@ -465,10 +465,12 @@ def jediJobsInTask(request):
                             data from API jedi/jobsintask
     """
     reverseUrl = 'api-datatables-jedi-jobs-in-task'
+    reverseUrlSmry = reverseUrl + '-smry'
     ### get URL prefix
     prefix = getPrefix(request)
     ### get reverse url of the data view
     dataUrl = reverse(reverseUrl)
+    dataUrlSmry = reverse(reverseUrlSmry)
     ### get aoColumns pre-config
     aoColumns = []
     aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
@@ -488,9 +490,11 @@ def jediJobsInTask(request):
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \
+            'datasrcsmry': str(dataUrlSmry + "?format=json"), \
             'columns': json_dumps(aoColumns), \
             'fieldIndices': json_dumps(fieldIndices), \
             'tableid_joblist': 'jediJobsInTask', \
+            'tableid_joblist_smry': 'jediJobsInTask-smry', \
             'filterFields': filterFields, \
             'caption': 'jobs', \
     }

@@ -19,6 +19,9 @@ urlpatterns = patterns('',
     url(r'^/jobsintask/$', \
         jobsintask_views.PandaJobDictJsonJobsInTask.as_view(), \
         name='api-datatables-jedi-jobs-in-task'),
+    url(r'^/jobsintasksmry/$', \
+        jobsintask_views.PandaJobDictJsonJobsInTaskSummary.as_view(), \
+        name='api-datatables-jedi-jobs-in-task-smry'),
 
 #    ### REST API resource
 #    url(r'^jobsintask/$', jobsintask_views_bulk, name='jedi-jobs-in-task-bulk'),
