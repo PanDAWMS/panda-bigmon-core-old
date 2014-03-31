@@ -2,7 +2,7 @@
 api.jedi.jobsintask.views
 
 """
-import inspect
+#import inspect
 
 import sys
 import json
@@ -137,7 +137,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 list of dicts with data of the qs items
         
         """
-        _logger.debug('prepare_results: caller name:' + str(inspect.stack()[1][3]))
+#        _logger.debug('prepare_results: caller name:' + str(inspect.stack()[1][3]))
         ### original prepare_results provides data as list of lists
         ### overridden prepare_results, with data as list of dicts
         _logger.debug('qs=' + str(qs))
@@ -160,7 +160,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                                   is described by 4 different models
         
         """
-        _logger.debug('get_initial_queryset: caller name:' + str(inspect.stack()[1][3]))
+#        _logger.debug('get_initial_queryset: caller name:' + str(inspect.stack()[1][3]))
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
 ###DEBUG###        startdate = datetime.utcnow() - timedelta(minutes=1)
@@ -211,7 +211,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 
 
     def filter_queryset(self, qs):
-        _logger.debug('filter_queryset: caller name:' + str(inspect.stack()[1][3]))
+#        _logger.debug('filter_queryset: caller name:' + str(inspect.stack()[1][3]))
         # use request parameters to filter queryset
         ### get the POST keys
         POSTkeys = self.request.POST.keys()

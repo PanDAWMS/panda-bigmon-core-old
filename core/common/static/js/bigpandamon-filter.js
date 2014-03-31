@@ -32,6 +32,7 @@ function buildSummary(divid, data)
 {
 	console.debug('divid='+divid);
 	$( "#" + divid).show();
+	$( "#" + divid).html('');
 	if (typeof(data.aaData) != 'undefined'){
 		for (var key in data.aaData) {
 			console.log('key=' + key + ' data=' + data.aaData[key]);
