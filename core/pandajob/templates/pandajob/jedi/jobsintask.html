@@ -1,4 +1,8 @@
-{% extends "_base_bigpandamon.html" %}{% load url from future %}{% load js %}{% load core_extras %}
+{% extends "_base_bigpandamon.html" %}
+{% load url from future %}
+{% load js %}
+{% load core_extras %}
+{% load jedi_extras %}
 {% block subtitle %}List of jobs{% endblock %}
 {% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
 {% block header-nav-chain-2 %}<a href="{% url 'jobList' %}">List of jobs</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
@@ -28,12 +32,8 @@
 		var fields = {{ filterFields|safe }};
 		var tableid = "{{ tableid_joblist }}";
 		var datasrc = "{{ datasrc }}";
-//		var colsDict = {};
-//		var shFilter = [];
 		var colsOrig = {{ columns|safe }};
 		var fieldIndices = {{ fieldIndices|safe }};
-	// fake values
-//		var fltr = {'pgst': 'ini'};
 		var fltr;
 		var stFlag = 'ini';
 		var oTable;
@@ -43,6 +43,13 @@
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-filter.js"></script>
 {% endblock %}
 {% block body %}
+
+{% jedi_jobs_table_with_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid_joblist|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+
+{% endblock %}
+
+{% comment %}
+
 
 <!-- Filter -->
 {% if tableid_joblist %}
@@ -56,12 +63,32 @@
 <div id="div-table-filter-{{ tableid_joblist }}" class="tableFilter">
 	<table id="table-filter-{{ tableid_joblist }}" width="100%">
 		<tr> 
-			<td><b>Jedi Task ID:</b></td>
+			<td width="20%"><b>Jedi Task ID:</b></td>
 			<td align=right><input id="JediTaskID"></td> 
 		</tr>
 		<tr> 
-			<td><b>Job status:</b></td>
-			<td align=right>
+			<td width="20%"><b>Owner:</b></td>
+			<td align=right><input id="ProdUserName"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Working Group:</b></td>
+			<td align=right><input id="WG"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Job Type:</b></td>
+			<td align=right><input id="ProdSourceLabel"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Cloud:</b></td>
+			<td align=right><input id="Cloud"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Site:</b></td>
+			<td align=right><input id="Site"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Job status:</b></td>
+			<td align=justify>
 				<select multiple id="JobStatus"> 
 					<option value="pending">pending</option>
 					<option value="defined">defined</option>
@@ -79,6 +106,16 @@
 				</select>
 			</td>
 		</tr>
+		<tr> 
+			<td width="20%"><b>Creation time:</b></td>
+			<td align=right><input id="CreationFrom"></td>
+			<td align=right><input id="CreationTo"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Modification time:</b></td>
+			<td align=right><input id="ModificationFrom"></td>
+			<td align=right><input id="ModificationTo"></td> 
+		</tr>
 	</table>
 </div>
 <div id="div-table-filter-button-{{ tableid_joblist }}">
@@ -95,8 +132,6 @@
 <table id="{{ tableid_joblist }}" width="100%">
 	<thead>
 		<tr>
-			<th width="25%">Owner</th>
-			<th width="0%">WG</th>
 			<th width="9%">JEDI Task ID</th>
 			<th width="9%">PanDA ID</th>
 			<th width="7%">Status</th>
@@ -105,8 +140,10 @@
 			<th width="7%">Start</th>
 			<th width="7%">End</th>
 			<th width="0%">Cloud</th>
-			<th width="15%">Site</th>
+			<th width="20%">Site</th>
 			<th width="7%">Prio</th>
+			<th width="20%">Owner</th>
+			<th width="0%">WG</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -243,3 +280,5 @@ $(document).ready(function() {
 //	fieldIndices = {{ fieldIndices|safe }};
 	</script>
 {% endblock %}
+
+{% endcomment %}

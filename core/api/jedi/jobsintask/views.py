@@ -26,7 +26,7 @@ from .serializers import SerializerPandaJob
 #### END: for debug purposes only
 
 
-from ....table.views import ModelJobDictJson
+from ....table.views import ModelJobDictJson, VALUE_ALL_MULTISTRING
 #from ..common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from ....common.settings import FILTER_UI_ENV, defaultDatetimeFormat
 from ....pandajob.columns_config import COLUMNS, ORDER_COLUMNS, COL_TITLES, FILTERS
@@ -211,6 +211,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        _logger.debug('get_initial_queryset')
         qs = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
@@ -282,7 +283,11 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 ### process string with multiple selection
                 elif fType == 'stringMultiple':
                     val, suffix = self.getQueryValueStringmultiple(fName, fValue)
-                    query['%s%s' % (fField, suffix)] = val
+                    ### val=='all'==VALUE_ALL_MULTISTRING,
+                    ### if VALUE_ALL_MULTISTRING is selected among values
+                    ###     then do not filter by this fField
+                    if val != VALUE_ALL_MULTISTRING:
+                        query['%s%s' % (fField, suffix)] = val
                 ### process wildcarded strings
                 elif fType == 'string':
                     retVal = self.getQueryValueStringWildcard(fValue)
@@ -298,6 +303,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                     query.update({'%s' % (fFilterField) : fValue})
         ### cleanup for datetime ranges
         query = self.cleanupDatetimeRange(POSTkeys, query)
+        _logger.debug('query: %s' % (str(query)))
         ### execute filter on the queryset
         if pgst in ['fltr'] and query != {}:
             qs = QuerySetChain(\
@@ -317,6 +323,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             filterModel
                 filter qs or querychain with the query
         """
+        _logger.debug('query: %s' % (str(query)))
         return QuerySetChain(\
 ##                    Jobsactive4.objects.filter(\
 ##                            jeditaskid=4000195, \

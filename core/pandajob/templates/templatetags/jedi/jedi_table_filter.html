@@ -1,0 +1,72 @@
+{% load jedi_extras %}{% load core_extras %}
+
+<!-- Table for the Filter -->
+{% if tableid %}
+	<div class="row">
+		<a href="javascript:void(0)">
+			<span id="sh-filter-{{ tableid }}">Show filter of {{ caption }}</span>
+		</a>
+	</div>
+{% else %}
+<!-- No filter available for tableid=({{ tableid }}). -->
+{% endif %}
+{% empty_div %}
+<div id="div-table-filter-{{ tableid }}" class="tableFilter">
+	<table id="table-filter-{{ tableid }}" width="100%">
+		<tr> 
+			<td width="20%"><b>Jedi Task ID:</b></td>
+			<td align=right><input id="JediTaskID"></td> 
+			<td width="20%"><b>Job Type:</b></td>
+			<td align=right><input id="ProdSourceLabel"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Owner:</b></td>
+			<td align=right><input id="ProdUserName"></td> 
+			<td width="20%"><b>Working Group:</b></td>
+			<td align=right><input id="WG"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Cloud:</b></td>
+			<td align=right><input id="Cloud"></td> 
+			<td width="20%"><b>Site:</b></td>
+			<td align=right><input id="Site"></td> 
+		</tr>
+		<tr> 
+			<td width="20%" colspan=2><b>Job status:</b></td>
+			<td align=justify colspan=2>
+				<select multiple id="JobStatus"> 
+					<option value="all">all</option>
+					<option value="pending">pending</option>
+					<option value="defined">defined</option>
+					<option value="waiting">waiting</option>
+					<option value="assigned">assigned</option>
+					<option value="activated">activated</option>
+					<option value="sent">sent</option>
+					<option value="starting">starting</option>
+					<option value="running">running</option>
+					<option value="holding">holding</option>
+					<option value="transferring">transferring</option>
+					<option value="finished">finished</option>
+					<option value="failed">failed</option>
+					<option value="cancelled">cancelled</option>
+				</select>
+			</td>
+		</tr>
+		<tr> 
+			<td width="20%"><b>Creation time:</b></td>
+			<td align=right>from: <input id="CreationFrom"></td>
+			<td align=right>to: <input id="CreationTo"></td> 
+		</tr>
+		<tr> 
+			<td width="20%"><b>Modification time:</b></td>
+			<td align=right>from: <input id="ModificationFrom"></td>
+			<td align=right>to: <input id="ModificationTo"></td> 
+		</tr>
+	</table>
+</div>
+<div id="div-table-filter-button-{{ tableid }}">
+  <button type="button" id="btnFilter-{{ tableid }}" class="ui-buttonset ui-button">Filter table!</button>
+  {% empty_div %}
+</div>
+
+

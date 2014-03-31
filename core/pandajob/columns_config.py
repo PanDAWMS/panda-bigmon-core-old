@@ -188,18 +188,21 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'outputfilebytes', 't': 'Output file bytes'}, \
     {'sort': True, 'vis': False, 'c': 'jobmetrics', 't': 'Job Metrics'}, \
     {'sort': True, 'vis': False, 'c': 'workqueue_id', 't': 'Work queue ID'}, \
-    {'sort': True, 'vis': True, 'c': 'jeditaskid', 't': 'JEDI Task ID'}, \
+    {'sort': True, 'vis': True, 'c': 'jeditaskid', 't': 'Task ID'}, \
 ]
 UPDATE_COL_TITLES['PanDAjob-all'] = {}
 FILTERS['PanDAjob-all'] = [ \
-##            # .starttime
-##            { 'name': 'fStartFrom', 'field': 'starttime', 'filterField': 'starttime__gte', 'type': 'datetime' }, \
-##            { 'name': 'fStartTo', 'field': 'starttime', 'filterField': 'starttime__lte', 'type': 'datetime'}, \
-#            # .creationtime
-#    { 'name': 'fCrFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
-#    { 'name': 'fCrTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
+    { 'name': 'ProdUserName', 'field': 'produsername', 'filterField': 'produsername', 'type': 'string' }, \
     { 'name': 'JediTaskID', 'field': 'jeditaskid', 'filterField': 'jeditaskid', 'type': 'integer' }, \
     { 'name': 'JobStatus', 'field': 'jobstatus', 'filterField': 'jobstatus', 'type': 'stringMultiple' }, \
+    { 'name': 'WG', 'field': 'workinggroup', 'filterField': 'workinggroup', 'type': 'string' }, \
+    { 'name': 'Cloud', 'field': 'cloud', 'filterField': 'cloud', 'type': 'string' }, \
+    { 'name': 'Site', 'field': 'computingsite', 'filterField': 'computingsite', 'type': 'string' }, \
+    { 'name': 'ProdSourceLabel', 'field': 'prodsourcelabel', 'filterField': 'prodsourcelabel', 'type': 'string' }, \
+    { 'name': 'CreationFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \
+    { 'name': 'CreationTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
+    { 'name': 'ModificationFrom', 'field': 'modificationtime', 'filterField': 'modificationtime__gte', 'type': 'datetime' }, \
+    { 'name': 'ModificationTo', 'field': 'modificationtime', 'filterField': 'modificationtime__lte', 'type': 'datetime'}, \
 ]
 
 
@@ -210,10 +213,11 @@ COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
         'jobstatus', 'currentpriority', 'computingsite', 'cloud' \
     ]
 ORDER_COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
-        'produsername', 'workinggroup', 'jeditaskid', 'pandaid', \
+        'jeditaskid', 'pandaid', \
         'jobstatus', \
         'creationtime', 'modificationtime', 'starttime', 'endtime', \
-        'cloud', 'computingsite', 'currentpriority' \
+        'cloud', 'computingsite', 'currentpriority', \
+        'produsername', 'workinggroup' \
     ]
 UPDATE_COL_TITLES['api-datatables-jedi-jobs-in-task'] = { \
     'workinggroup': {'vis': False, 'sort': False}, \

@@ -23,9 +23,12 @@ function buildFilterTable(tableid)
 {
 //    $( "#fSubFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
 //    $( "#fSubTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
-    $("#btnFilter-" + tableid).show();
+    $( "#btnFilter-" + tableid).show();
+    $( "#CreationFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $( "#CreationTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $( "#ModificationFrom" ).datetimepicker({ dateFormat: "yy-mm-dd" });
+    $( "#ModificationTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
 }
-
 
 function gFV(fieldName)
 //gFV ... getFieldValue : get value of input with id===fieldName
@@ -190,7 +193,13 @@ function drawTable(stFlag){
 				{
 					"mRender": function ( data, type, row ) {
 					// TODO: add link to task page
-						return data;
+//						return data;
+					var a = '<a href="'
+					+ prefix 
+					+ Django.url('todoview:todoTaskDescription', {'taskid': data})
+					+ '" target="_blank">' +
+					data + '</a>' ;
+				return a;
 					},
 					"aTargets": [ fieldIndices.jeditaskid ]
 				},

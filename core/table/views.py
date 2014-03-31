@@ -22,6 +22,7 @@ VALUE_TRANSLATION = { \
     'lt': '<', \
     'gt': '>', \
 }
+VALUE_ALL_MULTISTRING = 'all'
 WILDCARDS = FILTER_UI_ENV['WILDCARDS']
 INTERVALWILDCARDS = FILTER_UI_ENV['INTERVALWILDCARDS']
 LAST_N_HOURS = FILTER_UI_ENV['HOURS']
@@ -121,6 +122,8 @@ class ModelJobDictJson(BaseDatatableView):
             getQueryValueStringmultiple
         """
         valList = fValue.split(',')
+        if VALUE_ALL_MULTISTRING in valList:
+            return (VALUE_ALL_MULTISTRING, '')
         ### translate special values from VALUE_TRANSLATION
         for k in VALUE_TRANSLATION.keys():
             if k in valList:
@@ -304,7 +307,11 @@ class ModelJobDictJson(BaseDatatableView):
                 ### process string with multiple selection
                 elif fType == 'stringMultiple':
                     val, suffix = self.getQueryValueStringmultiple(fName, fValue)
-                    query['%s%s' % (fField, suffix)] = val
+                    ### val=='all'==VALUE_ALL_MULTISTRING,
+                    ### if VALUE_ALL_MULTISTRING is selected among values
+                    ###     then do not filter by this fField
+                    if val != VALUE_ALL_MULTISTRING:
+                        query['%s%s' % (fField, suffix)] = val
                 ### process wildcarded strings
                 elif fType == 'string':
                     retVal = self.getQueryValueStringWildcard(fValue)

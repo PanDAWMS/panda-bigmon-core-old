@@ -49,6 +49,11 @@ def getContextVariables(request):
         ret.update(ENV)
     except:
         ret = ret
+    for envVar in settings.ENV:
+        try:
+            ret.update({envVar: settings.ENV[envVar]})
+        except:
+            pass
     return ret
 
 

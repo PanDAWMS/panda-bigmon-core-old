@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^/info/d/(?P<prodUserName>[-A-Za-z0-9_.+ @]+)/(?P<ndays>\d+)/$', pandajob_views.jobInfoDays, name='jobInfoDays'),
     url(r'^/info/h/(?P<prodUserName>[-A-Za-z0-9_.+ @]+)/(?P<nhours>\d+)/$', pandajob_views.jobInfoHours, name='jobInfoHours'),
     url(r'^/info/$', pandajob_views.jobInfoDefault, name='jobInfoDefault'),
-    url(r'^jediJobsInTask/$', pandajob_views.jediJobsInTask, name='jediJobsInTask'),
+#    url(r'^/jediJobsInTask/$', pandajob_views.jediJobsInTask, name='JOBjediJobsInTask'),
 )
 
 

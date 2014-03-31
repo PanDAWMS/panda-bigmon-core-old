@@ -217,6 +217,7 @@ CUSTOM_DB_FIELDS = {
 ### on EC2: URL_PATH_PREFIX = '/bigpandamon' or URL_PATH_PREFIX = '/developersprefix'
 #URL_PATH_PREFIX = '/bigpandamon-common'
 URL_PATH_PREFIX = '/jedimon'
+#URL_PATH_PREFIX = ''
 ### on localhost:8000: URL_PATH_PREFIX = '/.'
 #URL_PATH_PREFIX = ''
 #MEDIA_URL = URL_PATH_PREFIX + MEDIA_URL
