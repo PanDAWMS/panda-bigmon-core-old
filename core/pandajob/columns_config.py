@@ -207,14 +207,14 @@ FILTERS['PanDAjob-all'] = [ \
 SUMMARY_FIELDS['PanDAjob-all'] = [
         'jobstatus', \
         'produsername', \
-#        'atlasrelease', \
-#        'prodsourcelabel', \
-#        'processingtype', \
-#        'transformation',
-#        'workinggroup', \
-#        'computingsite', \
-#        'cloud', \
-#        'jeditaskid' \
+        'atlasrelease', \
+        'prodsourcelabel', \
+        'processingtype', \
+        'transformation',
+        'workinggroup', \
+        'computingsite', \
+        'cloud', \
+        'jeditaskid' \
 ]
 
 ### reverse URL: 'api-datatables-jedi-jobs-in-task'

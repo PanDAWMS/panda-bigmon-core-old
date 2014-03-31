@@ -32,7 +32,7 @@ function buildSummary(divid, data)
 {
 	console.debug('divid='+divid);
 	$( "#" + divid).show();
-	$( "#" + divid).html('');
+	$( "#" + divid).html('<br/>');
 	if (typeof(data.aaData) != 'undefined'){
 		for (var key in data.aaData) {
 			console.log('key=' + key + ' data=' + data.aaData[key]);
@@ -41,7 +41,7 @@ function buildSummary(divid, data)
 				console.log('key=' + key + ' k=' + k + ' data=' + data.aaData[key][k]);
 				$( "#" + divid).append('<emph>' +  k + '</emph>' + '(' + data.aaData[key][k] + ')&nbsp;');
 			}
-			$( "#" + divid).append('<br/>');
+			$( "#" + divid).append('<br/><br/>');
 		}
 	}
 }
