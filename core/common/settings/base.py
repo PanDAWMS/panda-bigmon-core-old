@@ -61,6 +61,8 @@ MIDDLEWARE_CLASSES = (
 ### END added
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#### django-debug-toolbar
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ###
 #    'django.middleware.common.CommonMiddleware',
 #    'django.contrib.sessions.middleware.SessionMiddleware',
@@ -91,6 +93,8 @@ INSTALLED_APPS_DJANGO_FRAMEWORK = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+#### django-debug-toolbar
+#    'debug_toolbar',
 )
 INSTALLED_APPS_DJANGO_PLUGINS = (
     ### Django plugins
