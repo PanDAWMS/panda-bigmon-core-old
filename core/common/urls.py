@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 ### #FIXME admin.autodiscover()
+from django.views.generic import TemplateView
 
 import views as common_views
 #from ..table import views as table_views
@@ -16,9 +17,11 @@ from ..htcondor import views as htcondor_views
 
 
 common_patterns = patterns('',
+    ### robots.txt
+    url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+
     ### the front page
     url(r'^$', common_views.index, name='index'),
-
 
     ### Applications
     url(r'^htcondorjobs', include('core.htcondor.urls')),

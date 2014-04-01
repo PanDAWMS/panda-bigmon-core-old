@@ -3,7 +3,8 @@ from os.path import dirname, join
 
 from core import common
 
-DEBUG = True
+#DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 
