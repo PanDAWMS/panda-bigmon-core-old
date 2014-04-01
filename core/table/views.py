@@ -9,14 +9,15 @@ import re
 from datetime import datetime, timedelta
 from django_datatables_view.base_datatable_view import BaseDatatableView
 #from ..settings import FILTER_UI_ENV
-from ..common.settings import STATIC_URL, FILTER_UI_ENV
+from ..common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from ..htcondor.models import HTCondorJob
 from ..api.htcondorapi.serializers import SerializerHTCondorJob
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('bigpandamon')
 
-currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+#currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+currentDateFormat = defaultDatetimeFormat
 currentDateFormatPost = "%Y-%m-%dT%H:%M:%SZ"
 VALUE_TRANSLATION = { \
     'lt': '<', \
@@ -253,12 +254,14 @@ class ModelJobDictJson(BaseDatatableView):
                     del queryDict[fFilterFieldFrom]
                 else:
                     rangeFrom = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+                    rangeFrom = rangeFrom.replace(tzinfo=pytz.UTC, microsecond=0)
                 ### interval end
                 if fFilterFieldTo and fFilterFieldTo in queryDict.keys():
                     rangeTo = queryDict[fFilterFieldTo]
                     del queryDict[fFilterFieldTo]
                 else:
                     rangeTo = datetime.utcnow()
+                    rangeTo = rangeTo.replace(tzinfo=pytz.UTC, microsecond=0)
                 ### range instead
                 queryDict[datetimeField + '__range'] = [rangeFrom, rangeTo]
         _logger.debug('outgoing queryDict=' + str(queryDict))

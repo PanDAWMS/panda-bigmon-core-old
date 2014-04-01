@@ -40,7 +40,8 @@ LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('jedi_jobsintask')
 
-currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+#currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
+currentDateFormat = defaultDatetimeFormat
 shortUIDateFormat = "%m-%d %H:%M"
 
 
@@ -211,6 +212,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 
 
     def filter_queryset(self, qs):
+        _logger.debug('filter_queryset qs: %s' % (str(qs)))
 #        _logger.debug('filter_queryset: caller name:' + str(inspect.stack()[1][3]))
         # use request parameters to filter queryset
         ### get the POST keys
@@ -279,15 +281,15 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             filterModel
                 filter qs or querychain with the query
         """
-        _logger.debug('query: %s' % (str(query)))
+        _logger.debug('filterModel query: %s' % (str(query)))
         return QuerySetChain(\
 ##                    Jobsactive4.objects.filter(\
 ##                            jeditaskid=4000195, \
 ##                            modificationtime__range=[startdate, enddate], \
 ##                    ), \
-#                    Jobsdefined4.objects.filter(**query), \
+                    Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
-#                    Jobswaiting4.objects.filter(**query), \
+                    Jobswaiting4.objects.filter(**query), \
                     Jobsarchived4.objects.filter(**query) \
             )
 
