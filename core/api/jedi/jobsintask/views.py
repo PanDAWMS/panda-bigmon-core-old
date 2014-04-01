@@ -171,22 +171,23 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         _logger.debug('get_initial_queryset')
+        #.only(*self.onlyColumns)
         qs = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
                         , jeditaskid__isnull=False \
-                    ).only(*self.onlyColumns), \
+                    ), \
                     Jobsactive4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
                         , jeditaskid__isnull=False \
-                    ).only(*self.onlyColumns), \
+                    ), \
                     Jobswaiting4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
                         , jeditaskid__isnull=False \
-                    ).only(*self.onlyColumns), \
+                    ), \
 #                    Jobsarchived4.objects.filter(\
 #                        modificationtime__range=[startdate, enddate]\
-#                    ).only(*self.onlyColumns), \
+#                    ), \
             )
         return qs
 
@@ -246,10 +247,10 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         ### execute filter on the queryset
         if pgst in ['fltr'] and query != {}:
             qs = QuerySetChain(\
-#                    Jobsdefined4.objects.filter(**query).only(*self.onlyColumns), \
-                    Jobsactive4.objects.filter(**query).only(*self.onlyColumns), \
-#                    Jobswaiting4.objects.filter(**query).only(*self.onlyColumns), \
-                    Jobsarchived4.objects.filter(**query).only(*self.onlyColumns) \
+#                    Jobsdefined4.objects.filter(**query), \
+                    Jobsactive4.objects.filter(**query), \
+#                    Jobswaiting4.objects.filter(**query), \
+                    Jobsarchived4.objects.filter(**query) \
             )
         else:
             qs = self.get_initial_queryset()
@@ -268,10 +269,10 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 ##                            jeditaskid=4000195, \
 ##                            modificationtime__range=[startdate, enddate], \
 ##                    ), \
-                    Jobsdefined4.objects.filter(**query).only(*self.onlyColumns), \
-                    Jobsactive4.objects.filter(**query).only(*self.onlyColumns), \
-                    Jobswaiting4.objects.filter(**query).only(*self.onlyColumns), \
-                    Jobsarchived4.objects.filter(**query).only(*self.onlyColumns) \
+                    Jobsdefined4.objects.filter(**query), \
+                    Jobsactive4.objects.filter(**query), \
+                    Jobswaiting4.objects.filter(**query), \
+                    Jobsarchived4.objects.filter(**query) \
             )
 
 
