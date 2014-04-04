@@ -100,6 +100,15 @@ def getFilterFieldRenderText(field, filterDescriptionList):
     return data
 
 
+def getFilterNameForField(field, filterDescriptionList):
+    data = ''
+    try:
+        data = [ x['name'] for x in filterDescriptionList if x['field'] == field ][0]
+    except:
+        return data
+    return data
+
+
 class QuerySetChain(object):
     """
     Chains multiple subquerysets (possibly of different models) and behaves as

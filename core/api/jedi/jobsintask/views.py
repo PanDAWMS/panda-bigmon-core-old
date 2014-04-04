@@ -17,7 +17,8 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from ....pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, \
     Jobswaiting4, Jobsarchived4
-from ....common.utils import QuerySetChain, subDict, getFilterFieldRenderText
+from ....common.utils import QuerySetChain, subDict, getFilterFieldRenderText, \
+    getFilterNameForField
 from .serializers import SerializerPandaJob
 
 #### BEGIN: for debug purposes only
@@ -142,7 +143,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #        _logger.debug('prepare_results: caller name:' + str(inspect.stack()[1][3]))
         ### original prepare_results provides data as list of lists
         ### overridden prepare_results, with data as list of dicts
-        _logger.debug('qs=' + str(qs))
+#        _logger.debug('qs=' + str(qs))
         serializer = SerializerPandaJob(qs, many=True)
         _logger.debug('mark')
         data = serializer.data
@@ -151,7 +152,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         newData = self.removeNones(newData, self.columns)
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
-        _logger.debug('data=' + str(newData))
+##        _logger.debug('data=' + str(newData))
 #        return data
         return newData
 
@@ -185,10 +186,16 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                         modificationtime__range=[startdate, enddate]\
                         , jeditaskid__isnull=False \
                     ), \
-#                    Jobsarchived4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
+                    Jobsarchived4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                        , jeditaskid__isnull=False \
+                    ), \
             )
+#        qs = QuerySetChain(\
+#                    Jobsactive4.objects.filter(\
+#                        jeditaskid=4000195 \
+#                    ), \
+#        )
         return qs
 
 
@@ -246,6 +253,8 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         _logger.debug('query: %s' % (str(query)))
         ### execute filter on the queryset
         if pgst in ['fltr'] and query != {}:
+            ### add constraint that jeditaskid is not NULL
+            query['jeditaskid__isnull'] = False
             qs = QuerySetChain(\
 #                    Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
@@ -264,6 +273,8 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                 filter qs or querychain with the query
         """
         _logger.debug('filterModel query: %s' % (str(query)))
+        ### add constraint that jeditaskid is not NULL
+        query['jeditaskid__isnull'] = False
         return QuerySetChain(\
 ##                    Jobsactive4.objects.filter(\
 ##                            jeditaskid=4000195, \
@@ -282,11 +293,13 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         limit = min(int(self.request.REQUEST.get('iDisplayLength', 10)), self.max_display_length)
         # if pagination is disabled ("bPaginate": false)
         if limit == -1:
-            _logger.debug('limit==-1, qs=' + str(qs))
+#            _logger.debug('limit==-1, qs=' + str(qs))
+            _logger.debug('limit==-1')
             return qs
         start = int(self.request.REQUEST.get('iDisplayStart', 0))
         offset = start + limit
-        _logger.debug('limit>-1, qs=' + str(qs) + ' start=' + str(start) + ' offset=' + str(offset))
+#        _logger.debug('limit>-1, qs=' + str(qs) + ' start=' + str(start) + ' offset=' + str(offset))
+        _logger.debug('limit>-1, start=' + str(start) + ' offset=' + str(offset))
         return qs[start:offset]
 
 
@@ -305,28 +318,28 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         self.initialize(*args, **kwargs)
 
         qs = self.get_initial_queryset()
-        _logger.debug('get_context_data:qs=%s' % (str(qs)))
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
         # number of records before filtering
         total_records = qs.count()
 
         qs = self.filter_queryset(qs)
-        _logger.debug('get_context_data:qs=%s' % (str(qs)))
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
         # number of records after filtering
         total_display_records = qs.count()
 
         qs = self.ordering(qs)
-        _logger.debug('get_context_data:qs=%s' % (str(qs)))
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
 #        if 'smry' not in self.request.POST.keys():
 #            qs = self.paging(qs)
-        _logger.debug('get_context_data:smry=%s' % (str(smry)))
+#        _logger.debug('get_context_data:smry=%s' % (str(smry)))
         if not smry:
             qs = self.paging(qs)
         else:
             qs = self.paging(qs).get()
-        _logger.debug('get_context_data:qs=%s' % (str(qs)))
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
         # prepare output data
         aaData = self.prepare_results(qs)
@@ -343,6 +356,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             (smry, smrykeys) = self.getSummary(aaData)
             ret['aaData'] = smry
             ret['aaDataKeys'] = smrykeys
+            _logger.debug('ret=' + str(ret))
 
         ### correct for wrong/too small iTotalRecords from the default queryset
         try:
@@ -372,10 +386,22 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
             uniqueValues = list(set([ item[summaryField] for item in data ]))
         except:
             pass
-        res = dict([(v,
-                     len([item[summaryField] for item in data
-                          if v == item[summaryField]])
-                     ) for v in uniqueValues])
+
+        r = []
+        filterField = getFilterNameForField(summaryField, self.filterFields)
+        r = [{'f': filterField,  ### filter field name
+              'c': v,  ### caption
+              'v':  ### value
+                len([item[summaryField] for item in data \
+                        if v == item[summaryField]]) \
+              } for v in uniqueValues]
+        _logger.debug('summaryField=' + summaryField + ' r=' + str(r))
+
+        r = sorted(r, key=lambda x:(-x['v'], x['c']))
+        _logger.debug('summaryField=' + summaryField + ' r=' + str(r))
+
+        res = r
+
         _logger.debug('field: ' + summaryField + ' res=' + str(res))
         return res
 
@@ -391,8 +417,11 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         for summaryField in SUMMARY_FIELDS[self.reverseUrl]:
             summaryFieldResult = []
             summaryFieldResult = self.getSummaryForField(summaryField, data)
+            _logger.debug('summaryFieldResult=' + str(summaryFieldResult))
             if len(summaryFieldResult) > 0:
                 summaryFieldRenderText = getFilterFieldRenderText(summaryField, COL_TITLES[self.reverseUrl])
+                _logger.debug('summaryFieldRenderText=' + str(summaryFieldRenderText))
+                _logger.debug('summaryField=' + str(summaryField))
                 summary[summaryFieldRenderText] = summaryFieldResult
                 smrykeys[summaryFieldRenderText] = summaryField
         return (summary, smrykeys)

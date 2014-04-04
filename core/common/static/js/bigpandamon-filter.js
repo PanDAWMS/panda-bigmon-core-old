@@ -28,18 +28,38 @@ function buildFilterTable(tableid)
     $( "#ModificationTo" ).datetimepicker({ dateFormat: "yy-mm-dd" });
 }
 
+function updateQueryStringParameter(uri, key, value) {
+	var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+	var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+	if (uri.match(re)) {
+		return uri.replace(re, '$1' + key + "=" + value + '$2');
+	} else {
+		return uri + separator + key + "=" + value;
+	}
+}
+
 function buildSummary(divid, data)
 {
-	console.debug('divid='+divid);
+//	console.debug('divid='+divid);
 	$( "#" + divid).show();
 	$( "#" + divid).html('<br/>');
 	if (typeof(data.aaData) != 'undefined'){
 		for (var key in data.aaData) {
-			console.log('key=' + key + ' data=' + data.aaData[key]);
+//			console.log('key=' + key + ' data=' + data.aaData[key]);
 			$( "#" + divid).append('<span><strong>' +  key + ':</strong></span>&nbsp;');
-			for (var k in data.aaData[key]){
-				console.log('key=' + key + ' k=' + k + ' data=' + data.aaData[key][k]);
-				$( "#" + divid).append('<emph>' +  k + '</emph>' + '(' + data.aaData[key][k] + ')&nbsp;');
+			for (var r in data.aaData[key]){
+//				console.log('key=' + key + ' r=' + r + ' data=' + data.aaData[key][r]);
+				var smryURL = updateQueryStringParameter(
+						window.location.href,
+						data.aaData[key][r].f, 
+						data.aaData[key][r].c
+				)
+//				console.debug(smryURL);
+				$( "#" + divid).append(
+						'<emph>' +  data.aaData[key][r].c + '</emph>' 
+						+ '(<a href="' + smryURL + '" target="_blank">' 
+						+ data.aaData[key][r].v + "</a>"
+						+ ')&nbsp;');
 			}
 			$( "#" + divid).append('<br/><br/>');
 		}
@@ -104,40 +124,55 @@ $.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallba
  
     this.fnDraw();
 }
-
+function getURLforFilter(f){
+	// upURL -- update URL with filter
+	// f ... filter dictionary
+	var nH = "";
+	for (x in f)
+	{
+		if (x != 0){
+			nH += '&';
+		}
+		nH += encodeURIComponent(f[x].name) + '=' + encodeURIComponent(f[x].value) ;
+	}
+	return nH;
+}
 
 function upURL(f){
 	// upURL -- update URL with filter
-//	    f ... filter dictionary
-	    var nH = "";
-	    for (x in f)
-	    {
-	        if (x != 0){
-	            nH += '&';
-	        }
-	        nH += encodeURIComponent(f[x].name) + '=' + encodeURIComponent(f[x].value) ;
-	    }
-	    window.location.hash = nH;
-	    console.debug('nH='+nH);
+	// f ... filter dictionary
+	var prefixChar = "?";
+	var nH = "";
+	nH = prefixChar+getURLforFilter(f);
+//	console.debug('current hash   nH='+window.location.hash);
+//	console.debug('current search nH='+window.location.search);
+//	console.debug('future         nH='+nH);
+	if ((nH.length>1) &&  (nH != window.location.search)){
+		window.location.search = nH;
+	}
+//	console.debug('window.location.hash: '+window.location.hash);
+//	console.debug('window.location.search: '+window.location.search);
 }
 
 
-function getHashParams() {
+//function getHashParams() {
+function getUrlParams() {
 	// getHashParams
-	    var hashParams = [];
+	    var urlParams = [];
 	    var e,
 	        a = /\+/g,  // Regex for replacing addition symbol with a space
 	        r = /([^&;=]+)=?([^&;]*)/g,
 	        d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
-	        q = window.location.hash.substring(1);
+//	        q = window.location.hash.substring(1);
+	        q = window.location.search.substring(1);
 	    while (e = r.exec(q))
-	       hashParams.push({ 'name': d(e[1]), 'value': d(e[2]) });
-	    return hashParams;
+	       urlParams.push({ 'name': d(e[1]), 'value': d(e[2]) });
+	    return urlParams;
 }
 
 function getFilterURL(){
 	// get filter from URL to populate filter table
-	    filter = getHashParams();
+	    filter = getUrlParams();
 	    if ( typeof filter != 'undefined' && filter != null ){
 	        pgst = 'fltr';
 	    } else {
@@ -147,14 +182,18 @@ function getFilterURL(){
 
 function drawTable(stFlag){
 	// nuke old table with old data
-	    if ( typeof oTable != 'undefined' && oTable != null ){
-	        oTable.fnClearTable();
-	    }
+	if ( typeof oTable != 'undefined' && oTable != null ){
+		oTable.fnClearTable();
+	}
 	// get filter parameters
-	   fltr=getValuesFilterTable(fields);
+	fltr=getValuesFilterTable(fields);
+
+	//// moved URL update here   
+	// update GET parameters
+	upURL(fltr);
 
 	// create new table with new data
-	    oTable = $("#" + tableid).dataTable( {
+	oTable = $("#" + tableid).dataTable( {
 			"sPaginationType": "full_numbers",
 			"bDestroy": true,
 			"aLengthMenu": [ [10, 100, 250, 500, 1000, -1], [10, 100, 250, 500, 1000, "All"] ],
@@ -180,7 +219,8 @@ function drawTable(stFlag){
 					"success": fnCallback,
 					"async":true,
 					"error": function (xhr, error, thrown) {
-						alert("THERE IS AN ERROR");
+//						alert("THERE IS AN ERROR DataTable in drawTable error="+error);
+						console.debug("error="+error);
 						if ( error == "parsererror" ) 
 							apprise( "DataTables warning: JSON data" + 
 								" from server could not be parsed. " +
@@ -268,13 +308,13 @@ function drawTable(stFlag){
 			"data": smryAoData,
 			"type": "POST", 
 			"success": function(data,status){
-				console.debug(data);
-				console.debug(data.aaData);
+//				console.debug(data);
+//				console.debug(data.aaData);
 				buildSummary(tableidsmry, data);
 			},
 			"async":true,
 			"error": function (xhr, error, thrown) {
-				alert("THERE IS AN ERROR");
+//				alert("THERE IS AN ERROR smrydata error="+error);
 				if ( error == "parsererror" ) 
 					apprise( "DataTables warning: JSON data" + 
 						" from server could not be parsed. " +
@@ -284,14 +324,12 @@ function drawTable(stFlag){
 			}
 		} );
 
-	// update GET parameters
-	    upURL(fltr);
-	console.debug("end of drawTable");
+//	console.debug("end of drawTable");
 }
 
 //showFilter({{tableid}}, {{caption}})
 function showFilter(tableid, caption){
-	console.debug("showFilter: tableid="+ tableid);
+//	console.debug("showFilter: tableid="+ tableid);
 	$("#div-table-filter-" + tableid).show();
 	$("#div-table-filter-button-" + tableid).show();
 	$("#sh-filter-" + tableid).text("Hide filter of " + caption);
@@ -299,7 +337,7 @@ function showFilter(tableid, caption){
 
 // hideFilter({{tableid}}, {{caption}})
 function hideFilter(tableid, caption){
-	console.debug("hideFilter: tableid="+ tableid);
+//	console.debug("hideFilter: tableid="+ tableid);
 	$("#div-table-filter-" + tableid).hide();
 	$("#div-table-filter-button-" + tableid).hide();
 	$("#sh-filter-" + tableid).text("Show filter of " + caption);
