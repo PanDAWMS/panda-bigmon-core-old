@@ -59,7 +59,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
     model = PandaJob
 
     # reverse URL
-    reverseUrl = 'DEV-api-datatables-jedi-jobs-in-task'
+    reverseUrl = 'api-datatables-jedi-jobs-in-task'
 
     # Define subset of columns to be used in this resource
     # define the columns that will be returned
