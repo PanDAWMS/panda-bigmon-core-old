@@ -244,3 +244,32 @@ COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
 FILTERS['api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
 SUMMARY_FIELDS['api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
 
+
+
+### reverse URL: 'DEV-api-datatables-jedi-jobs-in-task'
+COLUMNS['DEV-api-datatables-jedi-jobs-in-task'] = [\
+        'pandaid', 'jeditaskid', 'produsername', 'workinggroup', \
+        'creationtime', 'modificationtime', 'starttime', 'endtime', \
+        'jobstatus', 'currentpriority', 'computingsite', 'cloud' \
+    ]
+ORDER_COLUMNS['DEV-api-datatables-jedi-jobs-in-task'] = [\
+        'jeditaskid', 'pandaid', \
+        'jobstatus', \
+        'creationtime', 'modificationtime', 'starttime', 'endtime', \
+        'cloud', 'computingsite', 'currentpriority', \
+        'produsername', 'workinggroup' \
+    ]
+UPDATE_COL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = { \
+    'workinggroup': {'vis': False, 'sort': False}, \
+    'cloud': {'vis': False, 'sort': False}, \
+}
+COL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = \
+    getTitles('DEV-api-datatables-jedi-jobs-in-task', 'PanDAjob-all')
+#COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
+#    updateTitles('api-datatables-jedi-jobs-in-task', \
+#                 COL_TITLES['api-datatables-jedi-jobs-in-task'], \
+#                 updateColTitlesData\
+#    )
+FILTERS['DEV-api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
+SUMMARY_FIELDS['DEV-api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
+

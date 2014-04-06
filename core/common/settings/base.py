@@ -34,6 +34,19 @@ SITE_ID = 1
 
 
 
+#CACHES = {
+#    'default.LocMemCache': {
+#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        'LOCATION': 'unique-snowflake'
+#    },
+#    'default.DummyCacheForDevelopment': {
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    },
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    },
+#}
+
 
 # List of finder classes that know how to find static files in
 # various locations.

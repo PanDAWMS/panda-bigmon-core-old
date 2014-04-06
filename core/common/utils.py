@@ -147,13 +147,17 @@ class QuerySetChain(object):
 
     def get(self):
         res = []
+        ### must loop over self._all(),
+        ### because Django QuerySet returns either 1 item for .get(),
+        ### or it fails with MultipleObjectsReturned
         for i in self._all():
             res.append(i)
         return res
 
+
     def sortNoneDatetime(self, x, field):
         return x[field] or MINDATETIME
-        
+
 
     def order_by(self, *field_names):
         """
@@ -161,23 +165,41 @@ class QuerySetChain(object):
         """
         ret = []
         for qs in self.querysets:
-            ret.extend(qs)
-        for field in field_names:
-            if field[0] == '-':
-                ### lambda x:-x[field[1:]] is failing with TypeError
-                ### for -datetime.datetime,
-                ###     --> use reverse instead
-#                ret = sorted(ret, key=lambda x:x[field[1:]], reverse=True)
-                try:
-                    ret = sorted(ret, key=operator.itemgetter(field[1:]), reverse=True)
-                except:
-                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field[1:]), reverse=True)
-            else:
-#                ret = sorted(ret, key=lambda x:x[field], reverse=False)
-                try:
-                    ret = sorted(ret, key=operator.itemgetter(field), reverse=False)
-                except:
-                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field), reverse=False)
+            ret.extend(qs.order_by(*field_names))
+#        for qs in self.querysets:
+#            ret.extend(qs)
+#        for field in field_names:
+#            if field[0] == '-':
+#                ### lambda x:-x[field[1:]] is failing with TypeError
+#                ### for -datetime.datetime,
+#                ###     --> use reverse instead
+##                ret = sorted(ret, key=lambda x:x[field[1:]], reverse=True)
+#                try:
+#                    _logger.debug('utils:172 before')
+#                    _logger.debug('utils:172 ret=' + str(ret))
+#                    ret = sorted(ret, key=operator.itemgetter(field[1:]), reverse=True)
+#                    _logger.debug('utils:172 ret=' + str(ret))
+#                    _logger.debug('utils:172 after')
+#                except:
+#                    _logger.debug('utils:176 before')
+#                    _logger.debug('utils:176 ret=' + str(ret))
+#                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field[1:]), reverse=True)
+#                    _logger.debug('utils:176 ret=' + str(ret))
+#                    _logger.debug('utils:176 after')
+#            else:
+##                ret = sorted(ret, key=lambda x:x[field], reverse=False)
+#                try:
+#                    _logger.debug('utils:182 before')
+#                    _logger.debug('utils:182 ret=' + str(ret))
+#                    ret = sorted(ret, key=operator.itemgetter(field), reverse=False)
+#                    _logger.debug('utils:182 ret=' + str(ret))
+#                    _logger.debug('utils:182 after')
+#                except:
+#                    _logger.debug('utils:186 before')
+#                    _logger.debug('utils:186 ret=' + str(ret))
+#                    ret = sorted(ret, key=lambda x:self.sortNoneDatetime(x, field), reverse=False)
+#                    _logger.debug('utils:186 ret=' + str(ret))
+#                    _logger.debug('utils:186 after')
         return ret
 
     @property

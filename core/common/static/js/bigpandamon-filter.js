@@ -42,11 +42,14 @@ function buildSummary(divid, data)
 {
 //	console.debug('divid='+divid);
 	$( "#" + divid).show();
-	$( "#" + divid).html('<br/>');
+	$( "#smry-title").hide();
+	$( "#" + divid).append('<div class="row text-justify"><strong>Summary</strong><br/><br/></div>');
 	if (typeof(data.aaData) != 'undefined'){
+		var s = '<div class="row text-justify">';
 		for (var key in data.aaData) {
 //			console.log('key=' + key + ' data=' + data.aaData[key]);
-			$( "#" + divid).append('<span><strong>' +  key + ':</strong></span>&nbsp;');
+			s += '<span><strong>' +  key + ':</strong>&nbsp;</span>';
+			console.debug(s);
 			for (var r in data.aaData[key]){
 //				console.log('key=' + key + ' r=' + r + ' data=' + data.aaData[key][r]);
 				var smryURL = updateQueryStringParameter(
@@ -55,14 +58,15 @@ function buildSummary(divid, data)
 						data.aaData[key][r].c
 				)
 //				console.debug(smryURL);
-				$( "#" + divid).append(
-						'<emph>' +  data.aaData[key][r].c + '</emph>' 
+				s+= 	'<emph>' +  data.aaData[key][r].c + '</emph>' 
 						+ '(<a href="' + smryURL + '" target="_blank">' 
 						+ data.aaData[key][r].v + "</a>"
-						+ ')&nbsp;');
+						+ ') ';
 			}
-			$( "#" + divid).append('<br/><br/>');
+			s+='<br/><br/>';
 		}
+		s+='</div>';
+		$( "#" + divid).append(s);
 	}
 }
 

@@ -1,5 +1,5 @@
 """ 
-api.jedi.jobsintask.views
+api.jedi.jobsintask.devviews
 
 """
 #import inspect
@@ -42,7 +42,7 @@ LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('jedi_jobsintask')
-#_django_logger = logging.getLogger('django')
+_django_logger = logging.getLogger('django')
 
 #currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
 currentDateFormat = defaultDatetimeFormat
@@ -148,18 +148,18 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         ### original prepare_results provides data as list of lists
         ### overridden prepare_results, with data as list of dicts
 #        _logger.debug('qs=' + str(qs))
-#        _django_logger.debug('prepare_results: before SerializerPandaJob')
+        _django_logger.debug('prepare_results: before SerializerPandaJob')
         serializer = SerializerPandaJob(qs, many=True)
-#        _django_logger.debug('prepare_results: after SerializerPandaJob')
+        _django_logger.debug('prepare_results: after SerializerPandaJob')
         _logger.debug('mark')
         data = serializer.data
-#        _django_logger.debug('prepare_results: before |data|')
+        _django_logger.debug('prepare_results: before |data|')
         _logger.debug('|data|=' + str(len(data)))
-#        _django_logger.debug('prepare_results: after |data|')
+        _django_logger.debug('prepare_results: after |data|')
         newData = self.skimData(data, self.columns)
-#        _django_logger.debug('prepare_results: after skimData')
+        _django_logger.debug('prepare_results: after skimData')
         newData = self.removeNones(newData, self.columns)
-#        _django_logger.debug('prepare_results: after cleanup')
+        _django_logger.debug('prepare_results: after cleanup')
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
 ##        _logger.debug('data=' + str(newData))
@@ -407,7 +407,7 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         res = {}
         r = []
 
-#        _django_logger.debug('getSummaryForField data=' + str(data))
+        _django_logger.debug('getSummaryForField data=' + str(data))
         ### data is a list of dictionaries. Each dictionary has key summaryField and summaryField__count
         cntField = '%s__count' % (summaryField)
 
@@ -431,7 +431,7 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         res = r
 
         ### return result
-#        _django_logger.debug('getSummaryForField res=' + str(res))
+        _django_logger.debug('getSummaryForField res=' + str(res))
         return res
 
 
@@ -440,17 +440,17 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
             get summary data for view self.reverseUrl
             
         """
-#        _django_logger.debug('getSummary data=' + str(data))
+        _django_logger.debug('getSummary data=' + str(data))
         _logger.debug('getSummary:POSTkeys=%s' % (str(self.request.POST.keys())))
         summary = {}
         smrykeys = {}
         ### for each active summaryField get summary data
         for summaryField in SUMMARY_FIELDS[self.reverseUrl]:
             summaryFieldResult = []
-#            _django_logger.debug('getSummary summaryField=' + str(summaryField))
+            _django_logger.debug('getSummary summaryField=' + str(summaryField))
             ### slice data for this particular summaryField
             summaryDataForField = [x for x in data if summaryField in x.keys()]
-#            _django_logger.debug('getSummary summaryDataForField=' + str(summaryDataForField))
+            _django_logger.debug('getSummary summaryDataForField=' + str(summaryDataForField))
             ### get summary for this particular summaryField
             summaryFieldResult = self.getSummaryForField(summaryField, summaryDataForField)
 
@@ -565,5 +565,5 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         ### original prepare_results provides data as list of lists
         ### overridden prepare_results, with data as list of dicts
 #        _logger.debug('qs=' + str(qs))
-#        _django_logger.debug('prepare_results: qs=' + str(qs))
+        _django_logger.debug('prepare_results: qs=' + str(qs))
         return qs
