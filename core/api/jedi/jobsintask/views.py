@@ -34,7 +34,8 @@ from .serializers import SerializerPandaJob
 from ....table.views import ModelJobDictJson, VALUE_ALL_MULTISTRING
 #from ..common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from ....common.settings import FILTER_UI_ENV, defaultDatetimeFormat
-from ....pandajob.columns_config import COLUMNS, ORDER_COLUMNS, COL_TITLES, FILTERS, SUMMARY_FIELDS
+from ....pandajob.columns_config import COLUMNS, ORDER_COLUMNS, \
+    COL_TITLES, SMRYCOL_TITLES, FILTERS, SUMMARY_FIELDS
 LAST_N_DAYS = FILTER_UI_ENV['DAYS']
 LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
@@ -173,16 +174,13 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                                   is described by 4 different models
         
         """
-#        _logger.debug('get_initial_queryset: caller name:' + str(inspect.stack()[1][3]))
-###DEBUG###        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
-###DEBUG###        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
-###DEBUG###        startdate = datetime.utcnow() - timedelta(minutes=1)
-#        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+        ### limit modificationtime range
         startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         _logger.debug('get_initial_queryset')
         #.only(*self.onlyColumns)
+        ### get the initial queryset
         qs = QuerySetChain(\
                     Jobsdefined4.objects.filter(\
                         modificationtime__range=[startdate, enddate]\
@@ -201,11 +199,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                         , jeditaskid__isnull=False \
                     ), \
             )
-#        qs = QuerySetChain(\
-#                    Jobsactive4.objects.filter(\
-#                        jeditaskid=4000195 \
-#                    ), \
-#        )
+        ### return the initial queryset
         return qs
 
 
@@ -275,9 +269,9 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             ### add constraint that jeditaskid is not NULL
             query['jeditaskid__isnull'] = False
             qs = QuerySetChain(\
-#                    Jobsdefined4.objects.filter(**query), \
+                    Jobsdefined4.objects.filter(**query), \
                     Jobsactive4.objects.filter(**query), \
-#                    Jobswaiting4.objects.filter(**query), \
+                    Jobswaiting4.objects.filter(**query), \
                     Jobsarchived4.objects.filter(**query) \
             )
         else:
@@ -406,14 +400,10 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         filterField = getFilterNameForField(summaryField, self.filterFields)
         res = {}
         r = []
-
-#        _django_logger.debug('getSummaryForField data=' + str(data))
         ### data is a list of dictionaries. Each dictionary has key summaryField and summaryField__count
         cntField = '%s__count' % (summaryField)
-
         ### get list of values for field summaryField in data
         keys = list(set([x[summaryField] for x in data]))
-
         ### get sum of values for this summaryField
         for caption in keys:
             cnt = sum([v[cntField] for v in data \
@@ -425,13 +415,10 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                   'c': caption,  ### caption
                   'v': cnt,  ### value
                 })
-
         ### sort captions by descending number of occurences
         r = sorted(r, key=lambda x:(-x['v'], x['c']))
         res = r
-
         ### return result
-#        _django_logger.debug('getSummaryForField res=' + str(res))
         return res
 
 
@@ -447,20 +434,13 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         ### for each active summaryField get summary data
         for summaryField in SUMMARY_FIELDS[self.reverseUrl]:
             summaryFieldResult = []
-#            _django_logger.debug('getSummary summaryField=' + str(summaryField))
             ### slice data for this particular summaryField
             summaryDataForField = [x for x in data if summaryField in x.keys()]
-#            _django_logger.debug('getSummary summaryDataForField=' + str(summaryDataForField))
             ### get summary for this particular summaryField
             summaryFieldResult = self.getSummaryForField(summaryField, summaryDataForField)
-
-            _logger.debug('summaryFieldResult=' + str(summaryFieldResult))
-
             ### if there is something to summarize for this summaryField, record it
             if len(summaryFieldResult) > 0:
-                summaryFieldRenderText = getFilterFieldRenderText(summaryField, COL_TITLES[self.reverseUrl])
-                _logger.debug('summaryFieldRenderText=' + str(summaryFieldRenderText))
-                _logger.debug('summaryField=' + str(summaryField))
+                summaryFieldRenderText = getFilterFieldRenderText(summaryField, SMRYCOL_TITLES[self.reverseUrl])
                 summary[summaryFieldRenderText] = summaryFieldResult
                 smrykeys[summaryFieldRenderText] = summaryField
         ### return summary data structures
@@ -469,7 +449,6 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
 
     def getAnnotationForQuery(self, query, smryFields):
         qsList = []
-#        qsDict = {}
         for smryField in smryFields:
             qs = QuerySetChain(\
                 Jobsactive4.objects.filter(**query).values(smryField)
@@ -482,16 +461,6 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                     .annotate(Count(smryField, distinct=False)), \
             )
             qsList.append(qs)
-#            annotationList = qs.get()
-#            cntField = '%s__count' % (smryField)
-#            annotationKeys = list(set([x[smryField] for x in annotationList \
-#                                        if x is not None]))
-#            qsDict[smryField] = {}
-#            for key in annotationKeys:
-#                cnt = sum([v[cntField] for v in annotationList \
-#                                if v[smryField] == key ])
-#                qsDict[smryField][key] = cnt
-#        return qsDict
         qsChain = QuerySetChain(*qsList)
         return qsChain
 
@@ -502,18 +471,19 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                                   is described by 4 different models
         
         """
+        ### limit modificationtime range
         startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         _logger.debug('get_initial_queryset')
-
+        ### get the initial queryset properties
         query = {\
             'modificationtime__range': [startdate, enddate], \
             'jeditaskid__isnull': False \
         }
-
+        ### get annotation for the initial queryset
         qs = self.getAnnotationForQuery(query, self.summaryColumns)
-
+        ### return annotation queryset
         return qs
 
 
@@ -543,6 +513,7 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
             qs = self.get_initial_queryset()
 
         _logger.debug('|qs|=%d' % (qs.count()))
+        ### return filtered queryset
         return qs
 
 
@@ -561,9 +532,8 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                 list of dicts with data of the qs items
         
         """
-#        _logger.debug('prepare_results: caller name:' + str(inspect.stack()[1][3]))
-        ### original prepare_results provides data as list of lists
-        ### overridden prepare_results, with data as list of dicts
-#        _logger.debug('qs=' + str(qs))
-#        _django_logger.debug('prepare_results: qs=' + str(qs))
+        ### result is already annotation queryset, return it,
+        ### it will be processed later in getSummary()
         return qs
+
+

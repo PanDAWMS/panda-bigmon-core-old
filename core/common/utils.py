@@ -12,6 +12,9 @@ from django.conf import settings
 #.settings import STATIC_URL, FILTER_UI_ENV
 import datetime
 
+import traceback
+import sys
+
 try:
     from settings import URL_PATH_PREFIX
 except ImportError:
@@ -93,18 +96,27 @@ def getFilterFieldIDs(filterDescriptionList):
 
 def getFilterFieldRenderText(field, filterDescriptionList):
     data = ''
+#    _logger.debug('getFilterFieldRenderText: field=' + field + '  filterDescriptionList=' + str(filterDescriptionList))
     try:
         data = [ x['t'] for x in filterDescriptionList if x['c'] == field ][0]
+#        data = [ x['name'] for x in filterDescriptionList if x['field'] == field ][0]
     except:
+        _logger.error('getFilterFieldRenderText: field=' + field + '  filterDescriptionList=' + str(filterDescriptionList))
+        _logger.error(sys.exc_info()[0])
+        _logger.error(traceback.format_exc())
         return data
     return data
 
 
 def getFilterNameForField(field, filterDescriptionList):
+#    _logger.debug('getFilterNameForField: field=' + field + '  filterDescriptionList=' + str(filterDescriptionList))
     data = ''
     try:
         data = [ x['name'] for x in filterDescriptionList if x['field'] == field ][0]
     except:
+        _logger.error('getFilterNameForField: field=' + field + '  filterDescriptionList=' + str(filterDescriptionList))
+        _logger.error(sys.exc_info()[0])
+        _logger.error(traceback.format_exc())
         return data
     return data
 

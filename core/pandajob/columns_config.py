@@ -11,6 +11,7 @@ COL_TITLES = {}
 FILTERS = {}
 UPDATE_COL_TITLES = {}
 SUMMARY_FIELDS = {}
+SMRYCOL_TITLES = {}
 DEFAULT_COLDEF = {'sort': True, 'vis': True, 'c': '', 't': ''}
 
 def skimColumns(myColumnsID, allColumnsID):
@@ -36,7 +37,7 @@ def skimColumns(myColumnsID, allColumnsID):
     return cols
 
 
-def getTitles(myColumnsID, allColumnsID):
+def getTitles(myColumnsID, allColumnsID, smry=0):
     """
         getTitles(myColumnsID, allColumnsID)
         get column titles for columns in COLUMNS[myColumnsID]
@@ -46,7 +47,11 @@ def getTitles(myColumnsID, allColumnsID):
     try:
 #        myCols = ORDER_COLUMNS[myColumnsID]
 #        titles = [ x for colname in myCols for x in COL_TITLES[allColumnsID] if x['c'] == colname ]
-        for colname in ORDER_COLUMNS[myColumnsID]:
+        columns = ORDER_COLUMNS[myColumnsID]
+        if smry:
+            columns += SUMMARY_FIELDS[myColumnsID]
+
+        for colname in columns:
             colDef = {}
             try:
                 colDef = [x for x in COL_TITLES[allColumnsID] \
@@ -64,7 +69,8 @@ def getTitles(myColumnsID, allColumnsID):
     return titles
 
 
-
+def getTitlesSmry(myColumnsID, allColumnsID, smry=1):
+    return getTitles(myColumnsID, allColumnsID, smry)
 
 
 ### PanDAjob - all
@@ -190,6 +196,7 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'workqueue_id', 't': 'Work queue ID'}, \
     {'sort': True, 'vis': True, 'c': 'jeditaskid', 't': 'Task ID'}, \
 ]
+SMRYCOL_TITLES['PanDAjob-all'] = {}
 UPDATE_COL_TITLES['PanDAjob-all'] = {}
 FILTERS['PanDAjob-all'] = [ \
     { 'name': 'ProdUserName', 'field': 'produsername', 'filterField': 'produsername', 'type': 'string' }, \
@@ -203,6 +210,9 @@ FILTERS['PanDAjob-all'] = [ \
     { 'name': 'CreationTo', 'field': 'creationtime', 'filterField': 'creationtime__lte', 'type': 'datetime'}, \
     { 'name': 'ModificationFrom', 'field': 'modificationtime', 'filterField': 'modificationtime__gte', 'type': 'datetime' }, \
     { 'name': 'ModificationTo', 'field': 'modificationtime', 'filterField': 'modificationtime__lte', 'type': 'datetime'}, \
+    { 'name': 'Trf', 'field': 'transformation', 'filterField': 'transformation', 'type': 'string'}, \
+    { 'name': 'Rls', 'field': 'atlasrelease', 'filterField': 'atlasrelease', 'type': 'string'}, \
+    { 'name': 'ProcessingType', 'field': 'processingtype', 'filterField': 'processingtype', 'type': 'string'}, \
 ]
 SUMMARY_FIELDS['PanDAjob-all'] = [
         'jobstatus', \
@@ -243,6 +253,8 @@ COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
 #    )
 FILTERS['api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
 SUMMARY_FIELDS['api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
+SMRYCOL_TITLES['api-datatables-jedi-jobs-in-task'] = \
+    getTitlesSmry('api-datatables-jedi-jobs-in-task', 'PanDAjob-all', smry=True)
 
 
 
@@ -272,4 +284,6 @@ COL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = \
 #    )
 FILTERS['DEV-api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
 SUMMARY_FIELDS['DEV-api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
+SMRYCOL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = \
+    getTitlesSmry('DEV-api-datatables-jedi-jobs-in-task', 'PanDAjob-all', smry=True)
 
