@@ -43,7 +43,7 @@ LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('jedi_jobsintask')
-#_django_logger = logging.getLogger('django')
+_django_logger = logging.getLogger('django')
 
 #currentDateFormat = "%Y-%m-%d %H:%M:%SZ"
 currentDateFormat = defaultDatetimeFormat
@@ -180,25 +180,18 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         _logger.debug('get_initial_queryset')
         #.only(*self.onlyColumns)
+        ### get the initial queryset properties
+        query = {\
+            'modificationtime__range': [startdate, enddate], \
+            'jeditaskid__isnull': False \
+        }
         ### get the initial queryset
         qs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                        , jeditaskid__isnull=False \
-                    ), \
-                    Jobsactive4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                        , jeditaskid__isnull=False \
-                    ), \
-                    Jobswaiting4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                        , jeditaskid__isnull=False \
-                    ), \
-                    Jobsarchived4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                        , jeditaskid__isnull=False \
-                    ), \
-            )
+            Jobsdefined4.objects.filter(**query), \
+            Jobsactive4.objects.filter(**query), \
+            Jobswaiting4.objects.filter(**query), \
+            Jobsarchived4.objects.filter(**query), \
+        )
         ### return the initial queryset
         return qs
 
@@ -289,15 +282,11 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         ### add constraint that jeditaskid is not NULL
         query['jeditaskid__isnull'] = False
         return QuerySetChain(\
-##                    Jobsactive4.objects.filter(\
-##                            jeditaskid=4000195, \
-##                            modificationtime__range=[startdate, enddate], \
-##                    ), \
-                    Jobsdefined4.objects.filter(**query), \
-                    Jobsactive4.objects.filter(**query), \
-                    Jobswaiting4.objects.filter(**query), \
-                    Jobsarchived4.objects.filter(**query) \
-            )
+            Jobsdefined4.objects.filter(**query), \
+            Jobsactive4.objects.filter(**query), \
+            Jobswaiting4.objects.filter(**query), \
+            Jobsarchived4.objects.filter(**query) \
+        )
 
 
     def paging(self, qs):
@@ -448,21 +437,26 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
 
 
     def getAnnotationForQuery(self, query, smryFields):
-        qsList = []
+        _logger.debug('getAnnotationForQuery: mark')
+        annotationQuery = {}
         for smryField in smryFields:
-            qs = QuerySetChain(\
-                Jobsactive4.objects.filter(**query).values(smryField)
-                    .annotate(Count(smryField, distinct=False)), \
-                Jobsdefined4.objects.filter(**query).values(smryField)
-                    .annotate(Count(smryField, distinct=False)), \
-                Jobswaiting4.objects.filter(**query).values(smryField)
-                    .annotate(Count(smryField, distinct=False)), \
-                Jobsarchived4.objects.filter(**query).values(smryField)
-                    .annotate(Count(smryField, distinct=False)), \
+            _logger.debug('getAnnotationForQuery: smryField=' + smryField)
+            annotationQuery['%s__count' % (smryField)] = Count(smryField, distinct=False)
+            _logger.debug('getAnnotationForQuery: annotationQuery=' + str(annotationQuery))
+        _logger.debug('getAnnotationForQuery mark')
+        qs = QuerySetChain(\
+                Jobsactive4.objects.filter(**query).values_list(*smryFields)
+                    .annotate(**annotationQuery), \
+                Jobsdefined4.objects.filter(**query).values_list(*smryFields)
+                    .annotate(**annotationQuery), \
+                Jobswaiting4.objects.filter(**query).values_list(*smryFields)
+                    .annotate(**annotationQuery), \
+                Jobsarchived4.objects.filter(**query).values_list(*smryFields)
+                    .annotate(**annotationQuery), \
             )
-            qsList.append(qs)
-        qsChain = QuerySetChain(*qsList)
-        return qsChain
+        _logger.debug('getAnnotationForQuery: qs = ' + str(qs))
+        _django_logger.debug('getAnnotationForQuery: qs = ' + str(qs))
+        return qs
 
 
     def get_initial_queryset(self):
@@ -488,6 +482,11 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
 
 
     def filter_queryset(self, qs):
+        """
+            filter_queryset
+            @param: qs ... queryset to further filter
+            @returns: filtered queryset
+        """
         # use request parameters to filter queryset
         ### get the POST keys
         POSTkeys = self.request.POST.keys()
@@ -499,11 +498,9 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         if pgst == 'ini':
             _logger.debug('|qs|=%d' % (qs.count()))
             return qs
-
         ### assemble query from POST parameters for the filter
         query = self.getFilterFromPost(POSTkeys)
         _logger.debug('query: %s' % (str(query)))
-
         ### execute filter on the queryset
         if pgst in ['fltr'] and query != {}:
             ### add constraint that jeditaskid is not NULL
@@ -511,7 +508,6 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
             qs = self.getAnnotationForQuery(query, self.summaryColumns)
         else:
             qs = self.get_initial_queryset()
-
         _logger.debug('|qs|=%d' % (qs.count()))
         ### return filtered queryset
         return qs
@@ -530,10 +526,44 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                 qs ... queryset of the model instances
             return:
                 list of dicts with data of the qs items
-        
         """
-        ### result is already annotation queryset, return it,
-        ### it will be processed later in getSummary()
-        return qs
+        data = []
+        ### qs is annotation of multiple fields from self.summaryColumns
+        ###    it is a list of tuples
+        for smryField in self.summaryColumns:
+            idx = -1
+            cntidx = idx
+            try:
+                idx = self.summaryColumns.index(smryField)
+                cntidx = idx + len(self.summaryColumns)
+            except:
+                _logger.error(\
+                 'prepare_result: cannot determine index of item %s in list %s' \
+                 % (smryField, self.summaryColumns))
+            if idx != -1:
+                cntID = '%s__count' % (smryField)
+                smryFieldData = []
+                try:
+                    smryFieldData = [ { smryField: x[idx], \
+                                       cntID: x[cntidx] } \
+                                     for x in qs ]
+                    smryFieldDataKeys = list(set([ x[smryField] for x in smryFieldData]))
+                    for caption in smryFieldDataKeys:
+                        captionSum = sum([x[cntID]
+                                          for x in smryFieldData \
+                                            if x[smryField] == caption])
+                        data.append(
+                            {\
+                             smryField: caption, \
+                             cntID: captionSum
+                             }
+                        )
+                    _logger.debug('field:' + smryField + ' smryData: ' + str(smryFieldData))
+                except:
+                    _logger.error(\
+                        'prepare_result: cannot get summary data for field %s' \
+                        % (smryField, self.summaryColumns))
+        ### return prepared data
+        return data
 
 
