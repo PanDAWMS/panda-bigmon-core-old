@@ -150,12 +150,14 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         ### overridden prepare_results, with data as list of dicts
 #        _logger.debug('qs=' + str(qs))
 #        _django_logger.debug('prepare_results: before SerializerPandaJob')
-        serializer = SerializerPandaJob(qs, many=True)
+        serializer = SerializerPandaJob(qs, many=True, fields=self.columns)
 #        _django_logger.debug('prepare_results: after SerializerPandaJob')
         _logger.debug('mark')
         data = serializer.data
 #        _django_logger.debug('prepare_results: before |data|')
         _logger.debug('|data|=' + str(len(data)))
+#        _django_logger.debug('|data|=' + str(len(data)))
+#        _django_logger.debug('data=' + str(data))
 #        _django_logger.debug('prepare_results: after |data|')
         newData = self.skimData(data, self.columns)
 #        _django_logger.debug('prepare_results: after skimData')
@@ -186,12 +188,14 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             'jeditaskid__isnull': False \
         }
         ### get the initial queryset
+#        _django_logger.debug('get_initial_queryset: before qs')
         qs = QuerySetChain(\
-            Jobsdefined4.objects.filter(**query), \
-            Jobsactive4.objects.filter(**query), \
-            Jobswaiting4.objects.filter(**query), \
-            Jobsarchived4.objects.filter(**query), \
+            Jobsdefined4.objects.filter(**query).only(*self.onlyColumns), \
+            Jobsactive4.objects.filter(**query).only(*self.onlyColumns), \
+            Jobswaiting4.objects.filter(**query).only(*self.onlyColumns), \
+            Jobsarchived4.objects.filter(**query).only(*self.onlyColumns) \
         )
+#        _django_logger.debug('get_initial_queryset: after qs')
         ### return the initial queryset
         return qs
 
@@ -252,24 +256,29 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         if 'pgst' in POSTkeys:
             pgst = self.request.POST['pgst']
         if pgst == 'ini':
-            _logger.debug('|qs|=%d' % (qs.count()))
+#            _logger.debug('|qs|=%d' % (qs.count()))
             return qs
 #        ### assemble query from POST parameters for the filter
         query = self.getFilterFromPost(POSTkeys)
         _logger.debug('query: %s' % (str(query)))
         ### execute filter on the queryset
+#        _django_logger.debug('filter_queryset: pgst=' + str(pgst))
         if pgst in ['fltr'] and query != {}:
             ### add constraint that jeditaskid is not NULL
             query['jeditaskid__isnull'] = False
+#            _django_logger.debug('filter_queryset: before filtered qs')
             qs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query), \
-                    Jobsactive4.objects.filter(**query), \
-                    Jobswaiting4.objects.filter(**query), \
-                    Jobsarchived4.objects.filter(**query) \
+                    Jobsdefined4.objects.filter(**query).only(*self.onlyColumns), \
+                    Jobsactive4.objects.filter(**query).only(*self.onlyColumns), \
+                    Jobswaiting4.objects.filter(**query).only(*self.onlyColumns), \
+                    Jobsarchived4.objects.filter(**query).only(*self.onlyColumns) \
             )
+#            _django_logger.debug('filter_queryset: after filtered qs')
         else:
+#            _django_logger.debug('filter_queryset: before initial qs')
             qs = self.get_initial_queryset()
-        _logger.debug('|qs|=%d' % (qs.count()))
+#            _django_logger.debug('filter_queryset: before initial qs')
+#        _logger.debug('|qs|=%d' % (qs.count()))
         return qs
 
 
@@ -438,11 +447,12 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
 
     def getAnnotationForQuery(self, query, smryFields):
         _logger.debug('getAnnotationForQuery: mark')
+        _django_logger.debug('getAnnotationForQuery: mark')
         annotationQuery = {}
         for smryField in smryFields:
             _logger.debug('getAnnotationForQuery: smryField=' + smryField)
             annotationQuery['%s__count' % (smryField)] = Count(smryField, distinct=False)
-            _logger.debug('getAnnotationForQuery: annotationQuery=' + str(annotationQuery))
+#            _logger.debug('getAnnotationForQuery: annotationQuery=' + str(annotationQuery))
         _logger.debug('getAnnotationForQuery mark')
         qs = QuerySetChain(\
                 Jobsactive4.objects.filter(**query).values_list(*smryFields)
@@ -454,8 +464,9 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
                 Jobsarchived4.objects.filter(**query).values_list(*smryFields)
                     .annotate(**annotationQuery), \
             )
-        _logger.debug('getAnnotationForQuery: qs = ' + str(qs))
-        _django_logger.debug('getAnnotationForQuery: qs = ' + str(qs))
+        _django_logger.debug('getAnnotationForQuery: mark')
+#        _logger.debug('getAnnotationForQuery: qs = ' + str(qs))
+#        _django_logger.debug('getAnnotationForQuery: qs = ' + str(qs))
         return qs
 
 
@@ -496,7 +507,7 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         if 'pgst' in POSTkeys:
             pgst = self.request.POST['pgst']
         if pgst == 'ini':
-            _logger.debug('|qs|=%d' % (qs.count()))
+#            _logger.debug('|qs|=%d' % (qs.count()))
             return qs
         ### assemble query from POST parameters for the filter
         query = self.getFilterFromPost(POSTkeys)
@@ -508,7 +519,7 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
             qs = self.getAnnotationForQuery(query, self.summaryColumns)
         else:
             qs = self.get_initial_queryset()
-        _logger.debug('|qs|=%d' % (qs.count()))
+#        _logger.debug('|qs|=%d' % (qs.count()))
         ### return filtered queryset
         return qs
 
