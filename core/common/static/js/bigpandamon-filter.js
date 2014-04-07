@@ -330,18 +330,23 @@ function drawTable(stFlag){
 
 //showFilter({{tableid}}, {{caption}})
 function showFilter(tableid, caption){
-//	console.debug("showFilter: tableid="+ tableid);
 	$("#div-table-filter-" + tableid).show();
-	$("#div-table-filter-button-" + tableid).show();
-	$("#sh-filter-" + tableid).text("Hide filter of " + caption);
+	$("#sh-filter-" + tableid).attr({
+		src: staticurl + '/images/cross.png',
+		title: "Hide filter of " + caption, 
+		alt: "Hide filter of " + caption 
+	});
+
 }
 
 // hideFilter({{tableid}}, {{caption}})
 function hideFilter(tableid, caption){
-//	console.debug("hideFilter: tableid="+ tableid);
 	$("#div-table-filter-" + tableid).hide();
-	$("#div-table-filter-button-" + tableid).hide();
-	$("#sh-filter-" + tableid).text("Show filter of " + caption);
+	$("#sh-filter-" + tableid).attr({
+		src: staticurl + '/images/filter.png',
+		title: "Show filter of " + caption, 
+		alt: "Show filter of " + caption 
+	});
 }
 
 function getColumnTitles()

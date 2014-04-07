@@ -28,6 +28,7 @@
 		var stFlag = 'ini';
 		var oTable;
 		var prefix = "{{ prefix|safe }}";
+		var staticurl = "{{ STATIC_URL }}";
 	</script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-csrf.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-filter.js"></script>
@@ -63,6 +64,8 @@
 		// hide filter table, show only filter summary
 		hideFilter("{{ tableid }}", "{{ caption }}" );
 		$("#btnFilter-{{ tableid }}").hide();
+		///showFilter("{{ tableid }}", "{{ caption }}" );
+		///$("#btnFilter-{{ tableid }}").show();
 
 
 		$(document).ready(function() {
@@ -95,7 +98,7 @@
 			$("#sh-filter-{{ tableid }}").click(function(){
 				var nTr = this.parentNode;
 				var i = $.inArray( nTr, shFilter );
-			
+
 				if ( i === -1 ) {
 					showFilter("{{ tableid }}", "{{ caption }}");
 					shFilter.push( nTr );
@@ -116,3 +119,6 @@
 		} ); // document.ready
 	</script>
 {% endblock %}
+
+
+....
