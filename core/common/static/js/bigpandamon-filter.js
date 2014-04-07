@@ -8,15 +8,12 @@ var shFilter;
 var fields;
 var tableid;
 var datasrc;
-//		var colsDict = {};
-//		var shFilter = [];
+var colsDict = {};
+var shFilter = [];
 var colsOrig;
 var fieldIndices;
-	// fake values
-//		var fltr = {'pgst': 'ini'};
-var fltr;
+var fltr = {'pgst': 'ini'};
 var stFlag;
-	// END fake values
 */
 
 function buildFilterTable(tableid)
@@ -44,9 +41,9 @@ function buildSummary(divid, data)
 	$( "#smry-title").hide();
 	$( "#" + divid).append('<div class="row text-justify"><strong>Summary</strong><br/><br/></div>');
 	if (typeof(data.aaData) != 'undefined'){
-		var s = '<div class="row text-justify">';
+		var s = '<ul>';
 		for (var key in data.aaData) {
-			s += '<span><strong>' +  key + ':</strong>&nbsp;</span>';
+			s += '<li><span><strong>' +  key + ':</strong>&nbsp;</span>';
 			for (var r in data.aaData[key]){
 				if (data.aaData[key][r].c != null){
 					var smryURL = updateQueryStringParameter(
@@ -63,9 +60,9 @@ function buildSummary(divid, data)
 				+ '(' + data.aaData[key][r].v + ') ';
 				}
 			}
-			s+='<br/><br/>';
+			s+='</li>';
 		}
-		s+='</div>';
+		s+='</ul>';
 		$( "#" + divid).append(s);
 	}
 }
