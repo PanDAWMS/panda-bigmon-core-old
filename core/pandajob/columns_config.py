@@ -64,8 +64,9 @@ def getTitles(myColumnsID, allColumnsID, smry=0):
                 colDef['t'] = colname
             titles.append(colDef)
     except:
+        _logger.error('something went wrong: titles=' + str(titles))
         return titles
-
+    _logger.debug('returning: titles=' + str(titles))
     return titles
 
 
@@ -203,7 +204,7 @@ FILTERS['PanDAjob-all'] = [ \
     { 'name': 'JediTaskID', 'field': 'jeditaskid', 'filterField': 'jeditaskid', 'type': 'integer' }, \
     { 'name': 'JobStatus', 'field': 'jobstatus', 'filterField': 'jobstatus', 'type': 'stringMultiple' }, \
     { 'name': 'WG', 'field': 'workinggroup', 'filterField': 'workinggroup', 'type': 'string' }, \
-    { 'name': 'Cloud', 'field': 'cloud', 'filterField': 'cloud', 'type': 'string' }, \
+    { 'name': 'Cloud', 'field': 'cloud', 'filterField': 'cloud', 'type': 'stringMultiple' }, \
     { 'name': 'Site', 'field': 'computingsite', 'filterField': 'computingsite', 'type': 'string' }, \
     { 'name': 'ProdSourceLabel', 'field': 'prodsourcelabel', 'filterField': 'prodsourcelabel', 'type': 'string' }, \
     { 'name': 'CreationFrom', 'field': 'creationtime', 'filterField': 'creationtime__gte', 'type': 'datetime' }, \

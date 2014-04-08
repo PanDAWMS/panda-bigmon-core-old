@@ -450,23 +450,22 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         _django_logger.debug('getAnnotationForQuery: mark')
         annotationQuery = {}
         for smryField in smryFields:
+            smryCntName = '%s__count' % (smryField)
             _logger.debug('getAnnotationForQuery: smryField=' + smryField)
-            annotationQuery['%s__count' % (smryField)] = Count(smryField, distinct=False)
-#            _logger.debug('getAnnotationForQuery: annotationQuery=' + str(annotationQuery))
+            annotationQuery[smryCntName] = Count(smryField, distinct=False)
         _logger.debug('getAnnotationForQuery mark')
+        ### annotation queryset as a list of  dictionaries -> values
         qs = QuerySetChain(\
-                Jobsactive4.objects.filter(**query).values_list(*smryFields)
+                Jobsactive4.objects.filter(**query).values(*smryFields)
                     .annotate(**annotationQuery), \
-                Jobsdefined4.objects.filter(**query).values_list(*smryFields)
+                Jobsdefined4.objects.filter(**query).values(*smryFields)
                     .annotate(**annotationQuery), \
-                Jobswaiting4.objects.filter(**query).values_list(*smryFields)
+                Jobswaiting4.objects.filter(**query).values(*smryFields)
                     .annotate(**annotationQuery), \
-                Jobsarchived4.objects.filter(**query).values_list(*smryFields)
+                Jobsarchived4.objects.filter(**query).values(*smryFields)
                     .annotate(**annotationQuery), \
             )
         _django_logger.debug('getAnnotationForQuery: mark')
-#        _logger.debug('getAnnotationForQuery: qs = ' + str(qs))
-#        _django_logger.debug('getAnnotationForQuery: qs = ' + str(qs))
         return qs
 
 
@@ -542,36 +541,30 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         ### qs is annotation of multiple fields from self.summaryColumns
         ###    it is a list of tuples
         for smryField in self.summaryColumns:
-            idx = -1
-            cntidx = idx
+            _logger.debug('field:' + smryField)
+            cntID = '%s__count' % (smryField)
+            smryFieldData = []
             try:
-                idx = self.summaryColumns.index(smryField)
-                cntidx = idx + len(self.summaryColumns)
-            except:
-                _logger.error(\
-                 'prepare_result: cannot determine index of item %s in list %s' \
-                 % (smryField, self.summaryColumns))
-            if idx != -1:
-                cntID = '%s__count' % (smryField)
-                smryFieldData = []
-                try:
-                    smryFieldData = [ { smryField: x[idx], \
-                                       cntID: x[cntidx] } \
+                ### get data for this smryField from the queryset
+                smryFieldData = [ { smryField: x[smryField], \
+                                       cntID: x[cntID] } \
                                      for x in qs ]
-                    smryFieldDataKeys = list(set([ x[smryField] for x in smryFieldData]))
-                    for caption in smryFieldDataKeys:
-                        captionSum = sum([x[cntID]
+                ### get unique values for smryField
+                smryFieldDataKeys = list(set([ x[smryField] for x in smryFieldData]))
+                ### calculate number of occurences for each unique value of smryField
+                for caption in smryFieldDataKeys:
+                    captionSum = sum([x[cntID]
                                           for x in smryFieldData \
                                             if x[smryField] == caption])
-                        data.append(
-                            {\
-                             smryField: caption, \
-                             cntID: captionSum
-                             }
-                        )
-                    _logger.debug('field:' + smryField + ' smryData: ' + str(smryFieldData))
-                except:
-                    _logger.error(\
+                    ### record the summary item
+                    data.append(\
+                        {\
+                            smryField: caption, \
+                            cntID: captionSum
+                            } \
+                    )
+            except:
+                _logger.error(\
                         'prepare_result: cannot get summary data for field %s' \
                         % (smryField, self.summaryColumns))
         ### return prepared data
