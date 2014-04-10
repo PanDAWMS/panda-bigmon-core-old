@@ -291,7 +291,7 @@ function drawTable(stFlag){
 				{
 					"mRender": function ( data, type, row ) {
 					// TODO: add link to site activity page
-						return row.cloud + '.'+ data ;
+						return row.cloud + '/'+ data ;
 					},
 					"aTargets": [ fieldIndices.computingsite ]
 				},
