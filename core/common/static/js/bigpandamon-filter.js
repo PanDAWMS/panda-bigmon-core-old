@@ -197,9 +197,9 @@ function drawTable(stFlag){
 	oTable = $("#" + tableid).dataTable( {
 			"sPaginationType": "full_numbers",
 			"bDestroy": true,
-			"aLengthMenu": [ [10, 100, 250, 500, 1000, -1], [10, 100, 250, 500, 1000, "All"] ],
+			"aLengthMenu": [ [300, 500, 750, 1000], [300, 500, 750, 1000] ],
 			"sDom": '<"H"lfr><t><"F"ip>',
-			"iDisplayLength": 10,
+			"iDisplayLength": 300,
 			"bProcessing": true,
 			"bServerSide": true,
 			"bFilter": false,
