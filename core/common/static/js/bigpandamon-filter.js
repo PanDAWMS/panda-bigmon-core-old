@@ -236,12 +236,12 @@ function drawTable(stFlag){
 				// produsername + workinggroup
 				{
 					"mRender": function ( data, type, row ) {
-//						var a = '<a href="'
-//							+ prefix 
-//							+ Django.url('jobInfo', {'prodUserName': data, 'nhours': 72})
-//							+ '" target="_blank">' +
-//							data + '</a>' +' / '+ row.workinggroup;
-//						return a;
+						var a = '<a href="'
+							+ prefix 
+							+ Django.url('userjobset')
+							+ '" target="_blank">' +
+							data + '</a>' +' / '+ row.workinggroup;
+						return a;
 						return data + ' ' + row.jobsetid + ' / ' + row.workinggroup;
 					},
 					"aTargets": [ fieldIndices.produsername ]

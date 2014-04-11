@@ -176,9 +176,9 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         _logger.debug('mark')
         data = serializer.data
 #        _django_logger.debug('prepare_results: before |data|')
-        _logger.debug('|data|=' + str(len(data)))
+#        _logger.debug('|data|=' + str(len(data)))
 #        _django_logger.debug('|data|=' + str(len(data)))
-        _django_logger.debug('data=' + str(data[:1]))
+#        _django_logger.debug('data=' + str(data[:1]))
 #        _django_logger.debug('prepare_results: after |data|')
 #        newData = self.skimData(data, self.columns)
 ##        _django_logger.debug('prepare_results: after skimData')
@@ -186,7 +186,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #        newData = self.removeNones(newData, self.columns)
         newData = self.skimDataAndRemoveNones(data, self.columns)
 #        _django_logger.debug('prepare_results: after cleanup')
-        _django_logger.debug('data=' + str(newData[:1]))
+#        _django_logger.debug('data=' + str(newData[:1]))
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
 ##        _logger.debug('data=' + str(newData))
@@ -595,3 +595,8 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         return data
 
 
+
+
+class PandaJobDictJsonUsers(PandaJobDictJsonJobsInTask):
+    ### TODO
+    pass

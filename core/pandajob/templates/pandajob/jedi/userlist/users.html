@@ -1,0 +1,27 @@
+{% extends "_base_bigpandamon.html" %}
+{% load url from future %}
+{% load js %}
+{% load core_extras %}
+{% load jedi_extras %}
+{% block subtitle %}List of {{ caption }}{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'ListUsers' %}">List of {{ caption }}</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
+{% block header-nav-chain-3 %}{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}
+{% block body %}
+<div class="large-12 columns">
+	<ul>
+	{% for user in data %}
+		<li><a href="{% url 'useractivity' user.produsername %}?ProdUserName={{ user.produsername }}" target="_blank">
+		{{ user.produsername }}</a></li>
+	{% endfor %}
+	</ul>
+</div>
+{% comment %}
+{% jedi_jobs_table_with_filter datasrc=datasrc datasrcsmry=datasrcsmry data=data columns=columns|safe tableid=tableid_joblist|safe tableidsmry=tableid_joblist_smry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+{% endcomment %}
+
+{% endblock %}
+
