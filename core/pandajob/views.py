@@ -10,6 +10,7 @@ import pytz
 import re
 from datetime import datetime, timedelta
 from urlparse import parse_qs, urlparse
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
@@ -24,13 +25,19 @@ from .serializers import SerializerPandaJob
 #from .utils import getPrefix, getContextVariables, \
 #        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr
 from ..common.utils import getPrefix, getContextVariables, \
-        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr
+        getAoColumnsDictWithTitles, QuerySetChain, subDictToStr, \
+        getFilterFieldIDs
 #from .datatablesviews import ModelJobDictJson
 from ..table.views import ModelJobDictJson
 from rest_framework import viewsets
 LAST_N_DAYS = FILTER_UI_ENV['DAYS']
 LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 LAST_N_DAYS_MAX = FILTER_UI_ENV['MAXDAYS']
+from .columns_config import COLUMNS, ORDER_COLUMNS, COL_TITLES, FILTERS
+
+
+#from django.views.decorators.cache import cache_page
+
 
 #_logger = logging.getLogger(__name__)
 _logger = logging.getLogger('bigpandamon')
@@ -44,25 +51,42 @@ LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 
 # Create your views here.
 def listJobs(request):
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+###DEBUG###    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
+    startdate = datetime.utcnow() - timedelta(minutes=2)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     _logger.debug("startdate = " + str(startdate))
     _logger.debug("enddate = " + str(enddate))
+#    jobList = QuerySetChain(\
+#                    Jobsdefined4.objects.filter(\
+#                        modificationtime__range=[startdate, enddate]\
+#                    ), \
+#                    Jobsactive4.objects.filter(\
+#                        modificationtime__range=[startdate, enddate]\
+#                    ), \
+#                    Jobswaiting4.objects.filter(\
+#                        modificationtime__range=[startdate, enddate]\
+#                    ), \
+#                    Jobsarchived4.objects.filter(\
+#                        modificationtime__range=[startdate, enddate]\
+#                    ), \
+#            )
+#                            ~ Q(produsername='gangarbt')
+#    jobList = QuerySetChain(\
+#                    Jobsactive4.objects.filter(\
+#                            produsername='gangarbt'
+#                        ).filter(\
+#                            modificationtime__range=[startdate, enddate]\
+#                        ,
+#                    ), \
+#            )
     jobList = QuerySetChain(\
-                    Jobsdefined4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                    ), \
                     Jobsactive4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                    ), \
-                    Jobswaiting4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
-                    ), \
-                    Jobsarchived4.objects.filter(\
-                        modificationtime__range=[startdate, enddate]\
+                            jeditaskid=4000195
+                        ,
                     ), \
             )
+
     _logger.debug('|jobList|=' + str(jobList.count()))
     _logger.debug('jobList[:30]=' + str(jobList[:30]))
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
@@ -436,5 +460,94 @@ class PandaJobDictJson(ModelJobDictJson):
                     Jobswaiting4.objects.filter(**query), \
                     Jobsarchived4.objects.filter(**query) \
             )
+
+
+@ensure_csrf_cookie
+def jediJobsInTask(request):
+    """
+        list3PandaJobs -- view to show list of PanDA jobs in a dataTables table
+                            data from API jedi/jobsintask
+    """
+    reverseUrl = 'api-datatables-jedi-jobs-in-task'
+    reverseUrlSmry = reverseUrl + '-smry'
+    ### get URL prefix
+    prefix = getPrefix(request)
+    ### get reverse url of the data view
+    dataUrl = reverse(reverseUrl)
+    dataUrlSmry = reverse(reverseUrlSmry)
+    ### get aoColumns pre-config
+    aoColumns = []
+    aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
+    ### get filter fields
+#    filterFields = ['fJtaskID']
+    filterFields = getFilterFieldIDs(FILTERS[reverseUrl])
+    ### get indices of columns to refer by name in render javascript function
+    fieldIndices = {}
+    for col in ORDER_COLUMNS[reverseUrl]:
+        i = None
+        try:
+            i = ORDER_COLUMNS[reverseUrl].index(col)
+        except:
+            pass
+        fieldIndices[col] = i
+    ### set request response data
+    data = { \
+            'prefix': prefix, \
+            'datasrc': str(dataUrl + "?format=json"), \
+            'datasrcsmry': str(dataUrlSmry + "?format=json"), \
+            'columns': json_dumps(aoColumns), \
+            'fieldIndices': json_dumps(fieldIndices), \
+            'tableid_joblist': 'jediJobsInTask', \
+            'tableid_joblist_smry': 'jediJobsInTask-smry', \
+            'filterFields': filterFields, \
+            'caption': 'jobs', \
+    }
+    data.update(getContextVariables(request))
+    return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
+
+
+#@cache_page(60 * 2)
+#@ensure_csrf_cookie
+#def DEVjediJobsInTask(request):
+#    """
+#        list3PandaJobs -- view to show list of PanDA jobs in a dataTables table
+#                            data from API jedi/jobsintask
+#    """
+#    reverseUrl = 'DEV-api-datatables-jedi-jobs-in-task'
+#    reverseUrlSmry = reverseUrl + '-smry'
+#    ### get URL prefix
+#    prefix = getPrefix(request)
+#    ### get reverse url of the data view
+#    dataUrl = reverse(reverseUrl)
+#    dataUrlSmry = reverse(reverseUrlSmry)
+#    ### get aoColumns pre-config
+#    aoColumns = []
+#    aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
+#    ### get filter fields
+##    filterFields = ['fJtaskID']
+#    filterFields = getFilterFieldIDs(FILTERS[reverseUrl])
+#    ### get indices of columns to refer by name in render javascript function
+#    fieldIndices = {}
+#    for col in ORDER_COLUMNS[reverseUrl]:
+#        i = None
+#        try:
+#            i = ORDER_COLUMNS[reverseUrl].index(col)
+#        except:
+#            pass
+#        fieldIndices[col] = i
+#    ### set request response data
+#    data = { \
+#            'prefix': prefix, \
+#            'datasrc': str(dataUrl + "?format=json"), \
+#            'datasrcsmry': str(dataUrlSmry + "?format=json"), \
+#            'columns': json_dumps(aoColumns), \
+#            'fieldIndices': json_dumps(fieldIndices), \
+#            'tableid_joblist': 'jediJobsInTask', \
+#            'tableid_joblist_smry': 'jediJobsInTask-smry', \
+#            'filterFields': filterFields, \
+#            'caption': 'jobs', \
+#    }
+#    data.update(getContextVariables(request))
+#    return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
 
 

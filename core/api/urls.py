@@ -13,6 +13,7 @@ from django.contrib import admin
 common_patterns = patterns('',
     ### Applications
     url(r'^htcondor', include('core.api.htcondorapi.urls')),
+    url(r'^jedi', include('core.api.jedi.urls')),
 
 )
 

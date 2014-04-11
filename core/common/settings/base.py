@@ -18,6 +18,8 @@ MANAGERS = ADMINS
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGE_NAME = 'English'
+LANGUAGE_NAME_LOCAL = 'English'
 
 TIME_ZONE = 'UTC'
 
@@ -29,6 +31,21 @@ USE_TZ = True
 
 # Site ID
 SITE_ID = 1
+
+
+
+#CACHES = {
+#    'default.LocMemCache': {
+#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        'LOCATION': 'unique-snowflake'
+#    },
+#    'default.DummyCacheForDevelopment': {
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    },
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    },
+#}
 
 
 # List of finder classes that know how to find static files in
@@ -57,6 +74,8 @@ MIDDLEWARE_CLASSES = (
 ### END added
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#### django-debug-toolbar
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ###
 #    'django.middleware.common.CommonMiddleware',
 #    'django.contrib.sessions.middleware.SessionMiddleware',
@@ -87,26 +106,35 @@ INSTALLED_APPS_DJANGO_FRAMEWORK = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+#### django-debug-toolbar
+#    'debug_toolbar',
 )
 INSTALLED_APPS_DJANGO_PLUGINS = (
     ### Django plugins
     'rest_framework',  #pip install djangorestframework, version 2.3.10
     'django_datatables_view',  #pip install django-datatables-view, version 1.6
+    'djangojs',  #pip install django.js, version 0.8.1
 )
 INSTALLED_APPS_BIGPANDAMON_CORE = (
     ### BigPanDAmon core
     'core.common',
     'core.table',
-#    'core.graphics', #NOT-IMPLEMENTED
     'core.pandajob',
     'core.resource',
     'core.htcondor',
-#    'core.task', #NOT-IMPLEMENTED
+    'core.datatables',
+#    'core.graphic', #NOT-IMPLEMENTED
+    'core.gspread',
 )
 COMMON_INSTALLED_APPS = \
     INSTALLED_APPS_DJANGO_FRAMEWORK + \
     INSTALLED_APPS_DJANGO_PLUGINS
 INSTALLED_APPS = COMMON_INSTALLED_APPS + INSTALLED_APPS_BIGPANDAMON_CORE
+
+
+### Django.js config
+JS_I18N_APPS = ()
+JS_I18N_APPS_EXCLUDE = INSTALLED_APPS_BIGPANDAMON_CORE
 
 
 VERSION = core.common.__versionstr__
