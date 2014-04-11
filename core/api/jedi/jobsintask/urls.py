@@ -5,7 +5,6 @@ from django.conf.urls import patterns, include, url
 ### #FIXME admin.autodiscover()
 
 import views as jobsintask_views
-import devviews as jobsintask_devviews
 
 #jobsintask_views_bulk = jobsintask_views.PandaJobsViewSet.as_view(
 #{
@@ -23,13 +22,6 @@ urlpatterns = patterns('',
     url(r'^/jobsintasksmry/$', \
         jobsintask_views.PandaJobDictJsonJobsInTaskSummary.as_view(), \
         name='api-datatables-jedi-jobs-in-task-smry'),
-
-    url(r'^/devjobsintask/$', \
-        jobsintask_devviews.PandaJobDictJsonJobsInTask.as_view(), \
-        name='DEV-api-datatables-jedi-jobs-in-task'),
-    url(r'^/devjobsintasksmry/$', \
-        jobsintask_devviews.PandaJobDictJsonJobsInTaskSummary.as_view(), \
-        name='DEV-api-datatables-jedi-jobs-in-task-smry'),
 
 #    ### REST API resource
 #    url(r'^jobsintask/$', jobsintask_views_bulk, name='jedi-jobs-in-task-bulk'),
