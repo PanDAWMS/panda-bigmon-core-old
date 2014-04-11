@@ -251,6 +251,7 @@ function drawTable(stFlag){
 					"mRender": function ( data, type, row ) {
 					// TODO: add link to task page
 //						return data;
+//					+ Django.url('prodtask:task', {'rid': data})
 					var a = '<a href="'
 					+ prefix 
 					+ Django.url('todoview:todoTaskDescription', {'taskid': data})
