@@ -158,9 +158,9 @@ MEDIA_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/me
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL_BASE = '/media/'
+#MEDIA_URL_BASE = '/media/'
 #MEDIA_URL_BASE = '/media-common/'
-#MEDIA_URL_BASE = '/jedimonmedia/'
+MEDIA_URL_BASE = '/jedimonmedia/'
 
 
 # Absolute path to the directory static files should be collected to.
@@ -174,9 +174,9 @@ STATIC_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/s
 # Example: "http://media.lawrence.com/static/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-STATIC_URL_BASE = '/static/'
+#STATIC_URL_BASE = '/static/'
 #STATIC_URL_BASE = '/static-common/'
-#STATIC_URL_BASE = '/jedimonstatic/'
+STATIC_URL_BASE = '/jedimonstatic/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -198,8 +198,8 @@ VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6__atlas'
 
 ### WSGI
 #WSGI_PATH = VIRTUALENV_PATH + '/bigpandamon'
-#WSGI_PATH = VIRTUALENV_PATH + '/jedimon'
-WSGI_PATH = VIRTUALENV_PATH + '/'
+WSGI_PATH = VIRTUALENV_PATH + '/jedimon'
+#WSGI_PATH = VIRTUALENV_PATH + '/'
 
 ### topology
 SOURCE_SCHEDCONFIG = {

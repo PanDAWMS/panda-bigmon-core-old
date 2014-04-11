@@ -38,22 +38,11 @@
 {% jedi_table_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
 <!-- Summary of job list -->
-{% comment %}
-<div class="row">
-{% endcomment %}
 {% jedi_smry_jobs datasrcsmry=datasrcsmry data=data columns=columns|safe tableidsmry=tableidsmry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
-{% comment %}
-</div>
-{% endcomment %}
 
 <!-- Job list -->
-{% comment %}
-<div class="row">
-{% endcomment %}
 {% jedi_table_jobs datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
-{% comment %}
-</div>
-{% endcomment %}
+
 
 {% block extra_js_bottombody %}
 	<script type="text/javascript" charset="utf-8">

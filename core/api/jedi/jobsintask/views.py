@@ -108,14 +108,19 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         return newData
 
 
-    def removeNones(self, data, orderColumns):
+#    def removeNones(self, data, orderColumns):
+    def skimDataAndRemoveNones(self, data, orderColumns):
         convertDatetimeToString = False
         POSTkeys = self.request.POST.keys()
         if 'pgst' in POSTkeys:
             convertDatetimeToString = True
         newData = []
         for item in data:
-            newItem = {}
+#            newItem = {}
+            ### skim data
+            newItem = subDict(item, self.columns)
+            ### remove None (replace by "")
+            ### and format datetime string
             for col in orderColumns:
                 value = ""
                 try:
@@ -132,6 +137,22 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                     except:
                         pass
                 newItem[col] = value
+            ### prodsourcelabel, jobsetid handling
+            prodsourcelabel = ""
+            try:
+                prodsourcelabel = item['prodsourcelabel']
+            except:
+                _logger.error('Could not determine prodsourcelabel for item [%s]' % (str(item)))
+            ### handle jobsetid:
+            ###    prodsourcelabel != 'user; : set empty jobsetid
+            ###    prodsourcelabel == 'user' : keep the jobsetid value
+            if prodsourcelabel != 'user':
+                newItem['jobsetid'] = ""
+            ### delete prodsourcelabel from the result
+            try:
+                del newItem['prodsourcelabel']
+            except:
+                _logger.error('Could not delete prodsourcelabel from item [%s]' % (str(item)))
             newData.append(newItem)
         return newData
 
@@ -157,12 +178,15 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
 #        _django_logger.debug('prepare_results: before |data|')
         _logger.debug('|data|=' + str(len(data)))
 #        _django_logger.debug('|data|=' + str(len(data)))
-#        _django_logger.debug('data=' + str(data))
+        _django_logger.debug('data=' + str(data[:1]))
 #        _django_logger.debug('prepare_results: after |data|')
-        newData = self.skimData(data, self.columns)
-#        _django_logger.debug('prepare_results: after skimData')
-        newData = self.removeNones(newData, self.columns)
+#        newData = self.skimData(data, self.columns)
+##        _django_logger.debug('prepare_results: after skimData')
+#        _django_logger.debug('data=' + str(newData[:1]))
+#        newData = self.removeNones(newData, self.columns)
+        newData = self.skimDataAndRemoveNones(data, self.columns)
 #        _django_logger.debug('prepare_results: after cleanup')
+        _django_logger.debug('data=' + str(newData[:1]))
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
 ##        _logger.debug('data=' + str(newData))

@@ -214,6 +214,7 @@ FILTERS['PanDAjob-all'] = [ \
     { 'name': 'Trf', 'field': 'transformation', 'filterField': 'transformation', 'type': 'string'}, \
     { 'name': 'Rls', 'field': 'atlasrelease', 'filterField': 'atlasrelease', 'type': 'string'}, \
     { 'name': 'ProcessingType', 'field': 'processingtype', 'filterField': 'processingtype', 'type': 'string'}, \
+    { 'name': 'JobsetID', 'field': 'jobsetid', 'filterField': 'jobsetid', 'type': 'integer'}, \
 ]
 SUMMARY_FIELDS['PanDAjob-all'] = [
         'jobstatus', \
@@ -232,18 +233,22 @@ SUMMARY_FIELDS['PanDAjob-all'] = [
 COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
         'pandaid', 'jeditaskid', 'produsername', 'workinggroup', \
         'creationtime', 'modificationtime', 'starttime', 'endtime', \
-        'jobstatus', 'currentpriority', 'computingsite', 'cloud' \
+        'jobstatus', 'currentpriority', 'computingsite', 'cloud', \
+        'jobsetid', 'prodsourcelabel'
     ]
 ORDER_COLUMNS['api-datatables-jedi-jobs-in-task'] = [\
         'jeditaskid', 'pandaid', \
         'jobstatus', \
         'creationtime', 'modificationtime', 'starttime', 'endtime', \
         'cloud', 'computingsite', 'currentpriority', \
-        'produsername', 'workinggroup' \
+        'produsername', 'workinggroup', \
+        'jobsetid'
     ]
 UPDATE_COL_TITLES['api-datatables-jedi-jobs-in-task'] = { \
     'workinggroup': {'vis': False, 'sort': False}, \
     'cloud': {'vis': False, 'sort': False}, \
+#    'prodsourcelabel': {'vis': False, 'sort': False}, \
+    'jobsetid': {'vis': False, 'sort': False}, \
 }
 COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
     getTitles('api-datatables-jedi-jobs-in-task', 'PanDAjob-all')

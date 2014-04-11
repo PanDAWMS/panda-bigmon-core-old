@@ -39,9 +39,9 @@ function buildSummary(divid, data)
 {
 	$( "#" + divid).show();
 	$( "#smry-title").hide();
-	$( "#" + divid).append('<div class="row text-justify"><strong>Summary</strong><br/><br/></div>');
+	$( "#" + divid).append('<div class="large-12 text-justify"><strong>Summary</strong><br/><br/></div>');
 	if (typeof(data.aaData) != 'undefined'){
-		var s = '<ul>';
+		var s = '<div class="large-12 columns"><ul>';
 		for (var key in data.aaData) {
 			s += '<li><span><strong>' +  key + ':</strong>&nbsp;</span>';
 			for (var r in data.aaData[key]){
@@ -62,7 +62,7 @@ function buildSummary(divid, data)
 			}
 			s+='</li>';
 		}
-		s+='</ul>';
+		s+='</ul></div>';
 		$( "#" + divid).append(s);
 	}
 }
@@ -242,7 +242,7 @@ function drawTable(stFlag){
 //							+ '" target="_blank">' +
 //							data + '</a>' +' / '+ row.workinggroup;
 //						return a;
-						return data + ' / ' + row.workinggroup;
+						return data + ' ' + row.jobsetid + ' / ' + row.workinggroup;
 					},
 					"aTargets": [ fieldIndices.produsername ]
 				},
@@ -252,9 +252,10 @@ function drawTable(stFlag){
 					// TODO: add link to task page
 //						return data;
 //					+ Django.url('prodtask:task', {'rid': data})
+//					+ Django.url('todoview:todoTaskDescription', {'taskid': data})
 					var a = '<a href="'
 					+ prefix 
-					+ Django.url('todoview:todoTaskDescription', {'taskid': data})
+					+ Django.url('prodtask:task', {'rid': data})
 					+ '" target="_blank">' +
 					data + '</a>' ;
 				return a;
