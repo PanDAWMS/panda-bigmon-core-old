@@ -8,6 +8,9 @@ from django.db.models import Q
 from bigpandamon.core.utils import getPrefix, getContextVariables
 
 import json
+import logging
+_logger = logging.getLogger('table_datatable')
+
 
 def parse_datatable_args( request, name_mapping=None ):
 
@@ -113,6 +116,8 @@ def make_datatable_response_params(echo, total, display, rows, fields, names=Non
             for n in fields:
                 d.append(t[n])
             dtask.append(d)
+
+    _logger.debug('make_datatable_response_params')
 
     return { "sEcho": echo, "iTotalRecords": total, "iTotalDisplayRecords": display,
                     "aaData": dtask }

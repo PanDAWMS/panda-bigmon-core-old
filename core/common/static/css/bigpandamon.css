@@ -1,12 +1,14 @@
 .top-subbar {
   overflow: hidden;
-  height: 30px;
+/*  height: 30px; */
+  height: 2em;
   width: 100%;
   line-height: 30px;
   top: -30px;
   position: relative;
   background: #DDDDDD;
-  margin-bottom: 1.875em; 
+/* margin-bottom: 1.875em; */ 
+  margin-bottom:-1em; 
   padding-left: 1em;
   padding-right: 1em;
 }
@@ -58,5 +60,9 @@ vertical-align: top;
 
 .tdF{
 vertical-align: top;
+}
+
+.inputW{
+width:10em;
 }
 
