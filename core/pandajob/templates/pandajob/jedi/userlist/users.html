@@ -5,7 +5,7 @@
 {% load jedi_extras %}
 {% block subtitle %}List of {{ caption }}{% endblock %}
 {% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-2 %}<a href="{% url 'ListUsers' %}">List of {{ caption }}</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'user:listusers' %}">List of {{ caption }}</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
 {% block header-nav-chain-3 %}{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
 {% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
 {% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
@@ -14,7 +14,7 @@
 <div class="large-12 columns">
 	<ul>
 	{% for user in data %}
-		<li><a href="{% url 'useractivity' user.produsername %}?ProdUserName={{ user.produsername }}" target="_blank">
+		<li><a href="{% url 'user:useractivity' user.produsername %}?ProdUserName={{ user.produsername }}" target="_blank">
 		{{ user.produsername }}</a></li>
 	{% endfor %}
 	</ul>

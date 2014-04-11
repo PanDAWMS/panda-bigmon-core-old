@@ -264,32 +264,22 @@ SMRYCOL_TITLES['api-datatables-jedi-jobs-in-task'] = \
 
 
 
-### reverse URL: 'DEV-api-datatables-jedi-jobs-in-task'
-COLUMNS['DEV-api-datatables-jedi-jobs-in-task'] = [\
-        'pandaid', 'jeditaskid', 'produsername', 'workinggroup', \
-        'creationtime', 'modificationtime', 'starttime', 'endtime', \
-        'jobstatus', 'currentpriority', 'computingsite', 'cloud' \
+### reverse URL: 'api-datatables-user-list-active-users'
+COLUMNS['api-datatables-user-list-active-users'] = [\
+        'produsername'
     ]
-ORDER_COLUMNS['DEV-api-datatables-jedi-jobs-in-task'] = [\
-        'jeditaskid', 'pandaid', \
-        'jobstatus', \
-        'creationtime', 'modificationtime', 'starttime', 'endtime', \
-        'cloud', 'computingsite', 'currentpriority', \
-        'produsername', 'workinggroup' \
+ORDER_COLUMNS['api-datatables-user-list-active-users'] = [\
+        'produsername'
     ]
-UPDATE_COL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = { \
-    'workinggroup': {'vis': False, 'sort': False}, \
-    'cloud': {'vis': False, 'sort': False}, \
+UPDATE_COL_TITLES['api-datatables-user-list-active-users'] = {
+    'produsername': {'t': 'Active PanDA User'}, \
 }
-COL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = \
-    getTitles('DEV-api-datatables-jedi-jobs-in-task', 'PanDAjob-all')
-#COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
-#    updateTitles('api-datatables-jedi-jobs-in-task', \
-#                 COL_TITLES['api-datatables-jedi-jobs-in-task'], \
-#                 updateColTitlesData\
-#    )
-FILTERS['DEV-api-datatables-jedi-jobs-in-task'] = FILTERS['PanDAjob-all']
-SUMMARY_FIELDS['DEV-api-datatables-jedi-jobs-in-task'] = SUMMARY_FIELDS['PanDAjob-all']
-SMRYCOL_TITLES['DEV-api-datatables-jedi-jobs-in-task'] = \
-    getTitlesSmry('DEV-api-datatables-jedi-jobs-in-task', 'PanDAjob-all', smry=True)
+COL_TITLES['api-datatables-user-list-active-users'] = \
+    getTitles('api-datatables-user-list-active-users', 'PanDAjob-all')
+FILTERS['api-datatables-user-list-active-users'] = FILTERS['PanDAjob-all']
+SUMMARY_FIELDS['api-datatables-user-list-active-users'] = SUMMARY_FIELDS['PanDAjob-all']
+SMRYCOL_TITLES['api-datatables-user-list-active-users'] = \
+    getTitlesSmry('api-datatables-user-list-active-users', 'PanDAjob-all', smry=True)
+
+
 

@@ -21,15 +21,17 @@ register = template.Library()
 
 
 @register.simple_tag
-def jedi_jobs_table_with_filter(datasrc, datasrcsmry, data, columns, tableid, tableidsmry, caption="", \
-        filterFields={}, fieldIndices={}, \
+def jedi_jobs_table_with_filter(\
+        datasrc, datasrcsmry, data, columns, tableid, tableidsmry, \
+        caption="", filterFields={}, fieldIndices={}, \
+        template='templatetags/jedi/jedi_jobs_table_with_filter.html', \
             *args, **kwargs):
     """
-        template tag with the javascript functionality 
+#        template tag with the javascript functionality 
         for the job list table and corresponding filter table
         
     """
-    template = 'templatetags/jedi/jedi_jobs_table_with_filter.html'
+#    template = 'templatetags/jedi/jedi_jobs_table_with_filter.html'
     returnData = { \
              'tableid': tableid, \
              'tableidsmry': tableidsmry, \
@@ -47,14 +49,15 @@ def jedi_jobs_table_with_filter(datasrc, datasrcsmry, data, columns, tableid, ta
 
 
 @register.simple_tag
-def jedi_table_jobs(datasrc, data, columns, tableid, caption="", \
-        filterFields={}, fieldIndices={}, \
+def jedi_table_jobs(datasrc, data, columns, tableid, \
+        caption="", filterFields={}, fieldIndices={}, \
+        template='templatetags/jedi/jedi_table_jobs.html', \
             *args, **kwargs):
     """
         template tag with the HTML table for the job list
         
     """
-    template = 'templatetags/jedi/jedi_table_jobs.html'
+#    template = 'templatetags/jedi/jedi_table_jobs.html'
     returnData = { \
              'tableid': tableid, \
              'caption': caption, \
@@ -70,14 +73,15 @@ def jedi_table_jobs(datasrc, data, columns, tableid, caption="", \
 
 
 @register.simple_tag
-def jedi_smry_jobs(datasrcsmry, data, columns, tableidsmry, caption="", \
-        filterFields={}, fieldIndices={}, \
+def jedi_smry_jobs(datasrcsmry, data, columns, tableidsmry, \
+        caption="", filterFields={}, fieldIndices={}, \
+        template='templatetags/jedi/jedi_smry_jobs.html', \
             *args, **kwargs):
     """
         template tag with the HTML table for the job list summary
         
     """
-    template = 'templatetags/jedi/jedi_smry_jobs.html'
+#    template = 'templatetags/jedi/jedi_smry_jobs.html'
     returnData = { \
              'tableidsmry': tableidsmry, \
              'caption': caption, \
@@ -93,14 +97,15 @@ def jedi_smry_jobs(datasrcsmry, data, columns, tableidsmry, caption="", \
 
 
 @register.simple_tag
-def jedi_table_filter(datasrc, data, columns, tableid, caption="", \
-        filterFields={}, fieldIndices={}, \
+def jedi_table_filter(datasrc, data, columns, tableid, \
+        caption="", filterFields={}, fieldIndices={}, \
+        template='templatetags/jedi/jedi_table_filter.html', \
             *args, **kwargs):
     """
         template tag with the HTML table for the filter
         
     """
-    template = 'templatetags/jedi/jedi_table_filter.html'
+#    template = 'templatetags/jedi/jedi_table_filter.html'
     returnData = { \
              'tableid': tableid, \
              'caption': caption, \

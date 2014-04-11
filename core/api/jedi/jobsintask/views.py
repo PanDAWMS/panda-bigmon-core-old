@@ -325,7 +325,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
     def paging(self, qs):
         """ Paging
         """
-        limit = min(int(self.request.REQUEST.get('iDisplayLength', 10)), self.max_display_length)
+        limit = min(int(self.request.REQUEST.get('iDisplayLength', 300)), self.max_display_length)
         # if pagination is disabled ("bPaginate": false)
         if limit == -1:
 #            _logger.debug('limit==-1, qs=' + str(qs))

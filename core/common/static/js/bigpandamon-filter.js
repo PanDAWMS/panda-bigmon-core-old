@@ -238,7 +238,7 @@ function drawTable(stFlag){
 					"mRender": function ( data, type, row ) {
 						var a = '<a href="'
 							+ prefix 
-							+ Django.url('userjobset')
+							+ Django.url('user:useractivity')
 							+ '" target="_blank">' +
 							data + '</a>' +' / '+ row.workinggroup;
 						return a;
@@ -405,3 +405,69 @@ function fnFormatDetails( oTable, nTr )
     return sOut;
 }
 
+
+
+function drawTableListActiveUsers(){
+	// nuke old table with old data
+	if ( typeof oTable != 'undefined' && oTable != null ){
+		oTable.fnClearTable();
+	}
+	// create new table with new data
+	oTable = $("#" + tableid).dataTable( {
+			"sPaginationType": "full_numbers",
+			"bDestroy": true,
+			"aLengthMenu": [ [500, 750, 1000], [500, 750, 1000] ],
+			"sDom": '<"H"lfr><t><"F"ip>',
+			"iDisplayLength": 500,
+			"bProcessing": true,
+			"bServerSide": true,
+			"bFilter": false,
+			"bPaginate": true,
+			"sAjaxSource": datasrc,
+			"bScrollCollapse": true,
+			"sScrollX": "100%",
+			"bJQueryUI": true,
+			"fnServerData": function ( sSource, aoData, fnCallback ) {
+				aoData.push({'name': 'csrfmiddlewaretoken', 'value': csrftoken});
+//				aoData.push({'name': 'pgst', 'value': stFlag});
+//				$.merge( aoData, fltr )
+				$.ajax( {
+					"dataType": 'json',
+					"url": sSource,
+					"data": aoData,
+					"type": "POST", 
+					"success": fnCallback,
+					"async":true,
+					"error": function (xhr, error, thrown) {
+//						alert("THERE IS AN ERROR DataTable in drawTable error="+error);
+						console.debug("error="+error);
+						if ( error == "parsererror" ) 
+							apprise( "DataTables warning: JSON data" + 
+								" from server could not be parsed. " +
+								"This is caused by a JSON formatting " +
+								"error." 
+							);
+					}
+				} );
+			}, 
+			"aoColumns": colsOrig, 
+			"aoColumnDefs": [
+				// produsername + workinggroup
+				{
+					"mRender": function ( data, type, row ) {
+//						var a = '<a href="'
+//							+ prefix 
+//							+ Django.url('user:useractivity', {'produsername': data})
+//							+ '" target="_blank">' +
+//							data + '</a>';
+//						return a;
+						return data;
+					},
+					"aTargets": [ fieldIndices.produsername ]
+				}
+			]
+		} );
+
+
+//	console.debug("end of drawTable");
+}
