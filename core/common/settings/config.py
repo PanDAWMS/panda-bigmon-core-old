@@ -243,8 +243,12 @@ ENV = {
 FILTER_UI_ENV = {
     ### default number of days of shown jobs active in last N days
     'DAYS': 1, \
+    ### default number of days for user activity of shown jobs active in last N days
+    'USERDAYS': 3, \
     ### max number of days of shown jobs active in last N days
     'MAXDAYS': 30, \
+    ### max number of days for user activity of shown jobs active in last N days
+    'USERMAXDAYS': 60, \
     ### default number of hours of shown jobs active in last N hours
     'HOURS': 2, \
     ### wildcard for string pattern in filter form

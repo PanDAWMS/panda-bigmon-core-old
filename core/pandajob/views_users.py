@@ -105,6 +105,7 @@ def userActivity(request, produsername=''):
         
     """
     reverseUrl = 'api-datatables-user-list-user-activity'
+    reverseUrlSmry = reverseUrl + '-smry'
     ### get URL prefix
     prefix = getPrefix(request)
     ### get aoColumns pre-config
@@ -123,12 +124,15 @@ def userActivity(request, produsername=''):
         fieldIndices[col] = i
     ### get reverse url of the data view
     dataUrl = reverse(reverseUrl)
+    dataUrlSmry = reverse(reverseUrlSmry)
     ### set request response data
     data = { \
             'prefix': prefix, \
             'datasrc': str(dataUrl + "?format=json"), \
+            'datasrcsmry': str(dataUrlSmry + "?format=json"), \
             'columns': json_dumps(aoColumns), \
-            'tableid': 'useractivity', \
+            'tableid_joblist': 'useractivity', \
+            'tableid_joblist_smry': 'useractivity-smry', \
             'caption': produsername, \
             'fieldIndices': json_dumps(fieldIndices), \
             'filterFields': filterFields, \

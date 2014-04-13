@@ -250,7 +250,6 @@ UPDATE_COL_TITLES['api-datatables-jedi-jobs-in-task'] = { \
 #    'prodsourcelabel': {'vis': False, 'sort': False}, \
     'jobsetid': {'vis': False, 'sort': False}, \
     'produsername': {'t': 'Owner'}, \
-
 }
 COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
     getTitles('api-datatables-jedi-jobs-in-task', 'PanDAjob-all')
@@ -290,5 +289,49 @@ COL_TITLES['api-datatables-user-list-active-users'] = COL_TITLES['ActiveUsers-al
 FILTERS['api-datatables-user-list-active-users'] = FILTERS['ActiveUsers-all']
 SUMMARY_FIELDS['api-datatables-user-list-active-users'] = SUMMARY_FIELDS['ActiveUsers-all']
 SMRYCOL_TITLES['api-datatables-user-list-active-users'] = SMRYCOL_TITLES['ActiveUsers-all']
+
+
+### reverse URL: 'api-datatables-user-list-user-activity'
+COLUMNS['api-datatables-user-list-user-activity'] = [
+        'pandaid', 'jobsetid', 'produsername', 'workinggroup', \
+        'creationtime', 'modificationtime', 'starttime', 'endtime', \
+        'jobstatus', 'currentpriority', 'computingsite', 'cloud', \
+        'prodsourcelabel', 'jeditaskid', 'attemptnr'
+]
+ORDER_COLUMNS['api-datatables-user-list-user-activity'] = [
+        'jobsetid', 'pandaid', \
+        'jobstatus', \
+        'creationtime', 'modificationtime', 'starttime', 'endtime', \
+        'cloud', 'computingsite', 'currentpriority', \
+        'produsername', 'workinggroup', 'jeditaskid', 'attemptnr' \
+]
+UPDATE_COL_TITLES['api-datatables-user-list-user-activity'] = { \
+    'workinggroup': {'vis': False, 'sort': False}, \
+    'cloud': {'vis': False, 'sort': False}, \
+#    'prodsourcelabel': {'vis': False, 'sort': False}, \
+    'jobsetid': {'vis': False, 'sort': False}, \
+#    'produsername': {'t': 'Owner'}, \
+    'attemptnr': {'vis': True, 'sort': False}, \
+}
+
+COL_TITLES['api-datatables-user-list-user-activity'] = \
+    getTitles('api-datatables-user-list-user-activity', 'PanDAjob-all')
+FILTERS['api-datatables-user-list-user-activity'] = FILTERS['api-datatables-jedi-jobs-in-task']
+SUMMARY_FIELDS['api-datatables-user-list-user-activity'] = [\
+        'jobsetid', \
+        'jobstatus', \
+        'produsername', \
+        'atlasrelease', \
+        'prodsourcelabel', \
+        'processingtype', \
+        'transformation',
+        'workinggroup', \
+        'computingsite', \
+        'cloud', \
+        'jeditaskid' \
+]
+SMRYCOL_TITLES['api-datatables-user-list-user-activity'] = \
+    getTitlesSmry('api-datatables-user-list-user-activity', 'PanDAjob-all', smry=True)
+
 
 

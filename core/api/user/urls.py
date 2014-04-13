@@ -11,5 +11,12 @@ urlpatterns = patterns('',
     url(r'^/listactive/$', \
         user_views.ListActiveUsersDictJson.as_view(), \
         name='api-datatables-user-list-active-users'),
+    url(r'^/useractivity/$', \
+        user_views.ListUsersActivityDictJson.as_view(), \
+        name='api-datatables-user-list-user-activity'),
+    url(r'^/useractivitysmry/$', \
+        user_views.ListUsersActivitySmryDictJson.as_view(), \
+        name='api-datatables-user-list-user-activity-smry'),
 )
+
 

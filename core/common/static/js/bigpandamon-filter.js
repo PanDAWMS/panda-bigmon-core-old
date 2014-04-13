@@ -454,22 +454,190 @@ function drawTableListActiveUsers(){
 			}, 
 			"aoColumns": colsOrig, 
 			"aoColumnDefs": [
-				// produsername + workinggroup
+				// name
 				{
 					"mRender": function ( data, type, row ) {
-//						var a = '<a href="'
-//							+ prefix 
-//							+ Django.url('user:useractivity', {'produsername': data})
-//							+ '" target="_blank">' +
-//							data + '</a>';
-//						return a;
-						return data;
+						var a = '<a href="'
+							+ prefix 
+							+ Django.url('user:useractivity')
+							+ '?ProdUserName=' + data
+							+ '" target="_blank">' +
+							data + '</a>';
+						return a;
+//						return data;
 					},
-					"aTargets": [ fieldIndices.produsername ]
+					"aTargets": [ fieldIndices.name ]
 				}
 			]
 		} );
 
 
-//	console.debug("end of drawTable");
+//	console.debug("end of drawTableListActiveUsers");
+}
+
+
+function drawTableUserActivity(stFlag){
+	// nuke old table with old data
+	if ( typeof oTable != 'undefined' && oTable != null ){
+		oTable.fnClearTable();
+	}
+	// get filter parameters
+	fltr=getValuesFilterTable(fields);
+
+	//// moved URL update here   
+	// update GET parameters
+	upURL(fltr);
+
+	// create new table with new data
+	oTable = $("#" + tableid).dataTable( {
+			"sPaginationType": "full_numbers",
+			"bDestroy": true,
+			"aLengthMenu": [ [5,300, 500, 750, 1000], [5,300, 500, 750, 1000] ],
+			"sDom": '<"H"lfr><t><"F"ip>',
+//			"iDisplayLength": 300,
+		"iDisplayLength": 5,
+			"bProcessing": true,
+			"bServerSide": true,
+			"bFilter": false,
+			"bPaginate": true,
+			"sAjaxSource": datasrc,
+//		"bScrollInfinite": true,
+//		"sScrollY": "200px", 
+			"bScrollCollapse": true,
+			"sScrollX": "100%",
+			"bJQueryUI": true,
+			"fnServerData": function ( sSource, aoData, fnCallback ) {
+				aoData.push({'name': 'csrfmiddlewaretoken', 'value': csrftoken});
+				aoData.push({'name': 'pgst', 'value': stFlag});
+				$.merge( aoData, fltr )
+				$.ajax( {
+					"dataType": 'json',
+					"url": sSource,
+					"data": aoData,
+					"type": "POST", 
+					"success": fnCallback,
+					"async":true,
+					"error": function (xhr, error, thrown) {
+//						alert("THERE IS AN ERROR DataTable in drawTable error="+error);
+						console.debug("error="+error);
+						if ( error == "parsererror" ) 
+							apprise( "DataTables warning: JSON data" + 
+								" from server could not be parsed. " +
+								"This is caused by a JSON formatting " +
+								"error." 
+							);
+					}
+				} );
+			}, 
+			"aoColumns": colsOrig, 
+			"aoColumnDefs": [
+				// produsername + jobsetid + workinggroup
+				{
+					"mRender": function ( data, type, row ) {
+						var a = '<a href="'
+							+ prefix 
+							+ Django.url('user:useractivity')
+							+ '?ProdUserName=' + data 
+							+ '&JobSetID=' + row.jobsetid
+							+ '" target="_blank">' 
+							+ data + ':' + row.jobsetid
+							+ '</a>'; 
+							if (row.workinggroup != ''){
+								a+= ' / '+ row.workinggroup;
+							}
+						return a;
+//						return data + ' ' + row.jobsetid + ' / ' + row.workinggroup;
+					},
+					"aTargets": [ fieldIndices.produsername ]
+				},
+				// JEDI Task ID
+				{
+					"mRender": function ( data, type, row ) {
+					// TODO: add link to task page
+//						return data;
+//					+ Django.url('prodtask:task', {'rid': data})
+//					+ Django.url('todoview:todoTaskDescription', {'taskid': data})
+					var a = '<a href="'
+					+ prefix 
+					+ Django.url('prodtask:task', {'rid': data})
+					+ '" target="_blank">' +
+					data + '</a>' ;
+				return a;
+					},
+					"aTargets": [ fieldIndices.jeditaskid ]
+				},
+				// PanDA ID
+				{
+					"mRender": function ( data, type, row ) {
+					var a = '<a href="'
+								+ prefix 
+								+ Django.url('jobDetails', {'pandaid': data})
+							+ '" target="_blank">' + data + '</a>'
+						;
+						return a;
+					},
+					"aTargets": [ fieldIndices.pandaid ]
+				},
+				// Job status
+				{
+					"mRender": function ( data, type, row ) {
+						if (data === 'failed'){
+							var a = 
+								'<span style="color:red;">'
+								+ data
+								+ '</span>';
+							return a;
+						} else {
+							return data;
+						};
+					},
+					"aTargets": [ fieldIndices.jobstatus ]
+				},
+				// Site+Cloud
+				{
+					"mRender": function ( data, type, row ) {
+					// TODO: add link to site activity page
+						return row.cloud + '/'+ data ;
+					},
+					"aTargets": [ fieldIndices.computingsite ]
+				},
+				// Attempt
+				{
+					"mRender": function ( data, type, row ) {
+						console.debug('att='+data);
+						return data ;
+					},
+					"aTargets": [ fieldIndices.attempt ]
+				},
+				{ "bVisible": false, "aTargets": [ fieldIndices.cloud ] }
+			]
+		} );
+
+		var smryAoData = [];
+		smryAoData.push({'name': 'csrfmiddlewaretoken', 'value': csrftoken});
+		smryAoData.push({'name': 'pgst', 'value': stFlag});
+		$.merge( smryAoData, fltr )
+		$.ajax( {
+			"dataType": 'json',
+			"url": datasrcsmry,
+			"data": smryAoData,
+			"type": "POST", 
+			"success": function(data,status){
+//				console.debug(data);
+//				console.debug(data.aaData);
+				buildSummary(tableidsmry, data);
+			},
+			"async":true,
+			"error": function (xhr, error, thrown) {
+//				alert("THERE IS AN ERROR smrydata error="+error);
+				if ( error == "parsererror" ) 
+					apprise( "DataTables warning: JSON data" + 
+						" from server could not be parsed. " +
+						"This is caused by a JSON formatting " +
+						"error." 
+					);
+			}
+		} );
+
+//	console.debug("end of drawTableUserActivity");
 }

@@ -27,7 +27,7 @@ def jedi_jobs_table_with_filter(\
         template='templatetags/jedi/jedi_jobs_table_with_filter.html', \
             *args, **kwargs):
     """
-#        template tag with the javascript functionality 
+        template tag with the javascript functionality 
         for the job list table and corresponding filter table
         
     """

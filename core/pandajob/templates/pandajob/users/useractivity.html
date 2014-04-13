@@ -1,11 +1,12 @@
 {% extends "_base_bigpandamon.html" %}
 {% load url from future %}
 {% load js %}
+{% load core_extras %}
 {% load users_extras %}
-{% block subtitle %}Active PanDA {{ caption }}{% endblock %}
+{% block subtitle %}Recent activity{% endblock %}
 {% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
-{% block header-nav-chain-2 %}<a href="{% url 'user:listusers' %}">Active PanDA {{ caption }}</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
-{% block header-nav-chain-3 %}{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'user:listusers' %}">Users</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}Recent activity{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
 {% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
 {% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
 {% block header-nav-chain-6 %}{% endblock %}
@@ -23,48 +24,29 @@
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
 	{% django_js jquery=false i18n=true csrf=false %}
-
 	<script type="text/javascript" charset="utf-8">
+		var pgst = 'ini';
+		var filter = [];
+		var shFilter = [];
 		var fields = {{ filterFields|safe }};
-		var tableid = "{{ tableid }}";
+		var tableid = "{{ tableid_joblist }}";
+		var tableidsmry = "{{ tableid_joblist_smry }}";
 		var datasrc = "{{ datasrc }}";
+		var datasrcsmry = "{{ datasrcsmry }}";
 		var colsOrig = {{ columns|safe }};
 		var fieldIndices = {{ fieldIndices|safe }};
+		var fltr;
+		var stFlag = 'ini';
 		var oTable;
 		var prefix = "{{ prefix|safe }}";
-		var staticurl = "{{ STATIC_URL }}";
 	</script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-csrf.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-filter.js"></script>
-{% endblock %}
 
+{% endblock %}
 {% block body %}
-<div class="large-12 columns">
-	{% users_list_active datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
-</div>
+
+{% users_jobs_table_with_filter datasrc=datasrc datasrcsmry=datasrcsmry data=data columns=columns|safe tableid=tableid_joblist|safe tableidsmry=tableid_joblist_smry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
 {% endblock %}
 
-
-{% block extra_js_bottombody %}
-	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function() {
-			$.ajaxSetup({
-				beforeSend: function(xhr, settings) {
-					if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-						// Send the token to same-origin, relative URLs only.
-						// Send the token only if the method warrants CSRF protection
-						// Using the CSRFToken value acquired earlier
-						xhr.setRequestHeader("X-CSRFToken", csrftoken);
-					}
-				}
-			});
-
-			// draw table
-			console.debug("before drawTableListActiveUsers");
-			drawTableListActiveUsers();
-			console.debug("after drawTableListActiveUsers");
-
-		} ); // document.ready
-	</script>
-{% endblock %}
