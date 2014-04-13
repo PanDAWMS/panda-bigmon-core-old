@@ -492,10 +492,10 @@ function drawTableUserActivity(stFlag){
 	oTable = $("#" + tableid).dataTable( {
 			"sPaginationType": "full_numbers",
 			"bDestroy": true,
-			"aLengthMenu": [ [5,300, 500, 750, 1000], [5,300, 500, 750, 1000] ],
+			"aLengthMenu": [ [300, 500, 750, 1000], [300, 500, 750, 1000] ],
 			"sDom": '<"H"lfr><t><"F"ip>',
-//			"iDisplayLength": 300,
-		"iDisplayLength": 5,
+			"iDisplayLength": 300,
+//		"iDisplayLength": 5,
 			"bProcessing": true,
 			"bServerSide": true,
 			"bFilter": false,

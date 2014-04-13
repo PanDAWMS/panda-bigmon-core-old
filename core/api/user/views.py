@@ -144,6 +144,8 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
         ### overridden prepare_results, with data as list of dicts
         _logger.debug('mark')
         serializer = SerializerUsers(qs, many=True, fields=self.columns)
+#        _logger.error(sys.exc_info())
+#        _logger.error(traceback.format_exc())
         _logger.debug('mark')
         data = serializer.data
         _logger.debug('mark')
