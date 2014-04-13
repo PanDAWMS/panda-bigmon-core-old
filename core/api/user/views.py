@@ -19,11 +19,13 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from ...pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, \
     Jobswaiting4, Jobsarchived4
+from ...common.models import Users
 from ...common.utils import QuerySetChain, subDict, getFilterFieldRenderText, \
     getFilterNameForField
 #from .serializers import SerializerPandaJob
 from ..jedi.jobsintask.views import PandaJobDictJsonJobsInTask
-from ..jedi.jobsintask.serializers import SerializerPandaJob
+from ...table.views import ModelJobDictJson
+from .serializers import SerializerUsers
 
 #### BEGIN: for debug purposes only
 #from ....htcondor.models import HTCondorJob
@@ -53,12 +55,14 @@ shortUIDateFormat = "%m-%d %H:%M"
 
 
 class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
+#class ListActiveUsersDictJson(ModelJobDictJson):
     """
-        PandaJobDictJsonJobsInTask
+        ListActiveUsersDictJson
             reverse url: api-datatables-user-list-active-users
     """
     # The model we're going to show
-    model = PandaJob
+#    model = PandaJob
+    model = Users
 
     # reverse URL
     reverseUrl = 'api-datatables-user-list-active-users'
@@ -138,7 +142,7 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
         ### original prepare_results provides data as list of lists
         ### overridden prepare_results, with data as list of dicts
         _logger.debug('mark')
-        serializer = SerializerPandaJob(qs, many=True, fields=self.columns)
+        serializer = SerializerUsers(qs, many=True, fields=self.columns)
         _logger.debug('mark')
         data = serializer.data
         _logger.debug('mark')
@@ -158,28 +162,23 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
         
         """
         _logger.debug('get_initial_queryset')
-#        ### limit modificationtime range
-#        startdate = datetime.utcnow() - timedelta(days=3 * LAST_N_DAYS)
-#        startdate = startdate.strftime(defaultDatetimeFormat)
-#        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-#        ### get the initial queryset properties
-#        query = {\
-##            'modificationtime__range': [startdate, enddate], \
-##            'jeditaskid__isnull': False \
-#        }
+        ### limit modificationtime range
+        startdate = datetime.utcnow() - timedelta(days=3 * LAST_N_DAYS_MAX)
+        startdate = startdate.strftime(defaultDatetimeFormat)
+        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        ### get the initial queryset properties
+        query = {\
+            'lastmod__range': [startdate, enddate]
+        }
         ### get the initial queryset
-        qs = QuerySetChain(\
-            Jobsdefined4.objects.values(*self.onlyColumns).only(*self.onlyColumns).distinct(), \
-            Jobsactive4.objects.values(*self.onlyColumns).only(*self.onlyColumns).distinct(), \
-            Jobswaiting4.objects.values(*self.onlyColumns).only(*self.onlyColumns).distinct(), \
-            Jobsarchived4.objects.values(*self.onlyColumns).only(*self.onlyColumns).distinct() \
-        )
+        qs = Users.objects.filter(**query).only(*self.onlyColumns)
         ### return the initial queryset
         return qs
 
 
-    def filter_queryset(self, qs):
-        return self.get_initial_queryset()
+#    def filter_queryset(self, qs):
+##        return self.get_initial_queryset()
+#        return qs
 
 
     def pagingData(self, qs_data):
@@ -197,38 +196,90 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
         return qs_data[start:offset]
 
 
+#    def get_context_data(self, smry=0, *args, **kwargs):
+#        """
+#            get_context_data
+#                list of active users has no filtering
+#                --> total_records == total_display records ==
+#                        == len(self.prepare_results(self.get_initial_queryset()))
+#        """
+#        ret = {}
+#        ### get original dict for datatables
+#        request = self.request
+#        self.initialize(*args, **kwargs)
+#
+#        ### get initial queryset, contains duplicit active user names
+#        qs = self.get_initial_queryset()
+#
+#        ### order initial queryset
+#        qs = self.ordering(qs)
+#
+#        ### get unique list of active user names
+#        qs_data = self.prepare_results(qs)
+#
+#        ### number of records before paging data
+#        total_records = len(qs_data)
+#
+#        ### paging the data
+#        qs_data = self.pagingData(qs_data)
+#
+#        # number of records after filtering
+#        total_display_records = len(qs_data)
+#
+#        # prepare output data
+#        aaData = qs_data
+#
+#        _logger.debug('get_context_data')
+#
+#        ret = {'sEcho': int(request.REQUEST.get('sEcho', 0)),
+#               'iTotalRecords': total_records,
+#               'iTotalDisplayRecords': total_display_records,
+#               'aaData': aaData
+#               }
+#
+#        ### correct for wrong/too small iTotalRecords from the default queryset
+#        try:
+#            if ret['iTotalRecords'] < ret['iTotalDisplayRecords']:
+#                ret['iTotalRecords'] = ret['iTotalDisplayRecords']
+#        except:
+#            _logger.error('Failed to change iTotalRecords(%s) to iTotalDisplayRecords(%s)'\
+#                          % (ret['iTotalRecords'], ret['iTotalDisplayRecords']))
+#        return ret
+
+
     def get_context_data(self, smry=0, *args, **kwargs):
-        """
-            get_context_data
-                list of active users has no filtering
-                --> total_records == total_display records == 
-                        == len(self.prepare_results(self.get_initial_queryset()))
-        """
         ret = {}
         ### get original dict for datatables
         request = self.request
         self.initialize(*args, **kwargs)
 
-        ### get initial queryset, contains duplicit active user names
         qs = self.get_initial_queryset()
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
-        ### order initial queryset
-        qs = self.ordering(qs)
+        # number of records before filtering
+        total_records = qs.count()
 
-        ### get unique list of active user names
-        qs_data = self.prepare_results(qs)
-
-        ### number of records before paging data
-        total_records = len(qs_data)
-
-        ### paging the data
-        qs_data = self.pagingData(qs_data)
+        qs = self.filter_queryset(qs)
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
         # number of records after filtering
-        total_display_records = len(qs_data)
+        total_display_records = qs.count()
+
+        qs = self.ordering(qs)
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
+
+#        if 'smry' not in self.request.POST.keys():
+#            qs = self.paging(qs)
+#        _logger.debug('get_context_data:smry=%s' % (str(smry)))
+#        if not smry:
+#            qs = self.paging(qs)
+#        else:
+#            qs = self.paging(qs).get()
+        qs = self.paging(qs)
+#        _logger.debug('get_context_data:qs=%s' % (str(qs)))
 
         # prepare output data
-        aaData = qs_data
+        aaData = self.prepare_results(qs)
 
         _logger.debug('get_context_data')
 
@@ -238,6 +289,9 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
                'aaData': aaData
                }
 
+        _logger.debug('get_context_data')
+        _logger.debug('get_context_data aaData=' + str(aaData))
+
         ### correct for wrong/too small iTotalRecords from the default queryset
         try:
             if ret['iTotalRecords'] < ret['iTotalDisplayRecords']:
@@ -246,5 +300,4 @@ class ListActiveUsersDictJson(PandaJobDictJsonJobsInTask):
             _logger.error('Failed to change iTotalRecords(%s) to iTotalDisplayRecords(%s)'\
                           % (ret['iTotalRecords'], ret['iTotalDisplayRecords']))
         return ret
-
 

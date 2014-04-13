@@ -249,6 +249,8 @@ UPDATE_COL_TITLES['api-datatables-jedi-jobs-in-task'] = { \
     'cloud': {'vis': False, 'sort': False}, \
 #    'prodsourcelabel': {'vis': False, 'sort': False}, \
     'jobsetid': {'vis': False, 'sort': False}, \
+    'produsername': {'t': 'Owner'}, \
+
 }
 COL_TITLES['api-datatables-jedi-jobs-in-task'] = \
     getTitles('api-datatables-jedi-jobs-in-task', 'PanDAjob-all')
@@ -264,22 +266,29 @@ SMRYCOL_TITLES['api-datatables-jedi-jobs-in-task'] = \
 
 
 
-### reverse URL: 'api-datatables-user-list-active-users'
-COLUMNS['api-datatables-user-list-active-users'] = [\
-        'produsername'
+### reverse URL: 'ActiveUsers-all'
+COLUMNS['ActiveUsers-all'] = [\
+        'name'
     ]
-ORDER_COLUMNS['api-datatables-user-list-active-users'] = [\
-        'produsername'
+ORDER_COLUMNS['ActiveUsers-all'] = [\
+        'name'
     ]
-UPDATE_COL_TITLES['api-datatables-user-list-active-users'] = {
-    'produsername': {'t': 'Active PanDA User'}, \
-}
-COL_TITLES['api-datatables-user-list-active-users'] = \
-    getTitles('api-datatables-user-list-active-users', 'PanDAjob-all')
-FILTERS['api-datatables-user-list-active-users'] = FILTERS['PanDAjob-all']
-SUMMARY_FIELDS['api-datatables-user-list-active-users'] = SUMMARY_FIELDS['PanDAjob-all']
-SMRYCOL_TITLES['api-datatables-user-list-active-users'] = \
-    getTitlesSmry('api-datatables-user-list-active-users', 'PanDAjob-all', smry=True)
+UPDATE_COL_TITLES['ActiveUsers-all'] = {}
+COL_TITLES['ActiveUsers-all'] = [
+    {'sort': True, 'vis': True, 'c': 'name', 't': 'Active PanDA User'}
+]
+FILTERS['ActiveUsers-all'] = []
+SUMMARY_FIELDS['ActiveUsers-all'] = []
+SMRYCOL_TITLES['ActiveUsers-all'] = []
 
+
+### reverse URL: 'api-datatables-user-list-active-users'
+COLUMNS['api-datatables-user-list-active-users'] = COLUMNS['ActiveUsers-all']
+ORDER_COLUMNS['api-datatables-user-list-active-users'] = ORDER_COLUMNS['ActiveUsers-all']
+UPDATE_COL_TITLES['api-datatables-user-list-active-users'] = UPDATE_COL_TITLES['ActiveUsers-all']
+COL_TITLES['api-datatables-user-list-active-users'] = COL_TITLES['ActiveUsers-all']
+FILTERS['api-datatables-user-list-active-users'] = FILTERS['ActiveUsers-all']
+SUMMARY_FIELDS['api-datatables-user-list-active-users'] = SUMMARY_FIELDS['ActiveUsers-all']
+SMRYCOL_TITLES['api-datatables-user-list-active-users'] = SMRYCOL_TITLES['ActiveUsers-all']
 
 

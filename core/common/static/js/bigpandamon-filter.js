@@ -205,6 +205,8 @@ function drawTable(stFlag){
 			"bFilter": false,
 			"bPaginate": true,
 			"sAjaxSource": datasrc,
+//		"bScrollInfinite": true,
+//		"sScrollY": "200px", 
 			"bScrollCollapse": true,
 			"sScrollX": "100%",
 			"bJQueryUI": true,
@@ -416,7 +418,7 @@ function drawTableListActiveUsers(){
 	oTable = $("#" + tableid).dataTable( {
 			"sPaginationType": "full_numbers",
 			"bDestroy": true,
-			"aLengthMenu": [ [500, 750, 1000], [500, 750, 1000] ],
+			"aLengthMenu": [ [500, 1000, 1500], [500, 1000, 1500] ],
 			"sDom": '<"H"lfr><t><"F"ip>',
 			"iDisplayLength": 500,
 			"bProcessing": true,
