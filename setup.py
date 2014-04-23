@@ -3,10 +3,10 @@
 # Setup prog for Panda Server
 #
 #
-release_version = '0.0.3'
+release_version = '0.0.4' #FIXME
 prefix = '/data/atlpan/bigpandamon'
 lib_prefix = 'lib/python2.6/site-packages/'
-expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example']
+expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example'] #FIXME
 
 import os
 import re
@@ -172,10 +172,12 @@ setup(
     author='Panda Team',
     author_email='hn-atlas-panda-pathena@cern.ch',
     url='https://twiki.cern.ch/twiki/bin/view/PanDA/BigPanDAmonitoring',
-    packages=[ 
+    packages=[ #FIXME
         'core',
         'core.api',
         'core.api.htcondorapi', 
+        'core.api.jedi', 
+        'core.api.jedi.jobsintask', 
         'core.common',
         'core.common.settings', 
         'core.common.templatetags', 
@@ -186,9 +188,9 @@ setup(
         'core.task',
         'core.datatables',
         'core.datatables.templatetags',
-        'core.gspread',
+#        'core.gspread',
     ],
-    data_files=[
+    data_files=[ #FIXME
                 # config files 
                 ('%score/common/settings' % (lib_prefix), [
                             'core/common/settings/local.py-example-template', ]
@@ -202,7 +204,6 @@ setup(
                                  "core/htcondor/templates",
                                  "core/pandajob/templates",
                                  "core/resource/templates",
-                                 "core/task/templates",
                                  "core/datatables/templates",
                                  "core/datatables/static",
                 )
