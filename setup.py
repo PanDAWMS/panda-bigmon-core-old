@@ -188,7 +188,7 @@ setup(
         'core.task',
         'core.datatables',
         'core.datatables.templatetags',
-#        'core.gspread',
+        'core.gspread',
     ],
     data_files=[ #FIXME
                 # config files 
