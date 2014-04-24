@@ -1,0 +1,26 @@
+{% extends "_base_bigpandamon.html" %}{% load url from future %}{% load core_extras %}
+{% block subtitle %}List of PanDA jobs{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'jobList' %}">List of PanDA jobs</a>{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}  
+{% block header-nav-chain-3 %}{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}  
+{% block extra_css %}
+<style type="text/css" title="currentStyle">
+@import "{{ STATIC_URL }}/css/jquery.dataTables_themeroller.css";
+@import "{{ STATIC_URL }}/css/jquery-ui-1.10.3.custom.min.css";
+@import "{{ STATIC_URL }}/css/jquery-ui-timepicker-addon.css";
+</style>
+{% endblock %}
+{% block extra_js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
+{% endblock %}
+
+{% block body %}
+{% joblist datasrc=datasrc data=data columns=columns|safe tableid="example" caption="PanDA Jobs" showdatasrc=0 listType="PanDA Dict" model="PandaJob" %}
+{% endblock %}

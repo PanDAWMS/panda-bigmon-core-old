@@ -1,0 +1,9 @@
+""" 
+htcondorapi.status
+
+"""
+HTCAPI_OK = 0
+HTCAPI_MISSING_FIELD = 10
+HTCAPI_CANNOT_SAVE = 20
+HTCAPI_CANNOT_UPDATE = 30
+
