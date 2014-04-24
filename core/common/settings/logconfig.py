@@ -1,5 +1,5 @@
 """
-    logconfig
+    core common logconfig
 """
 
 from .local import LOG_ROOT
@@ -66,6 +66,30 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'verbose',
         },
+        'logfile-jedi_extra': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_ROOT + "/logfile.jedi_extra",
+            'maxBytes': LOG_SIZE,
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
+        'logfile-users_extra': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_ROOT + "/logfile.users_extra",
+            'maxBytes': LOG_SIZE,
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
+        'logfile-user_views': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_ROOT + "/logfile.user_views",
+            'maxBytes': LOG_SIZE,
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -103,6 +127,18 @@ LOGGING = {
             'handlers': ['logfile-jedi_jobsintask'],
             'level': 'DEBUG',
         },
+        'jedi_extra': {
+            'handlers': ['logfile-jedi_extra'],
+            'level': 'DEBUG',
+        },
+        'users_extra': {
+            'handlers': ['logfile-users_extra'],
+            'level': 'DEBUG',
+        },
+        'user_views': {
+            'handlers': ['logfile-user_views'],
+            'level': 'DEBUG',
+        },
     },
     'formatters': {
         'verbose': {
@@ -123,4 +159,32 @@ LOGGING = {
     },
 }
 
+
+def appendLogger(loggername, loggerlevel='DEBUG', \
+                 loggerclass='logging.handlers.RotatingFileHandler'):
+    """
+        appendLogger - append new logger properties
+        
+        :param loggername: name of the logger, e.g. 'bigpandamon'
+        :type loggername: string
+    """
+    global LOGGING, LOG_SIZE, LOG_ROOT
+
+    handler = 'logfile-' + str(loggername)
+    filename = LOG_ROOT + '/logfile.' + str(loggername)
+
+    LOGGING['handlers'][handler] = \
+    {
+        'level':loggerlevel, \
+        'class':loggerclass, \
+        'filename': filename, \
+        'maxBytes': LOG_SIZE, \
+        'backupCount': 2, \
+        'formatter': 'verbose', \
+    }
+    LOGGING['loggers'][loggername] = \
+    {
+        'handlers': [handler], \
+        'level': loggerlevel, \
+    }
 

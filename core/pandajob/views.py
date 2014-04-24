@@ -465,8 +465,12 @@ class PandaJobDictJson(ModelJobDictJson):
 @ensure_csrf_cookie
 def jediJobsInTask(request):
     """
-        list3PandaJobs -- view to show list of PanDA jobs in a dataTables table
+        jediJobsInTask -- view list of PanDA jobs in a dataTables table
                             data from API jedi/jobsintask
+        
+        :param request: Django's HTTP request 
+        :type request: django.http.HttpRequest
+        
     """
     reverseUrl = 'api-datatables-jedi-jobs-in-task'
     reverseUrlSmry = reverseUrl + '-smry'
@@ -504,50 +508,5 @@ def jediJobsInTask(request):
     }
     data.update(getContextVariables(request))
     return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
-
-
-#@cache_page(60 * 2)
-#@ensure_csrf_cookie
-#def DEVjediJobsInTask(request):
-#    """
-#        list3PandaJobs -- view to show list of PanDA jobs in a dataTables table
-#                            data from API jedi/jobsintask
-#    """
-#    reverseUrl = 'DEV-api-datatables-jedi-jobs-in-task'
-#    reverseUrlSmry = reverseUrl + '-smry'
-#    ### get URL prefix
-#    prefix = getPrefix(request)
-#    ### get reverse url of the data view
-#    dataUrl = reverse(reverseUrl)
-#    dataUrlSmry = reverse(reverseUrlSmry)
-#    ### get aoColumns pre-config
-#    aoColumns = []
-#    aoColumns += getAoColumnsDictWithTitles(COL_TITLES[reverseUrl])
-#    ### get filter fields
-##    filterFields = ['fJtaskID']
-#    filterFields = getFilterFieldIDs(FILTERS[reverseUrl])
-#    ### get indices of columns to refer by name in render javascript function
-#    fieldIndices = {}
-#    for col in ORDER_COLUMNS[reverseUrl]:
-#        i = None
-#        try:
-#            i = ORDER_COLUMNS[reverseUrl].index(col)
-#        except:
-#            pass
-#        fieldIndices[col] = i
-#    ### set request response data
-#    data = { \
-#            'prefix': prefix, \
-#            'datasrc': str(dataUrl + "?format=json"), \
-#            'datasrcsmry': str(dataUrlSmry + "?format=json"), \
-#            'columns': json_dumps(aoColumns), \
-#            'fieldIndices': json_dumps(fieldIndices), \
-#            'tableid_joblist': 'jediJobsInTask', \
-#            'tableid_joblist_smry': 'jediJobsInTask-smry', \
-#            'filterFields': filterFields, \
-#            'caption': 'jobs', \
-#    }
-#    data.update(getContextVariables(request))
-#    return render_to_response('pandajob/jedi/jobsintask.html', data, RequestContext(request))
 
 
