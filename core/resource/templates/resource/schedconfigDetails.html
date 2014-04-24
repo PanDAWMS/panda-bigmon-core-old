@@ -1,0 +1,20 @@
+{% extends "_base_bigpandamon.html" %}{% load url from future %}
+{% block subtitle %}Queue details {% if name %}for {{ name }}{% endif %}{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'listSchedconfigQueues' %}">List of queues</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}<a href="{% url 'schedconfigDetails' name %}">Queue {{ name }}</a>{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}  
+{% block body %}
+
+{% if schedconfigInfo %}
+    <ul>
+    {% for k,v in schedconfigInfo %}
+        <li>{{ k }}: {{ v }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No information for selected queue is available.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "_base_bigpandamon.html" %}
+{% block subtitle %}Job details for prodUserName {{ name }} in the last {{ nhours }} hours{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'jobInfoDefault' %}">List of jobs</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}<a href="{% url 'jobInfo' name nhours %}">prodUserName {{ name }} in the last {{ nhours }} hours</a>{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}  
+{% block body %}
+{% if jobInfo %}
+
+<table>
+<tr>
+	<th>Owner{% if jobDetails.workinggroup %}/WG{% endif %}{% if jobDetails.vo %}/VO{% endif %}</th>
+	<th>PanDA ID</th>
+	<th>Status</th>
+	<th>Created</th>
+	<th>JEDI Task ID</th>
+	<th>Modified</th>
+	<th>Start</th>
+	<th>End</th>
+	<th>Site</th>
+	<th>Prio</th>
+</tr>
+<tr>
+	<th colspan="10">Job name</th>
+</tr>
+    {% for job in jobInfo %}
+	<tr>
+		<td><a href="{% url 'jobInfo' job.produsername|safe 12  %}">{{ job.produsername }}</a>
+			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}
+			{% if job.vo %}/{{ job.vo }}{% endif %}
+		</td>
+		<td><a href="{% url 'jobDetails' job.pandaid %}">{{ job.pandaid }}</a></td>
+		<td>{{ job.jobstatus }}</td>
+		<td>{{ job.creationtime|date:"M d, H:i" }}</td>
+		<td>{{ job.modificationtime|date:"M d, H:i" }}</td>
+		<td>{{ job.starttime|date:"M d, H:i" }}</td>
+		<td>{{ job.endtime|date:"M d, H:i" }}</td>
+		<td>{{ job.computingsite }}</td>
+		<td>{{ job.currentpriority }}</td>
+	</tr>
+	<tr>
+		<td colspan="10">{{ job.jobname }}</td>
+	</tr>
+    {% endfor %}
+</table>
+{% comment %}
+    <ul>
+    {% for k,v in jobInfo %}
+        <li>{{ k }}: {{ v }}</li>
+    {% endfor %}
+    </ul>
+{% endcomment %}
+{% else %}
+    <p>No information for job is available.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,173 @@
+List of template blocks for BigPanDA/ProdSys2/PanDA monitoring in Django
+bigpandamon/templates/_base_grid.html
+Created: 2013-10-17
+Last update: 2013-10-20
+
+BigPanDA monitoring: base template is bigpandamon/templates/_base_bigpandamon.html
+ProdSys2 monitoring: base template is bigpandamon/templates/_base_prodsys2.html
+
+
+### base_css
+Placeholder for extra css include on app level, in addition to css incuded in the base template of the project.
+{% block base_css %}{% endblock %}
+### extra_css
+Placeholder for any extra css (3rd) include, in addition to css included in the base template (1st), and base_css (2nd). 
+example:
+{% block extra_css %}<link rel="stylesheet" href="{{ STATIC_URL }}/css/extra1.css">{% endblock %}
+### base_js
+Placeholder for extra js include on app level, in addition to js incuded in the base template of the project.
+{% block base_js %}{% endblock %}
+### extra_js
+Placeholder for any extra js include, in addition to js included in the base template. 
+example:
+{% block extra_js %}<script src="{{ STATIC_URL }}/js/extra1.js"></script>{% endblock %}
+
+
+### body
+Placeholder for the page content. Add your tables, plots, lists, etc. here. 
+example: 
+{% block body %}Welcome!{% endblock %}
+
+
+### page_title
+Placeholder for the title tag inside head tag. Shown only in the browser window/tab title bar.
+example:  
+{% block page_title %}{{ title }}{% endblock %}
+
+
+### title
+Placeholder for the page title. To be shown on the very left of the top bar.
+example:
+{% block title %}{{ APP_NAME }}: DEFT Control Center{% endblock %}
+### subtitle
+Placeholder for the page subtitle. To be shown below the top black menu bar.
+Currently empty and not styled, placeholder to be overridden per view. 
+{% block subtitle %}{% endblock %}
+
+
+### top_menu_1
+Placeholder for top menu #1 content. 
+Can be overriden per view, but that is not suggested (to preserve "get from anywhere to anywhere else" feature). 
+Contains elements of ul with a tags. Menu elements blocks TBD.
+{% block top_menu_1 %}{% endblock %}
+### top_menu_2
+{% block top_menu_2 %}{% endblock %}
+### top_menu_3
+{% block top_menu_3 %}{% endblock %}
+### top_menu_4
+{% block top_menu_4 %}{% endblock %}
+### top_menu_5
+{% block top_menu_5 %}{% endblock %}
+### top_menu_6
+Placeholder for top menu #6. This placeholder is intended for the Help menu. 
+{% block top_menu_6 %}{% endblock %}
+
+### top_menu_all_1
+Placeholder for top menu #1 elements around content. 
+Can be overriden per view, but that is not suggested (to preserve "get from anywhere to anywhere else" feature). 
+Contains elements of ul with a tags. Menu elements blocks TBD.
+{% block top_menu_all_1 %}{% endblock %}
+### top_menu_all_2
+{% block top_menu_all_2 %}{% endblock %}
+### top_menu_all_3
+{% block top_menu_all_3 %}{% endblock %}
+### top_menu_all_4
+{% block top_menu_all_4 %}{% endblock %}
+### top_menu_all_5
+{% block top_menu_all_5 %}{% endblock %}
+### top_menu_all_6
+Placeholder for top menu #6 - elements around content. This placeholder is intended for the Help menu. 
+{% block top_menu_all_6 %}{% endblock %}
+
+
+
+### header-nav-chain, aka bread-crumbs
+Placeholder for "bread-crumbs", the top navigation menu to help answer question "how did I get to this page?"
+Up to 6 levels of nesting is available. To be overridden per view, but the chain sequence should be consistent among all views of a project.
+Currently commented out in the _base_grid.html.
+Example: 
+{% block header-nav-chain %}{% endblock %}
+{% block header-nav-chain-1 %}<a href="{{ prefix }}/">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{{ prefix }}/#">DEFT</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}<a href="{{ prefix }}/#">ItemSub2</a>{% endblock %}{% block header-nav-chain-3-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-4 %}<a href="{{ prefix }}/#">ItemSub3</a>{% endblock %}{% block header-nav-chain-4-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-5 %}<a href="{{ prefix }}/#">ItemSub4</a>{% endblock %}{% block header-nav-chain-5-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-6 %}<a href="{{ prefix }}/#">CurrentView</a>{% endblock %}  
+
+
+### left_menu
+Placeholder for the left menu surroundings. 
+Can be overridden per view or per project, TBD which one applies. 
+Currently empty. 
+{% block left_menu %}{% endblock %}
+### left_menu_content
+Placeholder for the left menu content. 
+Can be overridden per view or per project, TBD which one applies. 
+{% block left_menu_content %}
+      <span class="left-menu-title">DEFT UI</span>
+      <ul>
+        <li><a class="left-menu-item" href="{{ prefix }}/#">Home</a></li>
+        <li><a class="left-menu-item" href="{{ prefix }}/#">Item1</a>
+          <ul>
+            <li><a class="left-menu-subitem" href="{{ prefix }}/#">Submenu1</a>
+            <li><a class="left-menu-subitem" href="{{ prefix }}/#">Submenu2</a>
+            <li><a class="left-menu-subitem" href="{{ prefix }}/#">Submenu3</a>
+          </ul>
+        </li>
+        <li><a class="left-menu-item" href="{{ prefix }}/#">Item2</a></li>
+      </ul>
+{% endblock %}
+
+
+### bottom_link_1
+Placeholder for content with link to home page of a project #1.
+Can be overriden per view, but that is not suggested (to preserve "get from anywhere to anywhere else" feature).  
+Example
+{% block bottom_link_1 %}<a href="#">DEFT</a>{% endblock %}
+### bottom_link_2
+{% block bottom_link_2 %}<a href="#">JEDI</a>{% endblock %}
+### bottom_link_3
+{% block bottom_link_3 %}<a href="#">ATLAS PanDA</a>{% endblock %}
+### bottom_link_4
+{% block bottom_link_4 %}<a href="#">Section 4</a>{% endblock %}
+### bottom_link_all_1
+Placeholder for surroundings elements of bottom_link_1. 
+Override with empty content in order to disable the bottom_link_1.
+{% block bottom_link_all_1 %}{% endblock %}
+### bottom_link_all_2
+{% block bottom_link_all_2 %}{% endblock %}
+### bottom_link_all_3
+{% block bottom_link_all_3 %}{% endblock %}
+### bottom_link_all_4
+{% block bottom_link_all_4 %}{% endblock %}
+
+
+### bottom_copy
+Placeholder for information about copyright or any other footer information. 
+{% block bottom_copy %}{% endblock %}
+
+
+### gacode
+Unique application code in Google Analytics. 
+Can be overridden, but should not be overridden per view, but per project/app.
+TODO: do we have/want to have GA code for every app (DEFT UI, JEDI UI, ATLAS PanDA, LSST PanDA, others???)? 
+example: 
+{% block gacode %}UA-44940804-1{% endblock %}
+### gaweb
+Application url in Google Analytics. 
+Can be overridden, but should not be overridden per view, but per project/app.
+example: 
+{% block gaweb %}pandawms.org{% endblock %}
+
+
+### body_mobile
+Unused placeholder, for body/content of future mobile version once we get there
+{% block body_mobile %}{% endblock %}
+
+
+### bottom_info
+Unused placeholder, for additional content. Is here from historical reasons: Foundation HTML template contains additional code which was not used for now. 
+{% block bottom_info %}{% endblock %}
+
+
+
