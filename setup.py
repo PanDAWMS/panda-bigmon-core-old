@@ -175,6 +175,7 @@ setup(
     packages=[ #FIXME
         'core',
         'core.api',
+        'core.api.user',
         'core.api.htcondorapi', 
         'core.api.jedi', 
         'core.api.jedi.jobsintask', 
