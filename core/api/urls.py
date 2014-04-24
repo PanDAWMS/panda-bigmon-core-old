@@ -14,6 +14,7 @@ common_patterns = patterns('',
     ### Applications
     url(r'^htcondor', include('core.api.htcondorapi.urls')),
     url(r'^jedi', include('core.api.jedi.urls')),
+    url(r'^user', include('core.api.user.urls')),
 
 )
 

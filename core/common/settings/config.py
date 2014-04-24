@@ -20,6 +20,8 @@ ALLOWED_HOSTS = [
     ### pandawms.org
     '.pandawms.org',  # Allow domain and subdomains
     '.pandawms.org.',  # Also allow FQDN and subdomains
+
+    '127.0.0.1', '.localhost'
 ]
 
 # Make this unique, and don't share it with anybody.
@@ -153,7 +155,8 @@ from .logconfig import LOGGING
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 #MEDIA_ROOT = '/data/bigpandamon/bigpandamon/media/'
-MEDIA_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/media/"
+#MEDIA_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/media/"
+MEDIA_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/media/"
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -168,7 +171,8 @@ MEDIA_URL_BASE = '/media/'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 #STATIC_ROOT = '/data/bigpandamon/bigpandamon/static/'
-STATIC_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/static/"
+#STATIC_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/static/"
+STATIC_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/static/"
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -222,6 +226,7 @@ CUSTOM_DB_FIELDS = {
 #URL_PATH_PREFIX = '/jedimon'
 #URL_PATH_PREFIX = ''
 ### on localhost:8000: URL_PATH_PREFIX = '/.'
+#URL_PATH_PREFIX = '/jedimon'
 URL_PATH_PREFIX = ''
 #MEDIA_URL = URL_PATH_PREFIX + MEDIA_URL
 MEDIA_URL = URL_PATH_PREFIX + MEDIA_URL_BASE
@@ -242,8 +247,12 @@ ENV = {
 FILTER_UI_ENV = {
     ### default number of days of shown jobs active in last N days
     'DAYS': 1, \
+    ### default number of days for user activity of shown jobs active in last N days
+    'USERDAYS': 3, \
     ### max number of days of shown jobs active in last N days
     'MAXDAYS': 30, \
+    ### max number of days for user activity of shown jobs active in last N days
+    'USERMAXDAYS': 60, \
     ### default number of hours of shown jobs active in last N hours
     'HOURS': 2, \
     ### wildcard for string pattern in filter form

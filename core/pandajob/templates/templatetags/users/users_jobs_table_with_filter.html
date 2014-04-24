@@ -1,4 +1,4 @@
-{% load url from future %}{% load jedi_extras %}{% load js %}{% load core_extras %}
+{% load url from future %}{% load users_extras %}{% load js %}
 
 {% block extra_css %}
 <style type="text/css" title="currentStyle">
@@ -35,14 +35,13 @@
 {% endblock %}
 
 <!-- Filter -->
-{% jedi_table_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+{% users_table_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
 <!-- Summary of job list -->
-{% jedi_smry_jobs datasrcsmry=datasrcsmry data=data columns=columns|safe tableidsmry=tableidsmry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+{% users_smry_jobs datasrcsmry=datasrcsmry data=data columns=columns|safe tableidsmry=tableidsmry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
 <!-- Job list -->
-{% jedi_table_jobs datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
-
+{% users_table_jobs datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
 
 {% block extra_js_bottombody %}
 	<script type="text/javascript" charset="utf-8">
@@ -85,10 +84,10 @@
 			setValuesFilterTable(filter);
 
 			// draw table
-			console.debug("before drawTable");
-			console.debug("before drawTable, pgst="+pgst);
-			drawTable(pgst);
-			console.debug("after drawTable");
+			console.debug("before drawTableUserActivity");
+			console.debug("before drawTableUserActivity, pgst="+pgst);
+			drawTableUserActivity(pgst);
+			console.debug("after drawTableUserActivity");
 
 			// Show/hide filter
 			console.debug("before sh-filter-click function");
@@ -113,6 +112,11 @@
 			});
 			console.debug("after btnFilter-click function");
 		} ); // document.ready
+		var username = gFV("ProdUserName");
+		if (username.length > 1){
+			$( "#div-subtitle").text("Recent activity of " + username);
+		}
+		console.debug("username="+username);
 	</script>
 {% endblock %}
 

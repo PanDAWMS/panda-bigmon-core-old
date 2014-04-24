@@ -108,14 +108,19 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         return newData
 
 
-    def removeNones(self, data, orderColumns):
+#    def removeNones(self, data, orderColumns):
+    def skimDataAndRemoveNones(self, data, orderColumns):
         convertDatetimeToString = False
         POSTkeys = self.request.POST.keys()
         if 'pgst' in POSTkeys:
             convertDatetimeToString = True
         newData = []
         for item in data:
-            newItem = {}
+#            newItem = {}
+            ### skim data
+            newItem = subDict(item, self.columns)
+            ### remove None (replace by "")
+            ### and format datetime string
             for col in orderColumns:
                 value = ""
                 try:
@@ -132,6 +137,22 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
                     except:
                         pass
                 newItem[col] = value
+            ### prodsourcelabel, jobsetid handling
+            prodsourcelabel = ""
+            try:
+                prodsourcelabel = item['prodsourcelabel']
+            except:
+                _logger.error('Could not determine prodsourcelabel for item [%s]' % (str(item)))
+            ### handle jobsetid:
+            ###    prodsourcelabel != 'user; : set empty jobsetid
+            ###    prodsourcelabel == 'user' : keep the jobsetid value
+            if prodsourcelabel != 'user':
+                newItem['jobsetid'] = ""
+            ### delete prodsourcelabel from the result
+            try:
+                del newItem['prodsourcelabel']
+            except:
+                _logger.error('Could not delete prodsourcelabel from item [%s]' % (str(item)))
             newData.append(newItem)
         return newData
 
@@ -155,14 +176,17 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
         _logger.debug('mark')
         data = serializer.data
 #        _django_logger.debug('prepare_results: before |data|')
-        _logger.debug('|data|=' + str(len(data)))
+#        _logger.debug('|data|=' + str(len(data)))
 #        _django_logger.debug('|data|=' + str(len(data)))
-#        _django_logger.debug('data=' + str(data))
+#        _django_logger.debug('data=' + str(data[:1]))
 #        _django_logger.debug('prepare_results: after |data|')
-        newData = self.skimData(data, self.columns)
-#        _django_logger.debug('prepare_results: after skimData')
-        newData = self.removeNones(newData, self.columns)
+#        newData = self.skimData(data, self.columns)
+##        _django_logger.debug('prepare_results: after skimData')
+#        _django_logger.debug('data=' + str(newData[:1]))
+#        newData = self.removeNones(newData, self.columns)
+        newData = self.skimDataAndRemoveNones(data, self.columns)
 #        _django_logger.debug('prepare_results: after cleanup')
+#        _django_logger.debug('data=' + str(newData[:1]))
 #        newData = self.dataDictToList(newData, self.order_columns)
         _logger.debug('mark')
 ##        _logger.debug('data=' + str(newData))
@@ -301,7 +325,7 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
     def paging(self, qs):
         """ Paging
         """
-        limit = min(int(self.request.REQUEST.get('iDisplayLength', 10)), self.max_display_length)
+        limit = min(int(self.request.REQUEST.get('iDisplayLength', 300)), self.max_display_length)
         # if pagination is disabled ("bPaginate": false)
         if limit == -1:
 #            _logger.debug('limit==-1, qs=' + str(qs))
@@ -320,6 +344,61 @@ class PandaJobDictJsonJobsInTask(ModelJobDictJson):
             
         """
         return (data, {})
+
+
+    def getSummarySmry(self, data):
+        """
+            get summary data for view self.reverseUrl
+            
+        """
+#        _django_logger.debug('getSummary data=' + str(data))
+        _logger.debug('getSummary:POSTkeys=%s' % (str(self.request.POST.keys())))
+        summary = {}
+        smrykeys = {}
+        ### for each active summaryField get summary data
+        for summaryField in SUMMARY_FIELDS[self.reverseUrl]:
+            summaryFieldResult = []
+            ### slice data for this particular summaryField
+            summaryDataForField = [x for x in data if summaryField in x.keys()]
+            ### get summary for this particular summaryField
+            summaryFieldResult = self.getSummaryForField(summaryField, summaryDataForField)
+            ### if there is something to summarize for this summaryField, record it
+            if len(summaryFieldResult) > 0:
+                summaryFieldRenderText = getFilterFieldRenderText(summaryField, SMRYCOL_TITLES[self.reverseUrl])
+                summary[summaryFieldRenderText] = summaryFieldResult
+                smrykeys[summaryFieldRenderText] = summaryField
+        ### return summary data structures
+        return (summary, smrykeys)
+
+
+    def getSummaryForField(self, summaryField, data):
+        """
+            get summary dict for field summaryField from data
+            
+        """
+        filterField = getFilterNameForField(summaryField, self.filterFields)
+        res = {}
+        r = []
+        ### data is a list of dictionaries. Each dictionary has key summaryField and summaryField__count
+        cntField = '%s__count' % (summaryField)
+        ### get list of values for field summaryField in data
+        keys = list(set([x[summaryField] for x in data]))
+        ### get sum of values for this summaryField
+        for caption in keys:
+            cnt = sum([v[cntField] for v in data \
+                            if v[summaryField] == caption])
+            ### if number of occurences for caption is more than 0, record it
+            if cnt > 0:
+                r.append({\
+                  'f': filterField,  ### filter field name
+                  'c': caption,  ### caption
+                  'v': cnt,  ### value
+                })
+        ### sort captions by descending number of occurences
+        r = sorted(r, key=lambda x:(-x['v'], x['c']))
+        res = r
+        ### return result
+        return res
 
 
     def get_context_data(self, smry=0, *args, **kwargs):
@@ -390,59 +469,12 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
 #    onlyColumns = list(set(COLUMNS[self.reverseUrl] + SUMMARY_FIELDS[self.reverseUrl]))
 
 
-    def getSummaryForField(self, summaryField, data):
-        """
-            get summary dict for field summaryField from data
-            
-        """
-        filterField = getFilterNameForField(summaryField, self.filterFields)
-        res = {}
-        r = []
-        ### data is a list of dictionaries. Each dictionary has key summaryField and summaryField__count
-        cntField = '%s__count' % (summaryField)
-        ### get list of values for field summaryField in data
-        keys = list(set([x[summaryField] for x in data]))
-        ### get sum of values for this summaryField
-        for caption in keys:
-            cnt = sum([v[cntField] for v in data \
-                            if v[summaryField] == caption])
-            ### if number of occurences for caption is more than 0, record it
-            if cnt > 0:
-                r.append({\
-                  'f': filterField,  ### filter field name
-                  'c': caption,  ### caption
-                  'v': cnt,  ### value
-                })
-        ### sort captions by descending number of occurences
-        r = sorted(r, key=lambda x:(-x['v'], x['c']))
-        res = r
-        ### return result
-        return res
-
-
     def getSummary(self, data):
         """
             get summary data for view self.reverseUrl
             
         """
-#        _django_logger.debug('getSummary data=' + str(data))
-        _logger.debug('getSummary:POSTkeys=%s' % (str(self.request.POST.keys())))
-        summary = {}
-        smrykeys = {}
-        ### for each active summaryField get summary data
-        for summaryField in SUMMARY_FIELDS[self.reverseUrl]:
-            summaryFieldResult = []
-            ### slice data for this particular summaryField
-            summaryDataForField = [x for x in data if summaryField in x.keys()]
-            ### get summary for this particular summaryField
-            summaryFieldResult = self.getSummaryForField(summaryField, summaryDataForField)
-            ### if there is something to summarize for this summaryField, record it
-            if len(summaryFieldResult) > 0:
-                summaryFieldRenderText = getFilterFieldRenderText(summaryField, SMRYCOL_TITLES[self.reverseUrl])
-                summary[summaryFieldRenderText] = summaryFieldResult
-                smrykeys[summaryFieldRenderText] = summaryField
-        ### return summary data structures
-        return (summary, smrykeys)
+        return self.getSummarySmry(data)
 
 
     def getAnnotationForQuery(self, query, smryFields):
@@ -571,3 +603,8 @@ class PandaJobDictJsonJobsInTaskSummary(PandaJobDictJsonJobsInTask):
         return data
 
 
+
+
+#class PandaJobDictJsonUsers(PandaJobDictJsonJobsInTask):
+#    ### TODO
+#    pass

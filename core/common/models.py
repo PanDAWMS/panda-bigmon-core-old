@@ -10,10 +10,13 @@
 
 from __future__ import unicode_literals
 
+from ..pandajob.columns_config import COLUMNS, ORDER_COLUMNS, COL_TITLES, FILTERS
+
+
 from django.db import models
-#models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
-#                                 'primaryColumns', 'secondaryColumns', \
-#                                 'columnTitles', 'filterFields',)
+models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
+                                 'primaryColumns', 'secondaryColumns', \
+                                 'columnTitles', 'filterFields',)
 
 class Cache(models.Model):
 #    type = models.CharField(max_length=750, primary_key=True, db_column='TYPE') # Field name made lowercase.
@@ -1940,7 +1943,15 @@ class Users(models.Model):
     vo = models.CharField(max_length=60, db_column='VO', blank=True) # Field name made lowercase.
 
     class Meta:
-        db_table = u'users'
+#        db_table = u'users'
+        db_table = u'"ATLAS_PANDAMETA"."USERS"'
+        allColumns = COLUMNS['ActiveUsers-all']
+        primaryColumns = [ 'name']
+        secondaryColumns = []
+        orderColumns = ORDER_COLUMNS['ActiveUsers-all']
+        columnTitles = COL_TITLES['ActiveUsers-all']
+        filterFields = FILTERS['ActiveUsers-all']
+
 
     def __str__(self):
         return 'User: ' + str(self.name) + '[' + str(self.status) + ']'
