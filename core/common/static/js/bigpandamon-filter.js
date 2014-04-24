@@ -241,6 +241,7 @@ function drawTable(stFlag){
 						var a = '<a href="'
 							+ prefix 
 							+ Django.url('user:useractivity')
+							+ '?ProdUserName=' + data
 							+ '" target="_blank">' +
 							data + '</a>' +' / '+ row.workinggroup;
 						return a;
