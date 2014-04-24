@@ -184,6 +184,7 @@ setup(
         'core.common.templatetags', 
         'core.htcondor', 
         'core.pandajob', 
+        'core.pandajob.templatetags', 
         'core.resource', 
         'core.table', 
         'core.task',
