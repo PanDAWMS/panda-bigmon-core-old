@@ -1,0 +1,80 @@
+{% load jedi_extras %}{% load core_extras %}
+
+<!-- Table for the Filter -->
+{% if tableid %}
+	<div class="large-12 left">
+		<a href="javascript:void(0)">
+			<span id="sh-filter-{{ tableid }}xxx">
+			</span>
+			<img id="sh-filter-{{ tableid }}" width="18px" height="18px" 
+				src="{{ STATIC_URL }}/images/filter.png" 
+				alt="Show filter of {{ caption }}">
+		</a>
+	</div>
+{% else %}
+<!-- No filter available for tableid=({{ tableid }}). -->
+{% endif %}
+
+
+<div id="div-table-filter-{{ tableid }}" class="left tableFilter">
+	<table id="table-filter-{{ tableid }}" width="100%">
+		<tr> 
+			<td ><b>Task ID:</b></td>
+			<td align=right><input id="JediTaskID" class="inputW"></td> 
+			<td ><b>Owner:</b></td>
+			<td align=right><input id="ProdUserName" class="inputW"></td> 
+			<td ><b>Working Group:</b></td>
+			<td align=right><input id="WG" class="inputW"></td> 
+			<td ><b>Job Type:</b></td>
+			<td align=right><input id="ProdSourceLabel" class="inputW"></td> 
+			<td ><b>Release:</b></td>
+			<td align=right><input id="Rls" class="inputW"></td> 
+		</tr>
+		<tr> 
+			<td rowspan=2><b>Job status:</b></td>
+			<td rowspan=2 align=right>
+				<select multiple id="JobStatus"> 
+					<option value="all">all</option>
+					<option value="pending">pending</option>
+					<option value="defined">defined</option>
+					<option value="assigned">assigned</option>
+					<option value="waiting">waiting</option>
+					<option value="activated">activated</option>
+					<option value="sent">sent</option>
+					<option value="starting">starting</option>
+					<option value="running">running</option>
+					<option value="holding">holding</option>
+					<option value="transferring">transferring</option>
+					<option value="finished">finished</option>
+					<option value="failed">failed</option>
+					<option value="cancelled">cancelled</option>
+					<option value="merging">merging</option>
+					<option value="throttled">throttled</option>
+				</select>
+			</td>
+			<td ><b>Cloud:</b></td>
+			<td align=right><input id="Cloud" class="inputW"></td> 
+			<td ><b>Created from:</b></td>
+			<td align=right><input id="CreationFrom" class="inputW"></td>
+			<td ><b>Created to:</b></td>
+			<td align=right><input id="CreationTo" class="inputW"></td> 
+			<td ><b>Transformation:</b></td>
+			<td align=right><input id="Trf" class="inputW"></td> 
+		</tr>
+			<td ><b>Site:</b></td>
+			<td align=right><input id="Site" class="inputW"></td> 
+			<td ><b>Modified from:</b></td>
+			<td align=right><input id="ModificationFrom" class="inputW"></td>
+			<td ><b>Modified to:</b></td>
+			<td align=right><input id="ModificationTo" class="inputW"></td> 
+			<td ><b>Processing type:</b></td>
+			<td align=right><input id="ProcessingType" class="inputW"></td> 
+		<tr> 
+			<td colspan=2 align=left><button type="button" id="btnFilter-{{ tableid }}" class="ui-buttonset ui-button">&nbsp;Filter jobs!&nbsp;</button></td>
+			<td ><b>Jobset ID:</b></td>
+			<td align=right><input id="JobsetID" class="inputW"></td> 
+			<td colspan=6></tr>
+	</table>
+</div>
+
+

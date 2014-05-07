@@ -1,0 +1,19 @@
+LoadModule wsgi_module modules/mod_wsgi.so
+
+### /bigpandamon
+WSGIPythonPath /data/bigpandamon_settings:/data/virtualenv/django1.6.1__python2.6.6/bigpandamon:/data/virtualenv/django1.6.1__python2.6.6//lib/python2.6/site-packages
+WSGIScriptAlias /bigpandamon /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/wsgi.py 
+AliasMatch ^/bigpandamon/([^/]*\.css) /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/static/css/$1
+AliasMatch ^/bigpandamon/([^/]*\.js)  /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/static/js/$1
+Alias /bigpandamon/static/ /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/static/
+<Directory /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/static>
+Order deny,allow
+Allow from all
+</Directory>
+Alias /bigpandamon/media/ /data/virtualenv/django1.6.1__python2.6.6/bigpandamon/bigpandamon/media/
+<Directory /data/virtualenv/django1.6.1__python2.6.6/bigpandamon_django161/bigpandamon/media>
+Order deny,allow
+Allow from all
+</Directory>
+
+

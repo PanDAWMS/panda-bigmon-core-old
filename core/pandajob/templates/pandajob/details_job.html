@@ -1,0 +1,110 @@
+{% extends "_base_bigpandamon.html" %}{% load url from future %}
+{% block subtitle %}Job details {% if name %}PanDA ID {{ name }}{% endif %}{% endblock %}
+{% block header-nav-chain-1 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-2 %}<a href="{% url 'jobList' %}">List of jobs</a>{% endblock %}{% block header-nav-chain-2-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}  
+{% block header-nav-chain-3 %}<a href="{% url 'jobDetails' name %}">Job {{ name }}</a>{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}  
+{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}  
+{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}  
+{% block header-nav-chain-6 %}{% endblock %}  
+{% block body %}
+
+{% comment %}
+ PanDAID, Owner, Working group; 
+ job name, job attempt number, job input/output dataset; 
+ job status; timestamp Created, interval "time to start", duration of the job, timestamp Ended/Modified; 
+ cloud, siteID; job priority. 
+{% endcomment %}
+
+
+{% if job %}
+<table>
+<tr>
+	<th>Owner{% if job.workinggroup %}/WG{% endif %}{% if job.vo %}/VO{% endif %}</th>
+	<th>PanDA ID</th>
+	<th>Status</th>
+	<th>JEDI Task ID</th>
+	<th>Created</th>
+	<th>Modified</th>
+	<th>Start</th>
+	<th>End</th>
+	<th>Site</th>
+	<th>Prio</th>
+</tr>
+<tr>
+	<th colspan="10">Job name</th>
+</tr>
+<tr>
+	<td><a href="{% url 'jobInfo' job.produsername|safe 3  %}">{{ job.produsername }}</a>{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if job.vo %}/{{ job.vo }}{% endif %}</td>
+	<td>{{ job.pandaid }}</td>
+	<td>{{ job.jobstatus }}</td>
+	<td>{{ job.jeditaskid }}</td>
+	<td>{{ job.creationtime|date:"M d, H:i" }}</td>
+	<td>{{ job.modificationtime|date:"M d, H:i" }}</td>
+	<td>{{ job.starttime|date:"M d, H:i" }}</td>
+	<td>{{ job.endtime|date:"M d, H:i" }}</td>
+	<td>{{ job.computingsite }}</td>
+	<td>{{ job.currentpriority }}</td>
+</tr>
+<tr>
+	<td colspan="10">{{ job.jobname }}</td>
+</tr>
+</table>
+<p>Time in UTC.</p>
+<table>
+	{% if job.transformation %}<tr><th>Transformation</th><td>{{ job.transformation }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode %}<tr><th>Trans exit code</th><td>{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
+	{% if job.creationhost %}<tr><th>Creation host</th><td>{{ job.creationhost }}</td></tr></tr>{% endif %}
+	{% if job.modificationhost %}<tr><th>Modification host</th><td>{{ job.modificationhost }}</td></tr>{% endif %}
+	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
+	{% if job.jobparameters %}<tr><th>Job parameters</th><td>{{ job.jobparameters }}</td></tr>{% endif %}
+	{% if job.metadata %}<tr><th>Metadata</th><td>{{ job.metadata }}</td></tr>{% endif %}
+	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
+	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
+	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
+	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
+	{% if job.schedulerid %}<tr><th>Scheduler ID</th><td>{{ job.schedulerid }}</td></tr>{% endif %}
+	{% if job.produserid %}<tr><th>Owner ID</th><td>{{ job.produserid }}</td></tr>{% endif %}
+	{% if job.brokerageerrorcode %}
+		<tr><th>Brokerage code</th><td>{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th>Brokerage message</th><td>{{ job.brokerageerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.jobdispatchererrorcode %}
+		<tr><th>Job dispatch error code</th><td>{{ job.jobdispatchererrorcode }}</td></tr>
+		<tr><th>Job dispatch error message</th><td>{{ job.jobdispatchererrordiag }}</td></tr>
+	{% endif %}
+	{% if job.brokerageerrorcode %}
+		<tr><th>Brokerage error code</th><td>{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th>Brokerage error message</th><td>{{ job.brokerageerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.ddmerrorcode %}
+		<tr><th>DDM error code</th><td>{{ job.ddmerrorcode }}</td></tr>
+		<tr><th>DDM error message</th><td>{{ job.ddmerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.exeerrorcode %}
+		<tr><th>Execution error code</th><td>{{ job.exeerrorcode }}</td></tr>
+		<tr><th>Execution error message</th><td>{{ job.exeerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.piloterrorcode %}
+		<tr><th>Pilot error code</th><td>{{ job.piloterrorcode }}</td></tr>
+		<tr><th>Pilot error message</th><td>{{ job.piloterrordiag }}</td></tr>
+	{% endif %}
+	{% if job.superrorcode %}
+		<tr><th>Sup error code</th><td>{{ job.superrorcode }}</td></tr>
+		<tr><th>Sup error message</th><td>{{ job.superrordiag }}</td></tr>
+	{% endif %}
+	{% if job.taskbuffererrorcode %}
+		<tr><th>TaskBuffer error code</th><td>{{ job.taskbuffererrorcode }}</td></tr>
+		<tr><th>TaskBuffer error message</th><td>{{ job.taskbuffererrordiag }}</td></tr>
+	{% endif %}
+	{% if job.cpuconsumptiontime %}
+		<tr><th>Consumption time</th><td>{{ job.cpuconsumptiontime }}</td></tr>
+		<tr><th>Consumption Unit</th><td>{{ job.cpuconsumptionunit }}</td></tr>
+		<tr><th>Conversion factor</th><td>{{ job.cpuconversion }}</td></tr>
+	{% endif %}
+</table>
+
+{% else %}
+    <p>No information for job {{ name }} is available.</p>
+{% endif %}
+{% endblock %}

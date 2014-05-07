@@ -1,0 +1,119 @@
+{% load url from future %}{% load jedi_extras %}{% load js %}{% load core_extras %}
+
+{% block extra_css %}
+<style type="text/css" title="currentStyle">
+@import "{{ STATIC_URL }}/css/jquery.dataTables_themeroller.css";
+@import "{{ STATIC_URL }}/css/jquery-ui-1.10.3.custom.min.css";
+@import "{{ STATIC_URL }}/css/jquery-ui-timepicker-addon.css";
+</style>
+{% endblock %}
+{% block extra_js %}
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-ui-timepicker-addon.js"></script>
+	{% django_js jquery=false i18n=true csrf=false %}
+
+	<script type="text/javascript" charset="utf-8">
+		var pgst = 'ini';
+		var filter = [];
+		var shFilter = [];
+		var fields = {{ filterFields|safe }};
+		var tableid = "{{ tableid }}";
+		var datasrc = "{{ datasrc }}";
+		var colsOrig = {{ columns|safe }};
+		var fieldIndices = {{ fieldIndices|safe }};
+		var fltr;
+		var stFlag = 'ini';
+		var oTable;
+		var prefix = "{{ prefix|safe }}";
+		var staticurl = "{{ STATIC_URL }}";
+	</script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-csrf.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}/js/bigpandamon-filter.js"></script>
+{% endblock %}
+
+<!-- Filter -->
+{% jedi_table_filter datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+
+<!-- Summary of job list -->
+{% jedi_smry_jobs datasrcsmry=datasrcsmry data=data columns=columns|safe tableidsmry=tableidsmry|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+
+<!-- Job list -->
+{% jedi_table_jobs datasrc=datasrc data=data columns=columns|safe tableid=tableid|safe caption=caption filterFields=filterFields|safe fieldIndices=fieldIndices|safe 	%}
+
+
+{% block extra_js_bottombody %}
+	<script type="text/javascript" charset="utf-8">
+		$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
+		{
+			if ( typeof sNewSource != 'undefined' && sNewSource != null )
+			{
+				oSettings.sAjaxSource = sNewSource;
+			}
+			this.oApi._fnProcessingDisplay( oSettings, true );
+			var that = this;
+			var iStart = oSettings._iDisplayStart;
+			this.fnDraw();
+		}
+
+		// hide filter table, show only filter summary
+		hideFilter("{{ tableid }}", "{{ caption }}" );
+		$("#btnFilter-{{ tableid }}").hide();
+		///showFilter("{{ tableid }}", "{{ caption }}" );
+		///$("#btnFilter-{{ tableid }}").show();
+
+
+		$(document).ready(function() {
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+					if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+						// Send the token to same-origin, relative URLs only.
+						// Send the token only if the method warrants CSRF protection
+						// Using the CSRFToken value acquired earlier
+						xhr.setRequestHeader("X-CSRFToken", csrftoken);
+					}
+				}
+			});
+
+			// get filter parameters from URL
+			getFilterURL();
+			// filter table config
+			buildFilterTable("{{ tableid }}");
+			// set filter to values from URL
+			setValuesFilterTable(filter);
+
+			// draw table
+			console.debug("before drawTable");
+			console.debug("before drawTable, pgst="+pgst);
+			drawTable(pgst);
+			console.debug("after drawTable");
+
+			// Show/hide filter
+			console.debug("before sh-filter-click function");
+			$("#sh-filter-{{ tableid }}").click(function(){
+				var nTr = this.parentNode;
+				var i = $.inArray( nTr, shFilter );
+				if ( i === -1 ) {
+					showFilter("{{ tableid }}", "{{ caption }}");
+					shFilter.push( nTr );
+				} else {
+					hideFilter("{{ tableid }}", "{{ caption }}");
+					shFilter.splice( i, 1 );
+				}
+			});
+			console.debug("after sh-filter-click function");
+
+			console.debug("before btnFilter-click function");
+			// Filter dataTable button
+			$("#btnFilter-{{ tableid }}").click(function(){ 
+				pgst='fltr';
+				drawTable(pgst, fields, "{{ tableid }}", "{{ datasrc }}", fltr);
+			});
+			console.debug("after btnFilter-click function");
+		} ); // document.ready
+	</script>
+{% endblock %}
+
+

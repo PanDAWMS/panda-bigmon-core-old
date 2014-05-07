@@ -1,0 +1,12 @@
+{% extends "_base_bigpandamon.html" %}{% load core_extras %}
+{% block subtitle %}This is the Playground{% endblock %}
+{% block body %}
+<p>This is testing playground!</p>
+using top_menu_item template tag ...{% top_menu_item "hi there!" "#" %}...
+<br>
+{% with prefix|add:"/./"|add:APP_NAME as prefix_modified_url %}
+:{{ prefix_modified_url }}:
+...{% top_menu_item caption=APP_NAME url=prefix_modified_url %}...
+{% endwith %}
+{% endblock %}
+
