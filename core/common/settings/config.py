@@ -156,7 +156,8 @@ from .logconfig import LOGGING
 # Example: "/home/media/media.lawrence.com/media/"
 #MEDIA_ROOT = '/data/bigpandamon/bigpandamon/media/'
 #MEDIA_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/media/"
-MEDIA_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/media/"
+#MEDIA_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/media/"
+MEDIA_ROOT = "/data/wenaus/appdir/core/common/media/"
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -172,7 +173,8 @@ MEDIA_URL_BASE = '/media/'
 # Example: "/home/media/media.lawrence.com/static/"
 #STATIC_ROOT = '/data/bigpandamon/bigpandamon/static/'
 #STATIC_ROOT = "/data/bigpandamon_virtualhosts/jedimon/jedimon-core/core/common/static/"
-STATIC_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/static/"
+#STATIC_ROOT = "/data/atlpan/bigpandamon/lib/python2.6/site-packages/core/common/static/"
+STATIC_ROOT = "/data/wenaus/appdir/core/common/static/"
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -197,8 +199,9 @@ STATICFILES_DIRS = (
 
 
 ### VIRTUALENV
-VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6__atlas'
+#VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6__atlas'
 #VIRTUALENV_PATH = '/data/virtualenv/django1.6.1__python2.6.6__jedimon'
+VIRTUALENV_PATH = '/data/wenaus/virtualenv/twdev__django1.6.1__python2.6.6__lsst'
 
 ### WSGI
 #WSGI_PATH = VIRTUALENV_PATH + '/bigpandamon'
@@ -246,11 +249,11 @@ ENV = {
 
 FILTER_UI_ENV = {
     ### default number of days of shown jobs active in last N days
-    'DAYS': 1, \
+    'DAYS': 30, \
     ### default number of days for user activity of shown jobs active in last N days
     'USERDAYS': 3, \
     ### max number of days of shown jobs active in last N days
-    'MAXDAYS': 30, \
+    'MAXDAYS': 300, \
     ### max number of days for user activity of shown jobs active in last N days
     'USERMAXDAYS': 60, \
     ### default number of hours of shown jobs active in last N hours
