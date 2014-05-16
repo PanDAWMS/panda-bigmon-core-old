@@ -11,6 +11,8 @@ from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaitin
 from core.resource.models import Schedconfig
 from core.common.settings.config import ENV
 
+from settings.local import dbaccess
+
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
 
@@ -20,7 +22,7 @@ fields = [ 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'pr
 sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
-VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', }
+VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
 VOMODE = ' '
 
 def setupView(request, mode=''):
@@ -28,14 +30,18 @@ def setupView(request, mode=''):
     global viewParams
     global LAST_N_DAYS_MAX
     ENV['MON_VO'] = ''
+    viewParams['MON_VO'] = ''
+    VOMODE = ''
     for vo in VOLIST:
         if request.META['HTTP_HOST'].startswith(vo):
             VOMODE = vo
-            ENV['MON_VO'] = VONAME[vo]
+    ## If DB is Oracle, set vomode to atlas
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
+    ENV['MON_VO'] = VONAME[VOMODE]
     viewParams['MON_VO'] = ENV['MON_VO']
     if VOMODE == 'atlas':
         global LAST_N_DAYS_MAX
-        LAST_N_DAYS_MAX = 3
+        LAST_N_DAYS_MAX = 1
     if mode != 'notime':
         viewParams['selection'] = " for the last %s days" % LAST_N_DAYS_MAX
     else:
