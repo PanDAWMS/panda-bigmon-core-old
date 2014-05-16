@@ -11,6 +11,17 @@
 {% if sumd %}
 
 <table>
+{% for fdict in jobsumd %}
+<tr><th> {{ fdict.field }} </th><td>
+{% for item in fdict.list %}
+{% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
+{% endfor %}
+</td></tr>
+{% endfor %}
+</table>
+
+<table>
 <tr>
 <th> User </th>
 <th> nJobs </th>
@@ -21,21 +32,21 @@
 <th> nQueued </th>
 <th> nSites </th>
 <th> nClouds </th>
-<th> CPU </th>
+<th> CPU</th>
 </tr>
 
-{% for field, fdict in sumd.items %}
+{% for userd in sumd %}
 <tr>
-<th> <a href="/lsst/user/{{field}}">{{field}}</a> </th>
-<td> {{ fdict.njobs }} </td>
-<td class='finished'> {{ fdict.nfinished }} </td>
-<td class='failed'> {{ fdict.nfailed }} </td>
-<td class='holding'> {{ fdict.nholding }} </td>
-<td class='cancelled'> {{ fdict.ncancelled }} </td>
-<td class='defined'> {{ fdict.nqueued }} </td>
-<td> {{ fdict.nsites }} </td>
-<td> {{ fdict.nclouds }} </td>
-<td> {{ fdict.cputime }} </td>
+<th> <a href="/lsst/user/{{userd.dict.name}}">{{userd.dict.name}}</a> </th>
+<td> {{ userd.dict.njobs }} </td>
+<td class='finished'> {{ userd.dict.nfinished }} </td>
+<td class='failed'> {{ userd.dict.nfailed }} </td>
+<td class='holding'> {{ userd.dict.nholding }} </td>
+<td class='cancelled'> {{ userd.dict.ncancelled }} </td>
+<td class='defined'> {{ userd.dict.nqueued }} </td>
+<td> {{ userd.dict.nsites }} </td>
+<td> {{ userd.dict.nclouds }} </td>
+<td> {{ userd.dict.cputime }} </td>
 </tr>
 {% endfor %}
 </table>

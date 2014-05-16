@@ -5,6 +5,27 @@
 {% block subtitle %}PanDA site {{ site.siteid }}{% endblock %}
 
 {% block body %}
+
+<div class='section'> Site information </div>
+
+<table>
+{% for att in attrs %}
+<tr><th>
+{{ att.name }}
+</th><td>
+{% if att.name == 'Status' %} <span class='{{att.value}}'> {% else %} <span> {% endif %}  {{ att.value }} </span>
+</td></tr>
+{% endfor %}
+</table>
+
+<p><a href="{% url 'lsst.views.jobList' %}?computingsite={{site.siteid}}">Recent jobs at this site</a><p>
+
+<p><a href="http://apfmon.lancs.ac.uk/q/{{site.nickname}}">Pilot factory monitor</a><p>
+
+<p><a href="http://panda.cern.ch/server/pandamon/query?mode=site&site={{site.siteid}}">Classic (aka old) PanDA monitor page for this site</a><p>
+
+<div class='section'> All site parameters </div>
+
 <table>
 {% for col in colnames %}
 <tr><th>{{ col.name }} </th><td> {{ col.value }} </td></tr>

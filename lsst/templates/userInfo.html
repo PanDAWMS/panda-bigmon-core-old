@@ -7,47 +7,17 @@
 {% block body %}
 
 <table>
-<tr>
-<th> User </th>
-<th> nJobs </th>
-<th> nFinished </th>
-<th> nFailed </th>
-<th> nHolding </th>
-<th> nCancelled </th>
-<th> nQueued </th>
-<th> nSites </th>
-<th> nClouds </th>
-<th> CPU </th>
-</tr>
-
-{% for field, fdict in sumd.items %}
-<tr>
-<th> <a href="/lsst/user/{{field}}">{{field}}</a> </th>
-<td> {{ fdict.njobs }} </td>
-<td class='finished'> {{ fdict.nfinished }} </td>
-<td class='failed'> {{ fdict.nfailed }} </td>
-<td class='holding'> {{ fdict.nholding }} </td>
-<td class='cancelled'> {{ fdict.ncancelled }} </td>
-<td class='defined'> {{ fdict.nqueued }} </td>
-<td> {{ fdict.nsites }} </td>
-<td> {{ fdict.nclouds }} </td>
-<td> {{ fdict.cputime }} </td>
-</tr>
-{% endfor %}
-</table>
-
-<table>
-{% for field, fdict in jobsumd.items %}
-<tr><th> {{ field }} </th><td>
-{% for key, value in fdict.items %}
-&nbsp; {% if field == 'jobstatus' %} <span class='{{key}}'> {% else %} <span> {% endif %}  {{ key }} </span>
-<a href="{{xurl}}{{field}}={{key}}">({{ value }})</a>
+{% for fdict in jobsumd %}
+<tr><th> {{ fdict.field }} </th><td>
+{% for item in fdict.list %}
+{% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
 {% endfor %}
 </td></tr>
 {% endfor %}
 </table>
 
-<div class='section'>Jobs</div>
+<div class='section'>Latest jobs</div>
 
 <table>
 <tr>

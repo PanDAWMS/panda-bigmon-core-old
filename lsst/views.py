@@ -16,10 +16,11 @@ from settings.local import dbaccess
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
 
-LAST_N_DAYS_MAX = 60
+LAST_N_HOURS_MAX = 60*24
+JOB_LIMIT = 3000
 
-fields = [ 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'transformation', 'vo', ]
-sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier' ]
+fields = [ 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'vo', ]
+sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier', 'comment_field' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -28,7 +29,6 @@ VOMODE = ' '
 def setupView(request, mode=''):
     global VOMODE
     global viewParams
-    global LAST_N_DAYS_MAX
     ENV['MON_VO'] = ''
     viewParams['MON_VO'] = ''
     VOMODE = ''
@@ -40,20 +40,30 @@ def setupView(request, mode=''):
     ENV['MON_VO'] = VONAME[VOMODE]
     viewParams['MON_VO'] = ENV['MON_VO']
     if VOMODE == 'atlas':
-        global LAST_N_DAYS_MAX
-        LAST_N_DAYS_MAX = 1
+        global LAST_N_HOURS_MAX, JOB_LIMIT
+        LAST_N_HOURS_MAX = 1
+        JOB_LIMIT=500
     if mode != 'notime':
-        viewParams['selection'] = " for the last %s days" % LAST_N_DAYS_MAX
+        if JOB_LIMIT < 1000:
+            viewParams['selection'] = ", recent jobs (limit %s per table)" % JOB_LIMIT
+        elif LAST_N_HOURS_MAX <= 48 :
+            viewParams['selection'] = " for the last %s hours" % LAST_N_HOURS_MAX
+        else:
+            viewParams['selection'] = " for the last %.1f days" % (float(LAST_N_HOURS_MAX)/24.)
     else:
         viewParams['selection'] = ""
     for param in request.GET:
         viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
 
-def jobSummaryDict(jobs):
+def jobSummaryDict(jobs, fieldlist = None):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     sumd = {}
+    if fieldlist:
+        flist = fieldlist
+    else:
+        flist = fields
     for job in jobs:
-        for f in fields:
+        for f in flist:
             if job[f]:
                 if not f in sumd: sumd[f] = {}
                 if not job[f] in sumd[f]: sumd[f][job[f]] = 0
@@ -64,7 +74,19 @@ def jobSummaryDict(jobs):
             for v in shl:
                 if not v in sumd['specialhandling']: sumd['specialhandling'][v] = 0
                 sumd['specialhandling'][v] += 1
-    return sumd
+    ## convert to ordered lists
+    suml = []
+    for f in sumd:
+        itemd = {}
+        itemd['field'] = f
+        iteml = []
+        kys = sumd[f].keys()
+        kys.sort()
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    return suml
 
 def siteSummaryDict(sites):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
@@ -90,18 +112,31 @@ def siteSummaryDict(sites):
         if site['multicloud'] != None and site['multicloud'] != 'None' and len(site['multicloud']) > 0:
             sumd['category']['multicloud'] += 1
         if isProd: sumd['category']['production'] += 1
-    return sumd
+    ## convert to ordered lists
+    suml = []
+    for f in sumd:
+        itemd = {}
+        itemd['field'] = f
+        iteml = []
+        kys = sumd[f].keys()
+        kys.sort()
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    return suml
 
 def userSummaryDict(jobs):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
-    statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', ]
+    statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
     sumd = {}
     for job in jobs:
-        user = job['produsername']
+        user = job['produsername'].lower()
         if not user in sumd:
             sumd[user] = {}
             for state in statelist:
                 sumd[user][state] = 0
+            sumd[user]['name'] = job['produsername']
             sumd[user]['cputime'] = 0
             sumd[user]['njobs'] = 0
             for state in statelist:
@@ -113,7 +148,7 @@ def userSummaryDict(jobs):
             sumd[user]['nqueued'] = 0
         cloud = job['cloud']
         site = job['computingsite']
-        cpu = job['cpuconsumptiontime']
+        cpu = float(job['cpuconsumptiontime'])/1.
         state = job['jobstatus']
         sumd[user]['cputime'] += cpu
         sumd[user]['njobs'] += 1
@@ -126,7 +161,17 @@ def userSummaryDict(jobs):
         sumd[user]['nsites'] = len(sumd[user]['sites'])
         sumd[user]['nclouds'] = len(sumd[user]['clouds'])
         sumd[user]['nqueued'] = sumd[user]['ndefined'] + sumd[user]['nwaiting'] + sumd[user]['nassigned'] + sumd[user]['nactivated']
-    return sumd
+        sumd[user]['cputime'] = "%d" % float(sumd[user]['cputime'])
+    ## convert to list ordered by username
+    ukeys = sumd.keys()
+    ukeys.sort()
+    suml = []
+    for u in ukeys:
+        uitem = {}
+        uitem['name'] = u
+        uitem['dict'] = sumd[u]
+        suml.append(uitem)
+    return suml
 
 def extensibleURL(request):
     """ Return a URL that is ready for p=v query extension(s) to be appended """
@@ -153,7 +198,7 @@ def mainPage(request):
 
 def jobList(request, mode=None, param=None):
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
@@ -162,14 +207,14 @@ def jobList(request, mode=None, param=None):
         if request.META['HTTP_HOST'].startswith(vo):
             query['vo'] = vo   
     for param in request.GET:
-        for field in fields:
+        for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
     jobList = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query),
-                    Jobsactive4.objects.filter(**query),
-                    Jobswaiting4.objects.filter(**query),
-                    Jobsarchived4.objects.filter(**query),
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
             )
 
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
@@ -180,7 +225,7 @@ def jobList(request, mode=None, param=None):
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
-            'jobList': jobList[:3000],
+            'jobList': jobList,
             'user' : None,
             'sumd' : sumd,
             'xurl' : xurl,
@@ -195,7 +240,7 @@ def jobList(request, mode=None, param=None):
 
 def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = QuerySetChain(\
         Jobsdefined4.objects.filter(pandaid=pandaid), \
         Jobsactive4.objects.filter(pandaid=pandaid), \
@@ -228,25 +273,31 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
 
 def userList(request):
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
     ### Add any extensions to the query determined from the URL  
     if VOMODE == 'lsst': query['vo'] = 'lsst'
     if VOMODE == 'atlas': query['vo'] = 'atlas'
+    for param in request.GET:
+        for field in Jobsactive4._meta.get_all_field_names():
+            if param == field:
+                query[param] = request.GET[param]
     jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query),
-                    Jobsactive4.objects.filter(**query),
-                    Jobswaiting4.objects.filter(**query),
-                    Jobsarchived4.objects.filter(**query),
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
     )
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
+        jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
         data = {
             'viewParams' : viewParams,
             'xurl' : extensibleURL(request),
             'sumd' : sumd,
+            'jobsumd' : jobsumd,
         }
         data.update(getContextVariables(request))
         return render_to_response('userList.html', data, RequestContext(request))
@@ -256,7 +307,7 @@ def userList(request):
 
 def userInfo(request, user):
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate], 'produsername' : user}
@@ -264,19 +315,19 @@ def userInfo(request, user):
     if VOMODE == 'lsst': query['vo'] = 'lsst'
     if VOMODE == 'atlas': query['vo'] = 'atlas'
     for param in request.GET:
-        for field in fields:
+        for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
     jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query),
-                    Jobsactive4.objects.filter(**query),
-                    Jobswaiting4.objects.filter(**query),
-                    Jobsarchived4.objects.filter(**query),
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
     )
     jobs = sorted(jobs, key=lambda x:-x.pandaid)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        jobsumd = jobSummaryDict(jobs)
+        jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', 'jobsetid', 'taskid', 'jeditaskid' ])
         data = {
             'viewParams' : viewParams,
             'xurl' : extensibleURL(request),
@@ -284,6 +335,7 @@ def userInfo(request, user):
             'sumd' : sumd,
             'jobsumd' : jobsumd,
             'jobList' : jobs,
+            'query' : query,
         }
         data.update(getContextVariables(request))
         return render_to_response('userInfo.html', data, RequestContext(request))
@@ -306,7 +358,7 @@ def siteList(request):
             query['siteid__icontains'] = 'test'
         if param == 'category' and request.GET[param] == 'production':
             prod = True
-        for field in sitefields:
+        for field in Schedconfig._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
     sites = []
@@ -322,6 +374,8 @@ def siteList(request):
             else:
                 newsites.append(site)
         sites = newsites
+    for site in sites:
+        if site['maxtime'] and (site['maxtime'] > 0) : site['maxtime'] = "%.1f" % ( float(site['maxtime'])/3600. )
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = siteSummaryDict(sites)
         data = {
@@ -338,7 +392,7 @@ def siteList(request):
 
 def siteInfo(request, site):
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = {'siteid' : site}
@@ -351,10 +405,19 @@ def siteInfo(request, site):
         site = {}
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        attrs = []
+        attrs.append({'name' : 'Status', 'value' : site.status })
+        attrs.append({'name' : 'Comment', 'value' : site.comment_field })
+        attrs.append({'name' : 'GOC name', 'value' : site.gocname })
+        attrs.append({'name' : 'Cloud', 'value' : site.cloud })
+        attrs.append({'name' : 'Tier', 'value' : site.tier })
+        attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(site.maxmemory)/1000.) })
+        attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(site.maxtime)/3600.) })
         data = {
             'viewParams' : viewParams,
             'site' : site,
             'colnames' : colnames,
+            'attrs' : attrs,
         }
         data.update(getContextVariables(request))
         return render_to_response('siteInfo.html', data, RequestContext(request))

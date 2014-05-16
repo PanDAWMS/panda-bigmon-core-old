@@ -195,7 +195,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
   <!-- Main Grid Section -->
   <div class="row">
     <div class="large-12 columns">
-      {% block bottom_info %}{% endblock %}
+      {% block bottom_info %} {% if query %} Query: <i>{{ query }}</i> {% endif %} {% endblock %}
     </div>
   </div><br>
   <!-- End Main Grid Section -->

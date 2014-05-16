@@ -23,11 +23,11 @@
 <tr>
 	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if job.vo %} / {{ job.vo }} {% endif %}</td>
 	<td>{{ job.pandaid }}</td>
-	<td>{% if job.jeditaskid %}{{ job.jeditaskid }}{% else %} &nbsp; {% endif %}</td>
+	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}&produsername={{job.produsername}}">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
-	<td>{{ job.starttime|date:"Y-m-d H:i" }}</td>
-	<td>{{ job.endtime|date:"Y-m-d H:i" }}</td>
+	<td>{{ job.starttime|date:"m-d H:i" }}</td>
+	<td>{{ job.endtime|date:"m-d H:i" }}</td>
 	<td><a href="{% url 'lsst.views.siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
 	<td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td>
 	<td>{{ job.currentpriority }}</td>

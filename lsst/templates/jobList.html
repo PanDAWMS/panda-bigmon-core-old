@@ -13,11 +13,11 @@
 {% if jobList %}
 
 <table>
-{% for field, fdict in sumd.items %}
-<tr><th> {{ field }} </th><td>
-{% for key, value in fdict.items %}
-&nbsp; {% if field == 'jobstatus' %} <span class='{{key}}'> {% else %} <span> {% endif %}  {{ key }} </span>
-<a href="{{xurl}}{{field}}={{key}}">({{ value }})</a>
+{% for fdict in sumd %}
+<tr><th> {{ fdict.field }} </th><td>
+{% for item in fdict.list %}
+{% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
 {% endfor %}
 </td></tr>
 {% endfor %}
