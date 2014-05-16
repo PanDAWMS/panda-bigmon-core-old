@@ -46,31 +46,32 @@ _logger = logging.getLogger('bigpandamon')
 currentDateFormat = defaultDatetimeFormat
 WILDCARDS = FILTER_UI_ENV['WILDCARDS']
 INTERVALWILDCARDS = FILTER_UI_ENV['INTERVALWILDCARDS']
-LAST_N_DAYS = FILTER_UI_ENV['DAYS']
-LAST_N_HOURS = FILTER_UI_ENV['HOURS']
+#LAST_N_DAYS = FILTER_UI_ENV['DAYS']
+#LAST_N_HOURS = FILTER_UI_ENV['HOURS']
 
 # Create your views here.
 def listJobs(request):
 ###DEBUG###    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS)
-    startdate = datetime.utcnow() - timedelta(minutes=2)
+    startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS_MAX)
+#####    startdate = datetime.utcnow() - timedelta(minutes=2)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     _logger.debug("startdate = " + str(startdate))
     _logger.debug("enddate = " + str(enddate))
-#    jobList = QuerySetChain(\
-#                    Jobsdefined4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
-#                    Jobsactive4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
-#                    Jobswaiting4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
-#                    Jobsarchived4.objects.filter(\
-#                        modificationtime__range=[startdate, enddate]\
-#                    ), \
-#            )
+    jobList = QuerySetChain(\
+                    Jobsdefined4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
+                    Jobsactive4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
+                    Jobswaiting4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
+                    Jobsarchived4.objects.filter(\
+                        modificationtime__range=[startdate, enddate]\
+                    ), \
+            )
 #                            ~ Q(produsername='gangarbt')
 #    jobList = QuerySetChain(\
 #                    Jobsactive4.objects.filter(\
@@ -80,12 +81,12 @@ def listJobs(request):
 #                        ,
 #                    ), \
 #            )
-    jobList = QuerySetChain(\
-                    Jobsactive4.objects.filter(\
-                            jeditaskid=4000195
-                        ,
-                    ), \
-            )
+##     jobList = QuerySetChain(\
+##                     Jobsactive4.objects.filter(\
+##                             jeditaskid=4000195
+##                         ,
+##                     ), \
+##             )
 
     _logger.debug('|jobList|=' + str(jobList.count()))
     _logger.debug('jobList[:30]=' + str(jobList[:30]))
@@ -94,7 +95,7 @@ def listJobs(request):
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
-            'jobList': jobList[:30],
+            'jobList': jobList[:3000],
         }
         data.update(getContextVariables(request))
         return render_to_response('pandajob/list_jobs.html', data, RequestContext(request))
