@@ -144,9 +144,41 @@ class Schedconfig(models.Model):
             repre.append((field.name, field))
         return repre
 
+    def get_all_fields(self):
+        """Returns a list of all field names on the instance."""
+        fields = []
+        kys = {}
+        for f in self._meta.fields:
+            kys[f.name] = f
+        kys1 = kys.keys()
+        kys1.sort()
+        for k in kys1:
+            f = kys[k]
+            fname = f.name        
+            # resolve picklists/choices, with get_xyz_display() function
+            get_choice = 'get_'+fname+'_display'
+            if hasattr( self, get_choice):
+                value = getattr( self, get_choice)()
+            else:
+                try :
+                    value = getattr(self, fname)
+                except User.DoesNotExist:
+                    value = None
+
+            # only display fields with values and skip some fields entirely
+            if f.editable and value :
+
+                fields.append(
+                  {
+                   'label':f.verbose_name, 
+                   'name':f.name, 
+                   'value':value,
+                  }
+                )
+        return fields
+
     class Meta:
         db_table = u'schedconfig'
-
 
 class Schedinstance(models.Model):
     name = models.CharField(max_length=180, db_column='NAME')  # Field name made lowercase.
