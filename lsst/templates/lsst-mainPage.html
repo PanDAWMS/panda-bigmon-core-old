@@ -1,0 +1,30 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA{% endblock %}
+{% block title %} {{ viewParams.MON_VO }} {{ APP_NAME }}{% endblock %}
+{% block subtitle %}{{ viewParams.MON_VO }} PanDA monitor home page{% endblock %}
+
+{% block header-nav-chain %}{% endblock %}
+
+{% block body %}
+{% endblock %}
+
+{% block bottom_info %}
+<span class='section'> Welcome to the {{ viewParams.MON_VO }} PanDA monitor </span>
+
+<p><p>
+Select what you'd like to have a look at in the top menu bar (Jobs, Users, etc.).
+
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
+

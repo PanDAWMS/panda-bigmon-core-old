@@ -1,0 +1,25 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA site {{ site.siteid }} {% endblock %}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
+{% block subtitle %}PanDA site {{ site.siteid }}{% endblock %}
+
+{% block body %}
+<table>
+{% for col in colnames %}
+<tr><th>{{ col.name }} </th><td> {{ col.value }} </td></tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}

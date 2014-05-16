@@ -1,0 +1,60 @@
+{% extends "_base_lsst.html" %}
+{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA users{% endblock %}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
+{% block subtitle %}PanDA active user list{{viewParams.selection }}
+{% if vo %} &nbsp; for VO {{ vo }}{% endif %}
+{% endblock %}
+{% block body %}
+
+{% if sumd %}
+
+<table>
+<tr>
+<th> User </th>
+<th> nJobs </th>
+<th> nFinished </th>
+<th> nFailed </th>
+<th> nHolding </th>
+<th> nCancelled </th>
+<th> nQueued </th>
+<th> nSites </th>
+<th> nClouds </th>
+<th> CPU </th>
+</tr>
+
+{% for field, fdict in sumd.items %}
+<tr>
+<th> <a href="/lsst/user/{{field}}">{{field}}</a> </th>
+<td> {{ fdict.njobs }} </td>
+<td class='finished'> {{ fdict.nfinished }} </td>
+<td class='failed'> {{ fdict.nfailed }} </td>
+<td class='holding'> {{ fdict.nholding }} </td>
+<td class='cancelled'> {{ fdict.ncancelled }} </td>
+<td class='defined'> {{ fdict.nqueued }} </td>
+<td> {{ fdict.nsites }} </td>
+<td> {{ fdict.nclouds }} </td>
+<td> {{ fdict.cputime }} </td>
+</tr>
+{% endfor %}
+</table>
+
+{% else %}
+    <p>No matches to query.</p>
+{% endif %}
+{% endblock %}
+
+{% block bottom_info %}
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}

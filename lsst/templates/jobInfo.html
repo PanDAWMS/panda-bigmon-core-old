@@ -1,0 +1,151 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %}PanDA job {{ pandaid }}{% endblock %}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
+{% block subtitle %}Job details for PanDA job {{ pandaid }}{% endblock %}
+
+{% block body %}
+
+{% if job %}
+<table width="100%">
+<tr>
+	<th>Owner{% if job.workinggroup %} / WG{% endif %}{% if job.vo %} / VO{% endif %}</th>
+	<th>PandaID</th>
+	<th>TaskID</th>
+	<th>Status</th>
+	<th>Created</th>
+	<th>Start</th>
+	<th>End</th>
+	<th>Site</th>
+	<th>VO</th>
+	<th>Priority</th>
+</tr>
+<tr>
+	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if job.vo %} / {{ job.vo }} {% endif %}</td>
+	<td>{{ job.pandaid }}</td>
+	<td>{% if job.jeditaskid %}{{ job.jeditaskid }}{% else %} &nbsp; {% endif %}</td>
+	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
+	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
+	<td>{{ job.starttime|date:"Y-m-d H:i" }}</td>
+	<td>{{ job.endtime|date:"Y-m-d H:i" }}</td>
+	<td><a href="{% url 'lsst.views.siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
+	<td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td>
+	<td>{{ job.currentpriority }}</td>
+</tr>
+<tr>
+	<td colspan="10"><b>Job name:</b> &nbsp; {{ job.jobname }}</td>
+</tr>
+</table>
+
+{% if job.jobstatus == 'activated' %} Status <b class='activated'>activated</b> indicates that the job is ready to be dispatched to a pilot at the site where it will run, {{ job.computingsite }}. {% endif %}
+{% if job.jobstatus == 'running' %} Status <b class='running'>running</b> indicates that the job is running at its execution site, {{ job.computingsite }}. {% endif %}
+{% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing is still underway. {% endif %}
+{% if job.jobstatus == 'finished' %} Status <b class='finished'>finished</b> indicates that the job has successfully completed. {% endif %}
+{% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed. Error code information can be found in the key job parameters table below. {% endif %}
+{% if job.jobstatus == 'cancelled' %} Status <b class='cancelled'>cancelled</b> indicates that the job has been cancelled, either by the user or by the system. Further information may be available in the key job parameters table below. {% endif %}
+{% if job.jobstatus == 'sent' %} Status <b class='sent'>sent</b> indicates that the job was sent to a pilot for execution but the pilot has not yet acknowledged receipt. If this state persists for any length of time, all is not well with the job.{% endif %}
+{% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received but the process of assigning it for execution has not yet started. {% endif %}
+{% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
+
+<p>
+
+{% if job.vo == 'lsst' %}
+<p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
+{% endif %}
+{% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
+<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
+&nbsp; <a href='{{stderr}}'>stderr</a>
+&nbsp; <a href='{{stdlog}}'>batch log</a>
+<br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
+{% endif %}
+
+
+{% if nfiles > 0 %}
+<p><b><font size=+1>Job files:</font></b>
+<table>
+<tr><th>Filename</th><th>Type</th><th>Size</th><th>Status</th><th>Dataset</th><th>Attempt #</th></tr>
+{% for file in files %}
+<tr><td><font size=-1>{{ file.lfn }}</font></td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td><td> {{ file.attemptnr }} </td></tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<p><b><font size=+1>Key job parameters:</font></b>
+
+<table>
+	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation }}</td></tr></tr>{% endif %}
+	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode %}<tr><th>Exit code</th><td>{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
+	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
+	{% if job.jobparameters %}<tr><th>Job parameters</th><td>{{ job.jobparameters }}</td></tr>{% endif %}
+	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
+	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
+	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
+	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
+	{% if job.produserid %}<tr><th>Owner ID</th><td>{{ job.produserid }}</td></tr>{% endif %}
+	{% if job.brokerageerrorcode %}
+		<tr><th class="alarm">Brokerage code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th class="alarm">Brokerage message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.jobdispatchererrorcode %}
+		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
+		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
+	{% endif %}
+	{% if job.brokerageerrorcode %}
+		<tr><th class="alarm">Brokerage error code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th class="alarm">Brokerage error message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.ddmerrorcode %}
+		<tr><th class="alarm">DDM error code</th><td class="alarm">{{ job.ddmerrorcode }}</td></tr>
+		<tr><th class="alarm">DDM error message</th><td class="alarm">{{ job.ddmerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.exeerrorcode %}
+		<tr><th class="alarm">Execution error code</th><td class="alarm">{{ job.exeerrorcode }}</td></tr>
+		<tr><th class="alarm">Execution error message</th><td class="alarm">{{ job.exeerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.piloterrorcode %}
+		<tr><th class="alarm">Pilot error code</th><td class="alarm">{{ job.piloterrorcode }}</td></tr>
+		<tr><th class="alarm">Pilot error message</th><td class="alarm">{{ job.piloterrordiag }}</td></tr>
+	{% endif %}
+	{% if job.superrorcode %}
+		<tr><th class="alarm">Sup error code</th><td>{{ job.superrorcode }}</td></tr>
+		<tr><th class="alarm">Sup error message</th><td>{{ job.superrordiag }}</td></tr>
+	{% endif %}
+	{% if job.taskbuffererrorcode %}
+		<tr><th class="alarm">TaskBuffer error code</th><td class="alarm">{{ job.taskbuffererrorcode }}</td></tr>
+		<tr><th class="alarm">TaskBuffer error message</th><td class="alarm">{{ job.taskbuffererrordiag }}</td></tr>
+	{% endif %}
+	{% if job.destinationse %}<tr><th>Output destination</th><td>{{ job.destinationse }}</td></tr>{% endif %}
+	{% if job.cpuconsumptiontime %}
+		<tr><th>Consumption time</th><td>{{ job.cpuconsumptiontime }}</td></tr>
+		<tr><th>Consumption Unit</th><td>{{ job.cpuconsumptionunit }}</td></tr>
+		<tr><th>Conversion factor</th><td>{{ job.cpuconversion }}</td></tr>
+	{% endif %}
+</table>
+
+{% else %}
+    <p>No information for job {{ name }} is available.</p>
+{% endif %}
+
+<p><b><font size=+1>All job parameters:</font></b></p>
+
+<table>
+{% for col in colnames %}
+<tr><th>{{ col.name }}</th><td> {{ col.value }} </td></tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
+

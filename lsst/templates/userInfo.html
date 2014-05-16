@@ -1,0 +1,93 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA user {{ user }} {% endblock %}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
+{% block subtitle %}PanDA user {{ user }}{% endblock %}
+
+{% block body %}
+
+<table>
+<tr>
+<th> User </th>
+<th> nJobs </th>
+<th> nFinished </th>
+<th> nFailed </th>
+<th> nHolding </th>
+<th> nCancelled </th>
+<th> nQueued </th>
+<th> nSites </th>
+<th> nClouds </th>
+<th> CPU </th>
+</tr>
+
+{% for field, fdict in sumd.items %}
+<tr>
+<th> <a href="/lsst/user/{{field}}">{{field}}</a> </th>
+<td> {{ fdict.njobs }} </td>
+<td class='finished'> {{ fdict.nfinished }} </td>
+<td class='failed'> {{ fdict.nfailed }} </td>
+<td class='holding'> {{ fdict.nholding }} </td>
+<td class='cancelled'> {{ fdict.ncancelled }} </td>
+<td class='defined'> {{ fdict.nqueued }} </td>
+<td> {{ fdict.nsites }} </td>
+<td> {{ fdict.nclouds }} </td>
+<td> {{ fdict.cputime }} </td>
+</tr>
+{% endfor %}
+</table>
+
+<table>
+{% for field, fdict in jobsumd.items %}
+<tr><th> {{ field }} </th><td>
+{% for key, value in fdict.items %}
+&nbsp; {% if field == 'jobstatus' %} <span class='{{key}}'> {% else %} <span> {% endif %}  {{ key }} </span>
+<a href="{{xurl}}{{field}}={{key}}">({{ value }})</a>
+{% endfor %}
+</td></tr>
+{% endfor %}
+</table>
+
+<div class='section'>Jobs</div>
+
+<table>
+<tr>
+	<th>Owner</th>
+	<th>PanDA ID</th>
+	<th>Status</th>
+	<th>Created</th>
+	<th>Start</th>
+	<th>End</th>
+	<th>Site</th>
+	<th>VO</th>
+	<th>Priority</th>
+</tr>
+    {% for job in jobList %}
+	<tr>
+		<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>
+			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if job.vo %}/ {{ job.vo }} {% endif %}
+		</td>
+		<td><a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
+
+		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
+		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
+		<td>{{ job.starttime|date:"Y-m-d H:i" }}</td>
+		<td>{{ job.endtime|date:"Y-m-d H:i" }}</td>
+		<td><a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a></td>
+    	<td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td>
+		<td>{{ job.currentpriority }}</td>
+	</tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
