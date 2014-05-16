@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     ### PanDA jobs
     url(r'^/$', pandajob_views.listJobs, name='jobIndex'),
     url(r'^/list/$', pandajob_views.listJobs, name='jobList'),
+    url(r'^/list3/$', pandajob_views.list3PandaJobs, name='jobList'),
     url(r'^/(?P<pandaid>\d+)/$', pandajob_views.jobDetails, name='jobDetails'),
     url(r'^/info/(?P<prodUserName>[-A-Za-z0-9_.+ @]+)/(?P<nhours>\d+)/$', pandajob_views.jobInfo, name='jobInfo'),
     url(r'^/info/d/(?P<prodUserName>[-A-Za-z0-9_.+ @]+)/(?P<ndays>\d+)/$', pandajob_views.jobInfoDays, name='jobInfoDays'),
