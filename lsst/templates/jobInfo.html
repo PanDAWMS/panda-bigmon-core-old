@@ -23,7 +23,7 @@
 <tr>
 	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if job.vo %} / {{ job.vo }} {% endif %}</td>
 	<td>{{ job.pandaid }}</td>
-	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}&produsername={{job.produsername}}">{{ job.taskid }}</a> {% endif %}</td>
+	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
@@ -49,28 +49,41 @@
 
 <p>
 
+{% if logfile.lfn %}
+<p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
+{% endif %}
 {% if job.vo == 'lsst' %}
 <p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
 {% endif %}
 {% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
+{% if stdout %}<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
 &nbsp; <a href='{{stderr}}'>stderr</a>
-&nbsp; <a href='{{stdlog}}'>batch log</a>
+&nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
+{% if viewParams.MON_VO != 'ATLAS' %}
 <br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
+{% endif %}
 {% endif %}
 
 
 {% if nfiles > 0 %}
-<p><b><font size=+1>Job files:</font></b>
+<p><div class='section'>Job files</div>
 <table>
-<tr><th>Filename</th><th>Type</th><th>Size</th><th>Status</th><th>Dataset</th><th>Attempt #</th></tr>
+<tr><th>Filename</th><th>Type</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th><th>Attempt #</th></tr>
 {% for file in files %}
-<tr><td><font size=-1>{{ file.lfn }}</font></td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td><td> {{ file.attemptnr }} </td></tr>
+<tr><td>
+<font size=-1>
+{% if viewParams.MON_VO == 'ATLAS' %}
+<a href="http://panda.cern.ch/?overview=findfile&archive=yes&lfn={{file.lfn}}&guid={{file.guid}}">{{ file.lfn}}</a>
+{% else %}
+{{ file.lfn}}
+{% endif %}
+</font>
+</td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td><td> {% if file.attemptnr %} {{ file.attemptnr }} {% endif %}</td></tr>
 {% endfor %}
 </table>
 {% endif %}
 
-<p><b><font size=+1>Key job parameters:</font></b>
+<p><div class='section'>Other key job parameters</div>
 
 <table>
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation }}</td></tr></tr>{% endif %}
@@ -83,7 +96,6 @@
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
 	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
 	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
-	{% if job.produserid %}<tr><th>Owner ID</th><td>{{ job.produserid }}</td></tr>{% endif %}
 	{% if job.brokerageerrorcode %}
 		<tr><th class="alarm">Brokerage code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
 		<tr><th class="alarm">Brokerage message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
@@ -118,17 +130,17 @@
 	{% endif %}
 	{% if job.destinationse %}<tr><th>Output destination</th><td>{{ job.destinationse }}</td></tr>{% endif %}
 	{% if job.cpuconsumptiontime %}
-		<tr><th>Consumption time</th><td>{{ job.cpuconsumptiontime }}</td></tr>
-		<tr><th>Consumption Unit</th><td>{{ job.cpuconsumptionunit }}</td></tr>
-		<tr><th>Conversion factor</th><td>{{ job.cpuconversion }}</td></tr>
+		<tr><th>CPU consumption time</th><td>{{ job.cpuconsumptiontime }}</td></tr>
 	{% endif %}
+	{% if job.jobmetrics %}<tr><th>Job metrics</th><td>{{ job.jobmetrics }}</td></tr>{% endif %}
+	{% if job.proddblock %}<tr><th>Proddblock</th><td>{{ job.proddblock }}</td></tr>{% endif %}
 </table>
 
 {% else %}
     <p>No information for job {{ name }} is available.</p>
 {% endif %}
 
-<p><b><font size=+1>All job parameters:</font></b></p>
+<p><div class='section'>All job parameters</div></p>
 
 <table>
 {% for col in colnames %}
