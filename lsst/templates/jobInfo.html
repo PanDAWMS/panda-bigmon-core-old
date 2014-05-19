@@ -136,10 +136,6 @@
 	{% if job.proddblock %}<tr><th>Proddblock</th><td>{{ job.proddblock }}</td></tr>{% endif %}
 </table>
 
-{% else %}
-    <p>No information for job {{ name }} is available.</p>
-{% endif %}
-
 <p><div class='section'>All job parameters</div></p>
 
 <table>
@@ -147,6 +143,10 @@
 <tr><th>{{ col.name }}</th><td> {{ col.value }} </td></tr>
 {% endfor %}
 </table>
+
+{% else %}
+    <p>Job {{ pandaid }} not found.</p>
+{% endif %}
 
 {% endblock %}
 
