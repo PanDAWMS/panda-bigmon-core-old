@@ -2,8 +2,8 @@
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
-{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
-{% block subtitle %}PanDA job list {{ viewParams.selection }}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block subtitle %}PanDA job list{{ viewParams.selection }}
 {% if user %} &nbsp; user={{ user }} {% endif %}
 {% if site %} &nbsp; site={{ site }} {% endif %}
 {% if vo %} &nbsp; VO={{ vo }} {% endif %}
