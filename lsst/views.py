@@ -9,6 +9,7 @@ from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4
 from core.resource.models import Schedconfig
+from core.common.models import Filestable4 
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -259,19 +260,47 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
     setupView(request)
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = QuerySetChain(\
-        Jobsdefined4.objects.filter(pandaid=pandaid), \
-        Jobsactive4.objects.filter(pandaid=pandaid), \
-        Jobswaiting4.objects.filter(pandaid=pandaid), \
-        Jobsarchived4.objects.filter(pandaid=pandaid), \
+        Jobsdefined4.objects.filter(pandaid=pandaid).values(), \
+        Jobsactive4.objects.filter(pandaid=pandaid).values(), \
+        Jobswaiting4.objects.filter(pandaid=pandaid).values(), \
+        Jobsarchived4.objects.filter(pandaid=pandaid).values(), \
     )
-    jobs = sorted(jobs, key=lambda x:-x.pandaid)
+    jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     job = {}
     colnames = []
     try:
         job = jobs[0]
-        colnames = job.get_all_fields()
+        colnames = job.keys()
+        colnames.sort()
+        columns = []
+        for k in colnames:
+            val = job[k]
+            if job[k] == None:
+                val = ''
+                continue
+            pair = { 'name' : k, 'value' : val }
+            columns.append(pair)
     except IndexError:
         job = {}
+
+    files = Filestable4.objects.filter(pandaid=pandaid).values() 
+    nfiles = len(files)  	     
+    logfile = {} 
+    for file in files:         
+        if file['type'] == 'log': 
+            logfile['lfn'] = file['lfn'] 
+            logfile['guid'] = file['guid'] 
+            logfile['site'] = file['destinationse'] 
+
+    if job['pilotid'].startswith('http'):
+        stdout = job['pilotid'].split('|')[0]
+        stderr = stdout.replace('.out','.err')
+        stdlog = stdout.replace('.out','.log')
+    else:
+        stdout = stderr = stdlog = None
+
+    if job['transformation'].startswith('http'):
+        job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
@@ -279,7 +308,13 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             'viewParams' : viewParams,
             'pandaid': pandaid,
             'job': job,
-            'colnames' : colnames,
+            'columns' : columns,
+            'files' : files,
+            'nfiles' : nfiles,
+            'logfile' : logfile,
+            'stdout' : stdout,
+            'stderr' : stderr,
+            'stdlog' : stdlog,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))

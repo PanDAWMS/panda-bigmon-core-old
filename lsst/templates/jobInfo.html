@@ -50,20 +50,18 @@
 <p>
 
 {% if logfile.lfn %}
+{% if viewParams.MON_VO == 'ATLAS' %}
 <p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
-{% endif %}
-{% if job.vo == 'lsst' %}
+{% else %}
 <p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
+<br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
+{% endif %}
 {% endif %}
 {% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
 {% if stdout %}<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
 &nbsp; <a href='{{stderr}}'>stderr</a>
 &nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
-{% if viewParams.MON_VO != 'ATLAS' %}
-<br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
 {% endif %}
-{% endif %}
-
 
 {% if nfiles > 0 %}
 <p><div class='section'>Job files</div>
@@ -86,7 +84,7 @@
 <p><div class='section'>Other key job parameters</div>
 
 <table>
-	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation }}</td></tr></tr>{% endif %}
+	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode %}<tr><th>Exit code</th><td>{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
@@ -139,7 +137,7 @@
 <p><div class='section'>All job parameters</div></p>
 
 <table>
-{% for col in colnames %}
+{% for col in columns %}
 <tr><th>{{ col.name }}</th><td> {{ col.value }} </td></tr>
 {% endfor %}
 </table>
