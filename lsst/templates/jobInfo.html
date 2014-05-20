@@ -1,7 +1,7 @@
 {% extends "_base_lsst.html" %}{% load url from future %}
 
 {% block page_title %}PanDA job {{ pandaid }}{% endblock %}
-{% block title %} <a href="/">{{ viewParams.MON_VO }} {{ APP_NAME }}</a>{% endblock %}
+{% block title %} <a href="/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}Job details for PanDA job {{ pandaid }}{% endblock %}
 
 {% block body %}
@@ -41,7 +41,7 @@
 {% if job.jobstatus == 'running' %} Status <b class='running'>running</b> indicates that the job is running at its execution site, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing is still underway. {% endif %}
 {% if job.jobstatus == 'finished' %} Status <b class='finished'>finished</b> indicates that the job has successfully completed. {% endif %}
-{% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed. Error code information can be found in the key job parameters table below. {% endif %}
+{% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed at some stage. Information on where the error occurred and with what error condition can be found in the key job parameters table below. {% endif %}
 {% if job.jobstatus == 'cancelled' %} Status <b class='cancelled'>cancelled</b> indicates that the job has been cancelled, either by the user or by the system. Further information may be available in the key job parameters table below. {% endif %}
 {% if job.jobstatus == 'sent' %} Status <b class='sent'>sent</b> indicates that the job was sent to a pilot for execution but the pilot has not yet acknowledged receipt. If this state persists for any length of time, all is not well with the job.{% endif %}
 {% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received but the process of assigning it for execution has not yet started. {% endif %}
@@ -86,7 +86,7 @@
 <table>
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
-	{% if job.transexitcode %}<tr><th>Exit code</th><td>{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode != '0' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
 	{% if job.jobparameters %}<tr><th>Job parameters</th><td>{{ job.jobparameters }}</td></tr>{% endif %}

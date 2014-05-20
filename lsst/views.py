@@ -54,6 +54,9 @@ def setupView(request, mode='', hours=0):
         LAST_N_HOURS_MAX = int(request.GET['hours'])
     if 'limit' in request.GET:
         JOB_LIMIT = int(request.GET['limit'])
+    ## For site-specific queries, allow longer time window
+    if 'computingsite' in request.GET:
+        LAST_N_HOURS_MAX = 72
     if mode != 'notime':
         if LAST_N_HOURS_MAX <= 48 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
