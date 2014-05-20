@@ -210,20 +210,10 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
   <footer class="row">
     <div class="large-12 columns">
       <hr />
-      <div class="row">
-        <div class="large-6 columns">
         {% block bottom_copy %}
-          <font size=-1><p>Brought to you by the PanDA team. All times are in UTC.</p></font>
+            <table borderwidth=0><tr><td valign="bottom">
+          <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="http://wenaus.org/panda-verysmall-notext.png"></a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
         {% endblock %}
-        </div>
-        <div class="large-6 columns">
-          <font size=-1>
-          <ul class="inline-list right">
-            {% block bottom_link_all_1 %}<li>{% block bottom_link_1 %}<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a>{% endblock %}</li>{% endblock %}
-            {% block bottom_link_all_2 %}<li>{% block bottom_link_2 %}<a href="http://pandawms.org">BigPanDA home</a>{% endblock %}</li>{% endblock %}
-          </ul>
-          </font>
-        </div>
       </div>
     </div>
   </footer>
