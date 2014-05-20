@@ -20,7 +20,7 @@ viewParams = {}
 LAST_N_HOURS_MAX = 0
 JOB_LIMIT = 0
 
-fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'vo', ]
+fields = [ 'processingtype', 'computingsite', 'cloud', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'vo', ]
 sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier', 'comment_field' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -84,6 +84,14 @@ def setupView(request, mode='', hours=0):
                     query['%s__endswith' % param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
+    if 'jobtype' in request.GET:
+        import operator
+        if request.GET['jobtype'] == 'analysis':
+            query['prodsourcelabel__in'] = ['panda', 'user']
+        elif request.GET['jobtype'] == 'production':
+            query['prodsourcelabel'] = 'managed'
+        elif request.GET['jobtype'] == 'test':
+            query['prodsourcelabel'] = 'test'
     return query
 
 def jobSummaryDict(jobs, fieldlist = None):
@@ -376,7 +384,7 @@ def userInfo(request, user):
         if job.transformation: job.transformation = job.transformation.split('/')[-1]
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite' ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud' ]
         if VOMODE != 'atlas': flist.append('vo')
         jobsumd = jobSummaryDict(jobs, flist)
         data = {

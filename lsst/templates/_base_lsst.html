@@ -82,12 +82,18 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         <li class="divider"></li>
 
         {% block top_menu_all_1 %}
-        <li>
+        <li class="has-dropdown">
           {% block top_menu_1 %}
-          <a href="/lsst/jobs/">Jobs</a>
+          <a href="#">Jobs</a>
+          <ul class="dropdown">
+            <li><a href="/lsst/jobs/">All</a></li>
+            <li><a href="/lsst/jobs/?jobtype=analysis">Analysis</a></li>
+            <li><a href="/lsst/jobs/?jobtype=production">Production</a></li>
+            <li><a href="/lsst/jobs/?jobtype=test">Test</a></li>
+          </ul>
           {% endblock %}
         </li>
-        {% endblock %}
+       {% endblock %}
 
         {% block top_menu_all_2 %}
         <li>
@@ -110,6 +116,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
       <!-- Right Nav Section -->
       <ul class="right">
         <li class="divider"></li>
+        
         {% block top_menu_all_5 %}
         <li class="has-dropdown">
           {% block top_menu_5 %}
