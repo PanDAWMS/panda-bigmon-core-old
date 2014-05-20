@@ -2,7 +2,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA site {{ site.siteid }} {% endblock %}
 {% block title %} <a href="/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA site {{ site.siteid }}{% endblock %}
+{% block subtitle %}PanDA site {{ name }}{% endblock %}
 
 {% block body %}
 
@@ -18,7 +18,7 @@
 {% endfor %}
 </table>
 
-<p><a href="{% url 'lsst.views.jobList' %}?computingsite={{site.siteid}}">Recent jobs at this site</a><p>
+<p><a href="{% url 'lsst.views.jobList' %}?computingsite={{name}}">Recent jobs at this site</a><p>
 
 {% if site.nickname %}
 <p><a href="http://apfmon.lancs.ac.uk/q/{{site.nickname}}">Pilot factory monitor</a><p>
