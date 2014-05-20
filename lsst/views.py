@@ -8,7 +8,6 @@ from django.template import RequestContext, loader
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4
-from core.common.models import Filestable4
 from core.resource.models import Schedconfig
 from core.common.settings.config import ENV
 
@@ -17,17 +16,17 @@ from settings.local import dbaccess
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
 
-LAST_N_HOURS_MAX = 60*24
-JOB_LIMIT = 3000
+LAST_N_HOURS_MAX = 0
+JOB_LIMIT = 0
 
-fields = []
-sitefields = []
+fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'vo', ]
+sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier', 'comment_field' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
 VOMODE = ' '
 
-def setupView(request, mode=''):
+def setupView(request, mode='', hours=0):
     global VOMODE
     global viewParams
     ENV['MON_VO'] = ''
@@ -42,26 +41,43 @@ def setupView(request, mode=''):
     viewParams['MON_VO'] = ENV['MON_VO']
     if VOMODE == 'atlas':
         global LAST_N_HOURS_MAX, JOB_LIMIT
-        LAST_N_HOURS_MAX = 36
-        JOB_LIMIT=500
+        LAST_N_HOURS_MAX = 12
+        JOB_LIMIT = 500
+    else:
+        LAST_N_HOURS_MAX = 30*24
+        JOB_LIMIT = 3000
+    if hours > 0:
+        ## Call param overrides default hours, but not a param on the URL
+        LAST_N_HOURS_MAX = hours
+    if 'hours' in request.GET:
+        LAST_N_HOURS_MAX = int(request.GET['hours'])
+    if 'limit' in request.GET:
+        JOB_LIMIT = int(request.GET['limit'])
     if mode != 'notime':
-        if JOB_LIMIT < 1000:
-            viewParams['selection'] = ", recent jobs (limit %s per table)" % JOB_LIMIT
-        elif LAST_N_HOURS_MAX <= 48 :
-            viewParams['selection'] = " for the last %s hours" % LAST_N_HOURS_MAX
+        if LAST_N_HOURS_MAX <= 48 :
+            viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
         else:
-            viewParams['selection'] = " for the last %.1f days" % (float(LAST_N_HOURS_MAX)/24.)
+            viewParams['selection'] = ", last %.1f days" % (float(LAST_N_HOURS_MAX)/24.)
+        if JOB_LIMIT < 1000:
+            viewParams['selection'] += " (limit %s per table)" % JOB_LIMIT
+        viewParams['selection'] += ". Query params: hours=%s, limit=%s" % ( LAST_N_HOURS_MAX, JOB_LIMIT )
     else:
         viewParams['selection'] = ""
     for param in request.GET:
         viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
-    global fields, sitefields
-    if VOMODE == 'atlas':
-        fields = [ 'computingsite', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'atlasrelease', 'processingtype' ]
-        sitefields = [ 'cloud', 'gocname', 'status', 'tier', 'comment_field' ]
-    else:
-        fields = [ 'computingsite', 'destinationse', 'jobstatus', 'produsername', 'transformation', 'vo', 'processingtype' ]
-        sitefields = [ 'region', 'status', ]
+    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    query = { 'modificationtime__range' : [startdate, enddate] }
+    ### Add any extensions to the query determined from the URL
+    for vo in [ 'atlas', 'lsst' ]:
+        if request.META['HTTP_HOST'].startswith(vo):
+            query['vo'] = vo   
+    for param in request.GET:
+        for field in Jobsactive4._meta.get_all_field_names():
+            if param == field:
+                query[param] = request.GET[param]
+    return query
 
 def jobSummaryDict(jobs, fieldlist = None):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
@@ -73,13 +89,9 @@ def jobSummaryDict(jobs, fieldlist = None):
     for job in jobs:
         for f in flist:
             if job[f]:
-                val = job[f]
-                if f == 'transformation' :
-                    val = job[f].split('/')[-1]
-                if f == 'taskid' and VOMODE == 'atlas' and int(job[f]) < 1000000: continue
                 if not f in sumd: sumd[f] = {}
-                if not job[f] in sumd[f]: sumd[f][val] = 0
-                sumd[f][val] += 1
+                if not job[f] in sumd[f]: sumd[f][job[f]] = 0
+                sumd[f][job[f]] += 1
         if job['specialhandling']:
             if not 'specialhandling' in sumd: sumd['specialhandling'] = {}
             shl = job['specialhandling'].split()
@@ -209,19 +221,7 @@ def mainPage(request):
         return  HttpResponse('not understood', mimetype='text/html')
 
 def jobList(request, mode=None, param=None):
-    setupView(request)
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
-    startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-    query = { 'modificationtime__range' : [startdate, enddate] }
-    ### Add any extensions to the query determined from the URL
-    for vo in [ 'atlas', 'lsst' ]:
-        if request.META['HTTP_HOST'].startswith(vo):
-            query['vo'] = vo   
-    for param in request.GET:
-        for field in Jobsactive4._meta.get_all_field_names():
-            if param == field:
-                query[param] = request.GET[param]
+    query = setupView(request)
     jobList = QuerySetChain(\
                     Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
                     Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
@@ -230,6 +230,9 @@ def jobList(request, mode=None, param=None):
             )
 
     jobList = sorted(jobList, key=lambda x:-x.pandaid)
+    for job in jobList:
+        if job.transformation.startswith('http'):
+            job.transformation = job.transformation.split('/')[-1]
     _logger.debug('jobList[:30]=' + str(jobList[:30]))
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(jobList)
@@ -268,16 +271,6 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
     except IndexError:
         job = {}
 
-    files = Filestable4.objects.filter(pandaid=pandaid).values()
-    nfiles = len(files)
-    
-    logfile = {}
-    for file in files:
-        if file['type'] == 'log':
-            logfile['lfn'] = file['lfn']
-            logfile['guid'] = file['guid']
-            logfile['site'] = file['destinationse']
-
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
@@ -285,9 +278,6 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             'pandaid': pandaid,
             'job': job,
             'colnames' : colnames,
-            'files' : files,
-            'nfiles' : nfiles,
-            'logfile' : logfile,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
@@ -315,6 +305,9 @@ def userList(request):
                     Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
                     Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
     )
+    for job in jobs:
+        if job.transformation.startswith('http'):
+            job.transformation = job.transformation.split('/')[-1]
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
         jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
@@ -331,7 +324,7 @@ def userList(request):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def userInfo(request, user):
-    setupView(request)
+    setupView(request,hours=24)
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
@@ -350,9 +343,15 @@ def userInfo(request, user):
                     Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
     )
     jobs = sorted(jobs, key=lambda x:-x.pandaid)
+    for job in jobs:
+        if job.transformation.startswith('http'):
+            job.transformation = job.transformation.split('/')[-1]
+            #job.transformation = '<a href="%s">%s</a>' % ( job.transformation, job.transformation.split('/')[-1] )
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', 'jobsetid', 'taskid', 'jeditaskid' ])
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite' ]
+        if VOMODE != 'atlas': flist.append('vo')
+        jobsumd = jobSummaryDict(jobs, flist)
         data = {
             'viewParams' : viewParams,
             'xurl' : extensibleURL(request),
@@ -424,29 +423,25 @@ def siteInfo(request, site):
     sites = Schedconfig.objects.filter(**query)
     colnames = []
     try:
-        sited = sites[0]
-        colnames = sited.get_all_fields()
+        site = sites[0]
+        colnames = site.get_all_fields()
     except IndexError:
-        sited = None
+        site = {}
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
-        if sited:
-            attrs = []
-            attrs.append({'name' : 'Status', 'value' : sited.status })
-            attrs.append({'name' : 'Comment', 'value' : sited.comment_field })
-            attrs.append({'name' : 'GOC name', 'value' : sited.gocname })
-            attrs.append({'name' : 'Cloud', 'value' : sited.cloud })
-            attrs.append({'name' : 'Tier', 'value' : sited.tier })
-            attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(sited.maxmemory)/1000.) })
-            attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(sited.maxtime)/3600.) })
-        else:
-            attrs = None
+        attrs = []
+        attrs.append({'name' : 'Status', 'value' : site.status })
+        attrs.append({'name' : 'Comment', 'value' : site.comment_field })
+        attrs.append({'name' : 'GOC name', 'value' : site.gocname })
+        attrs.append({'name' : 'Cloud', 'value' : site.cloud })
+        attrs.append({'name' : 'Tier', 'value' : site.tier })
+        attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(site.maxmemory)/1000.) })
+        attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(site.maxtime)/3600.) })
         data = {
             'viewParams' : viewParams,
             'site' : site,
             'colnames' : colnames,
             'attrs' : attrs,
-            'name' : site,
         }
         data.update(getContextVariables(request))
         return render_to_response('siteInfo.html', data, RequestContext(request))
