@@ -27,6 +27,7 @@
 <tr>
 	<th>Owner</th>
 	<th>PanDA ID</th>
+	<th>Transformation</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Start</th>
@@ -41,6 +42,7 @@
 			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if job.vo %}/ {{ job.vo }} {% endif %}
 		</td>
 		<td><a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
+		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
