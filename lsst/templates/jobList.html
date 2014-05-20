@@ -35,23 +35,23 @@
 	<th>Start</th>
 	<th>End</th>
 	<th>Site</th>
-	<th>VO</th>
+	{% if viewParams.MON_VO != 'ATLAS' %} <th>VO</th> {% endif %}
 	<th>Priority</th>
 </tr>
     {% for job in jobList %}
 	<tr>
 		<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>
-			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if job.vo %}/ {{ job.vo }} {% endif %}
+			{% if job.workinggroup %}/{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}/ {{ job.vo }}{% endif %} {% endif %}
 		</td>
 		<td><a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
 		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
-		<td>{{ job.starttime|date:"Y-m-d H:i" }}</td>
-		<td>{{ job.endtime|date:"Y-m-d H:i" }}</td>
+		<td>{{ job.starttime|date:"m-d H:i" }}</td>
+		<td>{{ job.endtime|date:"m-d H:i" }}</td>
 		<td><a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a></td>
-    	<td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td>
+    	{% if viewParams.MON_VO != 'ATLAS' %} <td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td> {% endif %}
 		<td>{{ job.currentpriority }}</td>
 	</tr>
     {% endfor %}
