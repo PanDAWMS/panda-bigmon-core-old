@@ -20,7 +20,7 @@
 	<th>Priority</th>
 </tr>
 <tr>
-	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
+	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{{ job.pandaid }}</td>
 	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
@@ -34,23 +34,25 @@
 	<td colspan="10"><b>Job name:</b> &nbsp; {{ job.jobname }}</td>
 </tr>
 </table>
-
+{% if job.jobstatus == 'assigned' %} Status <b class='assigned'>assigned</b> indicates the job has been assigned to a site ({{ job.computingsite }}) and preparations to have the input data ready are underway (e.g. subscriptions, tape staging). {% endif %}
 {% if job.jobstatus == 'activated' %} Status <b class='activated'>activated</b> indicates that the job is ready to be dispatched to a pilot at the site where it will run, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'running' %} Status <b class='running'>running</b> indicates that the job is running at its execution site, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'starting' %} Status <b class='starting'>starting</b> indicates that the job has been picked up for execution but not yet launched by a pilot on a worker node. Used in environments where pilots don't directly pick up jobs (e.g. Nordugrid). {% endif %}
-{% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing is still underway. {% endif %}
+{% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing (eg. registering outputs in datasets) is still underway. {% endif %}
 {% if job.jobstatus == 'finished' %} Status <b class='finished'>finished</b> indicates that the job has successfully completed. {% endif %}
 {% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed at some stage. Information on where the error occurred and with what error condition can be found in the key job parameters table below. {% endif %}
 {% if job.jobstatus == 'cancelled' %} Status <b class='cancelled'>cancelled</b> indicates that the job has been cancelled, either by the user or by the system. Further information may be available in the key job parameters table below. {% endif %}
 {% if job.jobstatus == 'sent' %} Status <b class='sent'>sent</b> indicates that the job was sent to a pilot for execution but the pilot has not yet acknowledged receipt. If this state persists for any length of time, all is not well with the job.{% endif %}
-{% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received but the process of assigning it for execution has not yet started. {% endif %}
+{% if job.jobstatus == 'pending' %} Status <b class='pending'>pending</b> indicates that the job record has been injected into the PanDA DB but PanDA has not yet dealt with it. {% endif %}
+{% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received by PanDA and the process of assigning it for execution has begun. {% endif %}
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
-
 <p>
 
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
+{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
 <p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
+{% endif %}
 {% else %}
 <p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
 <br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
@@ -65,7 +67,7 @@
 {% if nfiles > 0 %}
 <p><div class='section'>Job files</div>
 <table>
-<tr><th>Filename</th><th>Type</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th><th>Attempt #</th></tr>
+<tr><th>Filename</th><th>Type</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th></tr>
 {% for file in files %}
 <tr><td>
 <font size=-1>
@@ -75,7 +77,7 @@
 {{ file.lfn}}
 {% endif %}
 </font>
-</td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td><td> {% if file.attemptnr %} {{ file.attemptnr }} {% endif %}</td></tr>
+</td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td></tr>
 {% endfor %}
 </table>
 {% endif %}
@@ -84,7 +86,7 @@
 
 <table>
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
-	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
+	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode != '0' and job.transexitcode != 'None' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
 	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
@@ -94,6 +96,7 @@
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
 	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
 	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
+	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
 	{% if job.jobdispatchererrorcode %}
 		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
 		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
@@ -124,7 +127,7 @@
 	{% endif %}
 	{% if job.destinationse %}<tr><th>Output destination</th><td>{{ job.destinationse }}</td></tr>{% endif %}
 	{% if job.cpuconsumptiontime %}
-		<tr><th>CPU consumption time</th><td>{{ job.cpuconsumptiontime }}</td></tr>
+		<tr><th>CPU consumption time (s)</th><td>{{ job.cpuconsumptiontime }}</td></tr>
 	{% endif %}
 	{% if job.jobmetrics %}<tr><th>Job metrics</th><td>{{ job.jobmetrics }}</td></tr>{% endif %}
 	{% if job.proddblock %}<tr><th>Proddblock</th><td>{{ job.proddblock }}</td></tr>{% endif %}

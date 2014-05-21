@@ -47,6 +47,7 @@ def setupView(request, mode='', hours=0):
         JOB_LIMIT = 500
         fields.append('cloud')
         sitefields.append('cloud')
+        fields.append('atlasrelease')
     else:
         LAST_N_HOURS_MAX = 30*24
         JOB_LIMIT = 3000
