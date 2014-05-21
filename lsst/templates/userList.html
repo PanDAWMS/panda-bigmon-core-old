@@ -9,6 +9,9 @@
 {% block body %}
 
 {% if sumd %}
+{% comment %}
+The dynamic summary table used presently for non-ATLAS.
+{% endcomment %}
 
 <table>
 {% for fdict in jobsumd %}
@@ -51,9 +54,47 @@
 {% endfor %}
 </table>
 
-{% else %}
-    <p>No matches to query.</p>
 {% endif %}
+
+{% if userdb %}
+{% comment %}
+The user DB presently generated only for ATLAS.
+{% endcomment %}
+
+<table>
+<tr>
+<th> <a href="{{url}}?sortby=name">User</a> </th>
+<th> <a href="{{url}}?sortby=njobs">nJobs</a> </th>
+<th> <a href="{{url}}?sortby=date">Latest</a> </th>
+<th> <a href="{{url}}?sortby=cpua1">Personal CPU-hrs<br>1 day</a> </th>
+<th> <a href="{{url}}?sortby=cpua7">Personal CPU-hrs<br>7 days</a> </th>
+<th> <a href="{{url}}?sortby=cpup1">Group CPU-hrs<br>1 day</a> </th>
+<th> <a href="{{url}}?sortby=cpup7">Group CPU-hrs<br>7 days</a> </th>
+</tr>
+
+{% for user in userdb %}
+<tr>
+<th> <a href="/lsst/user/{{user.name}}">{{user.name}}</a> </th>
+<td> {{ user.njobsa }} </td>
+<td>{{ user.latestjob|date:"Y-m-d H:i" }}</td>
+
+{% comment %}
+<td class='finished'> {{ user.nfinished }} </td>
+<td class='failed'> {{ user.nfailed }} </td>
+<td class='holding'> {{ user.nholding }} </td>
+<td class='cancelled'> {{ user.ncancelled }} </td>
+<td class='defined'> {{ user.nqueued }} </td>
+{% endcomment %}
+<td> {{ user.cpua1 }} </td>
+<td> {{ user.cpua7 }} </td>
+<td> {{ user.cpup1 }} </td>
+<td> {{ user.cpup7 }} </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endif %}
+
 {% endblock %}
 
 {% block bottom_info %}

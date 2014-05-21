@@ -10,6 +10,7 @@ from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeForma
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
+from core.common.models import Users
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -335,34 +336,59 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
         return  HttpResponse('not understood', mimetype='text/html')
 
 def userList(request):
-    setupView(request)
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
-    startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-    query = { 'modificationtime__range' : [startdate, enddate] }
-    ### Add any extensions to the query determined from the URL  
-    if VOMODE == 'lsst': query['vo'] = 'lsst'
-    if VOMODE == 'atlas': query['vo'] = 'atlas'
-    for param in request.GET:
-        for field in Jobsactive4._meta.get_all_field_names():
-            if param == field:
-                query[param] = request.GET[param]
-    jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-    )
-    for job in jobs:
-        if job.transformation: job.transformation = job.transformation.split('/')[-1]
-    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+    sumd = []
+    jobsumd = []
+    userdb = []
+    if VOMODE == 'atlas':
+        nhours = 90*24
+        startdate = datetime.utcnow() - timedelta(hours=nhours)
+        startdate = startdate.strftime(defaultDatetimeFormat)
+        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        query = { 'latestjob__range' : [startdate, enddate] }
+        viewParams['selection'] = ", last %d days" % (float(nhours)/24.)
+        ## Use the users table
+        userdb = Users.objects.filter(**query).order_by('name')
+        if 'sortby' in request.GET:
+            sortby = request.GET['sortby']
+            if sortby == 'name':
+                userdb = Users.objects.filter(**query).order_by('name')
+            elif sortby == 'njobs':
+                userdb = Users.objects.filter(**query).order_by('njobsa').reverse()
+            elif sortby == 'date':
+                userdb = Users.objects.filter(**query).order_by('latestjob').reverse()
+            elif sortby == 'cpua1':
+                userdb = Users.objects.filter(**query).order_by('cpua1').reverse()
+            elif sortby == 'cpua7':
+                userdb = Users.objects.filter(**query).order_by('cpua7').reverse()
+            elif sortby == 'cpup1':
+                userdb = Users.objects.filter(**query).order_by('cpup1').reverse()
+            elif sortby == 'cpup7':
+                userdb = Users.objects.filter(**query).order_by('cpup7').reverse()
+            else:
+                userdb = Users.objects.filter(**query).order_by('name')
+        else:
+            userdb = Users.objects.filter(**query).order_by('name')
+    else:
+        ## dynamically assemble user summary info
+        query = setupView(request)
+        jobs = QuerySetChain(\
+                        Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                        Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                        Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                        Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+        )
+        for job in jobs:
+            if job.transformation: job.transformation = job.transformation.split('/')[-1]
         sumd = userSummaryDict(jobs)
         jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'viewParams' : viewParams,
             'xurl' : extensibleURL(request),
+            'url' : request.path,
             'sumd' : sumd,
             'jobsumd' : jobsumd,
+            'userdb' : userdb,
         }
         data.update(getContextVariables(request))
         return render_to_response('userList.html', data, RequestContext(request))
