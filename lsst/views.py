@@ -339,7 +339,7 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
     else:
         stdout = stderr = stdlog = None
 
-    if 'transformation' in job and job['transformation'].startswith('http'):
+    if 'transformation' in job and job['transformation'] is not None and job['transformation'].startswith('http'):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
