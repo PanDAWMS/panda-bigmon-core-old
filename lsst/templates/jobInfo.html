@@ -85,7 +85,7 @@
 <table>
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
-	{% if job.transexitcode != '0' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode != '0' && job.transexitcode != 'None' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
 	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
@@ -94,10 +94,6 @@
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
 	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
 	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
-	{% if job.brokerageerrorcode %}
-		<tr><th class="alarm">Brokerage code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
-		<tr><th class="alarm">Brokerage message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
-	{% endif %}
 	{% if job.jobdispatchererrorcode %}
 		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
 		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
