@@ -1,5 +1,4 @@
 import logging
-from types import *
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
@@ -22,7 +21,7 @@ viewParams = {}
 LAST_N_HOURS_MAX = 0
 JOB_LIMIT = 0
 
-fields = [ 'processingtype', 'computingsite', 'cloud', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', ]
+fields = [ 'processingtype', 'computingsite', 'cloud', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'transformation', 'vo', ]
 sitefields = [ 'region', 'cloud', 'gocname', 'status', 'tier', 'comment_field' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -127,7 +126,6 @@ def jobSummaryDict(jobs, fieldlist = None):
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
         itemd['list'] = iteml
         suml.append(itemd)
-    suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
 def siteSummaryDict(sites):
@@ -166,7 +164,6 @@ def siteSummaryDict(sites):
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
         itemd['list'] = iteml
         suml.append(itemd)
-    suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
 def userSummaryDict(jobs):
@@ -214,7 +211,6 @@ def userSummaryDict(jobs):
         uitem['name'] = u
         uitem['dict'] = sumd[u]
         suml.append(uitem)
-    suml = sorted(suml, key=lambda x:x['name'])
     return suml
 
 def extensibleURL(request):
@@ -323,22 +319,22 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
         job = {}
 
     files = Filestable4.objects.filter(pandaid=pandaid).values() 
-    nfiles = len(files)  	     
+    nfiles = len(files)
     logfile = {} 
-    for file in files:         
+    for file in files:
         if file['type'] == 'log': 
             logfile['lfn'] = file['lfn'] 
             logfile['guid'] = file['guid'] 
             logfile['site'] = file['destinationse'] 
 
-    if 'pilotid' in job and type(job['pilotid']) == UnicodeType and job['pilotid'].startswith('http'):
+    if 'pilotid' in job and job['pilotid'] is not None and job['pilotid'].startswith('http'):
         stdout = job['pilotid'].split('|')[0]
         stderr = stdout.replace('.out','.err')
         stdlog = stdout.replace('.out','.log')
     else:
         stdout = stderr = stdlog = None
 
-    if 'transformation' in job and job['transformation'].startswith('http'):
+    if 'transformation' in job and job['transformation'] is not None and job['transformation'].startswith('http'):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
@@ -366,7 +362,6 @@ def userList(request):
     sumd = []
     jobsumd = []
     userdb = []
-    query = setupView(request)
     if VOMODE == 'atlas':
         nhours = 90*24
         startdate = datetime.utcnow() - timedelta(hours=nhours)
@@ -398,6 +393,7 @@ def userList(request):
             userdb = Users.objects.filter(**query).order_by('name')
     else:
         ## dynamically assemble user summary info
+        query = setupView(request)
         jobs = QuerySetChain(\
                         Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
                         Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
@@ -437,7 +433,7 @@ def userInfo(request, user):
         if job.transformation: job.transformation = job.transformation.split('/')[-1]
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud' ]
         if VOMODE != 'atlas': flist.append('vo')
         jobsumd = jobSummaryDict(jobs, flist)
         data = {
