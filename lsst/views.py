@@ -242,7 +242,7 @@ def mainPage(request):
     else:
         return  HttpResponse('not understood', mimetype='text/html')
 
-def errorInfo(job):
+def errorInfo(job, nchars=300):
     errtxt = ''
     if int(job['brokerageerrorcode']) != 0:
         errtxt += 'Brokerage error %s: %s <br>' % ( job['brokerageerrorcode'], job['brokerageerrordiag'] )
@@ -260,7 +260,11 @@ def errorInfo(job):
         errtxt += 'Task buffer error %s: %s <br>' % ( job['taskbuffererrorcode'], job['taskbuffererrordiag'] )
     if job['transexitcode'] != '' and job['transexitcode'] is not None and int(job['transexitcode']) > 0:
         errtxt += 'Payload transformation exit code %s' % job['transexitcode']
-    return errtxt
+    if len(errtxt) > nchars:
+        ret = errtxt[:nchars] + '...'
+    else:
+        ret = errtxt[:nchars]
+    return ret
 
 def jobList(request, mode=None, param=None):
     query = setupView(request)
@@ -275,7 +279,7 @@ def jobList(request, mode=None, param=None):
     for job in jobList:
         if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
         if job['jobstatus'] == 'failed':
-            job['errorinfo'] = errorInfo(job)
+            job['errorinfo'] = errorInfo(job,nchars=50)
         else:
             job['errorinfo'] = ''
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
@@ -438,7 +442,7 @@ def userInfo(request, user):
     for job in jobs:
         if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
         if job['jobstatus'] == 'failed':
-            job['errorinfo'] = errorInfo(job)
+            job['errorinfo'] = errorInfo(job,nchars=50)
         else:
             job['errorinfo'] = ''
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':

@@ -30,7 +30,7 @@
 	<th>Created</th>
 	<th>Start</th>
 	<th>End</th>
-	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud/{% endif%}Site</th>
+	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
 	<th>Job info</th>
 </tr>
@@ -43,7 +43,7 @@
 		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 		<td>{{ job.starttime|date:"m-d H:i" }}</td>
 		<td>{{ job.endtime|date:"m-d H:i" }}</td>
-		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a>/{% endif %}<a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a><font></td>
+		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a><font></td>
 		<td>{{ job.currentpriority }}</td>
 		<td width=200>{% if job.errorinfo != '' %}<font size=-1 class='alarm'>{{job.errorinfo|safe}}</font>{% endif %}</td>
 	</tr>
