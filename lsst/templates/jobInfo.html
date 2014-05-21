@@ -9,7 +9,7 @@
 {% if job %}
 <table width="100%">
 <tr>
-	<th>Owner{% if job.workinggroup %} / WG{% endif %}{% if job.vo %} / VO{% endif %}</th>
+	<th>Owner{% if job.workinggroup %} / WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
 	<th>PandaID</th>
 	<th>TaskID</th>
 	<th>Status</th>
@@ -17,11 +17,10 @@
 	<th>Start</th>
 	<th>End</th>
 	<th>Site</th>
-	<th>VO</th>
 	<th>Priority</th>
 </tr>
 <tr>
-	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if job.vo %} / {{ job.vo }} {% endif %}</td>
+	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / {{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{{ job.pandaid }}</td>
 	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
@@ -29,7 +28,6 @@
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
 	<td>{{ job.endtime|date:"m-d H:i" }}</td>
 	<td><a href="{% url 'lsst.views.siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
-	<td>{% if job.vo %} {{ job.vo }} {% else %} &nbsp; {% endif %}</td>
 	<td>{{ job.currentpriority }}</td>
 </tr>
 <tr>
@@ -89,6 +87,7 @@
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode != '0' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
+	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
 	{% if job.jobparameters %}<tr><th>Job parameters</th><td>{{ job.jobparameters }}</td></tr>{% endif %}
 	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
