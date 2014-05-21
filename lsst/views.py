@@ -428,14 +428,18 @@ def userInfo(request, user):
     query = setupView(request,hours=24)
     query['produsername'] = user
     jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
     )
-    jobs = sorted(jobs, key=lambda x:-x.pandaid)
+    jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     for job in jobs:
-        if job.transformation: job.transformation = job.transformation.split('/')[-1]
+        if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
+        if job['jobstatus'] == 'failed':
+            job['errorinfo'] = errorInfo(job)
+        else:
+            job['errorinfo'] = ''
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
         flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
