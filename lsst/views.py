@@ -304,14 +304,26 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             logfile['guid'] = file['guid'] 
             logfile['site'] = file['destinationse'] 
 
-    if job['pilotid'].startswith('http'):
+#    if job['pilotid'].startswith('http'):
+    job_pilotid_startswith = False
+    try:
+        job_pilotid_startswith = job['pilotid'].startswith('http')
+    except AttributeError:
+        job_pilotid_startswith = False
+    if job_pilotid_startswith:
         stdout = job['pilotid'].split('|')[0]
         stderr = stdout.replace('.out','.err')
         stdlog = stdout.replace('.out','.log')
     else:
         stdout = stderr = stdlog = None
 
-    if job['transformation'].startswith('http'):
+#    if job['transformation'].startswith('http'):
+    job_trf_startswith = False
+    try:
+        job_trf_startswith = job['transformation'].startswith('http')
+    except AttributeError:
+        job_trf_startswith = False
+    if job_trf_startswith:
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
