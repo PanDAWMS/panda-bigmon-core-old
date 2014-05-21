@@ -3,7 +3,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA users{% endblock %}
 {% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA active user list{{viewParams.selection }}
+{% block subtitle %}Recent PanDA users{{viewParams.selection }}
 {% if vo %} &nbsp; for VO {{ vo }}{% endif %}
 {% endblock %}
 {% block body %}
@@ -61,6 +61,22 @@ The dynamic summary table used presently for non-ATLAS.
 The user DB presently generated only for ATLAS.
 {% endcomment %}
 
+<p>This page shows summary usage information updated every few hours. Alternate view: <a href="{{xurl}}view=dynamic">Dynamic usage info from the latest jobs</a><p>
+
+<div class='section'>Usage stats</div>
+
+{% if userstats %}
+Job count for the last 7 days: {{ userstats.anajobs }}
+&nbsp;  &nbsp;  &nbsp;  Users in last 3 days: {{ userstats.nrecent3 }}
+&nbsp; 7: {{ userstats.nrecent7 }}
+&nbsp; 30: {{ userstats.nrecent30 }}
+&nbsp; 90: {{ userstats.nrecent90 }}
+&nbsp;  &nbsp;  &nbsp;  Users with &gt;1000 jobs: {{ userstats.n1000 }}
+&nbsp; &gt;10k: {{ userstats.n10k }}
+{% endif %}
+
+<p><div class='section'>Recent users</div>
+
 <table>
 <tr>
 <th> <a href="{{url}}?sortby=name">User</a> </th>
@@ -75,7 +91,7 @@ The user DB presently generated only for ATLAS.
 {% for user in userdb %}
 <tr>
 <th> <a href="/lsst/user/{{user.name}}">{{user.name}}</a> </th>
-<td> {{ user.njobsa }} </td>
+<td> {% if user.njobsa %}{{ user.njobsa }} {% endif %}</td>
 <td>{{ user.latestjob|date:"Y-m-d H:i" }}</td>
 
 {% comment %}
@@ -85,10 +101,10 @@ The user DB presently generated only for ATLAS.
 <td class='cancelled'> {{ user.ncancelled }} </td>
 <td class='defined'> {{ user.nqueued }} </td>
 {% endcomment %}
-<td> {{ user.cpua1 }} </td>
-<td> {{ user.cpua7 }} </td>
-<td> {{ user.cpup1 }} </td>
-<td> {{ user.cpup7 }} </td>
+<td> {% if user.cpua1 %}{{ user.cpua1 }} {% endif %}</td>
+<td> {% if user.cpua7 %}{{ user.cpua7 }} {% endif %}</td>
+<td> {% if user.cpup1 %}{{ user.cpup1 }} {% endif %}</td>
+<td> {% if user.cpup7 %}{{ user.cpup7 }} {% endif %}</td>
 </tr>
 {% endfor %}
 </table>

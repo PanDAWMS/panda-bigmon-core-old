@@ -131,6 +131,7 @@
 	{% endif %}
 	{% if job.jobmetrics %}<tr><th>Job metrics</th><td>{{ job.jobmetrics }}</td></tr>{% endif %}
 	{% if job.proddblock %}<tr><th>Proddblock</th><td>{{ job.proddblock }}</td></tr>{% endif %}
+	{% if jobparams %}<tr><th>Job parameters</th><td><font size=-1>{{ jobparams }}</font></td></tr>{% endif %}
 </table>
 
 <p><div class='section'>All job parameters</div></p>

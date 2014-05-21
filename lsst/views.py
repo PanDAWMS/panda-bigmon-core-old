@@ -11,6 +11,7 @@ from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaitin
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
 from core.common.models import Users
+from core.common.models import Jobparamstable
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -28,7 +29,7 @@ VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
 VOMODE = ' '
 
-def setupView(request, mode='', hours=0):
+def setupView(request, mode='', hours=0, limit=0):
     global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
@@ -56,19 +57,24 @@ def setupView(request, mode='', hours=0):
         LAST_N_HOURS_MAX = max(LAST_N_HOURS_MAX, hours)
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
+    if limit != 0:
+        ## Call param overrides default, but not a param on the URL
+        JOB_LIMIT = limit
     if 'limit' in request.GET:
         JOB_LIMIT = int(request.GET['limit'])
     ## For site-specific queries, allow longer time window
     if 'computingsite' in request.GET:
         LAST_N_HOURS_MAX = 72
     if mode != 'notime':
-        if LAST_N_HOURS_MAX <= 48 :
+        if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
         else:
-            viewParams['selection'] = ", last %.1f days" % (float(LAST_N_HOURS_MAX)/24.)
-        if JOB_LIMIT < 1000:
+            viewParams['selection'] = ", last %d days" % (float(LAST_N_HOURS_MAX)/24.)
+        if JOB_LIMIT < 1000 and JOB_LIMIT > 0:
             viewParams['selection'] += " (limit %s per table)" % JOB_LIMIT
-        viewParams['selection'] += ". Query params: hours=%s, limit=%s" % ( LAST_N_HOURS_MAX, JOB_LIMIT )
+        viewParams['selection'] += ". Query params: hours=%s" % LAST_N_HOURS_MAX
+        if JOB_LIMIT > 0:
+            viewParams['selection'] += ", limit=%s" % JOB_LIMIT
     else:
         viewParams['selection'] = ""
     for param in request.GET:
@@ -347,6 +353,12 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
     if 'transformation' in job and job['transformation'] is not None and job['transformation'].startswith('http'):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
+    jobparamrec = Jobparamstable.objects.filter(pandaid=pandaid)
+    try:
+        if jobparamrec: jobparams = jobparamrec[0].jobparameters
+    except IndexError:
+        jobparams = None
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
@@ -360,6 +372,7 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             'stdout' : stdout,
             'stderr' : stderr,
             'stdlog' : stdlog,
+            'jobparams' : jobparams,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
@@ -369,17 +382,24 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
         return  HttpResponse('not understood', mimetype='text/html')
 
 def userList(request):
+    nhours = 90*24
+    query = setupView(request, hours=nhours, limit=-1)
+    if VOMODE == 'atlas':
+        view = 'database'
+    else:
+        view = 'dynamic'
+    if 'view' in request.GET:
+        view = request.GET['view']
     sumd = []
     jobsumd = []
     userdb = []
-    query = setupView(request)
-    if VOMODE == 'atlas':
-        nhours = 90*24
+    userstats = {}
+    if view == 'database':
         startdate = datetime.utcnow() - timedelta(hours=nhours)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         query = { 'latestjob__range' : [startdate, enddate] }
-        viewParams['selection'] = ", last %d days" % (float(nhours)/24.)
+        #viewParams['selection'] = ", last %d days" % (float(nhours)/24.)
         ## Use the users table
         userdb = Users.objects.filter(**query).order_by('name')
         if 'sortby' in request.GET:
@@ -402,7 +422,34 @@ def userList(request):
                 userdb = Users.objects.filter(**query).order_by('name')
         else:
             userdb = Users.objects.filter(**query).order_by('name')
+
+        anajobs = 0
+        n1000 = 0
+        n10k = 0
+        nrecent3 = 0
+        nrecent7 = 0
+        nrecent30 = 0
+        nrecent90 = 0
+        for u in userdb:
+            if u.njobsa > 0: anajobs += u.njobsa
+            if u.njobsa >= 1000: n1000 += 1
+            if u.njobsa >= 10000: n10k += 1
+            if u.latestjob != None:
+                latest = datetime.utcnow() - u.latestjob.replace(tzinfo=None)
+                if latest.days < 4: nrecent3 += 1
+                if latest.days < 8: nrecent7 += 1
+                if latest.days < 31: nrecent30 += 1
+                if latest.days < 91: nrecent90 += 1
+        userstats['anajobs'] = anajobs
+        userstats['n1000'] = n1000
+        userstats['n10k'] = n10k
+        userstats['nrecent3'] = nrecent3
+        userstats['nrecent7'] = nrecent7
+        userstats['nrecent30'] = nrecent30
+        userstats['nrecent90'] = nrecent90
     else:
+        nhours = 24
+        query = setupView(request, hours=nhours)
         ## dynamically assemble user summary info
         jobs = QuerySetChain(\
                         Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
@@ -422,6 +469,7 @@ def userList(request):
             'sumd' : sumd,
             'jobsumd' : jobsumd,
             'userdb' : userdb,
+            'userstats' : userstats,
         }
         data.update(getContextVariables(request))
         return render_to_response('userList.html', data, RequestContext(request))
