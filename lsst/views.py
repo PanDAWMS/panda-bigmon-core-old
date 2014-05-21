@@ -31,6 +31,7 @@ VOMODE = ' '
 def setupView(request, mode='', hours=0):
     global VOMODE
     global viewParams
+    global LAST_N_HOURS_MAX, JOB_LIMIT
     ENV['MON_VO'] = ''
     viewParams['MON_VO'] = ''
     VOMODE = ''
@@ -42,7 +43,6 @@ def setupView(request, mode='', hours=0):
     ENV['MON_VO'] = VONAME[VOMODE]
     viewParams['MON_VO'] = ENV['MON_VO']
     if VOMODE == 'atlas':
-        global LAST_N_HOURS_MAX, JOB_LIMIT
         LAST_N_HOURS_MAX = 12
         JOB_LIMIT = 500
     else:
@@ -236,19 +236,42 @@ def mainPage(request):
     else:
         return  HttpResponse('not understood', mimetype='text/html')
 
+def errorInfo(job):
+    errtxt = ''
+    if int(job['brokerageerrorcode']) != 0:
+        errtxt += 'Brokerage error %s: %s <br>' % ( job['brokerageerrorcode'], job['brokerageerrordiag'] )
+    if int(job['ddmerrorcode']) != 0:
+        errtxt += 'DDM error %s: %s <br>' % ( job['ddmerrorcode'], job['ddmerrordiag'] )
+    if int(job['exeerrorcode']) != 0:
+        errtxt += 'Executable error %s: %s <br>' % ( job['exeerrorcode'], job['exeerrordiag'] )
+    if int(job['jobdispatchererrorcode']) != 0:
+        errtxt += 'Dispatcher error %s: %s <br>' % ( job['jobdispatchererrorcode'], job['jobdispatchererrordiag'] )
+    if int(job['piloterrorcode']) != 0:
+        errtxt += 'Pilot error %s: %s <br>' % ( job['piloterrorcode'], job['piloterrordiag'] )
+    if int(job['superrorcode']) != 0:
+        errtxt += 'Sup error %s: %s <br>' % ( job['superrorcode'], job['superrordiag'] )
+    if int(job['taskbuffererrorcode']) != 0:
+        errtxt += 'Task buffer error %s: %s <br>' % ( job['taskbuffererrorcode'], job['taskbuffererrordiag'] )
+    if job['transexitcode'] != '' and int(job['transexitcode']) > 0:
+        errtxt += 'Payload transformation exit code %s' % job['transexitcode']
+    return errtxt
+
 def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobList = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
             )
 
-    jobList = sorted(jobList, key=lambda x:-x.pandaid)
+    jobList = sorted(jobList, key=lambda x:-x['pandaid'])
     for job in jobList:
-        if job.transformation: job.transformation = job.transformation.split('/')[-1]
-    _logger.debug('jobList[:30]=' + str(jobList[:30]))
+        if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
+        if job['jobstatus'] == 'failed':
+            job['errorinfo'] = errorInfo(job)
+        else:
+            job['errorinfo'] = ''
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(jobList)
         xurl = extensibleURL(request)
@@ -304,26 +327,14 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             logfile['guid'] = file['guid'] 
             logfile['site'] = file['destinationse'] 
 
-#    if job['pilotid'].startswith('http'):
-    job_pilotid_startswith = False
-    try:
-        job_pilotid_startswith = job['pilotid'].startswith('http')
-    except AttributeError:
-        job_pilotid_startswith = False
-    if job_pilotid_startswith:
+    if 'pilotid' in job and job['pilotid'].startswith('http'):
         stdout = job['pilotid'].split('|')[0]
         stderr = stdout.replace('.out','.err')
         stdlog = stdout.replace('.out','.log')
     else:
         stdout = stderr = stdlog = None
 
-#    if job['transformation'].startswith('http'):
-    job_trf_startswith = False
-    try:
-        job_trf_startswith = job['transformation'].startswith('http')
-    except AttributeError:
-        job_trf_startswith = False
-    if job_trf_startswith:
+    if 'transformation' in job and job['transformation'].startswith('http'):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':

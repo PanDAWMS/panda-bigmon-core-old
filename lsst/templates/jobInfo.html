@@ -39,6 +39,7 @@
 
 {% if job.jobstatus == 'activated' %} Status <b class='activated'>activated</b> indicates that the job is ready to be dispatched to a pilot at the site where it will run, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'running' %} Status <b class='running'>running</b> indicates that the job is running at its execution site, {{ job.computingsite }}. {% endif %}
+{% if job.jobstatus == 'starting' %} Status <b class='starting'>starting</b> indicates that the job has been picked up for execution but not yet launched by a pilot on a worker node. Used in environments where pilots don't directly pick up jobs (e.g. Nordugrid). {% endif %}
 {% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing is still underway. {% endif %}
 {% if job.jobstatus == 'finished' %} Status <b class='finished'>finished</b> indicates that the job has successfully completed. {% endif %}
 {% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed at some stage. Information on where the error occurred and with what error condition can be found in the key job parameters table below. {% endif %}
