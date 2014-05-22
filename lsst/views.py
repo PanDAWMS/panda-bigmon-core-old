@@ -265,7 +265,7 @@ def errorInfo(job, nchars=300):
     if int(job['taskbuffererrorcode']) != 0:
         errtxt += 'Task buffer error %s: %s <br>' % ( job['taskbuffererrorcode'], job['taskbuffererrordiag'] )
     if job['transexitcode'] != '' and job['transexitcode'] is not None and int(job['transexitcode']) > 0:
-        errtxt += 'Payload transformation exit code %s' % job['transexitcode']
+        errtxt += 'Transformation exit code %s' % job['transexitcode']
     if len(errtxt) > nchars:
         ret = errtxt[:nchars] + '...'
     else:
