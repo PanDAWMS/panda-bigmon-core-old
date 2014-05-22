@@ -1,4 +1,4 @@
-import logging
+import logging, re
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
@@ -22,8 +22,8 @@ viewParams = {}
 LAST_N_HOURS_MAX = 0
 JOB_LIMIT = 0
 
-fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', ]
-sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field' ]
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', ]
+standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -43,12 +43,12 @@ def setupView(request, mode='', hours=0, limit=0):
     if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
     ENV['MON_VO'] = VONAME[VOMODE]
     viewParams['MON_VO'] = ENV['MON_VO']
+    fields = standard_fields
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
         JOB_LIMIT = 500
-        fields.append('cloud')
-        sitefields.append('cloud')
-        fields.append('atlasrelease')
+        if 'cloud' not in fields: fields.append('cloud')
+        if 'atlasrelease' not in fields: fields.append('atlasrelease')
     else:
         LAST_N_HOURS_MAX = 30*24
         JOB_LIMIT = 3000
@@ -147,7 +147,7 @@ def siteSummaryDict(sites):
     sumd['category']['analysis'] = 0
     sumd['category']['multicloud'] = 0
     for site in sites:
-        for f in sitefields:
+        for f in standard_sitefields:
             if f in site:
                 if not f in sumd: sumd[f] = {}
                 if not site[f] in sumd[f]: sumd[f][site[f]] = 0
@@ -159,9 +159,10 @@ def siteSummaryDict(sites):
         if site['siteid'].lower().find('test') >= 0:
             isProd = False
             sumd['category']['test'] += 1
-        if site['multicloud'] != None and site['multicloud'] != 'None' and len(site['multicloud']) > 0:
+        if (site['multicloud'] is not None) and (site['multicloud'] != 'None') and (re.match('[A-Z]+',site['multicloud'])):
             sumd['category']['multicloud'] += 1
         if isProd: sumd['category']['production'] += 1
+    if VOMODE != 'atlas': del sumd['cloud']
     ## convert to ordered lists
     suml = []
     for f in sumd:
@@ -521,7 +522,7 @@ def siteList(request):
     prod = False
     for param in request.GET:
         if param == 'category' and request.GET[param] == 'multicloud':
-            query['multicloud__isnull'] = 'False'
+            query['multicloud__isnull'] = False
         if param == 'category' and request.GET[param] == 'analysis':
             query['siteid__contains'] = 'ANALY'
         if param == 'category' and request.GET[param] == 'test':
@@ -531,8 +532,12 @@ def siteList(request):
         for field in Schedconfig._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
+    siteres = Schedconfig.objects.filter(**query).exclude(cloud='CMS').values()
     sites = []
-    sites.extend(Schedconfig.objects.filter(**query).values())
+    for site in siteres:
+        if 'category' in request.GET and request.GET['category'] == 'multicloud':
+            if (site['multicloud'] == 'None') or (not re.match('[A-Z]+',site['multicloud'])): continue
+        sites.append(site)
     sites = sorted(sites, key=lambda x:x['nickname'])
     if prod:
         newsites = []
@@ -554,7 +559,7 @@ def siteList(request):
             'sumd' : sumd,
             'xurl' : extensibleURL(request),
         }
-        data.update(getContextVariables(request))
+        #data.update(getContextVariables(request))
         return render_to_response('siteList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = sites
