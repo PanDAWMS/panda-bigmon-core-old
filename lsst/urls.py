@@ -33,6 +33,9 @@ urlpatterns = patterns('',
     url(r'^user/(?P<user>.*)/$', lsstmon_views.userInfo),
     url(r'^sites/$', lsstmon_views.siteList),
     url(r'^site/(?P<site>.*)/$', lsstmon_views.siteInfo),
+    url(r'^dash/$', lsstmon_views.dashAnalysis),
+    url(r'^dash/analysis/$', lsstmon_views.dashAnalysis),
+    url(r'^dash/production/$', lsstmon_views.dashProduction),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
