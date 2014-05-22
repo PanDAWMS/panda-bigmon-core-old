@@ -83,8 +83,16 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         <li class="divider"></li>
 
         {% block top_menu_all_1 %}
-        <li class="has-dropdown">
+        <li>
           {% block top_menu_1 %}
+          <a href="/lsst/dash/">Dashboard</a>
+          {% endblock %}
+        </li>
+        {% endblock %}
+
+        {% block top_menu_all_2 %}
+        <li class="has-dropdown">
+          {% block top_menu_2 %}
           <a href="#">Jobs</a>
           <ul class="dropdown">
             <li><a href="/lsst/jobs/">All</a></li>
@@ -96,17 +104,17 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
        {% endblock %}
 
-        {% block top_menu_all_2 %}
+        {% block top_menu_all_3 %}
         <li>
-          {% block top_menu_2 %}
+          {% block top_menu_3 %}
           <a href="/lsst/users/?sortby=date">Users</a>
           {% endblock %}
         </li>
         {% endblock %}
 
-        {% block top_menu_all_3 %}
+        {% block top_menu_all_4 %}
         <li>
-          {% block top_menu_3 %}
+          {% block top_menu_4 %}
           <a href="/lsst/sites/">Sites</a>
           {% endblock %}
         </li>
@@ -140,7 +148,8 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% block top_menu_6 %}
           <a href="#">Help</a>
           <ul class="dropdown">
-            <li><a href="http://pandawms.org/monreq">Monitoring requirements</a></li>
+            <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a></li>
+            <li><a href="http://pandawms.org">Big PanDA home</a></li>
           </ul>
           {% endblock %}
         </li>
@@ -222,7 +231,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
       <hr />
         {% block bottom_copy %}
             <table borderwidth=0><tr><td valign="bottom">
-          <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
+          <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
         {% endblock %}
       </div>
     </div>

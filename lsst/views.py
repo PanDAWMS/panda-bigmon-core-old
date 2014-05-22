@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
+from django.db.models import Count
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
@@ -15,6 +16,9 @@ from core.common.models import Jobparamstable
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
+
+statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
+sitestatelist = [ 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting' ]
 
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
@@ -110,7 +114,7 @@ def jobSummaryDict(jobs, fieldlist = None):
     if fieldlist:
         flist = fieldlist
     else:
-        flist = fields
+        flist = standard_fields
     for job in jobs:
         for f in flist:
             if job[f]:
@@ -180,7 +184,6 @@ def siteSummaryDict(sites):
 
 def userSummaryDict(jobs):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
-    statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
     sumd = {}
     for job in jobs:
         user = job['produsername'].lower()
@@ -601,4 +604,105 @@ def siteInfo(request, site):
         resp = []
         for job in jobList:
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def dashData(view='analysis'):
+    ddd = {}
+    ddd['view'] = view
+    return ddd
+
+def siteSummary(query):
+    summary = []
+    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+    return summary
+
+def wnSummary(query):
+    summary = []
+    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite', 'modificationhost', 'jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite', 'modificationhost', 'jobstatus').annotate(Count('jobstatus')))
+    return summary
+
+def dashAnalysis(request):
+    query = setupView(request,hours=24,limit=0)
+    sitesummarydata = siteSummary(query)
+    clouds = {}
+    sites = {}
+    sitestatus = {}
+    for rec in sitesummarydata:
+        cloud = rec['cloud']
+        site = rec['computingsite']
+        jobstatus = rec['jobstatus']
+        count = rec['jobstatus__count']
+        if cloud not in clouds:
+            clouds[cloud] = {}
+            clouds[cloud]['name'] = cloud
+            clouds[cloud]['count'] = 0
+            clouds[cloud]['sites'] = {}
+        clouds[cloud]['count'] += count
+        if site not in clouds[cloud]['sites']:
+            clouds[cloud]['sites'][site] = {}
+            clouds[cloud]['sites'][site]['name'] = site
+            clouds[cloud]['sites'][site]['count'] = 0
+            clouds[cloud]['sites'][site]['states'] = {}
+            for state in sitestatelist:
+                clouds[cloud]['sites'][site]['states'][state] = {}
+                clouds[cloud]['sites'][site]['states'][state]['name'] = state
+                clouds[cloud]['sites'][site]['states'][state]['count'] = 0
+        clouds[cloud]['sites'][site]['count'] += count
+        clouds[cloud]['sites'][site]['states'][jobstatus]['count'] += count
+
+    cloudkeys = clouds.keys()
+    cloudkeys.sort()
+    fullsummary = []
+    for cloud in cloudkeys:
+        sites = clouds[cloud]['sites']
+        sitekeys = sites.keys()
+        sitekeys.sort()        
+        cloudsummary = []
+        for site in sitekeys:
+            states = sites[site]['states']
+            statekeys = states.keys()
+            statekeys.sort()
+            sitesummary = []
+            for state in statekeys:
+                sitesummary.append(sites[site]['states'][state])
+            sites[site]['summary'] = sitesummary
+            cloudsummary.append(sites[site])
+            print cloud, site, sites[site]
+        clouds[cloud]['summary'] = cloudsummary
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        xurl = extensibleURL(request)
+        data = {
+            'viewParams' : viewParams,
+            'xurl' : xurl,
+            'user' : None,
+            'ddd' : dashData('analysis'),
+            'clouds' : clouds,
+        }
+        #data.update(getContextVariables(request))
+        return render_to_response('dashboard.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def dashProduction(request):
+    query = setupView(request)
+    jobList = QuerySetChain(\
+                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
+            )
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        xurl = extensibleURL(request)
+        data = {
+            'viewParams' : viewParams,
+            'xurl' : xurl,
+        }
+        #data.update(getContextVariables(request))
+        return render_to_response('dashboard.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
