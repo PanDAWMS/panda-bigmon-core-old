@@ -18,7 +18,7 @@ from core.common.settings.config import ENV
 from settings.local import dbaccess
 
 statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
-sitestatelist = [ 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting' ]
+sitestatelist = [ 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
@@ -33,7 +33,7 @@ VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
 VOMODE = ' '
 
-def setupView(request, mode='', hours=0, limit=0):
+def setupView(request, opmode='', hours=0, limit=-99):
     global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
@@ -61,7 +61,7 @@ def setupView(request, mode='', hours=0, limit=0):
         LAST_N_HOURS_MAX = max(LAST_N_HOURS_MAX, hours)
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
-    if limit != 0:
+    if limit != -99 and limit >= 0:
         ## Call param overrides default, but not a param on the URL
         JOB_LIMIT = limit
     if 'limit' in request.GET:
@@ -69,15 +69,15 @@ def setupView(request, mode='', hours=0, limit=0):
     ## For site-specific queries, allow longer time window
     if 'computingsite' in request.GET:
         LAST_N_HOURS_MAX = 72
-    if mode != 'notime':
+    if opmode != 'notime':
         if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
         else:
             viewParams['selection'] = ", last %d days" % (float(LAST_N_HOURS_MAX)/24.)
-        if JOB_LIMIT < 1000 and JOB_LIMIT > 0:
+        if JOB_LIMIT < 100000 and JOB_LIMIT > 0:
             viewParams['selection'] += " (limit %s per table)" % JOB_LIMIT
         viewParams['selection'] += ". Query params: hours=%s" % LAST_N_HOURS_MAX
-        if JOB_LIMIT > 0:
+        if JOB_LIMIT < 100000 and JOB_LIMIT > 0:
             viewParams['selection'] += ", limit=%s" % JOB_LIMIT
     else:
         viewParams['selection'] = ""
@@ -99,13 +99,15 @@ def setupView(request, mode='', hours=0, limit=0):
                 else:
                     query[param] = request.GET[param]
     if 'jobtype' in request.GET:
-        import operator
-        if request.GET['jobtype'] == 'analysis':
-            query['prodsourcelabel__in'] = ['panda', 'user']
-        elif request.GET['jobtype'] == 'production':
-            query['prodsourcelabel'] = 'managed'
-        elif request.GET['jobtype'] == 'test':
-            query['prodsourcelabel'] = 'test'
+        jobtype = request.GET['jobtype']
+    else:
+        jobtype = opmode
+    if jobtype == 'analysis':
+        query['prodsourcelabel__in'] = ['panda', 'user']
+    elif jobtype == 'production':
+        query['prodsourcelabel'] = 'managed'
+    elif jobtype == 'test':
+        query['prodsourcelabel'] = 'test'
     return query
 
 def jobSummaryDict(jobs, fieldlist = None):
@@ -518,7 +520,7 @@ def userInfo(request, user):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def siteList(request):
-    setupView(request, 'notime')
+    setupView(request, opmode='notime')
     query = {}
     ### Add any extensions to the query determined from the URL  
     if VOMODE == 'lsst': query['siteid__contains'] = 'LSST'
@@ -606,11 +608,6 @@ def siteInfo(request, site):
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def dashData(view='analysis'):
-    ddd = {}
-    ddd['view'] = view
-    return ddd
-
 def siteSummary(query):
     summary = []
     summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
@@ -623,23 +620,36 @@ def wnSummary(query):
     summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite', 'modificationhost', 'jobstatus').annotate(Count('jobstatus')))
     return summary
 
-def dashAnalysis(request):
-    query = setupView(request,hours=24,limit=0)
+def dashboard(request, view=''):
+    query = setupView(request,hours=24,limit=999999,opmode=view)
     sitesummarydata = siteSummary(query)
     clouds = {}
     sites = {}
     sitestatus = {}
+    totstates = {}
+    totjobs = 0
+    for state in sitestatelist:
+        totstates[state] = 0
     for rec in sitesummarydata:
         cloud = rec['cloud']
         site = rec['computingsite']
         jobstatus = rec['jobstatus']
         count = rec['jobstatus__count']
+        totjobs += count
+        totstates[jobstatus] += count
         if cloud not in clouds:
             clouds[cloud] = {}
             clouds[cloud]['name'] = cloud
             clouds[cloud]['count'] = 0
             clouds[cloud]['sites'] = {}
+            clouds[cloud]['states'] = {}
+            clouds[cloud]['statelist'] = []
+            for state in sitestatelist:
+                clouds[cloud]['states'][state] = {}
+                clouds[cloud]['states'][state]['name'] = state
+                clouds[cloud]['states'][state]['count'] = 0
         clouds[cloud]['count'] += count
+        clouds[cloud]['states'][jobstatus]['count'] += count
         if site not in clouds[cloud]['sites']:
             clouds[cloud]['sites'][site] = {}
             clouds[cloud]['sites'][site]['name'] = site
@@ -655,22 +665,30 @@ def dashAnalysis(request):
     cloudkeys = clouds.keys()
     cloudkeys.sort()
     fullsummary = []
+    allclouds = {}
+    allclouds['name'] = 'All'
+    allclouds['count'] = totjobs
+    allclouds['sites'] = {}
+    allclouds['states'] = totstates
+    allclouds['statelist'] = []
+    for state in sitestatelist:
+        allclouds['statelist'].append(totstates[state])
+    fullsummary.append(allclouds)
     for cloud in cloudkeys:
+        for state in sitestatelist:
+            clouds[cloud]['statelist'].append(clouds[cloud]['states'][state]['count'])
         sites = clouds[cloud]['sites']
         sitekeys = sites.keys()
         sitekeys.sort()        
         cloudsummary = []
         for site in sitekeys:
-            states = sites[site]['states']
-            statekeys = states.keys()
-            statekeys.sort()
             sitesummary = []
-            for state in statekeys:
+            for state in sitestatelist:
                 sitesummary.append(sites[site]['states'][state])
             sites[site]['summary'] = sitesummary
             cloudsummary.append(sites[site])
-            print cloud, site, sites[site]
         clouds[cloud]['summary'] = cloudsummary
+        fullsummary.append(clouds[cloud])
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
@@ -678,8 +696,8 @@ def dashAnalysis(request):
             'viewParams' : viewParams,
             'xurl' : xurl,
             'user' : None,
-            'ddd' : dashData('analysis'),
-            'clouds' : clouds,
+            'summary' : fullsummary,
+            'view' : view,
         }
         #data.update(getContextVariables(request))
         return render_to_response('dashboard.html', data, RequestContext(request))
@@ -687,22 +705,8 @@ def dashAnalysis(request):
         resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
+def dashAnalysis(request):
+    return dashboard(request,view='analysis')
+
 def dashProduction(request):
-    query = setupView(request)
-    jobList = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-            )
-    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
-        xurl = extensibleURL(request)
-        data = {
-            'viewParams' : viewParams,
-            'xurl' : xurl,
-        }
-        #data.update(getContextVariables(request))
-        return render_to_response('dashboard.html', data, RequestContext(request))
-    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+    return dashboard(request,view='production')

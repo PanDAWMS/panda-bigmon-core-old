@@ -1,0 +1,100 @@
+{% extends "_base_lsst.html" %}
+{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
+{% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block subtitle %}PanDA {{view}} dashboard{{ viewParams.selection }}
+{% endblock %}
+{% block body %}
+
+{{ viewParams.header }}
+
+<div class='section'>Cloud / site summary</div>
+
+<table>
+<tr bgcolor=lightcyan>
+<th> Cloud </th>
+<th> nJobs </th>
+<th> assigned </th>
+<th> activated </th>
+<th> sent </th>
+<th> starting </th>
+<th> running </th>
+<th> holding </th>
+<th> transferring </th>
+<th> finished </th>
+<th> failed </th>
+<th> cancelled </th>
+</tr>
+
+{% for cloud in summary %}
+<tr height=10 colspan=12></tr>
+<tr>
+<th  bgcolor=whitesmoke> {{ cloud.name }} </th>
+<th  bgcolor=whitesmoke align='right'> {{ cloud.count }} </td>
+{% for state in cloud.statelist %}
+<th  bgcolor=whitesmoke align='right'> {{ state }} </td>
+{% endfor %}
+</th>
+{% endfor %}
+
+
+{% for cloud in summary %}
+
+{% if cloud.name != 'All' %}
+
+<tr height=10 colspan=12></tr>
+<tr bgcolor=lightcyan>
+<th> Cloud / Site </th>
+<th> nJobs </th>
+<th> assigned </th>
+<th> activated </th>
+<th> sent </th>
+<th> starting </th>
+<th> running </th>
+<th> holding </th>
+<th> transferring </th>
+<th> finished </th>
+<th> failed </th>
+<th> cancelled </th>
+</tr>
+
+<tr height=10 colspan=12></tr>
+<tr>
+<th bgcolor=whitesmoke> {{ cloud.name }} </th>
+<th bgcolor=whitesmoke align='right'> {{ cloud.count }} </th>
+{% for state in cloud.statelist %}
+<th bgcolor=whitesmoke align='right'> {{ state }} </th>
+{% endfor %}
+</th>
+{% for site in cloud.summary %}
+<tr>
+<td> {{ site.name }} </td>
+<td align='right'> {{ site.count }} </td>
+{% for state in site.summary %}
+<td class='{{state.name}}' align='right'> {{ state.count }} </td>
+{% endfor %}
+</tr>
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+</table>
+
+{% endblock %}
+
+{% block bottom_info %}
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
+
