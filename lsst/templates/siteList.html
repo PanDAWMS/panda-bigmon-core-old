@@ -44,7 +44,7 @@
 </tr>
     {% for site in sites %}
 	<tr>
-		<td><a href="{% url 'lsst.views.siteInfo' site.siteid %}">{{ site.siteid }}</a></td>
+		<td><a href="{% url 'siteInfo' site.siteid %}">{{ site.siteid }}</a></td>
 		<td> <a href="{{xurl}}gocname={{site.gocname}}">{{ site.gocname }}</a></td>
 {% if viewParams.MON_VO == 'ATLAS' %}
 		<td> {{ site.cloud }}</td>
