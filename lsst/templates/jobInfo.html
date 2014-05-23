@@ -2,7 +2,7 @@
 
 {% block page_title %}PanDA job {{ pandaid }}{% endblock %}
 {% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}Job details for PanDA job {{ pandaid }}{% endblock %}
+{% block subtitle %}Job details for PanDA job {{ jobid }}{% endblock %}
 
 {% block body %}
 
@@ -143,7 +143,7 @@
 </table>
 
 {% else %}
-    <p>Job {{ pandaid }} not found.</p>
+    <p>Job {{ jobid }} not found.</p>
 {% endif %}
 
 {% endblock %}

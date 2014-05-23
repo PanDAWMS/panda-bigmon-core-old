@@ -58,6 +58,8 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .waiting { color:grey }
 .sent { color:#FF9933 }
 .section{ font-weight:bold; color:darkblue; padding-bottom:10px }
+
+.inputW{width:10em}
 </STYLE>
 
 </head>
@@ -125,15 +127,23 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
         {% endblock %}
 
+        {% block top_menu_all_5 %}
+        <li>
+          {% block top_menu_5 %}
+          <a href="{% url 'mainPage' %}">Quick search</a>
+          {% endblock %}
+        </li>
+        {% endblock %}
+
       </ul>
 
       <!-- Right Nav Section -->
       <ul class="right">
         <li class="divider"></li>
         
-        {% block top_menu_all_5 %}
+        {% block top_menu_all_10 %}
         <li class="has-dropdown">
-          {% block top_menu_5 %}
+          {% block top_menu_10 %}
           <a href="#">VO</a>
           <ul class="dropdown">
             <li><a href="http://bigpanda.cern.ch/lsst">ATLAS</a></li>
@@ -148,9 +158,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
        {% endblock %}
 
         <li class="divider"></li>
-        {% block top_menu_all_6 %}
+        {% block top_menu_all_11 %}
         <li class="has-dropdown">
-          {% block top_menu_6 %}
+          {% block top_menu_11 %}
           <a href="#">Help</a>
           <ul class="dropdown">
             <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a></li>

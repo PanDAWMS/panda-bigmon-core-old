@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.db.models import Count
+from django import forms
+from django.views.decorators.csrf import csrf_exempt
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
@@ -316,23 +318,35 @@ def jobList(request, mode=None, param=None):
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
-    setupView(request)
+@csrf_exempt
+def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
+    query = setupView(request, hours=90*24)
+    jobid = '?'
+    if pandaid: jobid = pandaid
+    if batchid: jobid = batchid
+    if 'pandaid' in request.GET:
+        pandaid = request.GET['pandaid']
+        jobid = pandaid
+        query['pandaid'] = pandaid
+    elif 'batchid' in request.GET:
+        batchid = request.GET['batchid']
+        jobid = "'"+batchid+"'"
+        query['batchid'] = batchid
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = QuerySetChain(\
-        Jobsdefined4.objects.filter(pandaid=pandaid).values(), \
-        Jobsactive4.objects.filter(pandaid=pandaid).values(), \
-        Jobswaiting4.objects.filter(pandaid=pandaid).values(), \
-        Jobsarchived4.objects.filter(pandaid=pandaid).values(), \
+        Jobsdefined4.objects.filter(**query).values(), \
+        Jobsactive4.objects.filter(**query).values(), \
+        Jobswaiting4.objects.filter(**query).values(), \
+        Jobsarchived4.objects.filter(**query).values(), \
     )
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     job = {}
     colnames = []
+    columns = []
     try:
         job = jobs[0]
         colnames = job.keys()
         colnames.sort()
-        columns = []
         for k in colnames:
             val = job[k]
             if job[k] == None:
@@ -363,6 +377,7 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
     jobparamrec = Jobparamstable.objects.filter(pandaid=pandaid)
+    jobparams = None
     try:
         if jobparamrec: jobparams = jobparamrec[0].jobparameters
     except IndexError:
@@ -382,6 +397,7 @@ def jobInfo(request, pandaid, p2=None, p3=None, p4=None):
             'stderr' : stderr,
             'stdlog' : stdlog,
             'jobparams' : jobparams,
+            'jobid' : jobid,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
@@ -713,3 +729,7 @@ def dashAnalysis(request):
 
 def dashProduction(request):
     return dashboard(request,view='production')
+
+#class QuicksearchForm(forms.Form):
+#    fieldName = forms.CharField(max_length=100)
+
