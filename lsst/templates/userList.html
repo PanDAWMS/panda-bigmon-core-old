@@ -2,7 +2,7 @@
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA users{% endblock %}
-{% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}Recent PanDA users{{viewParams.selection }}
 {% if vo %} &nbsp; for VO {{ vo }}{% endif %}
 {% endblock %}
@@ -40,7 +40,7 @@ The dynamic summary table used presently for non-ATLAS.
 
 {% for userd in sumd %}
 <tr>
-<th> <a href="/lsst/user/{{userd.dict.name}}">{{userd.dict.name}}</a> </th>
+<th> <a href="{% url 'userInfo' userd.dict.name %}">{{userd.dict.name}}</a> </th>
 <td> {{ userd.dict.njobs }} </td>
 <td class='finished'> {{ userd.dict.nfinished }} </td>
 <td class='failed'> {{ userd.dict.nfailed }} </td>
@@ -90,7 +90,7 @@ Job count for the last 7 days: {{ userstats.anajobs }}
 
 {% for user in userdb %}
 <tr>
-<th> <a href="/lsst/user/{{user.name}}">{{user.name}}</a> </th>
+<th> <a href="{% url 'userInfo' user.name %}">{{user.name}}</a> </th>
 <td> {% if user.njobsa %}{{ user.njobsa }} {% endif %}</td>
 <td>{{ user.latestjob|date:"Y-m-d H:i" }}</td>
 

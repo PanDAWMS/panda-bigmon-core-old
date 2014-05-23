@@ -1,7 +1,7 @@
 {% extends "_base_lsst.html" %}{% load url from future %}
 
 {% block page_title %}PanDA job {{ pandaid }}{% endblock %}
-{% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}Job details for PanDA job {{ pandaid }}{% endblock %}
 
 {% block body %}
@@ -20,14 +20,14 @@
 	<th>Priority</th>
 </tr>
 <tr>
-	<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
+	<td><a href="{% url 'userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{{ job.pandaid }}</td>
-	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'lsst.views.jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
+	<td>{% if job.jeditaskid %}{{ job.jeditaskid }} (JEDI){% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
 	<td>{{ job.endtime|date:"m-d H:i" }}</td>
-	<td><a href="{% url 'lsst.views.siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
+	<td><a href="{% url 'siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
 	<td>{{ job.currentpriority }}</td>
 </tr>
 <tr>

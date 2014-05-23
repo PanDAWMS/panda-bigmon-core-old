@@ -87,9 +87,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% block top_menu_1 %}
           <a href="#">Dashboard</a>
           <ul class="dropdown">
-            <li><a href="/lsst/dash">All</a></li>
-            <li><a href="/lsst/dash/analysis">Analysis</a></li>
-            <li><a href="/lsst/dash/production">Production</a></li>
+            <li><a href="{% url 'dashboard' %}">All</a></li>
+            <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
+            <li><a href="{% url 'dashProduction' %}">Production</a></li>
           </ul>
           {% endblock %}
         </li>
@@ -100,10 +100,10 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% block top_menu_2 %}
           <a href="#">Jobs</a>
           <ul class="dropdown">
-            <li><a href="/lsst/jobs/">All</a></li>
-            <li><a href="/lsst/jobs/?jobtype=analysis">Analysis</a></li>
-            <li><a href="/lsst/jobs/?jobtype=production">Production</a></li>
-            <li><a href="/lsst/jobs/?jobtype=test">Test</a></li>
+            <li><a href="{% url 'jobList' %}">All</a></li>
+            <li><a href="{% url 'jobList' %}?jobtype=analysis">Analysis</a></li>
+            <li><a href="{% url 'jobList' %}?jobtype=production">Production</a></li>
+            <li><a href="{% url 'jobList' %}?jobtype=test">Test</a></li>
           </ul>
           {% endblock %}
         </li>
@@ -112,7 +112,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         {% block top_menu_all_3 %}
         <li>
           {% block top_menu_3 %}
-          <a href="/lsst/users/?sortby=date">Users</a>
+          <a href="{% url 'userList' %}?sortby=date">Users</a>
           {% endblock %}
         </li>
         {% endblock %}
@@ -120,7 +120,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         {% block top_menu_all_4 %}
         <li>
           {% block top_menu_4 %}
-          <a href="/lsst/sites/">Sites</a>
+          <a href="{% url 'siteList' %}">Sites</a>
           {% endblock %}
         </li>
         {% endblock %}

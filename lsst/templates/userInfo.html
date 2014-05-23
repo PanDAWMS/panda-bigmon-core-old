@@ -1,12 +1,12 @@
 {% extends "_base_lsst.html" %}{% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA user {{ user }} {% endblock %}
-{% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}PanDA user {{ user }}{{ viewParams.selection }}{% endblock %}
 
 {% block body %}
 
-<div class='section'>Recent job stats for <a href="/lsst/user/{{user}}">{{user}}</a></div>
+<div class='section'>Recent job stats for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
 
 <table>
 {% for fdict in jobsumd %}
@@ -19,7 +19,7 @@
 {% endfor %}
 </table>
 
-<div class='section'>Recent jobs for <a href="/lsst/user/{{user}}">{{user}}</a></div>
+<div class='section'>Recent jobs for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
 
 <table>
 <tr>
@@ -36,14 +36,14 @@
 </tr>
     {% for job in jobList %}
 	<tr>
-		<td><a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a>{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
+		<td><a href="{% url 'jobInfo' job.pandaid %}">{{ job.pandaid }}</a>{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
 		<td class='{{job.transformation}}'><font size=-1>{{ job.transformation }}</font></td>
 		<td>{% if job.jobsetid %}<a href="{{xurl}}jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a>{% endif %}</td>
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 		<td>{{ job.starttime|date:"m-d H:i" }}</td>
 		<td>{{ job.endtime|date:"m-d H:i" }}</td>
-		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a><font></td>
+		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite %}">{{ job.computingsite }}</a><font></td>
 		<td>{{ job.currentpriority }}</td>
 		<td width=200>{% if job.errorinfo != '' %}<font size=-1 class='alarm'>{{job.errorinfo|safe}}</font>{% endif %}</td>
 	</tr>

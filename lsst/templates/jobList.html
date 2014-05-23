@@ -2,7 +2,7 @@
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
-{% block title %} <a href="/lsst/">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}PanDA job list{{ viewParams.selection }}
 {% if user %} &nbsp; user={{ user }} {% endif %}
 {% if site %} &nbsp; site={{ site }} {% endif %}
@@ -12,6 +12,11 @@
 
 {{ viewParams.header }}
 
+{% if requestParams.jeditaskid %}<br><b>Task ID <a href="{% url 'jobList' %}?jeditaskid={{requestParams.jeditaskid}}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
+{% if requestParams.taskid %}<br><b>Task ID {{ requestParams.taskid }}</b> {% endif %}
+{% if requestParams.computingsite %}<br><b>Computing site <a href="{% url 'siteInfo' requestParams.computingsite %}">{{ requestParams.computingsite }}</a></b> {% endif %}
+{% if requestParams.produsername %}<br><b>User <a href="{% url 'userInfo' requestParams.produsername %}">{{ requestParams.produsername }}</a></b> {% endif %}
+<p>
 {% if jobList %}
 
 <table>
@@ -28,6 +33,7 @@
 <table>
 <tr>
 	<th>Owner {% if viewParams.MON_VO != 'ATLAS' %} / VO{% endif %}  </th>
+	<th>Task ID</th>
 	<th>PanDA ID</th>
 	<th>Transformation</th>
 	<th>Status</th>
@@ -40,16 +46,17 @@
 </tr>
     {% for job in jobList %}
 	<tr>
-		<td><a href="{% url 'lsst.views.userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %}<br><a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }}{% endif %} {% endif %}
+		<td><a href="{% url 'userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %}<br><a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }}{% endif %} {% endif %}
 		</td>
-		<td><a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
+		<td>{% if job.jeditaskid %}<a href="{{xurl}}jeditaskid={{job.jeditaskid}}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
+		<td><a href="{% url 'jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
 		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 		<td>{{ job.starttime|date:"m-d H:i" }}</td>
 		<td>{{ job.endtime|date:"m-d H:i" }}</td>
-		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'lsst.views.siteInfo' job.computingsite %}">{{ job.computingsite }}</a></font></td>
+		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite %}">{{ job.computingsite }}</a></font></td>
 		<td>{{ job.currentpriority }}</td>
 		<td width=250>{% if job.errorinfo != '' %}<font size=-1 class='alarm'>{{job.errorinfo|safe}}</font>{% endif %}</td>
 	</tr>
@@ -58,7 +65,7 @@
 {% comment %}
     <ul>
     {% for job in jobList %}
-        <li>PanDA job <a href="{% url 'lsst.views.jobInfo' job.pandaid %}">{{ job.pandaid }}</a></li>
+        <li>PanDA job <a href="{% url 'jobInfo' job.pandaid %}">{{ job.pandaid }}</a></li>
     {% endfor %}
     </ul>
 {% endcomment %}

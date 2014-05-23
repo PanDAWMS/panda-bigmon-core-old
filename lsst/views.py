@@ -69,6 +69,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
     ## For site-specific queries, allow longer time window
     if 'computingsite' in request.GET:
         LAST_N_HOURS_MAX = 72
+    ## Exempt single-job, single-task etc queries from time constraint
+    if 'jeditaskid' in request.GET: opmode = 'notime'
     if opmode != 'notime':
         if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
@@ -300,6 +302,7 @@ def jobList(request, mode=None, param=None):
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'jobList': jobList,
             'user' : None,
             'sumd' : sumd,
