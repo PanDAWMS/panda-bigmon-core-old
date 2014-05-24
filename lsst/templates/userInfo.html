@@ -36,7 +36,7 @@
 </tr>
     {% for job in jobList %}
 	<tr>
-		<td><a href="{% url 'jobInfo' job.pandaid %}">{{ job.pandaid }}</a>{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a>{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
 		<td class='{{job.transformation}}'><font size=-1>{{ job.transformation }}</font></td>
 		<td>{% if job.jobsetid %}<a href="{{xurl}}jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a>{% endif %}</td>
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
