@@ -23,6 +23,10 @@ urlpatterns = patterns('',
     url(r'^dash/$', lsstmon_views.dashboard, name='dashboard'),
     url(r'^dash/analysis/$', lsstmon_views.dashAnalysis, name='dashAnalysis'),
     url(r'^dash/production/$', lsstmon_views.dashProduction, name='dashProduction'),
+
+    ### robots.txt
+    url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
