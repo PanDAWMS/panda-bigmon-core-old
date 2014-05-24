@@ -49,7 +49,7 @@
 		<td><a href="{% url 'userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %}<br><a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }}{% endif %} {% endif %}
 		</td>
 		<td>{% if job.jeditaskid %}<a href="{{xurl}}jeditaskid={{job.jeditaskid}}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
-		<td><a href="{% url 'jobInfo' job.pandaid %}">{{ job.pandaid }}</a></td>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a></td>
 		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
