@@ -57,19 +57,19 @@
 
 {% else %}
 
-<p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
-
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-<br><a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">Payload job stdout</a>
-<br><a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">Job outputs</a>
+<br>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>, &nbsp;
+<a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">job outputs</a>
 {% endif %}
+
+<br><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
 
 {% endif %}
 {% endif %}
 
 {% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-{% if stdout %}<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
-&nbsp; <a href='{{stderr}}'>stderr</a>
+{% if stdout %}<br>View the pilot job's &nbsp; <a href='{{stdout}}'>stdout</a>,
+&nbsp; <a href='{{stderr}}'>stderr</a>,
 &nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
 {% endif %}
 
