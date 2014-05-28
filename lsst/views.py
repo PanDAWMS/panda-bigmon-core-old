@@ -322,8 +322,12 @@ def jobList(request, mode=None, param=None):
 def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     query = setupView(request, hours=90*24)
     jobid = '?'
-    if pandaid: jobid = pandaid
-    if batchid: jobid = batchid
+    if pandaid:
+        jobid = pandaid
+        query['pandaid'] = pandaid
+    if batchid:
+        jobid = batchid
+        query['batchid'] = batchid
     if 'pandaid' in request.GET:
         pandaid = request.GET['pandaid']
         jobid = pandaid
@@ -332,6 +336,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         batchid = request.GET['batchid']
         jobid = "'"+batchid+"'"
         query['batchid'] = batchid
+    print 'jobid', jobid, 'pandaid', pandaid
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = QuerySetChain(\
         Jobsdefined4.objects.filter(**query).values(), \
