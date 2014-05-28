@@ -50,14 +50,23 @@
 
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
+
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
 <p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
 {% endif %}
+
 {% else %}
+
 <p><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
-<br>Download the job sandbox tarball containing the files in the job's run directory (not yet available)
+
+{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
+<br><a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">Payload job stdout</a>
+<br><a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">Job outputs</a>
+{% endif %}
+
 {% endif %}
 {% endif %}
+
 {% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
 {% if stdout %}<br>View the job's &nbsp; <a href='{{stdout}}'>stdout</a>
 &nbsp; <a href='{{stderr}}'>stderr</a>
@@ -87,7 +96,7 @@
 <table>
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
-	{% if job.transexitcode != '0' and job.transexitcode != 'None' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
 	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
