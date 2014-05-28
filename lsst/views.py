@@ -72,7 +72,14 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if 'computingsite' in request.GET:
         LAST_N_HOURS_MAX = 72
     ## Exempt single-job, single-task etc queries from time constraint
-    if 'jeditaskid' in request.GET: opmode = 'notime'
+    deepquery = False
+    if 'jeditaskid' in request.GET: deepquery = True
+    if 'taskid' in request.GET: deepquery = True
+    if 'pandaid' in request.GET: deepquery = True
+    if 'batchid' in request.GET: deepquery = True
+    if deepquery:
+        opmode = 'notime'
+        LAST_N_HOURS_MAX = 24*365
     if opmode != 'notime':
         if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
@@ -336,7 +343,6 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         batchid = request.GET['batchid']
         jobid = "'"+batchid+"'"
         query['batchid'] = batchid
-    print 'jobid', jobid, 'pandaid', pandaid
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = QuerySetChain(\
         Jobsdefined4.objects.filter(**query).values(), \
