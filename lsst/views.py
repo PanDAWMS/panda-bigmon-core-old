@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
-from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4
+from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4, Jobsarchived
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
 from core.common.models import Users
@@ -68,6 +68,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
             JOB_LIMIT = 3000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
+        if 'produsername' in fields:
+            if 'jobsetid' not in fields: fields.append('jobsetid')
     else:
         LAST_N_HOURS_MAX = 7*24
         JOB_LIMIT = 3000
@@ -369,12 +371,13 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         jobid = "'"+batchid+"'"
         query['batchid'] = batchid
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
-    jobs = QuerySetChain(\
-        Jobsdefined4.objects.filter(**query).values(), \
-        Jobsactive4.objects.filter(**query).values(), \
-        Jobswaiting4.objects.filter(**query).values(), \
-        Jobsarchived4.objects.filter(**query).values(), \
-    )
+    jobs = []
+    jobs.extend(Jobsdefined4.objects.filter(**query).values())
+    jobs.extend(Jobsactive4.objects.filter(**query).values())
+    jobs.extend(Jobswaiting4.objects.filter(**query).values())
+    jobs.extend(Jobsarchived4.objects.filter(**query).values())
+    #jobs.extend(Jobsarchived.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values())
+
     jobs = cleanJobList(jobs)
     job = {}
     colnames = []
@@ -419,7 +422,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     except IndexError:
         jobparams = None
 
-    if VOMODE == 'lsst' or job['vo'] == 'lsst':
+    if VOMODE == 'lsst' or ('vo' in job and job['vo'] == 'lsst'):
         lsstData = {}
         if jobparams:
             lsstParams = re.match('.*PIPELINE_TASK\=([a-zA-Z0-9]+).*PIPELINE_PROCESSINSTANCE\=([0-9]+).*PIPELINE_STREAM\=([0-9\.]+)',jobparams)
