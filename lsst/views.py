@@ -728,8 +728,8 @@ def dashboard(request, view=''):
         for vo in vokeys:
             for state in sitestatelist:
                 vos[vo]['statelist'].append(vos[vo]['states'][state])
-                if vos[vo]['states']['finished'] + vos[vo]['states']['failed'] > 0:
-                    vos[vo]['pctfail'] = "%2d" % (100.*float(vos[vo]['states']['failed'])/(vos[vo]['states']['finished']+vos[vo]['states']['failed']))
+                if int(vos[vo]['states']['finished']['count']) + int(vos[vo]['states']['failed']['count']) > 0:
+                    vos[vo]['pctfail'] = "%2d" % (100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
                     if int(vos[vo]['pctfail']) > 5: vos[vo]['pctfail'] = "<font color=red>%s</font>" % vos[vo]['pctfail']
             vosummary.append(vos[vo])
 
