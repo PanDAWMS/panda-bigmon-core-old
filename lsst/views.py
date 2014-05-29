@@ -71,7 +71,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET:
             if 'jobsetid' not in fields: fields.append('jobsetid')
-            if 'jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET:
+            if 'hours' not in request.GET and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
                 LAST_N_HOURS_MAX = 180*24
     else:
         LAST_N_HOURS_MAX = 7*24
@@ -79,6 +79,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if hours > 0:
         ## Call param overrides default hours, but not a param on the URL
         LAST_N_HOURS_MAX = hours
+    ## For site-specific queries, allow longer time window
+    if 'computingsite' in request.GET:
+        LAST_N_HOURS_MAX = 72
+    ## hours specified in the URL takes priority over the above
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
     if limit != -99 and limit >= 0:
@@ -86,9 +90,6 @@ def setupView(request, opmode='', hours=0, limit=-99):
         JOB_LIMIT = limit
     if 'limit' in request.GET:
         JOB_LIMIT = int(request.GET['limit'])
-    ## For site-specific queries, allow longer time window
-    if 'computingsite' in request.GET:
-        LAST_N_HOURS_MAX = 72
     ## Exempt single-job, single-task etc queries from time constraint
     deepquery = False
     if 'jeditaskid' in request.GET: deepquery = True
