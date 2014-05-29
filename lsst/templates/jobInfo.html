@@ -48,6 +48,13 @@
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
 <p>
 
+{% if lsstData %}
+<p><b>LSST job info:</b>
+&nbsp; Pipeline task: <b>{{ lsstData.pipelinetask }}</b>
+&nbsp; process: <a href="http://srs.slac.stanford.edu/Pipeline-II/exp/SRS/pi.jsp?pi={{lsstData.processinstance}}">{{lsstData.processinstance}}</a>
+<p>
+{% endif %}
+
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
 
@@ -58,7 +65,7 @@
 {% else %}
 
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-<br>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>, &nbsp;
+<p>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>, &nbsp;
 <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">job outputs</a>
 {% endif %}
 
@@ -100,7 +107,6 @@
 	{% if job.parentid %}<tr><th>Parent job ID</th><td>{{ job.parentid }}</td></tr></tr>{% endif %}
 	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
-	{% if job.jobparameters %}<tr><th>Job parameters</th><td>{{ job.jobparameters }}</td></tr>{% endif %}
 	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
 	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}

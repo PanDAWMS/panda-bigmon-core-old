@@ -394,6 +394,18 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     except IndexError:
         jobparams = None
 
+    if VOMODE == 'lsst' or job['vo'] == 'lsst':
+        lsstData = {}
+        if jobparams:
+            lsstParams = re.match('.*PIPELINE_TASK\=([a-zA-Z0-9]+).*PIPELINE_PROCESSINSTANCE\=([0-9]+).*PIPELINE_STREAM\=([0-9\.]+)',jobparams)
+            if lsstParams:
+                lsstData['pipelinetask'] = lsstParams.group(1)
+                lsstData['processinstance'] = lsstParams.group(2)
+                lsstData['pipelinestream'] = lsstParams.group(3)
+    else:
+        lsstData = None
+
+    print 'lsstData', lsstData
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
@@ -409,6 +421,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'stdlog' : stdlog,
             'jobparams' : jobparams,
             'jobid' : jobid,
+            'lsstData' : lsstData,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
