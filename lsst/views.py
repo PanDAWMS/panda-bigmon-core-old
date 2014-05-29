@@ -52,7 +52,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
     fields = standard_fields
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
-        JOB_LIMIT = 500
+        if 'hours' not in request.GET:
+            JOB_LIMIT = 500
+        else:
+            JOB_LIMIT = 3000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
     else:
@@ -673,7 +676,11 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
-    hours = 24*7
+    print 'VOMODE',VOMODE
+    if VOMODE != 'atlas':
+        hours = 24*7
+    else:
+        hours = 12
     query = setupView(request,hours=hours,limit=999999,opmode=view)
 
     if VOMODE != 'atlas':
