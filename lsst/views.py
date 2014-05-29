@@ -728,6 +728,9 @@ def dashboard(request, view=''):
         for vo in vokeys:
             for state in sitestatelist:
                 vos[vo]['statelist'].append(vos[vo]['states'][state])
+                if vos[vo]['states']['finished'] + vos[vo]['states']['failed'] > 0:
+                    vos[vo]['pctfail'] = "%2d" % (100.*float(vos[vo]['states']['failed'])/(vos[vo]['states']['finished']+vos[vo]['states']['failed']))
+                    if int(vos[vo]['pctfail']) > 5: vos[vo]['pctfail'] = "<font color=red>%s</font>" % vos[vo]['pctfail']
             vosummary.append(vos[vo])
 
     else:
@@ -784,6 +787,8 @@ def dashboard(request, view=''):
     cloudkeys = clouds.keys()
     cloudkeys.sort()
     fullsummary = []
+    allstated = {}
+    allstated['finished'] = allstated['failed'] = 0
     allclouds = {}
     allclouds['name'] = 'All'
     allclouds['count'] = totjobs
@@ -794,7 +799,11 @@ def dashboard(request, view=''):
         allstate = {}
         allstate['name'] = state
         allstate['count'] = totstates[state]
+        allstated[state] = totstates[state]
         allclouds['statelist'].append(allstate)
+    if int(allstated['finished']) + int(allstated['failed']) > 0:
+        allclouds['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
+        if int(allclouds['pctfail']) > 5: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
@@ -808,14 +817,23 @@ def dashboard(request, view=''):
             for state in sitestatelist:
                 sitesummary.append(sites[site]['states'][state])
             sites[site]['summary'] = sitesummary
+            if sites[site]['states']['finished']['count'] + sites[site]['states']['failed']['count'] > 0:
+                sites[site]['pctfail'] = "%2d" % (100.*float(sites[site]['states']['failed']['count'])/(sites[site]['states']['finished']['count']+sites[site]['states']['failed']['count']))
+                if int(sites[site]['pctfail']) > 5: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
+
             cloudsummary.append(sites[site])
         clouds[cloud]['summary'] = cloudsummary
+        if clouds[cloud]['states']['finished']['count'] + clouds[cloud]['states']['failed']['count'] > 0:
+            clouds[cloud]['pctfail'] =  "%2d" % (100.*float(clouds[cloud]['states']['failed']['count'])/(clouds[cloud]['states']['finished']['count']+clouds[cloud]['states']['failed']['count']))
+            if int(clouds[cloud]['pctfail']) > 5: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
+
         fullsummary.append(clouds[cloud])
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         data = {
             'viewParams' : viewParams,
+            'url' : request.path,
             'xurl' : xurl,
             'user' : None,
             'summary' : fullsummary,
