@@ -73,6 +73,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
             if 'jobsetid' not in fields: fields.append('jobsetid')
             if 'hours' not in request.GET and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
                 LAST_N_HOURS_MAX = 180*24
+        else:
+            if 'jobsetid' in fields: fields.remove('jobsetid')
     else:
         LAST_N_HOURS_MAX = 7*24
         JOB_LIMIT = 1000
@@ -156,7 +158,7 @@ def cleanJobList(jobs):
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     return jobs
 
-def jobSummaryDict(jobs, fieldlist = None):
+def jobSummaryDict(request, jobs, fieldlist = None):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     sumd = {}
     if fieldlist:
@@ -166,6 +168,7 @@ def jobSummaryDict(jobs, fieldlist = None):
     for job in jobs:
         for f in flist:
             if job[f]:
+                if f == 'taskid' and int(job[f]) < 1000000 and 'produsername' not in request.GET: continue
                 if not f in sumd: sumd[f] = {}
                 if not job[f] in sumd[f]: sumd[f][job[f]] = 0
                 sumd[f][job[f]] += 1
@@ -345,7 +348,7 @@ def jobList(request, mode=None, param=None):
     elif '/production' in request.path:
         jobtype = 'production'
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
-        sumd = jobSummaryDict(jobs)
+        sumd = jobSummaryDict(request, jobs)
         xurl = extensibleURL(request)
         data = {
             'prefix': getPrefix(request),
@@ -560,7 +563,7 @@ def userList(request):
         for job in jobs:
             if job.transformation: job.transformation = job.transformation.split('/')[-1]
         sumd = userSummaryDict(jobs)
-        jobsumd = jobSummaryDict(jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
+        jobsumd = jobSummaryDict(request, jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'viewParams' : viewParams,
@@ -597,7 +600,7 @@ def userInfo(request, user):
         sumd = userSummaryDict(jobs)
         flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
         if VOMODE != 'atlas': flist.append('vo')
-        jobsumd = jobSummaryDict(jobs, flist)
+        jobsumd = jobSummaryDict(request, jobs, flist)
         data = {
             'viewParams' : viewParams,
             'xurl' : extensibleURL(request),
