@@ -15,6 +15,7 @@ from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
 from core.common.models import Users
 from core.common.models import Jobparamstable
+from core.common.models import Logstable
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -68,8 +69,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
             JOB_LIMIT = 3000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
-        if 'produsername' in fields:
+        if 'produsername' in request.GET:
             if 'jobsetid' not in fields: fields.append('jobsetid')
+            if 'jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET:
+                LAST_N_HOURS_MAX = 180*24
     else:
         LAST_N_HOURS_MAX = 7*24
         JOB_LIMIT = 3000
@@ -322,23 +325,23 @@ def errorInfo(job, nchars=300):
 
 def jobList(request, mode=None, param=None):
     query = setupView(request)
-    jobList = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-            )
+    jobs = []
+    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values())
 
-    jobList = cleanJobList(jobList)
-    njobs = len(jobList)
+    jobs = cleanJobList(jobs)
+    njobs = len(jobs)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
-        sumd = jobSummaryDict(jobList)
+        sumd = jobSummaryDict(jobs)
         xurl = extensibleURL(request)
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
             'requestParams' : request.GET,
-            'jobList': jobList,
+            'jobList': jobs,
             'njobs' : njobs,
             'user' : None,
             'sumd' : sumd,
@@ -348,13 +351,13 @@ def jobList(request, mode=None, param=None):
         return render_to_response('jobList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        for job in jobList:
+        for job in jobs:
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 @csrf_exempt
 def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
-    query = setupView(request, hours=90*24)
+    query = setupView(request, hours=365*24)
     jobid = '?'
     if pandaid:
         jobid = pandaid
@@ -376,7 +379,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     jobs.extend(Jobsactive4.objects.filter(**query).values())
     jobs.extend(Jobswaiting4.objects.filter(**query).values())
     jobs.extend(Jobsarchived4.objects.filter(**query).values())
-    #jobs.extend(Jobsarchived.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values())
+    if len(jobs) == 0:
+        jobs.extend(Jobsarchived.objects.filter(**query).values())
 
     jobs = cleanJobList(jobs)
     job = {}
@@ -396,6 +400,14 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     except IndexError:
         job = {}
 
+    ## Check for logfile extracts
+    logs = Logstable.objects.filter(pandaid=pandaid)
+    if logs:
+        logextract = logs[0].log1
+    else:
+        logextract = None
+
+    ## Get job files
     files = Filestable4.objects.filter(pandaid=pandaid).values() 
     nfiles = len(files)  	     
     logfile = {} 
@@ -449,6 +461,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'jobparams' : jobparams,
             'jobid' : jobid,
             'lsstData' : lsstData,
+            'logextract' : logextract,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
