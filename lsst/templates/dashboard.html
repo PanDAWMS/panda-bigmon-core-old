@@ -12,6 +12,28 @@
 {% if viewParams.MON_VO != 'ATLAS' %}
 <div class='section'>VO / Cloud / Site summary</div>
 {% else %}
+
+{% if view != 'analysis' %}
+
+{% if cloudview == 'region' %}
+
+<table width=800><tr><td>
+This view associates jobs with clouds on the basis of the region in which the processing site is located.
+The alternative <a href="{% url 'dashProduction' %}">'cloud' view</a> associates jobs with clouds on the basis of which Tier 1 the job is assigned to (which can be different for a site participating in multi-cloud production).
+</tr></td></table>
+<p>
+{% endif %}
+
+{% if cloudview == 'cloud' %}
+<table width=800><tr><td>
+This view associates jobs with clouds on the basis of which Tier 1 the job is assigned to (which can be different from the 'home cloud' of the processing site for a site participating in multi-cloud production). Thus in this view you may see sites listed in the CA cloud which are not located in CA.
+The alternative <a href="{% url 'dashProduction' %}?cloudview=region">'region' view</a> associates jobs with clouds on the basis of the region in which the processing site is located.
+</tr></td></table>
+<p>
+{% endif %}
+
+{% endif %}
+
 <div class='section'>Cloud / Site summary</div>
 {% endif %}
 
@@ -82,7 +104,7 @@
 
 <tr height=10 colspan=12></tr>
 <tr>
-<td class="tablesection"> Cloud / Site </td>
+<td class="tablesection"> {{ cloud.name }} Cloud, Sites </td>
 <td class="tablesection"> nJobs </td>
 <td class="tablesection"> assigned </td>
 <td class="tablesection"> activated </td>
@@ -98,7 +120,7 @@
 
 <tr height=10 colspan=12></tr>
 <tr>
-<th bgcolor=whitesmoke> {{ cloud.name }} </th>
+<th bgcolor=whitesmoke> {{ cloud.name }} Cloud</th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}">{{ cloud.count }}</a> </th>
 {% for state in cloud.statelist %}
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>

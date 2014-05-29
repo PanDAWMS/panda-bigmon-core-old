@@ -19,6 +19,8 @@ from core.common.settings.config import ENV
 
 from settings.local import dbaccess
 
+homeCloud = {}
+
 statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
 sitestatelist = [ 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 
@@ -35,10 +37,18 @@ VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
 VOMODE = ' '
 
+def setupHomeCloud():
+    global homeCloud
+    if len(homeCloud) > 0: return
+    sites = Schedconfig.objects.filter().exclude(cloud='CMS').values()
+    for site in sites:
+        homeCloud[site['siteid']] = site['cloud']
+
 def setupView(request, opmode='', hours=0, limit=-99):
     global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
+    setupHomeCloud()
     ENV['MON_VO'] = ''
     viewParams['MON_VO'] = ''
     VOMODE = ''
@@ -420,7 +430,6 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     else:
         lsstData = None
 
-    print 'lsstData', lsstData
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'prefix': getPrefix(request),
@@ -668,8 +677,8 @@ def siteInfo(request, site):
 
 def siteSummary(query):
     summary = []
-    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
-    summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
     return summary
 
 def voSummary(query):
@@ -685,7 +694,6 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
-    print 'VOMODE',VOMODE
     if VOMODE != 'atlas':
         hours = 24*7
     else:
@@ -696,7 +704,6 @@ def dashboard(request, view=''):
         vosummarydata = voSummary(query)
         vos = {}
         for rec in vosummarydata:
-            print rec
             vo = rec['vo']
             #if vo == None: vo = 'Unassigned'
             if vo == None: continue
@@ -723,11 +730,12 @@ def dashboard(request, view=''):
                 vos[vo]['statelist'].append(vos[vo]['states'][state])
             vosummary.append(vos[vo])
 
-        print 'vos',vos
-        print 'vosummary',vosummary
     else:
         vosummary = []
 
+    cloudview = 'cloud'
+    if 'cloudview' in request.GET:
+        cloudview = request.GET['cloudview']
     sitesummarydata = siteSummary(query)
     clouds = {}
     totstates = {}
@@ -735,7 +743,13 @@ def dashboard(request, view=''):
     for state in sitestatelist:
         totstates[state] = 0
     for rec in sitesummarydata:
-        cloud = rec['cloud']
+        if cloudview == 'cloud':
+            cloud = rec['cloud']
+        elif cloudview == 'region':
+            if rec['computingsite'] in homeCloud:
+                cloud = homeCloud[rec['computingsite']]
+            else:
+                print "ERROR cloud not known", rec
         site = rec['computingsite']
         jobstatus = rec['jobstatus']
         count = rec['jobstatus__count']
@@ -807,6 +821,7 @@ def dashboard(request, view=''):
             'summary' : fullsummary,
             'vosummary' : vosummary,
             'view' : view,
+            'cloudview': cloudview,
             'hours' : hours,
         }
         #data.update(getContextVariables(request))
