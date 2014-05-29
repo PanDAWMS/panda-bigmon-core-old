@@ -125,6 +125,21 @@ def setupView(request, opmode='', hours=0, limit=-99):
         query['prodsourcelabel'] = 'test'
     return query
 
+def cleanJobList(jobs):
+    for job in jobs:
+        if not job['produsername']:
+            if job['produserid']:
+                job['produsername'] = job['produserid']
+            else:
+                job['produsername'] = 'Unknown'
+        if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
+        if job['jobstatus'] == 'failed':
+            job['errorinfo'] = errorInfo(job,nchars=50)
+        else:
+            job['errorinfo'] = ''
+    jobs = sorted(jobs, key=lambda x:-x['pandaid'])
+    return jobs
+
 def jobSummaryDict(jobs, fieldlist = None):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     sumd = {}
@@ -302,13 +317,7 @@ def jobList(request, mode=None, param=None):
                     Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
             )
 
-    jobList = sorted(jobList, key=lambda x:-x['pandaid'])
-    for job in jobList:
-        if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
-        if job['jobstatus'] == 'failed':
-            job['errorinfo'] = errorInfo(job,nchars=50)
-        else:
-            job['errorinfo'] = ''
+    jobList = cleanJobList(jobList)
     njobs = len(jobList)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(jobList)
@@ -356,7 +365,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         Jobswaiting4.objects.filter(**query).values(), \
         Jobsarchived4.objects.filter(**query).values(), \
     )
-    jobs = sorted(jobs, key=lambda x:-x['pandaid'])
+    jobs = cleanJobList(jobs)
     job = {}
     colnames = []
     columns = []
