@@ -64,9 +64,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
         if 'hours' not in request.GET:
-            JOB_LIMIT = 500
+            JOB_LIMIT = 1000
         else:
-            JOB_LIMIT = 3000
+            JOB_LIMIT = 1000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET:
@@ -75,7 +75,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
                 LAST_N_HOURS_MAX = 180*24
     else:
         LAST_N_HOURS_MAX = 7*24
-        JOB_LIMIT = 3000
+        JOB_LIMIT = 1000
     if hours > 0:
         ## Call param overrides default hours, but not a param on the URL
         LAST_N_HOURS_MAX = hours
@@ -284,6 +284,8 @@ def extensibleURL(request):
         xurl += '&'
     else:
         xurl += '?'
+    if 'jobtype' in request.GET:
+        xurl += "jobtype=%s&" % request.GET['jobtype']
     return xurl
 
 def mainPage(request):
@@ -335,6 +337,13 @@ def jobList(request, mode=None, param=None):
 
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
+    jobtype = ''
+    if 'jobtype' in request.GET:
+        jobtype = request.GET['jobtype']
+    elif '/analysis' in request.path:
+        jobtype = 'analysis'
+    elif '/production' in request.path:
+        jobtype = 'production'
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(jobs)
         xurl = extensibleURL(request)
@@ -343,6 +352,7 @@ def jobList(request, mode=None, param=None):
             'viewParams' : viewParams,
             'requestParams' : request.GET,
             'jobList': jobs,
+            'jobtype' : jobtype,
             'njobs' : njobs,
             'user' : None,
             'sumd' : sumd,
@@ -711,6 +721,7 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
     if VOMODE != 'atlas':
         hours = 24*7
     else:
