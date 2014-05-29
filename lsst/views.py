@@ -28,7 +28,7 @@ viewParams = {}
 LAST_N_HOURS_MAX = 0
 JOB_LIMIT = 0
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', ]
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -56,11 +56,11 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
     else:
-        LAST_N_HOURS_MAX = 30*24
+        LAST_N_HOURS_MAX = 7*24
         JOB_LIMIT = 3000
     if hours > 0:
         ## Call param overrides default hours, but not a param on the URL
-        LAST_N_HOURS_MAX = max(LAST_N_HOURS_MAX, hours)
+        LAST_N_HOURS_MAX = hours
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
     if limit != -99 and limit >= 0:
@@ -103,6 +103,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if request.META['HTTP_HOST'].startswith(vo):
             query['vo'] = vo   
     for param in request.GET:
+        if param == 'cloud' and request.GET[param] == 'All': continue
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'transformation':
@@ -305,6 +306,7 @@ def jobList(request, mode=None, param=None):
             job['errorinfo'] = errorInfo(job,nchars=50)
         else:
             job['errorinfo'] = ''
+    njobs = len(jobList)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(jobList)
         xurl = extensibleURL(request)
@@ -313,6 +315,7 @@ def jobList(request, mode=None, param=None):
             'viewParams' : viewParams,
             'requestParams' : request.GET,
             'jobList': jobList,
+            'njobs' : njobs,
             'user' : None,
             'sumd' : sumd,
             'xurl' : xurl,
@@ -657,6 +660,12 @@ def siteSummary(query):
     summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
     return summary
 
+def voSummary(query):
+    summary = []
+    summary.extend(Jobsactive4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
+    return summary
+
 def wnSummary(query):
     summary = []
     summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite', 'modificationhost', 'jobstatus').annotate(Count('jobstatus')))
@@ -664,11 +673,47 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
-    query = setupView(request,hours=24,limit=999999,opmode=view)
+    hours = 24*7
+    query = setupView(request,hours=hours,limit=999999,opmode=view)
+
+    if VOMODE != 'atlas':
+        vosummarydata = voSummary(query)
+        vos = {}
+        for rec in vosummarydata:
+            print rec
+            vo = rec['vo']
+            #if vo == None: vo = 'Unassigned'
+            if vo == None: continue
+            jobstatus = rec['jobstatus']
+            count = rec['jobstatus__count']
+            if vo not in vos:
+                vos[vo] = {}
+                vos[vo]['name'] = vo
+                vos[vo]['count'] = 0
+                vos[vo]['states'] = {}
+                vos[vo]['statelist'] = []
+                for state in sitestatelist:
+                    vos[vo]['states'][state] = {}
+                    vos[vo]['states'][state]['name'] = state
+                    vos[vo]['states'][state]['count'] = 0
+            vos[vo]['count'] += count
+            vos[vo]['states'][jobstatus]['count'] += count
+        ## Convert dict to summary list
+        vokeys = vos.keys()
+        vokeys.sort()
+        vosummary = []
+        for vo in vokeys:
+            for state in sitestatelist:
+                vos[vo]['statelist'].append(vos[vo]['states'][state])
+            vosummary.append(vos[vo])
+
+        print 'vos',vos
+        print 'vosummary',vosummary
+    else:
+        vosummary = []
+
     sitesummarydata = siteSummary(query)
     clouds = {}
-    sites = {}
-    sitestatus = {}
     totstates = {}
     totjobs = 0
     for state in sitestatelist:
@@ -705,6 +750,7 @@ def dashboard(request, view=''):
         clouds[cloud]['sites'][site]['count'] += count
         clouds[cloud]['sites'][site]['states'][jobstatus]['count'] += count
 
+    ## Convert dict to summary list
     cloudkeys = clouds.keys()
     cloudkeys.sort()
     fullsummary = []
@@ -715,11 +761,14 @@ def dashboard(request, view=''):
     allclouds['states'] = totstates
     allclouds['statelist'] = []
     for state in sitestatelist:
-        allclouds['statelist'].append(totstates[state])
+        allstate = {}
+        allstate['name'] = state
+        allstate['count'] = totstates[state]
+        allclouds['statelist'].append(allstate)
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
-            clouds[cloud]['statelist'].append(clouds[cloud]['states'][state]['count'])
+            clouds[cloud]['statelist'].append(clouds[cloud]['states'][state])
         sites = clouds[cloud]['sites']
         sitekeys = sites.keys()
         sitekeys.sort()        
@@ -740,7 +789,9 @@ def dashboard(request, view=''):
             'xurl' : xurl,
             'user' : None,
             'summary' : fullsummary,
+            'vosummary' : vosummary,
             'view' : view,
+            'hours' : hours,
         }
         #data.update(getContextVariables(request))
         return render_to_response('dashboard.html', data, RequestContext(request))
