@@ -350,6 +350,7 @@ class JediDatasetContents(models.Model):
     endevent = models.IntegerField(null=True, db_column='ENDEVENT', blank=True) # Field name made lowercase.
     firstevent = models.IntegerField(null=True, db_column='FIRSTEVENT', blank=True) # Field name made lowercase.
     boundaryid = models.BigIntegerField(null=True, db_column='BOUNDARYID', blank=True) # Field name made lowercase.
+    pandaid = models.BigIntegerField(db_column='PANDAID', blank=True)
     class Meta:
         db_table = u'jedi_dataset_contents'
 
@@ -386,6 +387,7 @@ class JediDatasets(models.Model):
     storagetoken = models.CharField(max_length=180, db_column='STORAGETOKEN', blank=True) # Field name made lowercase.
     destination = models.CharField(max_length=180, db_column='DESTINATION', blank=True) # Field name made lowercase.
     nfilesonhold = models.IntegerField(null=True, db_column='NFILESONHOLD', blank=True) # Field name made lowercase.
+    templateid = models.BigIntegerField(db_column='TEMPLATEID', blank=True)
     class Meta:
         db_table = u'jedi_datasets'
 
@@ -397,6 +399,9 @@ class JediEvents(models.Model):
     def_min_eventid = models.IntegerField(null=True, db_column='DEF_MIN_EVENTID', blank=True) # Field name made lowercase.
     def_max_eventid = models.IntegerField(null=True, db_column='DEF_MAX_EVENTID', blank=True) # Field name made lowercase.
     processed_upto_eventid = models.IntegerField(null=True, db_column='PROCESSED_UPTO_EVENTID', blank=True) # Field name made lowercase.
+    datasetid = models.BigIntegerField(db_column='DATASETID', blank=True)
+    status = models.IntegerField(db_column='STATUS', blank=True)
+    attemptnr = models.IntegerField(db_column='ATTEMPTNR', blank=True)
     class Meta:
         db_table = u'jedi_events'
 
@@ -405,6 +410,14 @@ class JediJobparamsTemplate(models.Model):
     jobparamstemplate = models.TextField(db_column='JOBPARAMSTEMPLATE', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'jedi_jobparams_template'
+
+class JediJobRetryHistory(models.Model):
+    jeditaskid = models.BigIntegerField(primary_key=True, db_column='JEDITASKID')  # Field name made lowercase.
+    oldpandaid = models.BigIntegerField(primary_key=True, db_column='OLDPANDAID')  # Field name made lowercase.
+    newpandaid = models.BigIntegerField(primary_key=True, db_column='NEWPANDAID')  # Field name made lowercase.
+    ins_utc_tstamp = models.BigIntegerField(db_column='INS_UTC_TSTAMP', blank=True)  # Field name made lowercase.
+    class Meta:
+        db_table = u'jedi_job_retry_history'
 
 class JediOutputTemplate(models.Model):
     jeditaskid = models.BigIntegerField(primary_key=True, db_column='JEDITASKID') # Field name made lowercase.
@@ -430,7 +443,7 @@ class JediTasks(models.Model):
     taskname = models.CharField(max_length=384, db_column='TASKNAME', blank=True) # Field name made lowercase.
     status = models.CharField(max_length=192, db_column='STATUS') # Field name made lowercase.
     username = models.CharField(max_length=384, db_column='USERNAME') # Field name made lowercase.
-    creationdate = models.DateTimeField(db_column='CREATIONDATE') # Field name made lowercase.
+    creationdatetime = models.DateTimeField(db_column='CREATIONDATETIME')  # Field name made lowercase.
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME') # Field name made lowercase.
     reqid = models.IntegerField(null=True, db_column='REQID', blank=True) # Field name made lowercase.
     oldstatus = models.CharField(max_length=192, db_column='OLDSTATUS', blank=True) # Field name made lowercase.
@@ -469,6 +482,8 @@ class JediTasks(models.Model):
     progress = models.IntegerField(null=True, db_column='PROGRESS', blank=True) # Field name made lowercase.
     failurerate = models.IntegerField(null=True, db_column='FAILURERATE', blank=True) # Field name made lowercase.
     errordialog = models.CharField(max_length=765, db_column='ERRORDIALOG', blank=True) # Field name made lowercase.
+    countrygroup = models.CharField(max_length=20, db_column='COUNTRYGROUP', blank=True)  # Field name made lowercase.
+    parent_tid = models.BigIntegerField(db_column='PARENT_TID', blank=True)  # Field name made lowercase.
     class Meta:
         db_table = u'jedi_tasks'
 
