@@ -158,6 +158,32 @@ def cleanJobList(jobs):
             job['errorinfo'] = errorInfo(job,nchars=50)
         else:
             job['errorinfo'] = ''
+
+    ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
+    taskids = {}
+    for job in jobs:
+        if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
+    droplist = []
+    if len(taskids) == 1:
+        for task in taskids:
+            retryquery = {}
+            retryquery['jeditaskid'] = task
+            retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').values()
+        newjobs = []
+        for job in jobs:
+            dropJob = 0
+            pandaid = job['pandaid']
+            for retry in retries:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                    ## there is a retry for this job. Drop it.
+                    print 'dropping', pandaid
+                    dropJob = retry['newpandaid']
+            if dropJob == 0:
+                newjobs.append(job)
+            else:
+                droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
+        droplist = sorted(droplist, key=lambda x:-x['pandaid'])
+        jobs = newjobs
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     return jobs
 
@@ -486,7 +512,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         logextract = None
 
     ## Get job files
-    files = Filestable4.objects.filter(pandaid=pandaid).values() 
+    files = Filestable4.objects.filter(pandaid=pandaid).order_by('type').values() 
     nfiles = len(files)  	     
     logfile = {} 
     for file in files:         
@@ -667,19 +693,13 @@ def userList(request):
 def userInfo(request, user):
     query = setupView(request,hours=24)
     query['produsername'] = user
-    jobs = QuerySetChain(\
-                    Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-                    Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(),
-    )
-    jobs = sorted(jobs, key=lambda x:-x['pandaid'])
-    for job in jobs:
-        if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
-        if job['jobstatus'] == 'failed':
-            job['errorinfo'] = errorInfo(job,nchars=50)
-        else:
-            job['errorinfo'] = ''
+    jobs = []
+    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values())
+    jobs = cleanJobList(jobs)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
         flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
@@ -999,6 +1019,7 @@ def taskList(request):
         sumd = taskSummaryDict(request,tasks)
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'tasks': tasks,
             'sumd' : sumd,
             'xurl' : extensibleURL(request),

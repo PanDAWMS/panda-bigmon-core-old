@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<div class='section'>Recent job stats for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
+<div class='section'>Recent job stats for <a href="{% url 'userInfo' user %}">{{user}}</a>:</div>
 
 <table>
 {% for fdict in jobsumd %}
@@ -19,7 +19,9 @@
 {% endfor %}
 </table>
 
-<div class='section'>Recent jobs for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
+<div class='section'><a href="{% url 'taskList' %}?username={{ user }}">Show tasks owned by {{ user }}</a></div>
+
+<div class='section'>Recent jobs for <a href="{% url 'userInfo' user %}">{{user}}</a>:</div>
 
 <table>
 <tr>

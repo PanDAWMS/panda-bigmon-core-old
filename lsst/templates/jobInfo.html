@@ -132,6 +132,7 @@
 
 <table>
 	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a></td></tr>{% endif %}
+	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}

@@ -9,8 +9,18 @@
 {% endblock %}
 {% block body %}
 
-{% if tasks %}
+{% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
+{% if requestParams.username %}<br><b>User: {{ requestParams.username }}</b> {% endif %}
+{% if requestParams.tasktype %}<br><b>Task type: {{ requestParams.tasktype }}</b> {% endif %}
+{% if requestParams.transpath %}<br><b>Transformation: {{ requestParams.transpath }}</b> {% endif %}
+{% if requestParams.transuses %}<br><b>Release: {{ requestParams.transuses }}</b> {% endif %}
+{% if requestParams.processingtype %}<br><b>Processing type: {{ requestParams.processingtype }}</b> {% endif %}
+{% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
+{% if requestParams.parent_tid %}<br><b>Parent task: {{ requestParams.parent_tid }}</b> {% endif %}
+{% if requestParams.status %}<br><b>Task status: <span class='{{requestParams.status}}'>{{ requestParams.status }}</span></b> {% endif %}
 
+<p>
+{% if tasks %}
 
 {% if sumd %}
 
@@ -50,7 +60,7 @@
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
 		<td>{{ task.corecount }}</td>
 		<td>{{ task.taskpriority }}</td>
-		<td><a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a></td>
+		<td>{% if task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
 
 	</tr>
     {% endfor %}
