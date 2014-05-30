@@ -17,7 +17,7 @@
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.computingsite %}<br><b>Site: <a href="{% url 'siteInfo' requestParams.computingsite %}">{{ requestParams.computingsite }}</a></b> {% endif %}
 {% if requestParams.produsername %}<br><b>User: <a href="{% url 'userInfo' requestParams.produsername %}">{{ requestParams.produsername }}</a></b> {% endif %}
-{% if requestParams.jeditaskid %}<br><b>JEDI Task ID: <a href="{% url 'jobList' %}?jeditaskid={{requestParams.jeditaskid}}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
+{% if requestParams.jeditaskid %}<br><b>JEDI Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
 {% if requestParams.taskid %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 <p>

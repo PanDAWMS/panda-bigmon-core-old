@@ -72,7 +72,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
             JOB_LIMIT = 1000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
-        if 'produsername' in request.GET:
+        if 'produsername' in request.GET or 'jeditaskid' in request.GET:
             if 'jobsetid' not in fields: fields.append('jobsetid')
             if 'hours' not in request.GET and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
                 LAST_N_HOURS_MAX = 180*24
