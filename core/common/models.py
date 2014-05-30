@@ -218,6 +218,35 @@ class Filestable4(models.Model):
     class Meta:
         db_table = u'filestable4'
 
+class FilestableArch(models.Model):
+    row_id = models.BigIntegerField(primary_key=True, db_column='ROW_ID')  # Field name made lowercase.
+    pandaid = models.BigIntegerField(db_column='PANDAID')  # Field name made lowercase.
+    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME')  # Field name made lowercase.
+    creationtime = models.DateTimeField(db_column='MODIFICATIONTIME')  # Field name made lowercase.
+    guid = models.CharField(max_length=64, db_column='GUID', blank=True)  # Field name made lowercase.
+    lfn = models.CharField(max_length=256, db_column='LFN', blank=True)  # Field name made lowercase.
+    type = models.CharField(max_length=20, db_column='TYPE', blank=True)  # Field name made lowercase.
+    dataset = models.CharField(max_length=255, db_column='DATASET', blank=True)  # Field name made lowercase.
+    status = models.CharField(max_length=64, db_column='STATUS', blank=True)  # Field name made lowercase.
+    proddblock = models.CharField(max_length=255, db_column='PRODDBLOCK', blank=True)  # Field name made lowercase.
+    proddblocktoken = models.CharField(max_length=250, db_column='PRODDBLOCKTOKEN', blank=True)  # Field name made lowercase.
+    dispatchdblock = models.CharField(max_length=265, db_column='DISPATCHDBLOCK', blank=True)  # Field name made lowercase.
+    dispatchdblocktoken = models.CharField(max_length=250, db_column='DISPATCHDBLOCKTOKEN', blank=True)  # Field name made lowercase.
+    destinationdblock = models.CharField(max_length=265, db_column='DESTINATIONDBLOCK', blank=True)  # Field name made lowercase.
+    destinationdblocktoken = models.CharField(max_length=250, db_column='DESTINATIONDBLOCKTOKEN', blank=True)  # Field name made lowercase.
+    destinationse = models.CharField(max_length=250, db_column='DESTINATIONSE', blank=True)  # Field name made lowercase.
+    fsize = models.BigIntegerField(db_column='FSIZE')  # Field name made lowercase.
+    md5sum = models.CharField(max_length=40, db_column='MD5SUM', blank=True)  # Field name made lowercase.
+    checksum = models.CharField(max_length=40, db_column='CHECKSUM', blank=True)  # Field name made lowercase.
+    scope = models.CharField(max_length=30, db_column='SCOPE', blank=True)  # Field name made lowercase.
+    jeditaskid = models.BigIntegerField(null=True, db_column='JEDITASKID', blank=True)  # Field name made lowercase.
+    datasetid = models.BigIntegerField(null=True, db_column='DATASETID', blank=True)  # Field name made lowercase.
+    fileid = models.BigIntegerField(null=True, db_column='FILEID', blank=True)  # Field name made lowercase.
+    attemptnr = models.IntegerField(null=True, db_column='ATTEMPTNR', blank=True)  # Field name made lowercase.
+
+    class Meta:
+        db_table = u'filestable_arch'
+
 class Groups(models.Model):
     id = models.IntegerField(primary_key=True, db_column='ID') # Field name made lowercase.
     name = models.CharField(max_length=180, db_column='NAME') # Field name made lowercase.
