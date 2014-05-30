@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 import lsst.settings
 
 import lsst.views as lsstmon_views
+import lsst.views_support as lsstmon_support_views
 
 urlpatterns = patterns('',
     url(r'^$', lsstmon_views.mainPage, name='mainPage'),
@@ -28,6 +29,10 @@ urlpatterns = patterns('',
     url(r'^dash/$', lsstmon_views.dashboard, name='dashboard'),
     url(r'^dash/analysis/$', lsstmon_views.dashAnalysis, name='dashAnalysis'),
     url(r'^dash/production/$', lsstmon_views.dashProduction, name='dashProduction'),
+
+    ### support views for LSST
+    url(r'^support/$', lsstmon_support_views.maxpandaid, name='supportRoot'),
+    url(r'^support/maxpandaid/$', lsstmon_support_views.maxpandaid, name='supportMaxpandaid'),
 
     ### robots.txt
     url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
