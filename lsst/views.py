@@ -349,16 +349,19 @@ def jobList(request, mode=None, param=None):
             retryquery = {}
             retryquery['jeditaskid'] = task
             retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').reverse().values()
+        newjobs = []
+        dropJob = False
         for job in jobs:
+            dropjob = False
             pandaid = job['pandaid']
             for retry in retries:
                 if retry['oldpandaid'] == pandaid:
                     ## there is a retry for this job. Drop it.
                     droplist[pandaid] = retry['newpandaid']
+                    dropJob = True
                     break
-        for job in jobs:
-            if job['pandaid'] in droplist:
-                jobs.remove(job)
+            if not dropJob: newjobs.append(job)
+        jobs = newjobs
 
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
