@@ -27,7 +27,7 @@ Panda ID </td><td><font size=-1> <input id="pandaid" name="pandaid" size="15" ma
 Batch ID</td><td><font size=-1> <input id="batchid" name="batchid" size="15" maxlength="200" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 {% if viewParams.MON_VO == 'ATLAS' %}
-<tr><td><form action="{% url 'jobList' %}" method='get'>
+<tr><td><form action="{% url 'taskInfo' %}" method='get'>
 JEDI Task ID </td><td><font size=-1><input id="jeditaskid" name="jeditaskid" size="15" maxlength="15" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 {% endif %}
 
