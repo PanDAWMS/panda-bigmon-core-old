@@ -808,7 +808,10 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+        VOMODE = 'atlas'
+    else:
+        VOMODE = ''
     if VOMODE != 'atlas':
         hours = 24*7
     else:
