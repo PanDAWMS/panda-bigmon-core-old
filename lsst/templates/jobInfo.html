@@ -50,19 +50,27 @@
 
 {% if pretries %}
 
+<table width=900><tr><td>
 <div class="section">This job is a retry of previous job(s)</div>
+<font size=-1>
 {% for pretry in pretries %}
-&nbsp; <a href="{% url 'jobInfo' pretry.oldpandaid %}">{{ pretry.oldpandaid }}</a>
+<a href="{% url 'jobInfo' pretry.oldpandaid %}">{{ pretry.oldpandaid }}</a> &nbsp;
 {% endfor %}
+</font>
+</td></tr></table>
 <p>
 {% endif %}
 
 {% if retries %}
 
+<table width=900><tr><td>
 <div class="section">Retries of this job</div>
+<font size=-1>
 {% for retry in retries %}
-&nbsp; <a href="{% url 'jobInfo' retry.newpandaid %}">{{ retry.newpandaid }}</a>
+<a href="{% url 'jobInfo' retry.newpandaid %}">{{ retry.newpandaid }}</a> &nbsp;
 {% endfor %}
+</font>
+</td></tr></table>
 <p>
 {% endif %}
 

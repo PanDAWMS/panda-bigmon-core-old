@@ -13,6 +13,7 @@ from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeForma
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4, Jobsarchived
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
+from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
@@ -146,7 +147,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         query['prodsourcelabel'] = 'test'
     return query
 
-def cleanJobList(jobs):
+def cleanJobList(jobs, mode='drop'):
     for job in jobs:
         if not job['produsername']:
             if job['produserid']:
@@ -159,6 +160,7 @@ def cleanJobList(jobs):
         else:
             job['errorinfo'] = ''
 
+    if mode == 'nodrop': return jobs
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
     for job in jobs:
@@ -486,7 +488,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     if len(jobs) == 0:
         jobs.extend(Jobsarchived.objects.filter(**query).values())
 
-    jobs = cleanJobList(jobs)
+    jobs = cleanJobList(jobs, mode='nodrop')
     job = {}
     colnames = []
     columns = []
@@ -512,8 +514,11 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         logextract = None
 
     ## Get job files
-    files = Filestable4.objects.filter(pandaid=pandaid).order_by('type').values() 
-    nfiles = len(files)  	     
+    files = []
+    files.extend(Filestable4.objects.filter(pandaid=pandaid).order_by('type').values())
+    if len(files) == 0:
+        files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
+    nfiles = len(files) 
     logfile = {} 
     for file in files:         
         if file['type'] == 'log': 
