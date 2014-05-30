@@ -1013,7 +1013,7 @@ def taskInfo(request, jeditaskid=0):
         jeditaskid = request.GET['jeditaskid']
     setupView(request)
     query = {'jeditaskid' : jeditaskid}
-    jobsummary = jobSummary(query)
+    jobsummary = jobSummary2(query)
     tasks = JediTasks.objects.filter(**query).values()
     colnames = []
     columns = []
@@ -1049,6 +1049,7 @@ def taskInfo(request, jeditaskid=0):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def jobSummary(query):
+    """ Not in use. Cannot take account of rerun jobs. """
     summary = []
     summary.extend(Jobsdefined4.objects.filter(**query).values('jobstatus')\
         .annotate(Count('jobstatus')).order_by('jobstatus'))    
@@ -1069,6 +1070,53 @@ def jobSummary(query):
         for rec in summary:
             if rec['jobstatus'] == state:
                 statecount['count'] = rec['jobstatus__count']
+                continue
+        jobstates.append(statecount)
+    return jobstates            
+
+def jobSummary2(query):
+    jobs = []
+    jobs.extend(Jobsdefined4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobswaiting4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsactive4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsarchived4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsarchived.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    
+    ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
+    taskids = {}
+    for job in jobs:
+        if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
+    droplist = []
+    if len(taskids) == 1:
+        for task in taskids:
+            retryquery = {}
+            retryquery['jeditaskid'] = task
+            retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').values()
+        newjobs = []
+        for job in jobs:
+            dropJob = 0
+            pandaid = job['pandaid']
+            for retry in retries:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                    ## there is a retry for this job. Drop it.
+                    print 'dropping', pandaid
+                    dropJob = retry['newpandaid']
+            if dropJob == 0:
+                newjobs.append(job)
+            else:
+                droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
+        droplist = sorted(droplist, key=lambda x:-x['pandaid'])
+        jobs = newjobs
+
+    jobstates = []
+    global statelist
+    for state in statelist:
+        statecount = {}
+        statecount['name'] = state
+        statecount['count'] = 0
+        for job in jobs:
+            if job['jobstatus'] == state:
+                statecount['count'] += 1
                 continue
         jobstates.append(statecount)
     return jobstates            
