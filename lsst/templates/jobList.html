@@ -21,6 +21,20 @@
 {% if requestParams.taskid %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 <p>
+
+{% if ndrops > 0 %}
+<table width=900><tr><td>
+<b>{{ ndrops }} jobs were dropped from this listing because they were retried. Where there were retries, the latest retry job (only) is listed. </b>
+<font size=-1>
+<br>Dropped jobs:
+{% for drop in droplist %}
+&nbsp; <a href="{% url 'jobInfo' drop %}">{{ drop }}</a>
+{% endfor %}
+</font>
+</tr></td></table>
+<p>
+{% endif %}
+
 {% if jobList %}
 
 <table>

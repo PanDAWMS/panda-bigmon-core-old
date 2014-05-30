@@ -16,6 +16,7 @@ from core.common.models import Filestable4
 from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
+from core.common.models import JediJobRetryHistory
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -338,6 +339,27 @@ def jobList(request, mode=None, param=None):
     jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values())
     jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values())
 
+    ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
+    taskids = {}
+    for job in jobs:
+        if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
+    droplist = {}
+    if len(taskids) == 1:
+        for task in taskids:
+            retryquery = {}
+            retryquery['jeditaskid'] = task
+            retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').reverse().values()
+        for job in jobs:
+            pandaid = job['pandaid']
+            for retry in retries:
+                if retry['oldpandaid'] == pandaid:
+                    ## there is a retry for this job. Drop it.
+                    droplist[pandaid] = retry['newpandaid']
+                    break
+        for job in jobs:
+            if job['pandaid'] in droplist:
+                jobs.remove(job)
+
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
     jobtype = ''
@@ -360,6 +382,8 @@ def jobList(request, mode=None, param=None):
             'user' : None,
             'sumd' : sumd,
             'xurl' : xurl,
+            'droplist' : droplist,
+            'ndrops' : len(droplist),
         }
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
@@ -441,6 +465,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     if 'transformation' in job and job['transformation'] is not None and job['transformation'].startswith('http'):
         job['transformation'] = "<a href='%s'>%s</a>" % ( job['transformation'], job['transformation'].split('/')[-1] )
 
+    ## Get job parameters
     jobparamrec = Jobparamstable.objects.filter(pandaid=pandaid)
     jobparams = None
     try:
@@ -448,6 +473,23 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     except IndexError:
         jobparams = None
 
+    ## If this is a JEDI job, look for job retries
+    if 'jeditaskid' in job and job['jeditaskid'] > 0:
+        ## Look for retries of this job
+        retryquery = {}
+        retryquery['jeditaskid'] = job['jeditaskid']
+        retryquery['oldpandaid'] = job['pandaid']
+        retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').reverse().values()
+        ## Look for jobs for which this job is a retry
+        pretryquery = {}
+        pretryquery['jeditaskid'] = job['jeditaskid']
+        pretryquery['newpandaid'] = job['pandaid']
+        pretries = JediJobRetryHistory.objects.filter(**pretryquery).order_by('oldpandaid').reverse().values()
+    else:
+        retries = None
+        pretries = None
+
+    ## For LSST, pick up parameters from jobparams
     if VOMODE == 'lsst' or ('vo' in job and job['vo'] == 'lsst'):
         lsstData = {}
         if jobparams:
@@ -476,6 +518,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'jobid' : jobid,
             'lsstData' : lsstData,
             'logextract' : logextract,
+            'retries' : retries,
+            'pretries' : pretries,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))

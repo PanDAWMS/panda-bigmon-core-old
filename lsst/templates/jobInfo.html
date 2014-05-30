@@ -48,6 +48,24 @@
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
 <p>
 
+{% if pretries %}
+
+<div class="section">This job is a retry of previous job(s)</div>
+{% for pretry in pretries %}
+&nbsp; <a href="{% url 'jobInfo' pretry.oldpandaid %}">{{ pretry.oldpandaid }}</a>
+{% endfor %}
+<p>
+{% endif %}
+
+{% if retries %}
+
+<div class="section">Retries of this job</div>
+{% for retry in retries %}
+&nbsp; <a href="{% url 'jobInfo' retry.newpandaid %}">{{ retry.newpandaid }}</a>
+{% endfor %}
+<p>
+{% endif %}
+
 {% if lsstData %}
 <p><b>LSST job info:</b>
 &nbsp; Pipeline task: <b>{{ lsstData.pipelinetask }}</b>
