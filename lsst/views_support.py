@@ -31,7 +31,7 @@ def maxpandaid(request):
         Helps to collect LSST logs when "xrdfs ls" times out.
     """
     try:
-        pandaid = Jobsarchived4.objects.all().order_by("-pandaid")[0]
+        pandaid = Jobsarchived4.objects.all().order_by("-pandaid").values()[0]['pandaid']
     except:
         pandaid = 0
     return render_to_response('maxpandaid.html', {'maxpandaid': pandaid}, RequestContext(request))
