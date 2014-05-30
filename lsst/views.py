@@ -35,7 +35,7 @@ JOB_LIMIT = 0
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
-standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', ]
+standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -130,7 +130,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if param == 'cloud' and request.GET[param] == 'All': continue
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
-                if param == 'transformation':
+                if param == 'transformation' or param == 'transpath':
                     query['%s__endswith' % param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
@@ -160,6 +160,11 @@ def cleanJobList(jobs):
             job['errorinfo'] = ''
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     return jobs
+
+def cleanTaskList(tasks):
+    for task in tasks:
+        if task['transpath']: task['transpath'] = task['transpath'].split('/')[-1]
+    return tasks
 
 def jobSummaryDict(request, jobs, fieldlist = None):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
@@ -980,8 +985,12 @@ def taskList(request):
 #             prod = True
         for field in JediTasks._meta.get_all_field_names():
             if param == field:
-                query[param] = request.GET[param]
+                if param == 'transpath':
+                    query['%s__endswith' % param] = request.GET[param]
+                else:
+                    query[param] = request.GET[param]
     tasks = JediTasks.objects.filter(**query).values()
+    tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = taskSummaryDict(request,tasks)
