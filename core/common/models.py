@@ -443,7 +443,7 @@ class JediTasks(models.Model):
     taskname = models.CharField(max_length=384, db_column='TASKNAME', blank=True) # Field name made lowercase.
     status = models.CharField(max_length=192, db_column='STATUS') # Field name made lowercase.
     username = models.CharField(max_length=384, db_column='USERNAME') # Field name made lowercase.
-    creationdatetime = models.DateTimeField(db_column='CREATIONDATETIME')  # Field name made lowercase.
+    creationdate = models.DateTimeField(db_column='CREATIONDATE')  # Field name made lowercase.
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME') # Field name made lowercase.
     reqid = models.IntegerField(null=True, db_column='REQID', blank=True) # Field name made lowercase.
     oldstatus = models.CharField(max_length=192, db_column='OLDSTATUS', blank=True) # Field name made lowercase.
