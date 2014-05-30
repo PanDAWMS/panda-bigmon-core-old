@@ -21,7 +21,7 @@
 </tr>
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
-		<td><font size=-1>{{ task.taskname }}<br>{{ task.username }}</font></td>
+		<td><font size=-1>{{ task.taskname }}<br><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font></td>
 		<td class='{{task.status}}'>{{ task.status }}</td>
 		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
@@ -43,7 +43,7 @@
 {% endfor %}
 </table>
 
-{% if task.parent_tid != task.jeditaskid %}
+{% if task.parent_tid != task.jeditaskid and task.parent_tid != None %}
 <p><a href="{% url 'taskInfo' task.parent_tid %}">Show parent task {{ task.parent_tid }}</a><p>
 {% endif %}
 <p><a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}">Look for child tasks</a><p>

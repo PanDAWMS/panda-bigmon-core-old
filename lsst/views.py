@@ -1001,7 +1001,7 @@ def dashProduction(request):
 #    fieldName = forms.CharField(max_length=100)
 
 def taskList(request):
-    query = setupView(request, hours=60*24, limit=9999999)
+    query = setupView(request, hours=180*24, limit=9999999)
     for param in request.GET:
 #         if param == 'category' and request.GET[param] == 'multicloud':
 #             query['multicloud__isnull'] = False
