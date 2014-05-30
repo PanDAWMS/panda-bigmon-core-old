@@ -121,7 +121,7 @@
 {% if nfiles > 0 %}
 <p><div class='section'>Job files</div>
 <table>
-<tr><th>Filename</th><th>Type</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th></tr>
+<tr><th>Filename (Type)</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th></tr>
 {% for file in files %}
 <tr><td>
 <font size=-1>
@@ -129,9 +129,9 @@
 <a href="http://panda.cern.ch/?overview=findfile&archive=yes&lfn={{file.lfn}}&guid={{file.guid}}">{{ file.lfn}}</a>
 {% else %}
 {{ file.lfn}}
-{% endif %}
+{% endif %} ({{ file.type }})
 </font>
-</td><td> {{ file.type }} </td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td></tr>
+</td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td></tr>
 {% endfor %}
 </table>
 {% endif %}
