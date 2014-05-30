@@ -17,6 +17,7 @@ from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
 from core.common.models import JediJobRetryHistory
+from core.common.models import JediTasks
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -34,6 +35,7 @@ JOB_LIMIT = 0
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
+standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -281,6 +283,34 @@ def userSummaryDict(jobs):
     suml = sorted(suml, key=lambda x:x['name'])
     return suml
 
+def taskSummaryDict(request, tasks, fieldlist = None):
+    """ Return a dictionary summarizing the field values for the chosen most interesting fields """
+    sumd = {}
+    if fieldlist:
+        flist = fieldlist
+    else:
+        flist = standard_taskfields
+    for task in tasks:
+        for f in flist:
+            if task[f]:
+                if not f in sumd: sumd[f] = {}
+                if not task[f] in sumd[f]: sumd[f][task[f]] = 0
+                sumd[f][task[f]] += 1
+    ## convert to ordered lists
+    suml = []
+    for f in sumd:
+        itemd = {}
+        itemd['field'] = f
+        iteml = []
+        kys = sumd[f].keys()
+        kys.sort()
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    suml = sorted(suml, key=lambda x:x['field'])
+    return suml
+
 def extensibleURL(request):
     """ Return a URL that is ready for p=v query extension(s) to be appended """
     xurl = request.get_full_path()
@@ -343,24 +373,26 @@ def jobList(request, mode=None, param=None):
     taskids = {}
     for job in jobs:
         if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
-    droplist = {}
+    droplist = []
     if len(taskids) == 1:
         for task in taskids:
             retryquery = {}
             retryquery['jeditaskid'] = task
-            retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').reverse().values()
+            retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').values()
         newjobs = []
-        dropJob = False
         for job in jobs:
-            dropjob = False
+            dropJob = 0
             pandaid = job['pandaid']
             for retry in retries:
-                if retry['oldpandaid'] == pandaid:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
-                    droplist[pandaid] = retry['newpandaid']
-                    dropJob = True
-                    break
-            if not dropJob: newjobs.append(job)
+                    print 'dropping', pandaid
+                    dropJob = retry['newpandaid']
+            if dropJob == 0:
+                newjobs.append(job)
+            else:
+                droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
+        droplist = sorted(droplist, key=lambda x:-x['pandaid'])
         jobs = newjobs
 
     jobs = cleanJobList(jobs)
@@ -935,3 +967,96 @@ def dashProduction(request):
 #class QuicksearchForm(forms.Form):
 #    fieldName = forms.CharField(max_length=100)
 
+def taskList(request):
+    query = setupView(request, hours=60*24, limit=9999999)
+    for param in request.GET:
+#         if param == 'category' and request.GET[param] == 'multicloud':
+#             query['multicloud__isnull'] = False
+#         if param == 'category' and request.GET[param] == 'analysis':
+#             query['siteid__contains'] = 'ANALY'
+#         if param == 'category' and request.GET[param] == 'test':
+#             query['siteid__icontains'] = 'test'
+#         if param == 'category' and request.GET[param] == 'production':
+#             prod = True
+        for field in JediTasks._meta.get_all_field_names():
+            if param == field:
+                query[param] = request.GET[param]
+    tasks = JediTasks.objects.filter(**query).values()
+    tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        sumd = taskSummaryDict(request,tasks)
+        data = {
+            'viewParams' : viewParams,
+            'tasks': tasks,
+            'sumd' : sumd,
+            'xurl' : extensibleURL(request),
+        }
+        return render_to_response('taskList.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = sites
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def taskInfo(request, jeditaskid=0):
+    if 'jeditaskid' in request.GET:
+        jeditaskid = request.GET['jeditaskid']
+    setupView(request)
+    query = {'jeditaskid' : jeditaskid}
+    jobsummary = jobSummary(query)
+    tasks = JediTasks.objects.filter(**query).values()
+    colnames = []
+    columns = []
+    try:
+        taskrec = tasks[0]
+        colnames = taskrec.keys()
+        colnames.sort()
+        for k in colnames:
+            val = taskrec[k]
+            if taskrec[k] == None:
+                val = ''
+                continue
+            pair = { 'name' : k, 'value' : val }
+            columns.append(pair)
+    except IndexError:
+        taskrec = None
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        attrs = []
+        attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
+        data = {
+            'viewParams' : viewParams,
+            'task' : taskrec,
+            'columns' : columns,
+            'attrs' : attrs,
+            'jobsummary' : jobsummary,
+            'jeditaskid' : jeditaskid,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('taskInfo.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def jobSummary(query):
+    summary = []
+    summary.extend(Jobsdefined4.objects.filter(**query).values('jobstatus')\
+        .annotate(Count('jobstatus')).order_by('jobstatus'))    
+    summary.extend(Jobswaiting4.objects.filter(**query).values('jobstatus')\
+        .annotate(Count('jobstatus')).order_by('jobstatus'))
+    summary.extend(Jobsactive4.objects.filter(**query).values('jobstatus')\
+        .annotate(Count('jobstatus')).order_by('jobstatus'))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('jobstatus')\
+        .annotate(Count('jobstatus')).order_by('jobstatus'))
+    summary.extend(Jobsarchived.objects.filter(**query).values('jobstatus')\
+        .annotate(Count('jobstatus')).order_by('jobstatus'))
+    jobstates = []
+    global statelist
+    for state in statelist:
+        statecount = {}
+        statecount['name'] = state
+        statecount['count'] = 0
+        for rec in summary:
+            if rec['jobstatus'] == state:
+                statecount['count'] = rec['jobstatus__count']
+                continue
+        jobstates.append(statecount)
+    return jobstates            
