@@ -20,6 +20,7 @@ from core.common.models import Logstable
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
+from core.common.models import JediEvents
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -462,6 +463,12 @@ def jobList(request, mode=None, param=None):
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
+def isEventService(job):
+    if 'specialhandling' in job and job['specialhandling'].find('eventservice') >= 0:
+        return True
+    else:
+        return False
+
 @csrf_exempt
 def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     query = setupView(request, hours=365*24)
@@ -561,6 +568,12 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         retries = None
         pretries = None
 
+    if isEventService(job):
+        ## for ES jobs, pass the event table
+        evtable = JediEvents.objects.filter(pandaid=job['pandaid']).values()
+    else:
+        evtable = None
+
     ## For LSST, pick up parameters from jobparams
     if VOMODE == 'lsst' or ('vo' in job and job['vo'] == 'lsst'):
         lsstData = {}
@@ -592,6 +605,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'logextract' : logextract,
             'retries' : retries,
             'pretries' : pretries,
+            'eventservice' : isEventService(job),
+            'evtable' : evtable,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))

@@ -136,6 +136,36 @@
 </table>
 {% endif %}
 
+{% if eventservice %}
+<p><div class='section'>This is an event service job. Event records:</div>
+
+<table>
+<tr>
+<th> Min event </th>
+<th> Max event </th>
+<th> Processed up to event </th>
+<th> Status </th>
+<th> ProcessID </th>
+<th> FileID </th>
+<th> DatasetID </th>
+<th> Attempt </th>
+</tr>
+{% for ev in evtable %}
+<tr>
+<td> {{ ev.def_min_eventid }} </td>
+<td> {{ ev.def_max_eventid }} </td>
+<td> {{ ev.processed_upto_eventid }} </td>
+<td> {{ ev.status }} </td>
+<td> {{ ev.job_processid }} </td>
+<td> {{ ev.fileid }} </td>
+<td> {{ ev.datasetid }} </td>
+<td> {{ ev.attemptnr }} </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endif %}
+
 <p><div class='section'>Other key job parameters</div>
 
 <table>
