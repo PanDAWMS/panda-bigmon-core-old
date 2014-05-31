@@ -19,6 +19,7 @@ from core.common.models import Jobparamstable
 from core.common.models import Logstable
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
+from core.common.models import JediTaskparams
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -1056,6 +1057,22 @@ def taskInfo(request, jeditaskid=0):
             columns.append(pair)
     except IndexError:
         taskrec = None
+    taskpars = JediTaskparams.objects.filter(**query).values()
+    if len(taskpars) > 0:
+        taskparams = taskpars[0]['taskparams']
+        true = True
+        false = False
+        null = None
+        taskparams = eval(taskparams)
+        tpkeys = taskparams.keys()
+        tpkeys.sort()
+        taskparaml = []
+        for k in tpkeys:
+            rec = { 'name' : k, 'value' : taskparams[k] }
+            taskparaml.append(rec)
+    else:
+        taskparams = None
+        taskparaml = None
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
@@ -1063,6 +1080,8 @@ def taskInfo(request, jeditaskid=0):
         data = {
             'viewParams' : viewParams,
             'task' : taskrec,
+            'taskparams' : taskparams,
+            'taskparaml' : taskparaml,
             'columns' : columns,
             'attrs' : attrs,
             'jobsummary' : jobsummary,

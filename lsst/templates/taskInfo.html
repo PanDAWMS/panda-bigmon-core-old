@@ -64,7 +64,27 @@
 </table>
 {% endif %}
 
-<div class='section'> All task parameters </div>
+{% if taskparams %}
+
+<div class='section'> Task parameters from taskparams table</div>
+<table>
+{% for p in taskparaml %}
+<tr><th> {{ p.name }} </th><td>{% if p.value != None %} {{ p.value }} {% endif %}</td></tr>
+{% endfor %}
+</table>
+<p>
+
+{% comment %}
+<table width=900><tr><td>
+<b>taskParams</b>
+<font size=-1><pre>{{ taskparams }}</pre></font>
+</td></tr></table>
+{% endcomment %}
+
+{% endif %}
+
+
+<div class='section'> All task parameters from task table</div>
 
 <table>
 {% for col in columns %}
