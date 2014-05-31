@@ -161,6 +161,8 @@ def cleanJobList(jobs, mode='drop'):
             job['errorinfo'] = errorInfo(job,nchars=50)
         else:
             job['errorinfo'] = ''
+        job['jobinfo'] = ''
+        if isEventService(job): job['jobinfo'] = 'Event service job'
 
     if mode == 'nodrop': return jobs
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
