@@ -1,4 +1,4 @@
-import logging, re
+import logging, re, json
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
@@ -1075,10 +1075,7 @@ def taskInfo(request, jeditaskid=0):
     taskpars = JediTaskparams.objects.filter(**query).values()
     if len(taskpars) > 0:
         taskparams = taskpars[0]['taskparams']
-        true = True
-        false = False
-        null = None
-        taskparams = eval(taskparams)
+        taskparams = json.loads(taskparams)
         tpkeys = taskparams.keys()
         tpkeys.sort()
         taskparaml = []
