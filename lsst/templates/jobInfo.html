@@ -118,6 +118,8 @@
 &nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
 {% endif %}
 
+{% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
+
 {% if nfiles > 0 %}
 <p><div class='section'>Job files</div>
 <table>

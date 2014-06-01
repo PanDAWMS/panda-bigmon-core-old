@@ -22,6 +22,9 @@
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 <p>
 
+<p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
+<br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
+
 {% if ndrops > 0 %}
 <table width=900><tr><td>
 <b>{{ ndrops }} jobs were dropped from this listing because they were retried. Where there were retries, the latest retry job (only) is listed. </b>
