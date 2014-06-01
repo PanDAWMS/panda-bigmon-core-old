@@ -96,7 +96,7 @@
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
 
-{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' or job.jobstatus == 'holding'  %}
+{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' or job.jobstatus == 'holding' or job.jobstatus == 'transferring'  %}
 <p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
 {% endif %}
 
