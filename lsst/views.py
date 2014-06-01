@@ -8,9 +8,11 @@ from django.db.models import Count
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.conf import settings
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
-from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
+# from ..common.settings import defaultDatetimeFormat
+from core.common.settings import defaultDatetimeFormat
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4, Jobsarchived
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
@@ -22,9 +24,12 @@ from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
 from core.common.models import JediEvents
-from core.common.settings.config import ENV
+# from core.common.settings.config import ENV
+# use settings.ENV instead
 
-from settings.local import dbaccess
+#from settings.local import dbaccess
+# use settings.DATABASES instead
+
 
 homeCloud = {}
 
@@ -57,16 +62,17 @@ def setupView(request, opmode='', hours=0, limit=-99):
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
     setupHomeCloud()
-    ENV['MON_VO'] = ''
+    settings.ENV['MON_VO'] = ''
     viewParams['MON_VO'] = ''
     VOMODE = ''
     for vo in VOLIST:
         if request.META['HTTP_HOST'].startswith(vo):
             VOMODE = vo
     ## If DB is Oracle, set vomode to atlas
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
-    ENV['MON_VO'] = VONAME[VOMODE]
-    viewParams['MON_VO'] = ENV['MON_VO']
+#    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
+    if settings.DATABASES['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
+    settings.ENV['MON_VO'] = VONAME[VOMODE]
+    viewParams['MON_VO'] = settings.ENV['MON_VO']
     fields = standard_fields
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
@@ -950,7 +956,8 @@ def wnSummary(query):
     return summary
 
 def dashboard(request, view=''):
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+#    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+    if settings.DATABASES['default']['ENGINE'].find('oracle') >= 0:
         VOMODE = 'atlas'
     else:
         VOMODE = ''
@@ -1210,7 +1217,7 @@ def jobSummary(query):
     """ Not in use. Cannot take account of rerun jobs. """
     summary = []
     summary.extend(Jobsdefined4.objects.filter(**query).values('jobstatus')\
-        .annotate(Count('jobstatus')).order_by('jobstatus'))    
+        .annotate(Count('jobstatus')).order_by('jobstatus'))
     summary.extend(Jobswaiting4.objects.filter(**query).values('jobstatus')\
         .annotate(Count('jobstatus')).order_by('jobstatus'))
     summary.extend(Jobsactive4.objects.filter(**query).values('jobstatus')\
@@ -1230,7 +1237,7 @@ def jobSummary(query):
                 statecount['count'] = rec['jobstatus__count']
                 continue
         jobstates.append(statecount)
-    return jobstates            
+    return jobstates
 
 def jobSummary2(query):
     jobs = []
@@ -1277,7 +1284,7 @@ def jobSummary2(query):
                 statecount['count'] += 1
                 continue
         jobstates.append(statecount)
-    return jobstates            
+    return jobstates
 
 def jobStateSummary(jobs):
     global statelist
