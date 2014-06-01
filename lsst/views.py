@@ -767,6 +767,38 @@ def userInfo(request, user):
         if job['modificationtime'] < tfirst: tfirst = job['modificationtime']
         if job['currentpriority'] > phigh: phigh = job['currentpriority']
         if job['currentpriority'] < plow: plow = job['currentpriority']
+
+    ## Divide up jobs by jobset and summarize
+    jobsets = {}
+    for job in jobs:
+        if 'jobsetid' not in job or job['jobsetid'] == None: continue
+        if job['jobsetid'] not in jobsets:
+            jobsets[job['jobsetid']] = {}
+            jobsets[job['jobsetid']]['jobsetid'] = job['jobsetid']
+            jobsets[job['jobsetid']]['jobs'] = []
+        jobsets[job['jobsetid']]['jobs'].append(job)
+    for jobset in jobsets:
+        jobsets[jobset]['sum'] = jobStateSummary(jobsets[jobset]['jobs'])
+        jobsets[jobset]['njobs'] = len(jobsets[jobset]['jobs'])
+        tfirst = timezone.now()
+        tlast = timezone.now() - timedelta(hours=2400)
+        plow = 1000000
+        phigh = -1000000
+        for job in jobsets[jobset]['jobs']:
+            if job['modificationtime'] > tlast: tlast = job['modificationtime']
+            if job['modificationtime'] < tfirst: tfirst = job['modificationtime']
+            if job['currentpriority'] > phigh: phigh = job['currentpriority']
+            if job['currentpriority'] < plow: plow = job['currentpriority']
+        jobsets[jobset]['tfirst'] = tfirst
+        jobsets[jobset]['tlast'] = tlast
+        jobsets[jobset]['plow'] = plow
+        jobsets[jobset]['phigh'] = phigh
+    jobsetl = []
+    jsk = jobsets.keys()
+    jsk.sort(reverse=True)
+    for jobset in jsk:
+        jobsetl.append(jobsets[jobset])
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
         flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
@@ -788,6 +820,8 @@ def userInfo(request, user):
             'tlast' : tlast,
             'plow' : plow,
             'phigh' : phigh,
+            'jobsets' : jobsetl,
+            'njobsets' : len(jobsetl),
         }
         data.update(getContextVariables(request))
         return render_to_response('userInfo.html', data, RequestContext(request))
@@ -1231,3 +1265,12 @@ def jobSummary2(query):
                 continue
         jobstates.append(statecount)
     return jobstates            
+
+def jobStateSummary(jobs):
+    global statelist
+    statecount = {}
+    for state in statelist:
+        statecount[state] = 0
+    for job in jobs:
+        statecount[job['jobstatus']] += 1
+    return statecount
