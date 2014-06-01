@@ -2,11 +2,11 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA user {{ user }} {% endblock %}
 {% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA user {{ user }}{{ viewParams.selection }}{% endblock %}
+{% block subtitle %}PanDA user <b>{{ user }}</b>{{ viewParams.selection }}{% endblock %}
 
 {% block body %}
 
-<div class='section'>Recent job stats for <a href="{% url 'userInfo' user %}">{{user}}</a>:</div>
+<div class='section'>Recent job stats for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
 
 <table>
 {% for fdict in jobsumd %}
@@ -21,7 +21,7 @@
 
 <div class='section'><a href="{% url 'taskList' %}?username={{ user }}">Show tasks owned by {{ user }}</a></div>
 
-<div class='section'>Recent jobs for <a href="{% url 'userInfo' user %}">{{user}}</a>:</div>
+<div class='section'>Recent jobs</div>
 
 <table>
 <tr>

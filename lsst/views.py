@@ -146,7 +146,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     elif jobtype == 'production':
         query['prodsourcelabel'] = 'managed'
     elif jobtype == 'test':
-        query['prodsourcelabel'] = 'test'
+        query['prodsourcelabel__contains'] = 'test'
     return query
 
 def cleanJobList(jobs, mode='drop'):

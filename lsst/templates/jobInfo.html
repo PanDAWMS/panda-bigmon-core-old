@@ -96,7 +96,7 @@
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
 
-{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
+{% if job.jobstatus == 'finished' or job.jobstatus == 'failed' or job.jobstatus == 'holding'  %}
 <p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}">Find and view logfiles</a>
 {% endif %}
 
@@ -170,6 +170,7 @@
 
 <table>
 	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a></td></tr>{% endif %}
+	{% if job.processingtype %}<tr><th>Processing type</th><td>{{ job.processingtype }}</td></tr></tr>{% endif %}
 	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
@@ -180,8 +181,6 @@
 	{% if job.transfertype %}<tr><th>Transfer type</th><td>{{ job.transfertype }}</td></tr>{% endif %}
 	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
-	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
-	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
 	{% if job.jobdispatchererrorcode %}
 		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
@@ -217,6 +216,8 @@
 	{% endif %}
 	{% if job.jobmetrics %}<tr><th>Job metrics</th><td>{{ job.jobmetrics }}</td></tr>{% endif %}
 	{% if jobparams %}<tr><th>Job parameters</th><td><font size=-1>{{ jobparams }}</font></td></tr>{% endif %}
+	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
+	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
 </table>
 
 <p><div class='section'>All job parameters</div></p>
