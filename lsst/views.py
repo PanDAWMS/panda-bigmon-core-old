@@ -278,7 +278,10 @@ def userSummaryDict(jobs):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     sumd = {}
     for job in jobs:
-        user = job['produsername'].lower()
+        if 'produsername' in job:
+            user = job['produsername'].lower()
+        else:
+            user = 'Unknown'
         if not user in sumd:
             sumd[user] = {}
             for state in statelist:
