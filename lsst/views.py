@@ -652,6 +652,7 @@ def userList(request):
     sumd = []
     jobsumd = []
     userdb = []
+    userdbl = []
     userstats = {}
     if view == 'database':
         startdate = datetime.utcnow() - timedelta(hours=nhours)
@@ -690,7 +691,6 @@ def userList(request):
         nrecent30 = 0
         nrecent90 = 0
         ## Move to a list of dicts and adjust CPU unit
-        userdbl = []
         for u in userdb:
             udict = {}
             udict['name'] = u.name
