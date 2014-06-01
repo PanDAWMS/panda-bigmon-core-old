@@ -7,6 +7,7 @@ from django.template import RequestContext, loader
 from django.db.models import Count
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
@@ -292,10 +293,14 @@ def userSummaryDict(jobs):
             sumd[user]['nclouds'] = 0
             sumd[user]['clouds'] = {}
             sumd[user]['nqueued'] = 0
+            sumd[user]['latest'] = timezone.now() - timedelta(hours=2400)
+            sumd[user]['pandaid'] = 0
         cloud = job['cloud']
         site = job['computingsite']
         cpu = float(job['cpuconsumptiontime'])/1.
         state = job['jobstatus']
+        if job['modificationtime'] > sumd[user]['latest']: sumd[user]['latest'] = job['modificationtime']
+        if job['pandaid'] > sumd[user]['pandaid']: sumd[user]['pandaid'] = job['pandaid']
         sumd[user]['cputime'] += cpu
         sumd[user]['njobs'] += 1
         sumd[user]['n'+state] += 1
@@ -315,9 +320,10 @@ def userSummaryDict(jobs):
     for u in ukeys:
         uitem = {}
         uitem['name'] = u
+        uitem['latest'] = sumd[u]['pandaid']
         uitem['dict'] = sumd[u]
         suml.append(uitem)
-    suml = sorted(suml, key=lambda x:x['name'])
+    suml = sorted(suml, key=lambda x:-x['latest'])
     return suml
 
 def taskSummaryDict(request, tasks, fieldlist = None):
@@ -619,7 +625,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
 
 def userList(request):
     nhours = 90*24
-    query = setupView(request, hours=nhours, limit=-1)
+    query = setupView(request, hours=nhours, limit=-99)
     if VOMODE == 'atlas':
         view = 'database'
     else:
@@ -684,17 +690,18 @@ def userList(request):
         userstats['nrecent30'] = nrecent30
         userstats['nrecent90'] = nrecent90
     else:
-        nhours = 24
-        query = setupView(request, hours=nhours)
+        nhours = 12
+        query = setupView(request, hours=nhours, limit=3000)
         ## dynamically assemble user summary info
+        values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid'
         jobs = QuerySetChain(\
-                        Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                        Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                        Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
-                        Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT],
+                        Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
+                        Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
+                        Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
+                        Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
         )
         for job in jobs:
-            if job.transformation: job.transformation = job.transformation.split('/')[-1]
+            if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
         sumd = userSummaryDict(jobs)
         jobsumd = jobSummaryDict(request, jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':

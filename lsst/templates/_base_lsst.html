@@ -132,13 +132,18 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
        {% endblock %}
 
-        {% block top_menu_all_3 %}
-        <li>
+       {% block top_menu_all_3 %}
+        <li class="has-dropdown">
           {% block top_menu_3 %}
-          <a href="{% url 'userList' %}?sortby=date">Users</a>
+          <a href="#">Users</a>
+          <ul class="dropdown">
+            <li><a href="{% url 'userList' %}?sortby=date">Usage stats view</a></li>
+            <li><a href="{% url 'userList' %}?sortby=date&view=dynamic">Dynamic view</a></li>
+          </ul>
           {% endblock %}
         </li>
-        {% endblock %}
+       {% endblock %}
+
 
         {% block top_menu_all_4 %}
         <li>
