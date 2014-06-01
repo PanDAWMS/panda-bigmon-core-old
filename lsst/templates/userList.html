@@ -9,11 +9,11 @@
 {% block body %}
 
 {% if sumd %}
-{% comment %}
-The dynamic summary table
-{% endcomment %}
 
-<p>This page shows dynamic usage info from the latest jobs. Alternate view: <a href="{% url 'userList' %}">Summary usage information updated every few hours</a><p>
+<p>This page shows dynamic usage info from the latest jobs.
+{% if viewParams.MON_VO == 'ATLAS' %}
+Alternate view: <a href="{% url 'userList' %}?view=database&sortby=date">Summary usage information updated every few hours</a><p>
+{% endif %}
 
 <div class="section">Recent job attribute summary</div>
 
@@ -66,16 +66,15 @@ The dynamic summary table
 
 {% else %}
 
+{% if requestParams.view == 'dynamic' %}
 No dynamic usage information found.
+{% endif %}
 
 {% endif %}
 
 {% if userdb %}
-{% comment %}
-The user DB presently generated only for ATLAS.
-{% endcomment %}
 
-<p>This page shows summary usage information updated every few hours. Alternate view: <a href="{{xurl}}view=dynamic">Dynamic usage info from the latest jobs</a><p>
+<p>This page shows summary usage information updated every few hours. Alternate view: <a href="{% url 'userList' %}?view=dynamic&sortby=date">Dynamic usage info from the latest jobs</a><p>
 
 <div class='section'>Usage stats</div>
 
@@ -125,7 +124,9 @@ Job count for the last 7 days: {{ userstats.anajobs }}
 
 {% else %}
 
+{% if requestParams.view == 'database' %}
 Summary usage statistics not yet available.
+{% endif %}
 
 {% endif %}
 

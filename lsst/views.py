@@ -713,6 +713,7 @@ def userList(request):
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'xurl' : extensibleURL(request),
             'url' : request.path,
             'sumd' : sumd,
