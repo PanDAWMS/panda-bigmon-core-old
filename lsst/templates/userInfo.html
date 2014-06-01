@@ -41,6 +41,9 @@
 <p>
 {% endif %}
 
+<p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
+<br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
+
 <div class='section'>Recent job attributes for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
 
 <table>
