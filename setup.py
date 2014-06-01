@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 #
-# Setup prog for Panda Server
+# Setup prog for bigpandamon-core
 #
 #
 from version import __version__, __provides__
-#release_version = '0.0.6' #FIXME
 prefix = '/data/atlpan/bigpandamon'
 lib_prefix = 'lib/python2.6/site-packages/'
 expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example'] #FIXME
