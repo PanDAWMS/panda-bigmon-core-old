@@ -762,7 +762,7 @@ def userInfo(request, user):
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    if LAST_N_HOURS_MAX > 72: jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs = cleanJobList(jobs)
     userdb = Users.objects.filter(name=user).values()
     if len(userdb) > 0:
