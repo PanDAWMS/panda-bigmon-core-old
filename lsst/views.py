@@ -360,6 +360,7 @@ def taskSummaryDict(request, tasks, fieldlist = None):
 def extensibleURL(request):
     """ Return a URL that is ready for p=v query extension(s) to be appended """
     xurl = request.get_full_path()
+    if xurl.endswith('/'): xurl = xurl[0:len(xurl)-1]
     if xurl.find('?') > 0:
         xurl += '&'
     else:
@@ -688,7 +689,19 @@ def userList(request):
         nrecent7 = 0
         nrecent30 = 0
         nrecent90 = 0
+        ## Move to a list of dicts and adjust CPU unit
+        userdbl = []
         for u in userdb:
+            udict = {}
+            udict['name'] = u.name
+            udict['njobsa'] = u.njobsa
+            if u.cpua1: udict['cpua1'] = "%0.1f" % (int(u.cpua1)/3600.)
+            if u.cpua7: udict['cpua7'] = "%0.1f" % (int(u.cpua7)/3600.)
+            if u.cpup1: udict['cpup1'] = "%0.1f" % (int(u.cpup1)/3600.)
+            if u.cpup7: udict['cpup7'] = "%0.1f" % (int(u.cpup7)/3600.)
+            udict['latestjob'] = u.latestjob
+            userdbl.append(udict)
+
             if u.njobsa > 0: anajobs += u.njobsa
             if u.njobsa >= 1000: n1000 += 1
             if u.njobsa >= 10000: n10k += 1
@@ -731,7 +744,7 @@ def userList(request):
             'url' : request.path,
             'sumd' : sumd,
             'jobsumd' : jobsumd,
-            'userdb' : userdb,
+            'userdb' : userdbl,
             'userstats' : userstats,
         }
         data.update(getContextVariables(request))

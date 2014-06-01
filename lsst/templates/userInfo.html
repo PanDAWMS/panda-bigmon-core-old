@@ -66,7 +66,7 @@
 <tr>
 <th> Jobset ID </th>
 <th> nJobs </th>
-<th> Modify time range </th>
+<th> Modification times </th>
 <th> Priorities </th>
 <th> defined </th>
 <th> waiting </th>
@@ -86,7 +86,7 @@
 <th> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}">{{ jobset.jobsetid }}</a></th>
 <td> {{ jobset.njobs }} </td>
 <td> {{ jobset.tfirst|date:"Y-m-d H:i" }} to {{ jobset.tlast|date:"m-d H:i" }} </td>
-<td> {{ jobset.plow }} - {{ jobset.phigh }} </td>
+<td> {{ jobset.plow }} to {{ jobset.phigh }} </td>
 <td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=defined"><span class="defined">{{ jobset.sum.defined }}</span></a> </td>
 <td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=waiting"><span class="waiting">{{ jobset.sum.waiting }}</span></a> </td>
 <td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=assigned"><span class="assigned">{{ jobset.sum.assigned }}</span></a> </td>
