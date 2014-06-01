@@ -10,7 +10,7 @@
 
 {% if sumd %}
 {% comment %}
-The dynamic summary table used presently for non-ATLAS.
+The dynamic summary table
 {% endcomment %}
 
 <p>This page shows dynamic usage info from the latest jobs. Alternate view: <a href="{% url 'userList' %}">Summary usage information updated every few hours</a><p>
@@ -63,6 +63,10 @@ The dynamic summary table used presently for non-ATLAS.
 </tr>
 {% endfor %}
 </table>
+
+{% else %}
+
+No dynamic usage information found.
 
 {% endif %}
 
@@ -118,6 +122,10 @@ Job count for the last 7 days: {{ userstats.anajobs }}
 </tr>
 {% endfor %}
 </table>
+
+{% else %}
+
+Summary usage statistics not yet available.
 
 {% endif %}
 

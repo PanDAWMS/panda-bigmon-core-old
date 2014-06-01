@@ -690,7 +690,10 @@ def userList(request):
         userstats['nrecent30'] = nrecent30
         userstats['nrecent90'] = nrecent90
     else:
-        nhours = 12
+        if VOMODE == 'atlas':
+            nhours = 12
+        else:
+            nhours = 7*24
         query = setupView(request, hours=nhours, limit=3000)
         ## dynamically assemble user summary info
         values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid'
