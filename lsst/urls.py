@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 import lsst.settings
 
 import lsst.views as lsstmon_views
-import lsst.views_support as lsstmon_support_views
+import core.pandajob.views_support as lsstmon_support_views
 
 urlpatterns = patterns('',
     url(r'^$', lsstmon_views.mainPage, name='mainPage'),
