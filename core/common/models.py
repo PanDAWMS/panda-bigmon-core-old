@@ -1987,8 +1987,8 @@ class Users(models.Model):
     vo = models.CharField(max_length=60, db_column='VO', blank=True) # Field name made lowercase.
 
     class Meta:
-#        db_table = u'users'
-        db_table = u'"ATLAS_PANDAMETA"."USERS"'
+        db_table = u'users'
+##FIXME: reenable this after proper dbproxies are introduced!###        db_table = u'"ATLAS_PANDAMETA"."USERS"'
         allColumns = COLUMNS['ActiveUsers-all']
         primaryColumns = [ 'name']
         secondaryColumns = []
