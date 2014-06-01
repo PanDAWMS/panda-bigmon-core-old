@@ -728,19 +728,31 @@ def userList(request):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def userInfo(request, user):
-    query = setupView(request,hours=24)
+    query = setupView(request,hours=24,limit=300)
     query['produsername'] = user
     jobs = []
-    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values())
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode'
+    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs = cleanJobList(jobs)
+    userdb = Users.objects.filter(name=user).values()
+    if len(userdb) > 0:
+        userstats = userdb[0]
+        for field in ['cpua1', 'cpua7', 'cpup1', 'cpup7' ]:
+            userstats[field] = "%0.1f" % ( float(userstats[field])/3600.)
+    else:
+        userstats = None
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
         flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
-        if VOMODE != 'atlas': flist.append('vo')
+        if VOMODE != 'atlas':
+            flist.append('vo')
+        else:
+            flist.append('atlasrelease')
         jobsumd = jobSummaryDict(request, jobs, flist)
         data = {
             'viewParams' : viewParams,
@@ -750,6 +762,7 @@ def userInfo(request, user):
             'jobsumd' : jobsumd,
             'jobList' : jobs,
             'query' : query,
+            'userstats' : userstats,
         }
         data.update(getContextVariables(request))
         return render_to_response('userInfo.html', data, RequestContext(request))

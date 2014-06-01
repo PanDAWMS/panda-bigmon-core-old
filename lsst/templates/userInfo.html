@@ -6,6 +6,41 @@
 
 {% block body %}
 
+{% if userstats %}
+<div class="section">Stats from the user DB (updated every few hours)</div>
+<table>
+<tr>
+<th> User </th>
+<th> Jobs in last week </th>
+<th> Latest job in the DB stats </th>
+<th> Personal CPU-hrs - 1 day </th>
+<th> Personal CPU-hrs - 7 days </th>
+<th> Group CPU-hrs - 1 day </th>
+<th> Group CPU-hrs - 7 days </th>
+</tr>
+
+<tr>
+<td> {{ userstats.name }} </td>
+<td> {% if userstats.njobsa %}{{ userstats.njobsa }} {% endif %}</td>
+<td>{{ userstats.latestjob|date:"Y-m-d H:i" }}</td>
+
+{% comment %}
+<td class='finished'> {{ userstats.nfinished }} </td>
+<td class='failed'> {{ userstats.nfailed }} </td>
+<td class='holding'> {{ userstats.nholding }} </td>
+<td class='cancelled'> {{ userstats.ncancelled }} </td>
+<td class='defined'> {{ userstats.nqueued }} </td>
+{% endcomment %}
+<td> {% if userstats.cpua1 %}{{ userstats.cpua1 }} {% endif %}</td>
+<td> {% if userstats.cpua7 %}{{ userstats.cpua7 }} {% endif %}</td>
+<td> {% if userstats.cpup1 %}{{ userstats.cpup1 }} {% endif %}</td>
+<td> {% if userstats.cpup7 %}{{ userstats.cpup7 }} {% endif %}</td>
+</tr>
+</table>
+
+<p>
+{% endif %}
+
 <div class='section'>Recent job attributes for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
 
 <table>
