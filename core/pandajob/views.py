@@ -51,14 +51,13 @@ from .columns_config import COLUMNS, ORDER_COLUMNS, COL_TITLES, FILTERS
 #### use settings.ENV instead
 #from settings.local import dbaccess
 #### use settings.DATABASES instead
-from .utils import homeCloud, statelist, setupHomeCloud, sitestatelist, \
+from .utils import homeCloud, statelist, sitestatelist, \
     viewParams, VOLIST, VONAME, VOMODE, \
     standard_fields, standard_sitefields, standard_taskfields, \
-    cleanJobList, cleanTaskList, \
-    siteSummaryDict, userSummaryDict, \
-    errorInfo, \
-    isEventService, \
+    setupHomeCloud, cleanJobList, cleanTaskList, \
+    siteSummaryDict, userSummaryDict, errorInfo, isEventService, \
     siteSummary, voSummary, wnSummary, jobStateSummary, \
+    jobSummary, jobSummary2, \
     LAST_N_HOURS_MAX, \
     JOB_LIMIT
     # setupView, extensibleURL, userList,
