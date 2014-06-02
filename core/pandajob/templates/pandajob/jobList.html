@@ -1,8 +1,8 @@
-{% extends "_base_lsst.html" %}
+{% extends "common/_index_grid.html" %}
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
-{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}PanDA job list{{ viewParams.selection }}
 {% if user %} &nbsp; user={{ user }} {% endif %}
 {% if site %} &nbsp; site={{ site }} {% endif %}
