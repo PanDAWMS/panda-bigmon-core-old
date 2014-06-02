@@ -2,7 +2,7 @@
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
-{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}PanDA {{view}} dashboard{{ viewParams.selection }}
 {% endblock %}
 {% block body %}
