@@ -2,13 +2,17 @@
 <!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
-<head>
+<head profile="http://www.w3.org/2005/10/profile">
+<link rel="icon" 
+	type="image/png" 
+	href="/favicon.png" />
+	
 	<meta charset="utf-8" />
 
 	<!-- Set the viewport width to device width for mobile -->
 	<meta name="viewport" content="width=device-width" />
 
-	<title>{% block page_title %}{{ title }}{% endblock %}</title>
+	<title>{% block page_title %}{{ PAGE_TITLE }}{% endblock %}</title>
 
 	<!-- Included CSS Files -->
 {% comment %}
@@ -53,94 +57,27 @@
 		<!-- Left Nav Section -->
       <ul class="left">
         <li class="divider"></li>
+
        {% block top_menu_all_1 %}
         <li class="has-dropdown">
-          {% block top_menu_1 %}
-          <a class="active" href="#">DEFT</a>
-          <ul class="dropdown">
-            <li><label>Meta-Task Control Center</label></li>
-            <li><a href="#" class="">Dropdown Level 1</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><label>Task Monitor</label></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><label>Template Library</label></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><label>Meta-Task/Task Editor</label></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><a href="#">See all &rarr;</a></li>
-          </ul>
-          {% endblock %}
+          {% block top_menu_1 %}{% endblock %}
         </li>
         <li class="divider"></li>
         {% endblock %}
         {% block top_menu_all_2 %}
         <li>
-        {% block top_menu_2 %}
-        <a href="#">JEDI</a>
-        {% endblock %}
+        {% block top_menu_2 %}{% endblock %}
         </li>
         <li class="divider"></li>
         {% endblock %}
         {% block top_menu_all_3 %}
         <li class="has-dropdown">
-         {% block top_menu_3 %}
-          <a href="#">PanDA</a>
-          <ul class="dropdown">
-            <li><a href="#">Home</a></li>
-            <li><a href="{{prefix}}/job/list/">List jobs</a></li>
-            <li><a href="{{prefix}}/schedconfig/">List queues</a></li>
-            <li class="divider"></li>
-            <li><a href="#">See all &rarr;</a></li>
-          </ul>
-          {% endblock %}
+         {% block top_menu_3 %}{% endblock %}
         </li>
         {% endblock %}
         {% block top_menu_all_4 %}
-        <li class="has-dropdown">
-          {% block top_menu_4 %}
-          <a href="#">Main Item 4</a>
-          <ul class="dropdown">
-            <li><label>Section Name</label></li>
-            <li class="has-dropdown">
-              <a href="#" class="">Has Dropdown, Level 1</a>
-              <ul class="dropdown">
-                <li><a href="#">Dropdown Options</a></li>
-                <li><a href="#">Dropdown Options</a></li>
-                <li class="has-dropdown">
-                  <a href="#">Has Dropdown, Level 2</a>
-                  <ul class="dropdown test">
-                    <li><a href="#">Subdropdown Option</a></li>
-                    <li><a href="#">Subdropdown Option</a></li>
-                    <li><a href="#">Subdropdown Option</a></li>
-                  </ul>
-                </li>
-                <li><a href="#">Subdropdown Option</a></li>
-                <li><a href="#">Subdropdown Option</a></li>
-                <li><a href="#">Subdropdown Option</a></li>
-              </ul>
-            </li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><label>Section Name</label></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><a href="#">See all &rarr;</a></li>
-          </ul>
-          {% endblock %}
+        <li>
+        {% block top_menu_4 %}{% endblock %}
         </li>
         <li class="divider"></li>
         {% endblock %}
@@ -151,26 +88,13 @@
         <li class="divider"></li>
         {% block top_menu_all_5 %}
         <li>
-        {% block top_menu_5 %}
-        <a href="#">Main Item 5</a>
-        {% endblock %}
+        {% block top_menu_5 %}{% endblock %}
         </li>
         <li class="divider"></li>
         {% endblock %}
         {% block top_menu_all_6 %}
         <li class="has-dropdown">
-          {% block top_menu_6 %}
-          <a href="#">Help</a>
-          <ul class="dropdown">
-            <li><a href="http://pandawms.org/monreq">Monitoring requirements</a></li>
-            {% comment %}
-            <li><a href="#">Dropdown Option</a></li>
-            <li><a href="#">Dropdown Option</a></li>
-            <li class="divider"></li>
-            <li><a href="#">See all &rarr;</a></li>
-            {% endcomment %}
-          </ul>
-          {% endblock %}
+          {% block top_menu_6 %}{% endblock %}
         </li>
        {% endblock %}
       </ul>
@@ -277,7 +201,20 @@
 
 
   <!-- Footer -->
+  <footer>
+    <div class="large-12 columns">
+      <hr />
+        {% block bottom_copy %}
+            <table borderwidth=0><tr><td valign="bottom">
+          <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">
+          <img src="{% static "images/panda-verysmall-notext.png" %}">
+          </a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
+        {% endblock %}
+      </div>
+    </div>
+  </footer>
 
+  {% comment %}
   <footer class="row">
     <div class="large-12 columns">
       <hr />
@@ -298,6 +235,7 @@
       </div>
     </div>
   </footer>
+  {% endcomment %}
 
   {% comment %}
   <script>

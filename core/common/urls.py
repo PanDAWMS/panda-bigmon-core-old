@@ -15,7 +15,6 @@ from ..htcondor import views as htcondor_views
 #from ..task import views as task_views
 
 
-
 common_patterns = patterns('',
     ### robots.txt
     url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
@@ -28,6 +27,7 @@ common_patterns = patterns('',
     url(r'^job', include('core.pandajob.urls')),
     url(r'^resource', include('core.resource.urls')),
     url(r'^api-auth', include('core.api.urls')),
+#    url(r'^lsst', include('lsst.urls')),
 
 
     ### UI elements
@@ -35,6 +35,9 @@ common_patterns = patterns('',
 #    url(r'^graphics/', include('core.graphics.urls')),
 #    url(r'^task/', include('core.task.urls')),
 
+
+    ### support views for LSST
+    url(r'^support/', include('core.pandajob.urls_pandajob_support')),
 
 
 #    ### TEST/Playground
