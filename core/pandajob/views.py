@@ -613,12 +613,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
         viewParams['selection'] = ""
     for param in request.GET:
         viewParams['selection'] += ", %s=%s " % (param, request.GET[param])
-    print ':127 LAST_N_HOURS_MAX=', LAST_N_HOURS_MAX
     startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().replace(tzinfo=pytz.utc).strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
-    print ':134 query=', query
     ### Add any extensions to the query determined from the URL
     for vo in [ 'atlas', 'lsst' ]:
         if request.META['HTTP_HOST'].startswith(vo):
@@ -1488,12 +1486,7 @@ def taskList(request):
                     query['%s__endswith' % param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
-#    tasks = JediTasks.objects.filter(**query).values()
-    if 'jeditaskid' in query:
-        tasks = JediTasks.objects.filter(**query).values()
-    else:
-        # FIXME: handle this situation in a better way
-        tasks = JediTasks.objects.filter(jeditaskid=0).values()
+    tasks = JediTasks.objects.filter(**query).values()
     tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
