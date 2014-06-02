@@ -1488,7 +1488,12 @@ def taskList(request):
                     query['%s__endswith' % param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
-    tasks = JediTasks.objects.filter(**query).values()
+#    tasks = JediTasks.objects.filter(**query).values()
+    if 'jeditaskid' in query:
+        tasks = JediTasks.objects.filter(**query).values()
+    else:
+        # FIXME: handle this situation in a better way
+        tasks = JediTasks.objects.filter(jeditaskid=0).values()
     tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
@@ -1544,7 +1549,12 @@ def taskInfo(request, jeditaskid=0):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
-        attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
+        if taskrec is not None:
+            taskrec_status = taskrec['status']
+        else:
+            taskrec_status = '?'
+            # FIXME: handle this situation in a better way
+        attrs.append({'name' : 'Status', 'value' : taskrec_status })
         data = {
             'viewParams' : viewParams,
             'task' : taskrec,
