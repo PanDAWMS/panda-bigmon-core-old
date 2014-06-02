@@ -13,7 +13,7 @@ from ..common.models import Users
 from ..resource.models import Schedconfig
 
 from .models import Jobsactive4, Jobsdefined4, Jobswaiting4, \
-    Jobsarchived4
+    Jobsarchived4, Jobsarchived
 
 
 homeCloud = {}
