@@ -230,7 +230,9 @@ def errorInfo(job, nchars=300):
 
 
 def isEventService(job):
-    if 'specialhandling' in job and job['specialhandling'].find('eventservice') >= 0:
+    if job is not None and 'specialhandling' in job \
+        and job['specialhandling'] is not None \
+        and job['specialhandling'].find('eventservice') >= 0:
         return True
     else:
         return False

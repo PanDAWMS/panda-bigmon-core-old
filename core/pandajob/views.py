@@ -837,11 +837,19 @@ def jobList(request, mode=None, param=None):
 @csrf_exempt
 def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     query = setupView(request, hours=365 * 24)
+    print 'views:840 query=', query
+    # if pandaid is None and batchid is None, job 1901 was always returned.
+    # Instead, return page with the pandaid/batchid/taskid form.
+    if pandaid is None and batchid is None \
+        and 'pandaid' not in query and 'batchid' not in query:
+        return mainPage(request)
     jobid = '?'
-    if pandaid:
+#    if pandaid:
+    if pandaid is not None:
         jobid = pandaid
         query['pandaid'] = pandaid
-    if batchid:
+#    if batchid:
+    if batchid is not None:
         jobid = batchid
         query['batchid'] = batchid
     if 'pandaid' in request.GET:
