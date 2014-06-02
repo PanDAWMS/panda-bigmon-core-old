@@ -52,7 +52,7 @@ urlpatterns = patterns('',
 #    url(r'^support/$', core_lsstmon_support_views.maxpandaid, name='supportRoot'),
 #    url(r'^support/maxpandaid/$', core_lsstmon_support_views.maxpandaid, name='supportMaxpandaid'),
 
-    url(r'^/', include('core.pandajob.urls_pandajob_mainpage')),
+    url(r'^$', include('core.pandajob.urls_pandajob_mainpage')),
     url(r'^jobs/', include('core.pandajob.urls_pandajob_jobs')),
     url(r'^job/', include('core.pandajob.urls_pandajob_singlejob')),
     url(r'^users/', include('core.pandajob.urls_pandajob_users')),
