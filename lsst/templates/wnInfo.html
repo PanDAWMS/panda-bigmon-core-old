@@ -41,7 +41,7 @@ Click the job counts to go to job listings.
 {% if wn.outlier != '' %}
 
 <tr {% if wn.outlier != '' %} class='warning' {% endif %}>
-<th> <a href="{$ url 'wnInfo' site wn %}">{{ wn.name }} </th>
+<th> <a href="{% url 'wnInfo' site wn %}">{{ wn.name }} </th>
 <td>{{ wn.slotcount  }} </th>
 <td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
 {% for state in wn.statelist %}
@@ -79,7 +79,7 @@ Click the job counts to go to job listings.
 
 {% for wn in summary %}
 <tr {% if wn.outlier != '' %} class='warning' {% endif %}>
-<th> <a href="{$ url 'wnInfo' site wn %}">{{ wn.name }} </th>
+<th> <a href="{% url 'wnInfo' site wn %}">{{ wn.name }} </th>
 <td>{{ wn.slotcount  }} </th>
 <td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
 {% for state in wn.statelist %}
