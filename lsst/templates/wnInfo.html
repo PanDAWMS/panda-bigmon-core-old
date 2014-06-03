@@ -9,6 +9,12 @@
 
 {{ viewParams.header }}
 
+{% if wnname != 'all' %}
+
+WN-level view not implemented yet. 
+
+{% else %}
+
 <table width=800><tr><td>
 Slot count shown is the number of uniquely named slots (from the slot@WN convention of slot/WN naming) that have picked up jobs in the interval, which may be less than the actual number of batch slots on the WN. Statistics shown are aggregated over all slots on the WN. For a breakdown by slot for a particular WN, click the WN name.
 Failure rates above 20% are shown in red.
@@ -79,7 +85,7 @@ Click the job counts to go to job listings.
 
 {% for wn in summary %}
 <tr {% if wn.outlier != '' %} class='warning' {% endif %}>
-<th> <a href="{% url 'wnInfo' site wn %}">{{ wn.name }} </th>
+<th> <a href="{% url 'wnInfo' site wn.name %}">{{ wn.name }} </th>
 <td>{{ wn.slotcount  }} </th>
 <td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
 {% for state in wn.statelist %}
@@ -93,6 +99,8 @@ Click the job counts to go to job listings.
 {% endfor %}
 
 </table>
+
+{% endif %}
 
 {% endblock %}
 
