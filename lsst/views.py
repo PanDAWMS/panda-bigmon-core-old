@@ -956,7 +956,7 @@ def wnInfo(request,site,wnname='all'):
     """ Give worker node level breakdown of site activity. Spot hot nodes, error prone nodes. """
     if wnname != 'all':
         query = setupView(request,hours=72,limit=999999)
-        query['modificationhost'] = wnname
+        query['modificationhost__endswith'] = wnname
     else:
         query = setupView(request,hours=72,limit=999999)
     query['computingsite'] = site
@@ -972,7 +972,10 @@ def wnInfo(request,site,wnname='all'):
         wnfull = rec['modificationhost']
         wnsplit = wnfull.split('@')
         if len(wnsplit) == 2:
-            wn = wnsplit[1]
+            if wnname == 'all': 
+                wn = wnsplit[1]
+            else:
+                wn = wnfull
             slot = wnsplit[0]
         else:
             wn = wnfull
@@ -1002,38 +1005,37 @@ def wnInfo(request,site,wnname='all'):
     wntot = len(wnkeys)
     fullsummary = []
 
-    if wnname=='all':
-        allstated = {}
-        allstated['finished'] = allstated['failed'] = 0
-        allwns = {}
-        allwns['name'] = 'All'
-        allwns['count'] = totjobs
-        allwns['states'] = totstates
-        allwns['statelist'] = []
-        for state in sitestatelist:
-            allstate = {}
-            allstate['name'] = state
-            allstate['count'] = totstates[state]
-            allstated[state] = totstates[state]
-            allwns['statelist'].append(allstate)
-        if int(allstated['finished']) + int(allstated['failed']) > 0:
-            allwns['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-            if int(allwns['pctfail']) > 20: allwns['pctfail'] = "<font color=red>%s</font>" % allwns['pctfail']
-        fullsummary.append(allwns)
-        avgwns = {}
-        avgwns['name'] = 'Average'
-        avgwns['count'] = "%0.2f" % (totjobs/wntot)
-        avgwns['states'] = totstates
-        avgwns['statelist'] = []
-        avgstates = {}
-        for state in sitestatelist:
-            avgstates[state] = totstates[state]/wntot
-            allstate = {}
-            allstate['name'] = state
-            allstate['count'] = "%0.2f" % (int(totstates[state])/wntot)
-            allstated[state] = "%0.2f" % (int(totstates[state])/wntot)
-            avgwns['statelist'].append(allstate)
-        fullsummary.append(avgwns)
+    allstated = {}
+    allstated['finished'] = allstated['failed'] = 0
+    allwns = {}
+    allwns['name'] = 'All'
+    allwns['count'] = totjobs
+    allwns['states'] = totstates
+    allwns['statelist'] = []
+    for state in sitestatelist:
+        allstate = {}
+        allstate['name'] = state
+        allstate['count'] = totstates[state]
+        allstated[state] = totstates[state]
+        allwns['statelist'].append(allstate)
+    if int(allstated['finished']) + int(allstated['failed']) > 0:
+        allwns['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
+        if int(allwns['pctfail']) > 20: allwns['pctfail'] = "<font color=red>%s</font>" % allwns['pctfail']
+    if wnname == 'all': fullsummary.append(allwns)
+    avgwns = {}
+    avgwns['name'] = 'Average'
+    avgwns['count'] = "%0.2f" % (totjobs/wntot)
+    avgwns['states'] = totstates
+    avgwns['statelist'] = []
+    avgstates = {}
+    for state in sitestatelist:
+        avgstates[state] = totstates[state]/wntot
+        allstate = {}
+        allstate['name'] = state
+        allstate['count'] = "%0.2f" % (int(totstates[state])/wntot)
+        allstated[state] = "%0.2f" % (int(totstates[state])/wntot)
+        avgwns['statelist'].append(allstate)
+    if wnname == 'all': fullsummary.append(avgwns)
 
     for wn in wnkeys:
         outlier = ''

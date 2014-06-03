@@ -11,7 +11,43 @@
 
 {% if wnname != 'all' %}
 
-WN-level view not implemented yet. 
+<div class='section'>WN info for {{ wnname }} at site {{ site }}</div>
+
+<table>
+
+<tr bgcolor="lightcyan">
+<th> WN </th>
+<th> nSlots </th>
+<th> nJobs </th>
+<th> sent </th>
+<th> starting </th>
+<th> running </th>
+<th> holding </th>
+<th> transferring </th>
+<th> finished </th>
+<th> failed </th>
+<th> cancelled </th>
+<th> % failed </th>
+<th> outliers </th>
+</tr>
+
+{% for wn in summary %}
+<tr {% if wn.outlier != '' %} class='warning' {% endif %}>
+<th> <a href="{% url 'wnInfo' site wn.name %}">{{ wn.name }} </th>
+<td>{{ wn.slotcount  }} </th>
+<td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
+{% for state in wn.statelist %}
+{% if state.name != 'assigned' and state.name != 'activated' %}
+<td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
+{% endif %}
+{% endfor %}
+<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
+</tr>
+{% endfor %}
+
+</table>
+
 
 {% else %}
 
