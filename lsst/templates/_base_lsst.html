@@ -52,6 +52,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .brokeroff { color:darkgrey }
 .offline { color:darkgrey }
 .holding { color:#FF9933 }
+.warning { font-weight: bold; }
 .timeout { color:#FF9933 }
 .running { color:#47D147 }
 .starting { color:#47D147 }
@@ -156,7 +157,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         {% block top_menu_all_5 %}
         <li>
           {% block top_menu_5 %}
-          <a href="{% url 'index' %}">Quick search</a>
+          <a href="{% url 'mainPage' %}">Quick search</a>
           {% endblock %}
         </li>
         {% endblock %}

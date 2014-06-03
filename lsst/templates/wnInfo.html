@@ -1,0 +1,111 @@
+{% extends "_base_lsst.html" %}
+{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA WN performance for {{ site }} {% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA WN performance for {{ site }}</a>{% endblock %}
+{% block subtitle %}PanDA WN performance for {{ site }}{{ viewParams.selection }}
+{% endblock %}
+{% block body %}
+
+{{ viewParams.header }}
+
+<table width=800><tr><td>
+Slot count shown is the number of uniquely named slots (from the slot@WN convention of slot/WN naming) that have picked up jobs in the interval, which may be less than the actual number of batch slots on the WN. Statistics shown are aggregated over all slots on the WN. For a breakdown by slot for a particular WN, click the WN name.
+Failure rates above 20% are shown in red.
+Click the cloud name in the overall summary to go to the cloud's site summary.
+Click the job counts to go to job listings.
+</tr></td></table>
+<p>
+
+<div class='section'>WN outliers for site {{ site }}</div>
+
+<table>
+
+<tr bgcolor="lightcyan">
+<th> WN </th>
+<th> nSlots </th>
+<th> nJobs </th>
+<th> sent </th>
+<th> starting </th>
+<th> running </th>
+<th> holding </th>
+<th> transferring </th>
+<th> finished </th>
+<th> failed </th>
+<th> cancelled </th>
+<th> % failed </th>
+<th> outliers </th>
+</tr>
+
+{% for wn in summary %}
+{% if wn.outlier != '' %}
+
+<tr {% if wn.outlier != '' %} class='warning' {% endif %}>
+<th> <a href="{$ url 'wnInfo' site wn %}">{{ wn.name }} </th>
+<td>{{ wn.slotcount  }} </th>
+<td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
+{% for state in wn.statelist %}
+{% if state.name != 'assigned' and state.name != 'activated' %}
+<td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
+{% endif %}
+{% endfor %}
+<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
+</tr>
+
+{% endif %}
+{% endfor %}
+</table>
+<p>
+<div class='section'>WN full summary for site {{ site }}</div>
+
+<table>
+
+<tr bgcolor="lightcyan">
+<th> WN </th>
+<th> nSlots </th>
+<th> nJobs </th>
+<th> sent </th>
+<th> starting </th>
+<th> running </th>
+<th> holding </th>
+<th> transferring </th>
+<th> finished </th>
+<th> failed </th>
+<th> cancelled </th>
+<th> % failed </th>
+<th> outliers </th>
+</tr>
+
+{% for wn in summary %}
+<tr {% if wn.outlier != '' %} class='warning' {% endif %}>
+<th> <a href="{$ url 'wnInfo' site wn %}">{{ wn.name }} </th>
+<td>{{ wn.slotcount  }} </th>
+<td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}"> {{ wn.count }} </a></td>
+{% for state in wn.statelist %}
+{% if state.name != 'assigned' and state.name != 'activated' %}
+<td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
+{% endif %}
+{% endfor %}
+<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}
+
+{% block bottom_info %}
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
