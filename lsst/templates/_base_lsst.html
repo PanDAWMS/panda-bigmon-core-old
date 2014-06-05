@@ -133,6 +133,15 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
        {% endblock %}
 
+
+        {% block top_menu_all_7 %}
+        <li>
+          {% block top_menu_7 %}
+          <a href="{% url 'errorSummary' %}">Errors</a>
+          {% endblock %}
+        </li>
+        {% endblock %}
+
        {% block top_menu_all_3 %}
         <li class="has-dropdown">
           {% block top_menu_3 %}

@@ -31,11 +31,27 @@ homeCloud = {}
 statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
 sitestatelist = [ 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 
+errorcodelist = [ 
+    { 'name' : 'brokerage', 'error' : 'brokerageerrorcode', 'diag' : 'brokerageerrordiag' },
+    { 'name' : 'ddm', 'error' : 'ddmerrorcode', 'diag' : 'ddmerrordiag' },
+    { 'name' : 'exe', 'error' : 'exeerrorcode', 'diag' : 'exeerrordiag' },
+    { 'name' : 'jobdispatcher', 'error' : 'jobdispatchererrorcode', 'diag' : 'jobdispatchererrordiag' },
+    { 'name' : 'pilot', 'error' : 'piloterrorcode', 'diag' : 'piloterrordiag' },
+    { 'name' : 'sup', 'error' : 'superrorcode', 'diag' : 'superrordiag' },
+    { 'name' : 'taskbuffer', 'error' : 'taskbuffererrorcode', 'diag' : 'taskbuffererrordiag' },
+    { 'name' : 'transformation', 'error' : 'transexitcode', 'diag' : None },
+    ]
+
+
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
 
 LAST_N_HOURS_MAX = 0
 JOB_LIMIT = 0
+TFIRST = timezone.now()
+TLAST = timezone.now() - timedelta(hours=2400)
+PLOW = 1000000
+PHIGH = -1000000
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
@@ -186,7 +202,6 @@ def cleanJobList(jobs, mode='drop'):
             for retry in retries:
                 if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
-                    print 'dropping', pandaid
                     dropJob = retry['newpandaid']
             if dropJob == 0:
                 newjobs.append(job)
@@ -194,6 +209,16 @@ def cleanJobList(jobs, mode='drop'):
                 droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
         droplist = sorted(droplist, key=lambda x:-x['pandaid'])
         jobs = newjobs
+    global TFIRST, TLAST, PLOW, PHIGH
+    TFIRST = timezone.now()
+    TLAST = timezone.now() - timedelta(hours=2400)
+    PLOW = 1000000
+    PHIGH = -1000000
+    for job in jobs:
+        if job['modificationtime'] > TLAST: TLAST = job['modificationtime']
+        if job['modificationtime'] < TFIRST: TFIRST = job['modificationtime']
+        if job['currentpriority'] > PHIGH: PHIGH = job['currentpriority']
+        if job['currentpriority'] < PLOW: PLOW = job['currentpriority']
     jobs = sorted(jobs, key=lambda x:-x['pandaid'])
     return jobs
 
@@ -413,11 +438,12 @@ def errorInfo(job, nchars=300):
 def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobs = []
-    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values())
-    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values())
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse'
+    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
 
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
@@ -436,7 +462,6 @@ def jobList(request, mode=None, param=None):
             for retry in retries:
                 if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
-                    print 'dropping', pandaid
                     dropJob = retry['newpandaid']
             if dropJob == 0:
                 newjobs.append(job)
@@ -454,15 +479,7 @@ def jobList(request, mode=None, param=None):
         jobtype = 'analysis'
     elif '/production' in request.path:
         jobtype = 'production'
-    tfirst = timezone.now()
-    tlast = timezone.now() - timedelta(hours=2400)
-    plow = 1000000
-    phigh = -1000000
-    for job in jobs:
-        if job['modificationtime'] > tlast: tlast = job['modificationtime']
-        if job['modificationtime'] < tfirst: tfirst = job['modificationtime']
-        if job['currentpriority'] > phigh: phigh = job['currentpriority']
-        if job['currentpriority'] < plow: plow = job['currentpriority']
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(request, jobs)
         xurl = extensibleURL(request)
@@ -478,10 +495,10 @@ def jobList(request, mode=None, param=None):
             'xurl' : xurl,
             'droplist' : droplist,
             'ndrops' : len(droplist),
-            'tfirst' : tfirst,
-            'tlast' : tlast,
-            'plow' : plow,
-            'phigh' : phigh,
+            'tfirst' : TFIRST,
+            'tlast' : TLAST,
+            'plow' : PLOW,
+            'phigh' : PHIGH,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
@@ -774,15 +791,6 @@ def userInfo(request, user):
             userstats[field] = "%0.1f" % ( float(userstats[field])/3600.)
     else:
         userstats = None
-    tfirst = timezone.now()
-    tlast = timezone.now() - timedelta(hours=2400)
-    plow = 1000000
-    phigh = -1000000
-    for job in jobs:
-        if job['modificationtime'] > tlast: tlast = job['modificationtime']
-        if job['modificationtime'] < tfirst: tfirst = job['modificationtime']
-        if job['currentpriority'] > phigh: phigh = job['currentpriority']
-        if job['currentpriority'] < plow: plow = job['currentpriority']
 
     ## Divide up jobs by jobset and summarize
     jobsets = {}
@@ -832,10 +840,10 @@ def userInfo(request, user):
             'jobList' : jobs,
             'query' : query,
             'userstats' : userstats,
-            'tfirst' : tfirst,
-            'tlast' : tlast,
-            'plow' : plow,
-            'phigh' : phigh,
+            'tfirst' : TFIRST,
+            'tlast' : TLAST,
+            'plow' : PLOW,
+            'phigh' : PHIGH,
             'jobsets' : jobsetl,
             'njobsets' : len(jobsetl),
         }
@@ -1377,7 +1385,6 @@ def jobSummary2(query):
             for retry in retries:
                 if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
-                    print 'dropping', pandaid
                     dropJob = retry['newpandaid']
             if dropJob == 0:
                 newjobs.append(job)
@@ -1407,3 +1414,208 @@ def jobStateSummary(jobs):
     for job in jobs:
         statecount[job['jobstatus']] += 1
     return statecount
+
+def errorSummaryDict(request,jobs):
+    """ take a job list and produce error summaries from it """
+    errsByCount = {}
+    errsBySite = {}
+    errsByUser = {}
+    errsByTask = {}
+    sumd = {}
+    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling' ]
+
+    for job in jobs:
+        if job['jobstatus'] not in [ 'failed', 'transferring', 'holding' ]: continue
+        site = job['computingsite']
+        if 'cloud' in request.GET:
+            if site in homeCloud and homeCloud[site] != request.GET['cloud']: continue
+        user = job['produsername']
+        if job['jeditaskid'] > 0:
+            taskid = job['jeditaskid']
+            tasktype = 'jeditaskid'
+        else:
+            taskid = job['taskid']
+            tasktype = 'taskid'
+
+        ## Overall summary
+        for f in flist:
+            if job[f]:
+                if f == 'taskid' and job[f] < 1000000 and 'produsername' not in request.GET:
+                    pass
+                else:
+                    if not f in sumd: sumd[f] = {}
+                    if not job[f] in sumd[f]: sumd[f][job[f]] = 0
+                    sumd[f][job[f]] += 1
+        if job['specialhandling']:
+            if not 'specialhandling' in sumd: sumd['specialhandling'] = {}
+            shl = job['specialhandling'].split()
+            for v in shl:
+                if not v in sumd['specialhandling']: sumd['specialhandling'][v] = 0
+                sumd['specialhandling'][v] += 1
+
+        for err in errorcodelist:
+            if job[err['error']] != 0 and  job[err['error']] != '' and job[err['error']] != None:
+                errcode = "%s:%s" % ( err['name'], job[err['error']] )
+                if err['diag']:
+                    errdiag = job[err['diag']]
+                else:
+                    errdiag = ''
+                    
+                if errcode not in errsByCount:
+                    errsByCount[errcode] = {}
+                    errsByCount[errcode]['error'] = errcode
+                    errsByCount[errcode]['codename'] = err['error']
+                    errsByCount[errcode]['codeval'] = job[err['error']]
+                    errsByCount[errcode]['diag'] = errdiag
+                    errsByCount[errcode]['count'] = 0
+                errsByCount[errcode]['count'] += 1
+                
+                if user not in errsByUser:
+                    errsByUser[user] = {}
+                    errsByUser[user]['name'] = user
+                    errsByUser[user]['errors'] = {}
+                    errsByUser[user]['toterrors'] = 0
+                if errcode not in errsByUser[user]['errors']:
+                    errsByUser[user]['errors'][errcode] = {}
+                    errsByUser[user]['errors'][errcode]['error'] = errcode
+                    errsByUser[user]['errors'][errcode]['codename'] = err['error']
+                    errsByUser[user]['errors'][errcode]['codeval'] = job[err['error']]
+                    errsByUser[user]['errors'][errcode]['diag'] = errdiag
+                    errsByUser[user]['errors'][errcode]['count'] = 0
+                errsByUser[user]['errors'][errcode]['count'] += 1
+                errsByUser[user]['toterrors'] += 1
+
+                if site not in errsBySite:
+                    errsBySite[site] = {}
+                    errsBySite[site]['name'] = site
+                    errsBySite[site]['errors'] = {}
+                    errsBySite[site]['toterrors'] = 0
+                if errcode not in errsBySite[site]['errors']:
+                    errsBySite[site]['errors'][errcode] = {}
+                    errsBySite[site]['errors'][errcode]['error'] = errcode
+                    errsBySite[site]['errors'][errcode]['codename'] = err['error']
+                    errsBySite[site]['errors'][errcode]['codeval'] = job[err['error']]
+                    errsBySite[site]['errors'][errcode]['diag'] = errdiag
+                    errsBySite[site]['errors'][errcode]['count'] = 0
+                errsBySite[site]['errors'][errcode]['count'] += 1
+                errsBySite[site]['toterrors'] += 1
+                
+                if tasktype == 'jeditaskid' or taskid > 1000000 or 'produsername' in request.GET:
+                    if taskid not in errsByTask:
+                        errsByTask[taskid] = {}
+                        errsByTask[taskid]['name'] = taskid
+                        errsByTask[taskid]['errors'] = {}
+                        errsByTask[taskid]['toterrors'] = 0
+                        errsByTask[taskid]['tasktype'] = tasktype
+                    if errcode not in errsByTask[taskid]['errors']:
+                        errsByTask[taskid]['errors'][errcode] = {}
+                        errsByTask[taskid]['errors'][errcode]['error'] = errcode
+                        errsByTask[taskid]['errors'][errcode]['codename'] = err['error']
+                        errsByTask[taskid]['errors'][errcode]['codeval'] = job[err['error']]
+                        errsByTask[taskid]['errors'][errcode]['diag'] = errdiag
+                        errsByTask[taskid]['errors'][errcode]['count'] = 0
+                    errsByTask[taskid]['errors'][errcode]['count'] += 1
+                    errsByTask[taskid]['toterrors'] += 1
+                
+    ## reorganize as sorted lists
+    errsByCountL = []
+    errsBySiteL = []
+    errsByUserL = []
+    errsByTaskL = []
+    
+    kys = errsByCount.keys()
+    kys.sort()
+    for err in kys:
+        errsByCountL.append(errsByCount[err])
+
+    kys = errsByUser.keys()
+    kys.sort()
+    for user in kys:
+        errsByUser[user]['errorlist'] = []
+        errkeys = errsByUser[user]['errors'].keys()
+        errkeys.sort()
+        for err in errkeys:
+            errsByUser[user]['errorlist'].append(errsByUser[user]['errors'][err])
+        errsByUserL.append(errsByUser[user])
+
+    kys = errsBySite.keys()
+    kys.sort()
+    for site in kys:
+        errsBySite[site]['errorlist'] = []
+        errkeys = errsBySite[site]['errors'].keys()
+        errkeys.sort()
+        for err in errkeys:
+            errsBySite[site]['errorlist'].append(errsBySite[site]['errors'][err])
+        errsBySiteL.append(errsBySite[site])
+
+    kys = errsByTask.keys()
+    kys.sort()
+    for taskid in kys:
+        errsByTask[taskid]['errorlist'] = []
+        errkeys = errsByTask[taskid]['errors'].keys()
+        errkeys.sort()
+        for err in errkeys:
+            errsByTask[taskid]['errorlist'].append(errsByTask[taskid]['errors'][err])
+        errsByTaskL.append(errsByTask[taskid])
+
+    suml = []
+    for f in sumd:
+        itemd = {}
+        itemd['field'] = f
+        iteml = []
+        kys = sumd[f].keys()
+        kys.sort()
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    suml = sorted(suml, key=lambda x:x['field'])
+
+    return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml
+
+def errorSummary(request):
+    query = setupView(request, hours=12, limit=1000)
+    query['jobstatus__in'] = [ 'failed', 'holding' ]
+    jobtype = ''
+    if 'jobtype' in request.GET:
+        jobtype = request.GET['jobtype']
+    elif '/analysis' in request.path:
+        jobtype = 'analysis'
+    elif '/production' in request.path:
+        jobtype = 'production'
+    jobs = []
+    values = 'produsername', 'pandaid', 'cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'currentpriority',
+    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobs = cleanJobList(jobs)
+    njobs = len(jobs)
+    errsByCount, errsBySite, errsByUser, errsByTask, sumd = errorSummaryDict(request,jobs)
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        xurl = extensibleURL(request)
+        data = {
+            'prefix': getPrefix(request),
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'jobtype' : jobtype,
+            'njobs' : njobs,
+            'hours' : LAST_N_HOURS_MAX,
+            'user' : None,
+            'xurl' : xurl,
+            'errsByCount' : errsByCount,
+            'errsBySite' : errsBySite,
+            'errsByUser' : errsByUser,
+            'errsByTask' : errsByTask,
+            'sumd' : sumd,
+            'tfirst' : TFIRST,
+            'tlast' : TLAST,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('errorSummary.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
+        for job in jobs:
+            resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')

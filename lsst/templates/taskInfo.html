@@ -51,6 +51,8 @@
 
 <p><a href="{% url 'jobList' %}?jeditaskid={{jeditaskid}}">Show jobs in this task</a><p>
 
+<p><a href="{% url 'errorSummary' %}?jeditaskid={{jeditaskid}}">Error summary for this task</a><p>
+
 {% if sumd %}
 <table>
 {% for fdict in sumd %}

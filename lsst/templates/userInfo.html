@@ -6,6 +6,8 @@
 
 {% block body %}
 
+<div class='section'>User: <a href="{% url 'userInfo' user %}">{{user}}</a></div>
+
 {% if userstats %}
 <div class="section">Stats from the user DB (updated every few hours)</div>
 <table>
@@ -44,7 +46,9 @@
 <p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
 <br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
 
-<div class='section'>Recent job attributes for <a href="{% url 'userInfo' user %}">{{user}}</a></div>
+<div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Recent job errors</a></div><p>
+
+<div class='section'>Recent job attributes</div>
 
 <table>
 {% for fdict in jobsumd %}

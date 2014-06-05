@@ -23,6 +23,9 @@
 
 <p><a href="{% url 'jobList' %}?computingsite={{name}}">Recent jobs at this site</a><p>
 
+<p><a href="{% url 'errorSummary' %}?computingsite={{name}}">Recent job errors at this site</a><p>
+
+
 {% if site.nickname %}
 <p><a href="http://apfmon.lancs.ac.uk/q/{{site.nickname}}">Pilot factory monitor</a><p>
 {% endif %}
