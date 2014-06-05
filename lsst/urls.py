@@ -12,8 +12,8 @@ import core.pandajob.views_support as core_lsstmon_support_views
 #import core.pandajob.views as core_lsstmon_views
 
 urlpatterns = patterns('',
-    url(r'^$', lsstmon_views.mainPage, name='index'),
     url(r'^$', lsstmon_views.mainPage, name='mainPage'),
+    url(r'^$', lsstmon_views.mainPage, name='index'),
     url(r'^jobs/$', lsstmon_views.jobList, name='jobList'),
     url(r'^jobs/(.*)/$', lsstmon_views.jobList, name='jobList'),
     url(r'^jobs/(.*)/(.*)/$', lsstmon_views.jobList, name='jobList'),
