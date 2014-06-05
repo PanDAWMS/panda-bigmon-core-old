@@ -2,11 +2,11 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA site {{ site.siteid }} {% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA site {{ name }}{% endblock %}
+{% block subtitle %}PanDA site {{ site.siteid }}{% endblock %}
 
 {% block body %}
 
-<div class='section'> Site information </div>
+<div class='section'> Site {{ site.siteid }} information </div>
 
 <table>
 {% for att in attrs %}
@@ -18,12 +18,12 @@
 {% endfor %}
 </table>
 
-<p><a href="{% url 'wnInfo' name %}">Worker node summary</a><p>
+<p><a href="{% url 'wnInfo' site.siteid %}">Worker node summary</a><p>
 
 
-<p><a href="{% url 'jobList' %}?computingsite={{name}}">Recent jobs at this site</a><p>
+<p><a href="{% url 'jobList' %}?computingsite={{site.siteid}}">Recent jobs at this site</a><p>
 
-<p><a href="{% url 'errorSummary' %}?computingsite={{name}}">Recent job errors at this site</a><p>
+<p><a href="{% url 'errorSummary' %}?computingsite={{site.siteid}}">Recent job errors at this site</a><p>
 
 
 {% if site.nickname %}

@@ -791,6 +791,7 @@ def userInfo(request, user=''):
     userdb = Users.objects.filter(**query).values()
     if len(userdb) > 0:
         userstats = userdb[0]
+        user = userstats['name']
         for field in ['cpua1', 'cpua7', 'cpup1', 'cpup7' ]:
             userstats[field] = "%0.1f" % ( float(userstats[field])/3600.)
     else:
@@ -914,7 +915,7 @@ def siteInfo(request, site=''):
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-    query = {'siteid' : site}
+    query = {'siteid__iexact' : site}
     sites = Schedconfig.objects.filter(**query)
     colnames = []
     try:
