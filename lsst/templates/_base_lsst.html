@@ -11,7 +11,7 @@
 	<!-- Set the viewport width to device width for mobile -->
 	<meta name="viewport" content="width=device-width" />
 
-	<title>{% block page_title %}{% if MON_VO %} {{ MON_VO }} {% endif %}{{ PAGE_TITLE }}{% endblock %}</title>
+	<title>{% block page_title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %}{{ PAGE_TITLE }}{% endblock %}</title>
 
 	<!-- Included CSS Files -->
 {% comment %}
@@ -81,7 +81,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 		<li class="name">
 			<h1>
 				<a href="#">
-					{% block title %}{% if MON_VO %} {{ MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}
+					{% block title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}
 				</a>
 			</h1>
 		</li>
@@ -177,6 +177,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
       <ul class="right">
         <li class="divider"></li>
 
+{% if viewParams.MON_VO == 'ATLAS' %}
 
         {% block top_menu_all_13 %}
         <li class="has-dropdown">
@@ -207,7 +208,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% endblock %}
         </li>
        {% endblock %}
-        
+
+{% endif %}
+
         {% block top_menu_all_10 %}
         <li class="has-dropdown">
           {% block top_menu_10 %}
