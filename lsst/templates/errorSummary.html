@@ -35,6 +35,42 @@
 
 <p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary<p>
 
+{% if errHist %}
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Time', 'Count'],
+
+{% for time, count in errHist %}
+          ['{{ time|date:"m-d H:i" }}', {{ count }}],
+{% endfor %}
+{% comment %}
+        [ 'One', 1 ],
+        [ 'Two', 2 ],
+        [ 'Three', 3 ],
+{% endcomment %}
+
+            ])
+        var options = {
+          title: 'Error count timeline',
+          legend: { position: 'none' },
+{% comment %}
+          hAxis: {title: 'Date', titleTextStyle: {color: 'black'}, fontSize:9 slantedText:True },
+{% endcomment %}
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+    <div id="chart_div" style="width: 1000px; height: 500px;"></div>
+
+{% endif %}
+
 <p><div class='section'>Error occurrences by job attribute</div><p>
 
 <table>

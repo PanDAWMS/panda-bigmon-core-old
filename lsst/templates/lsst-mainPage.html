@@ -34,6 +34,12 @@ JEDI Task ID </td><td><font size=-1><input id="jeditaskid" name="jeditaskid" siz
 <tr><td><form action="{% url 'jobList' %}" method='get'>
 Task ID </td><td><font size=-1><input id="taskid" name="taskid" size="15" maxlength="15" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
+<tr><td><form action="{% url 'siteInfo' %}" method='get'>
+Site </td><td><font size=-1><input id="site" name="site" size="15" maxlength="15" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+
+<tr><td><form action="{% url 'userInfo' %}" method='get'>
+User </td><td><font size=-1><input id="user" name="user" size="15" maxlength="15" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+
 </table>
 
 {% endblock %}

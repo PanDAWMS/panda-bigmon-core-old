@@ -2,12 +2,43 @@
 {% load url from future %}
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA WN performance for {{ site }} {% endblock %}
-{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA WN performance for {{ site }}</a>{% endblock %}
+{% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
 {% block subtitle %}PanDA WN performance for {{ site }}{{ viewParams.selection }}
 {% endblock %}
 {% block body %}
 
 {{ viewParams.header }}
+
+<div class='section'>WN performance for site {{ site }}</div>
+
+{% if wnPlot %}
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Time', 'Count'],
+
+{% for wn, count in wnPlot %}
+          ['{{ wn }}', {{ count }}],
+{% endfor %}
+
+            ])
+        var options = {
+          title: 'Failed jobs per WN',
+          legend: { position: 'none' },
+          hAxis: {title: 'WN', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+    <div id="chart_div" style="width: 1400px; height: 500px;"></div>
+
+{% endif %}
 
 {% if wnname != 'all' %}
 

@@ -773,9 +773,12 @@ def userList(request):
         resp = sumd
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def userInfo(request, user):
+def userInfo(request, user=''):
+    if user == '':
+        if 'user' in request.GET: user = request.GET['user']
+        if 'produsername' in request.GET: user = request.GET['produsername']
     query = setupView(request,hours=24,limit=300)
-    query['produsername'] = user
+    query['produsername__iexact'] = user
     jobs = []
     values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -784,7 +787,8 @@ def userInfo(request, user):
     jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     if LAST_N_HOURS_MAX > 72: jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs = cleanJobList(jobs)
-    userdb = Users.objects.filter(name=user).values()
+    query = { 'name__iexact' : user }
+    userdb = Users.objects.filter(**query).values()
     if len(userdb) > 0:
         userstats = userdb[0]
         for field in ['cpua1', 'cpua7', 'cpup1', 'cpup7' ]:
@@ -904,7 +908,8 @@ def siteList(request):
         resp = sites
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def siteInfo(request, site):
+def siteInfo(request, site=''):
+    if site == '' and 'site' in request.GET: site = request.GET['site']
     setupView(request)
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
@@ -972,6 +977,7 @@ def wnInfo(request,site,wnname='all'):
     totstates = {}
     totjobs = 0
     wns = {}
+    wnPlot = {}
     for state in sitestatelist:
         totstates[state] = 0
     for rec in wnsummarydata:
@@ -989,6 +995,9 @@ def wnInfo(request,site,wnname='all'):
             wn = wnfull
             slot = '1'
         if wn.startswith('aipanda'): continue
+        if jobstatus == 'failed':
+            if not wn in wnPlot: wnPlot[wn] = 0
+            wnPlot[wn] += count
         totjobs += count
         totstates[jobstatus] += count
         if wn not in wns:
@@ -1060,6 +1069,12 @@ def wnInfo(request,site,wnname='all'):
         wns[wn]['outlier'] = outlier
         fullsummary.append(wns[wn])
 
+    kys = wnPlot.keys()
+    kys.sort()
+    wnPlotL = []
+    for k in kys:
+        wnPlotL.append( [ k, wnPlot[k] ] )
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         data = {
@@ -1070,6 +1085,7 @@ def wnInfo(request,site,wnname='all'):
             'wnname' : wnname,
             'user' : None,
             'summary' : fullsummary,
+            'wnPlot' : wnPlotL,
             'hours' : LAST_N_HOURS_MAX,
         }
         return render_to_response('wnInfo.html', data, RequestContext(request))
@@ -1422,6 +1438,8 @@ def errorSummaryDict(request,jobs):
     errsByUser = {}
     errsByTask = {}
     sumd = {}
+    ## histogram of errors vs. time, for plotting
+    errHist = {}
     flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling' ]
 
     for job in jobs:
@@ -1436,6 +1454,10 @@ def errorSummaryDict(request,jobs):
         else:
             taskid = job['taskid']
             tasktype = 'taskid'
+        tm = job['modificationtime']
+        tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
+        if not tm in errHist: errHist[tm] = 0
+        errHist[tm] += 1
 
         ## Overall summary
         for f in flist:
@@ -1578,11 +1600,19 @@ def errorSummaryDict(request,jobs):
         itemd['list'] = iteml
         suml.append(itemd)
     suml = sorted(suml, key=lambda x:x['field'])
+
     if 'sortby' in request.GET and request.GET['sortby'] == 'count':
         for item in suml:
             item['list'] = sorted(item['list'], key=lambda x:-x['kvalue'])
 
-    return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml
+    kys = errHist.keys()
+    kys.sort()
+    errHistL = []
+    for k in kys:
+        errHistL.append( [ k, errHist[k] ] )
+        print k, errHist[k]
+
+    return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml, errHistL
 
 def errorSummary(request):
     if 'sortby' in request.GET:
@@ -1607,7 +1637,7 @@ def errorSummary(request):
     jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
-    errsByCount, errsBySite, errsByUser, errsByTask, sumd = errorSummaryDict(request,jobs)
+    errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         nosorturl = removeParam(request.get_full_path(), 'sortby')
         xurl = extensibleURL(request)
@@ -1626,6 +1656,7 @@ def errorSummary(request):
             'errsByUser' : errsByUser,
             'errsByTask' : errsByTask,
             'sumd' : sumd,
+            'errHist' : errHist,
             'tfirst' : TFIRST,
             'tlast' : TLAST,
             'sortby' : sortby,
