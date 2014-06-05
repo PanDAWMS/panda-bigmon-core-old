@@ -385,9 +385,9 @@ def taskSummaryDict(request, tasks, fieldlist = None):
     suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
-def extensibleURL(request):
+def extensibleURL(request, xurl = ''):
     """ Return a URL that is ready for p=v query extension(s) to be appended """
-    xurl = request.get_full_path()
+    if xurl == '': xurl = request.get_full_path()
     if xurl.endswith('/'): xurl = xurl[0:len(xurl)-1]
     if xurl.find('?') > 0:
         xurl += '&'
@@ -1527,6 +1527,8 @@ def errorSummaryDict(request,jobs):
     kys.sort()
     for err in kys:
         errsByCountL.append(errsByCount[err])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+        errsByCountL = sorted(errsByCountL, key=lambda x:-x['count'])
 
     kys = errsByUser.keys()
     kys.sort()
@@ -1537,6 +1539,8 @@ def errorSummaryDict(request,jobs):
         for err in errkeys:
             errsByUser[user]['errorlist'].append(errsByUser[user]['errors'][err])
         errsByUserL.append(errsByUser[user])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+        errsByUserL = sorted(errsByUserL, key=lambda x:-x['toterrors'])
 
     kys = errsBySite.keys()
     kys.sort()
@@ -1547,6 +1551,8 @@ def errorSummaryDict(request,jobs):
         for err in errkeys:
             errsBySite[site]['errorlist'].append(errsBySite[site]['errors'][err])
         errsBySiteL.append(errsBySite[site])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+        errsBySiteL = sorted(errsBySiteL, key=lambda x:-x['toterrors'])
 
     kys = errsByTask.keys()
     kys.sort()
@@ -1557,6 +1563,8 @@ def errorSummaryDict(request,jobs):
         for err in errkeys:
             errsByTask[taskid]['errorlist'].append(errsByTask[taskid]['errors'][err])
         errsByTaskL.append(errsByTask[taskid])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+        errsByTaskL = sorted(errsByTaskL, key=lambda x:-x['toterrors'])
 
     suml = []
     for f in sumd:
@@ -1570,10 +1578,17 @@ def errorSummaryDict(request,jobs):
         itemd['list'] = iteml
         suml.append(itemd)
     suml = sorted(suml, key=lambda x:x['field'])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+        for item in suml:
+            item['list'] = sorted(item['list'], key=lambda x:-x['kvalue'])
 
     return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml
 
 def errorSummary(request):
+    if 'sortby' in request.GET:
+        sortby = request.GET['sortby']
+    else:
+        sortby = 'alpha'
     query = setupView(request, hours=12, limit=1000)
     query['jobstatus__in'] = [ 'failed', 'holding' ]
     jobtype = ''
@@ -1594,6 +1609,7 @@ def errorSummary(request):
     njobs = len(jobs)
     errsByCount, errsBySite, errsByUser, errsByTask, sumd = errorSummaryDict(request,jobs)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        nosorturl = removeParam(request.get_full_path(), 'sortby')
         xurl = extensibleURL(request)
         data = {
             'prefix': getPrefix(request),
@@ -1604,6 +1620,7 @@ def errorSummary(request):
             'hours' : LAST_N_HOURS_MAX,
             'user' : None,
             'xurl' : xurl,
+            'nosorturl' : nosorturl,
             'errsByCount' : errsByCount,
             'errsBySite' : errsBySite,
             'errsByUser' : errsByUser,
@@ -1611,6 +1628,7 @@ def errorSummary(request):
             'sumd' : sumd,
             'tfirst' : TFIRST,
             'tlast' : TLAST,
+            'sortby' : sortby,
         }
         data.update(getContextVariables(request))
         return render_to_response('errorSummary.html', data, RequestContext(request))
@@ -1619,3 +1637,18 @@ def errorSummary(request):
         for job in jobs:
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def removeParam(urlquery, parname):
+    """Remove a parameter from current query"""
+    pstr = '.*(%s=[a-zA-Z0-9\.\-]*).*' % parname
+    pat = re.compile(pstr)
+    mat = pat.match(urlquery)
+    print pstr, urlquery, mat
+    if mat:
+        pstr = mat.group(1)
+        urlquery = urlquery.replace(pstr,'')
+        urlquery = urlquery.replace('&&','&')
+        urlquery = urlquery.replace('?&','?')
+        if urlquery.endswith('?') or urlquery.endswith('&'):
+            urlquery = urlquery[:len(urlquery)-1]
+    return urlquery
