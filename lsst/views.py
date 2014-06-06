@@ -916,6 +916,7 @@ def siteList(request):
         sumd = siteSummaryDict(sites)
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'sites': sites,
             'clouds' : clouds,
             'sumd' : sumd,

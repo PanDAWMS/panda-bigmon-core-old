@@ -9,6 +9,14 @@
 {% endblock %}
 {% block body %}
 
+{% if requestParams.tier %}<br><b>Tier: {{ requestParams.tier }}</b> {% endif %}
+{% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
+{% if requestParams.region %}<br><b>Region: {{ requestParams.region }}</b> {% endif %}
+{% if requestParams.siteid %}<br><b>Site: {{ requestParams.siteid }}</b> {% endif %}
+{% if requestParams.category %}<br><b>Category: {{ requestParams.category }}</b> {% endif %}
+{% if requestParams.status %}<br><b>Status: <span class="{{ requestParams.status }}">{{ requestParams.status }}</span></b> {% endif %}
+<p>
+
 {% if clouds %}
 
 <div class='section'>Clouds</div>
@@ -25,8 +33,8 @@
 <th>Space updated</th>
 </tr>
 {% for cloud in clouds %}
-<tr><th>{{ cloud.name }}</th>
-<td><font size=-1>{{ cloud.tier1 }}</font></td>
+<tr><th><a href="{% url 'siteList' %}?cloud={{ cloud.name }}">{{ cloud.name }}</a></th>
+<td><font size=-1><a href="{% url 'siteList' %}?siteid={{ cloud.tier1 }}">{{ cloud.tier1 }}</a></font></td>
 <td class="{{ cloud.status }}">{{ cloud.status }}</td>
 <td><font size=-1>{{ cloud.comment_field }}<br>{{ cloud.modtime|date:"Y-m-d H:i" }} {{ cloud.moduser }}</font></td>
 <td>{{ cloud.transtimelo }}/{{ cloud.transtimehi }}</td>
@@ -45,8 +53,10 @@
 {% for fdict in sumd %}
 <tr><th> {{ fdict.field }} </th><td>
 {% for item in fdict.list %}
+{% if item.kname != '' %}
 {% if fdict.field == 'status' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
 <a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
+{% endif %}
 {% endfor %}
 </td></tr>
 {% endfor %}
