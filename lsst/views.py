@@ -1731,7 +1731,10 @@ def removeParam(urlquery, parname):
     return urlquery
 
 def incidentList(request):
-    hours = 24*7
+    if 'hours' not in request.GET:
+        hours = 24*7
+    else:
+        hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
     iquery = {}
     startdate = datetime.utcnow() - timedelta(hours=hours)
