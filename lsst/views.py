@@ -908,6 +908,8 @@ def siteList(request):
                     print 'space', site['siteid']
                     cloud['space'] = site['space']
                     cloud['tspace'] = site['tspace']
+    else:
+        clouds = None
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = siteSummaryDict(sites)
