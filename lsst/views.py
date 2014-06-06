@@ -901,7 +901,7 @@ def siteList(request):
         if site['maxtime'] and (site['maxtime'] > 0) : site['maxtime'] = "%.1f" % ( float(site['maxtime'])/3600. )
         site['space'] = "%d" % (site['space']/1000.)
 
-    if VOMODE == 'atlas':
+    if VOMODE == 'atlas' and len(request.GET) == 0:
         clouds = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values()
         clouds = sorted(clouds, key=lambda x:x['name'])
         for cloud in clouds:
