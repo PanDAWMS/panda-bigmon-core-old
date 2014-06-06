@@ -1732,7 +1732,7 @@ def removeParam(urlquery, parname):
 
 def incidentList(request):
     if 'hours' not in request.GET:
-        hours = 24*7
+        hours = 24*3
     else:
         hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
