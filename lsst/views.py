@@ -1765,6 +1765,7 @@ def incidentList(request):
             pars['category'] = parsmat.group(1)
             pars['site'] = parsmat.group(2)
             pars['notifier'] = parsmat.group(3)
+            pars['type'] = inc['typekey']
             if parsmat.group(4): pars['comment'] = parsmat.group(4)
         else:
             parsmat = re.match('^([A-Za-z\s]+):.*$',desc)
