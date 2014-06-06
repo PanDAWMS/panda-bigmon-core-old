@@ -9,6 +9,34 @@
 {% endblock %}
 {% block body %}
 
+{% if clouds %}
+
+<div class='section'>Clouds</div>
+<font size=-1>TLo, THi are transfer timeouts for low and high priority jobs</font>
+<table>
+<tr>
+<th>Cloud</th>
+<th>Tier 1</th>
+<th>Status</th>
+<th>Comment</th>
+<th>TLo/Hi<br>days</th>
+<th>Storage endpoints</th>
+<th>Free space<br>TB</th>
+<th>Space updated</th>
+</tr>
+{% for cloud in clouds %}
+<tr><th>{{ cloud.name }}</th>
+<td><font size=-1>{{ cloud.tier1 }}</font></td>
+<td class="{{ cloud.status }}">{{ cloud.status }}</td>
+<td><font size=-1>{{ cloud.comment_field }}<br>{{ cloud.modtime|date:"Y-m-d H:i" }} {{ cloud.moduser }}</font></td>
+<td>{{ cloud.transtimelo }}/{{ cloud.transtimehi }}</td>
+<td width=300><font size=-1>{{ cloud.tier1se }}</font></td>
+<td>{{ cloud.space }}</td>
+<td> {{ cloud.tspace|date:"m-d H:i" }}</td>
+{% endfor %}
+</table>
+{% endif %}
+
 {% if sites %}
 
 <div class='section'>Site attribute summary</div>

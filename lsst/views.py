@@ -18,6 +18,7 @@ from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
+from core.common.models import Cloudconfig
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
@@ -54,7 +55,7 @@ PLOW = 1000000
 PHIGH = -1000000
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
-standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud' ]
+standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -876,6 +877,7 @@ def siteList(request):
         for field in Schedconfig._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
+
     siteres = Schedconfig.objects.filter(**query).exclude(cloud='CMS').values()
     sites = []
     for site in siteres:
@@ -895,11 +897,24 @@ def siteList(request):
         sites = newsites
     for site in sites:
         if site['maxtime'] and (site['maxtime'] > 0) : site['maxtime'] = "%.1f" % ( float(site['maxtime'])/3600. )
+        site['space'] = "%d" % (site['space']/1000.)
+
+    if VOMODE == 'atlas':
+        clouds = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values()
+        clouds = sorted(clouds, key=lambda x:x['name'])
+        for cloud in clouds:
+            for site in sites:
+                if site['siteid'] == cloud['tier1']:
+                    print 'space', site['siteid']
+                    cloud['space'] = site['space']
+                    cloud['tspace'] = site['tspace']
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = siteSummaryDict(sites)
         data = {
             'viewParams' : viewParams,
             'sites': sites,
+            'clouds' : clouds,
             'sumd' : sumd,
             'xurl' : extensibleURL(request),
         }
@@ -926,13 +941,17 @@ def siteInfo(request, site=''):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
+        attrs.append({'name' : 'GOC name', 'value' : siterec.gocname })
         attrs.append({'name' : 'Status', 'value' : siterec.status })
         attrs.append({'name' : 'Comment', 'value' : siterec.comment_field })
-        attrs.append({'name' : 'GOC name', 'value' : siterec.gocname })
+        attrs.append({'name' : 'Last modified', 'value' : "%s" % (siterec.lastmod.strftime('%Y-%m-%d %H:%M')) })
         attrs.append({'name' : 'Cloud', 'value' : siterec.cloud })
+        attrs.append({'name' : 'Multicloud', 'value' : siterec.multicloud })
         attrs.append({'name' : 'Tier', 'value' : siterec.tier })
+        attrs.append({'name' : 'DDM endpoint', 'value' : siterec.ddm })
         attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(siterec.maxmemory)/1000.) })
         attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(siterec.maxtime)/3600.) })
+        attrs.append({'name' : 'Space', 'value' : "%d TB as of %s" % ((float(siterec.space)/1000.), siterec.tspace.strftime('%m-%d %H:%M')) })
         data = {
             'viewParams' : viewParams,
             'site' : siterec,
