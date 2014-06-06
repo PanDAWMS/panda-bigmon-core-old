@@ -13,7 +13,12 @@
 <tr><th>
 {{ att.name }}
 </th><td>
-{% if att.name == 'Status' %} <span class='{{att.value}}'> {% else %} <span> {% endif %} {% if att.value != 'None' %} {{ att.value }} {% endif %}</span>
+<span {% if att.name == 'Status' %} class='{{att.value}}' {% endif %}>
+{% if att.name == 'GOC name' %} <a href="{% url 'siteList' %}?gocname={{ att.value }}">{{ att.value }}</a>
+{% else %}
+{% if att.value != 'None' %} {{ att.value }} {% endif %}
+{% endif %}
+</span>
 </td></tr>
 {% endfor %}
 </table>
@@ -33,6 +38,24 @@
 {% if viewParams.MON_VO == 'ATLAS' %}
 <p><a href="http://panda.cern.ch/server/pandamon/query?mode=site&site={{site.siteid}}">Classic (aka old) PanDA monitor page for this site</a><p>
 {% endif %}
+
+{% if incidents %}
+
+<div class='section'> Incidents over the last month </div>
+
+<table>
+{% for inc in incidents %}
+<tr><td> {{ inc.at_time|date:"Y-m-d H:i" }} </td>
+<td> <font size=-1>{{ inc.description|safe }}</font> </td>
+{% endfor %}
+</table>
+
+{% else %}
+
+This site has no logged incidents over the last month.
+
+{% endif %}
+
 
 <div class='section'> All site parameters </div>
 

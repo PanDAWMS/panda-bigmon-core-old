@@ -9,7 +9,9 @@
 
 {{ viewParams.header }}
 
-<div class='section'>WN performance for site {{ site }}</div>
+<div class='section'>Worker node performance for site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
+
+<p>Jump to <a href="#outliers">outliers</a>, <a href="#full">full WN list</a>
 
 {% if wnPlot %}
 
@@ -90,7 +92,7 @@ Click the job counts to go to job listings.
 </tr></td></table>
 <p>
 
-<div class='section'>WN outliers for site {{ site }}</div>
+<div class='section'><a name="outliers"></a>WN outliers for site {{ site }}</div>
 
 <table>
 
@@ -130,7 +132,7 @@ Click the job counts to go to job listings.
 {% endfor %}
 </table>
 <p>
-<div class='section'>WN full summary for site {{ site }}</div>
+<div class='section'><a name="full"></a>WN full summary for site {{ site }}</div>
 
 <table>
 

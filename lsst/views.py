@@ -19,6 +19,7 @@ from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
 from core.common.models import Cloudconfig
+from core.common.models import Incidents
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
@@ -860,6 +861,7 @@ def userInfo(request, user=''):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def siteList(request):
+    print request.GET
     setupView(request, opmode='notime')
     query = {}
     ### Add any extensions to the query determined from the URL  
@@ -905,7 +907,6 @@ def siteList(request):
         for cloud in clouds:
             for site in sites:
                 if site['siteid'] == cloud['tier1']:
-                    print 'space', site['siteid']
                     cloud['space'] = site['space']
                     cloud['tspace'] = site['tspace']
     else:
@@ -954,11 +955,20 @@ def siteInfo(request, site=''):
         attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(siterec.maxmemory)/1000.) })
         attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(siterec.maxtime)/3600.) })
         attrs.append({'name' : 'Space', 'value' : "%d TB as of %s" % ((float(siterec.space)/1000.), siterec.tspace.strftime('%m-%d %H:%M')) })
+
+        iquery = {}
+        startdate = datetime.utcnow() - timedelta(hours=24*30)
+        startdate = startdate.strftime(defaultDatetimeFormat)
+        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        iquery['at_time__range'] = [startdate, enddate]
+        iquery['description__contains'] = 'queue=%s' % siterec.nickname
+        incidents = Incidents.objects.filter(**iquery).order_by('at_time').reverse().values()
         data = {
             'viewParams' : viewParams,
             'site' : siterec,
             'colnames' : colnames,
             'attrs' : attrs,
+            'incidents' : incidents,
             'name' : site,
         }
         data.update(getContextVariables(request))
@@ -1063,16 +1073,26 @@ def wnInfo(request,site,wnname='all'):
     if wnname == 'all': fullsummary.append(allwns)
     avgwns = {}
     avgwns['name'] = 'Average'
-    avgwns['count'] = "%0.2f" % (totjobs/wntot)
+    if wntot > 0:
+        avgwns['count'] = "%0.2f" % (totjobs/wntot)
+    else:
+        avgwns['count'] = ''
     avgwns['states'] = totstates
     avgwns['statelist'] = []
     avgstates = {}
     for state in sitestatelist:
-        avgstates[state] = totstates[state]/wntot
+        if wntot > 0:
+            avgstates[state] = totstates[state]/wntot
+        else:
+            avgstates[state] = ''
         allstate = {}
         allstate['name'] = state
-        allstate['count'] = "%0.2f" % (int(totstates[state])/wntot)
-        allstated[state] = "%0.2f" % (int(totstates[state])/wntot)
+        if wntot > 0:
+            allstate['count'] = "%0.2f" % (int(totstates[state])/wntot)
+            allstated[state] = "%0.2f" % (int(totstates[state])/wntot)
+        else:
+            allstate['count'] = ''
+            allstated[state] = ''
         avgwns['statelist'].append(allstate)
     if wnname == 'all': fullsummary.append(avgwns)
 
@@ -1116,6 +1136,7 @@ def wnInfo(request,site,wnname='all'):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def dashboard(request, view=''):
+    errthreshold = 15
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
         VOMODE = 'atlas'
     else:
@@ -1160,6 +1181,10 @@ def dashboard(request, view=''):
             vosummary.append(vos[vo])
 
     else:
+        if view == 'analysis':
+            errthreshold = 15
+        else:
+            errthreshold = 5
         vosummary = []
 
     cloudview = 'cloud'
@@ -1229,7 +1254,7 @@ def dashboard(request, view=''):
         allclouds['statelist'].append(allstate)
     if int(allstated['finished']) + int(allstated['failed']) > 0:
         allclouds['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-        if int(allclouds['pctfail']) > 5: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
+        if int(allclouds['pctfail']) > errthreshold: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
@@ -1245,13 +1270,13 @@ def dashboard(request, view=''):
             sites[site]['summary'] = sitesummary
             if sites[site]['states']['finished']['count'] + sites[site]['states']['failed']['count'] > 0:
                 sites[site]['pctfail'] = "%2d" % (100.*float(sites[site]['states']['failed']['count'])/(sites[site]['states']['finished']['count']+sites[site]['states']['failed']['count']))
-                if int(sites[site]['pctfail']) > 5: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
+                if int(sites[site]['pctfail']) > errthreshold: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
 
             cloudsummary.append(sites[site])
         clouds[cloud]['summary'] = cloudsummary
         if clouds[cloud]['states']['finished']['count'] + clouds[cloud]['states']['failed']['count'] > 0:
             clouds[cloud]['pctfail'] =  "%2d" % (100.*float(clouds[cloud]['states']['failed']['count'])/(clouds[cloud]['states']['finished']['count']+clouds[cloud]['states']['failed']['count']))
-            if int(clouds[cloud]['pctfail']) > 5: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
+            if int(clouds[cloud]['pctfail']) > errthreshold: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
 
         fullsummary.append(clouds[cloud])
 
@@ -1267,8 +1292,8 @@ def dashboard(request, view=''):
             'view' : view,
             'cloudview': cloudview,
             'hours' : hours,
+            'errthreshold' : errthreshold,
         }
-        #data.update(getContextVariables(request))
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
@@ -1632,7 +1657,6 @@ def errorSummaryDict(request,jobs):
     errHistL = []
     for k in kys:
         errHistL.append( [ k, errHist[k] ] )
-        print k, errHist[k]
 
     return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml, errHistL
 
@@ -1696,7 +1720,6 @@ def removeParam(urlquery, parname):
     pstr = '.*(%s=[a-zA-Z0-9\.\-]*).*' % parname
     pat = re.compile(pstr)
     mat = pat.match(urlquery)
-    print pstr, urlquery, mat
     if mat:
         pstr = mat.group(1)
         urlquery = urlquery.replace(pstr,'')
@@ -1705,3 +1728,93 @@ def removeParam(urlquery, parname):
         if urlquery.endswith('?') or urlquery.endswith('&'):
             urlquery = urlquery[:len(urlquery)-1]
     return urlquery
+
+def incidentList(request):
+    hours = 24*7
+    setupView(request, hours=hours, limit=9999999)
+    iquery = {}
+    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    iquery['at_time__range'] = [startdate, enddate]
+    if 'site' in request.GET:
+        iquery['description__contains'] = 'queue=%s' % request.GET['site']
+    if 'category' in request.GET:
+        iquery['description__startswith'] = '%s:' % request.GET['category']
+    if 'comment' in request.GET:
+        iquery['description__contains'] = '%s' % request.GET['comment']
+    if 'notifier' in request.GET:
+        iquery['description__contains'] = 'DN=%s' % request.GET['notifier']
+    incidents = Incidents.objects.filter(**iquery).order_by('at_time').reverse().values()
+    sumd = {}
+    pars = {}
+    incHist = {}
+    for inc in incidents:
+        desc = inc['description']
+        desc = desc.replace('&nbsp;',' ')
+        parsmat = re.match('^([a-z\s]+):\s+queue=([^\s]+)\s+DN=(.*)\s\s\s*([A-Za-z^ \.0-9]*)$',desc)
+        tm = inc['at_time']
+        tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
+        if not tm in incHist: incHist[tm] = 0
+        incHist[tm] += 1
+        if parsmat:
+            pars['category'] = parsmat.group(1)
+            pars['site'] = parsmat.group(2)
+            pars['notifier'] = parsmat.group(3)
+            if parsmat.group(4): pars['comment'] = parsmat.group(4)
+        else:
+            parsmat = re.match('^([A-Za-z\s]+):.*$',desc)
+            if parsmat:
+                pars['category'] = parsmat.group(1)
+            else:
+                pars['category'] = desc[:10]
+        for p in pars:
+            if p not in sumd:
+                sumd[p] = {}
+                sumd[p]['param'] = p
+                sumd[p]['vals'] = {}
+            if pars[p] not in sumd[p]['vals']:
+                sumd[p]['vals'][pars[p]] = {}
+                sumd[p]['vals'][pars[p]]['name'] = pars[p]
+                sumd[p]['vals'][pars[p]]['count'] = 0
+            sumd[p]['vals'][pars[p]]['count'] += 1
+        ## convert incident components to URLs. Easier here than in the template.
+        if 'site' in pars:
+            inc['description'] = re.sub('queue=[^\s]+','queue=<a href="%ssite=%s">%s</a>' % (extensibleURL(request), pars['site'], pars['site']), inc['description'])
+
+    ## convert to ordered lists
+    suml = []
+    for p in sumd:
+        itemd = {}
+        itemd['param'] = p
+        iteml = []
+        kys = sumd[p]['vals'].keys()
+        kys.sort(key=lambda y: y.lower())
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : sumd[p]['vals'][ky]['count'] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    suml = sorted(suml, key=lambda x:x['param'].lower())
+
+    kys = incHist.keys()
+    kys.sort()
+    incHistL = []
+    for k in kys:
+        incHistL.append( [ k, incHist[k] ] )
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'user' : None,
+            'incidents': incidents,
+            'sumd' : suml,
+            'incHist' : incHistL,
+            'xurl' : extensibleURL(request),
+            'hours' : hours,
+            'ninc' : len(incidents),
+        }
+        return render_to_response('incidents.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = incidents
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
