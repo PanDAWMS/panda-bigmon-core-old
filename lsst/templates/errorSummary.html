@@ -12,6 +12,8 @@
 
 {{ viewParams.header }}
 
+{% if sumd %}
+
 <b>{{ njobs }} jobs selected</b>
 
 {% if sortby == "count" %}
@@ -30,8 +32,6 @@
 <p>
 
 <p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}<p>
-
-{% if sumd %}
 
 <p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary<p>
 
@@ -135,6 +135,10 @@
 {% endfor %}
 {% endfor %}
 </table>
+
+{% else %}
+
+No jobs found.
 
 {% endif %}
 
