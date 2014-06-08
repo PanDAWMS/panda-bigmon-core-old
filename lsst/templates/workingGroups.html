@@ -9,6 +9,8 @@
 
 {{ viewParams.header }}
 
+{% if wgsummary %}
+
 <table width=800><tr><td>
 This page summarizes recent job status for working groups.
 Failure rates above {{ errthreshold }}% are shown in red.
@@ -50,6 +52,12 @@ Click the job counts to go to job listings.
 </tr>
 {% endfor %}
 </table>
+
+{% else %}
+
+No jobs with working group set were found.
+
+{% endif %}
 
 {% endblock %}
 
