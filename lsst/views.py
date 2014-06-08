@@ -170,8 +170,11 @@ def setupView(request, opmode='', hours=0, limit=-99):
         query['prodsourcelabel__in'] = ['panda', 'user']
     elif jobtype == 'production':
         query['prodsourcelabel'] = 'managed'
+    elif jobtype == 'groupproduction':
+        query['prodsourcelabel'] = 'managed'
+        query['workinggroup__isnull'] = False
     elif jobtype == 'test':
-        query['prodsourcelabel__contains'] = 'test'
+        query['prodsourcelabel__icontains'] = 'test'
     print query
     return query
 
