@@ -1703,7 +1703,7 @@ def errorSummary(request):
         sortby = request.GET['sortby']
     else:
         sortby = 'alpha'
-    query = setupView(request, hours=12, limit=1000)
+    query = setupView(request, hours=12, limit=3000)
     query['jobstatus__in'] = [ 'failed', 'holding' ]
     jobtype = ''
     if 'jobtype' in request.GET:
