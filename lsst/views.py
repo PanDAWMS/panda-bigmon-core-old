@@ -74,6 +74,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
+    deepquery = False
     setupHomeCloud()
     ENV['MON_VO'] = ''
     viewParams['MON_VO'] = ''
@@ -96,8 +97,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET or 'jeditaskid' in request.GET:
             if 'jobsetid' not in fields: fields.append('jobsetid')
-            if 'hours' not in request.GET and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
-                LAST_N_HOURS_MAX = 180*24
+            if ('hours' not in request.GET) and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
+                ## Cases where deep query is safe
+                deepquery = True
         else:
             if 'jobsetid' in fields: fields.remove('jobsetid')
     else:
@@ -118,14 +120,13 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if 'limit' in request.GET:
         JOB_LIMIT = int(request.GET['limit'])
     ## Exempt single-job, single-task etc queries from time constraint
-    deepquery = False
     if 'jeditaskid' in request.GET: deepquery = True
     if 'taskid' in request.GET: deepquery = True
     if 'pandaid' in request.GET: deepquery = True
     if 'batchid' in request.GET: deepquery = True
     if deepquery:
         opmode = 'notime'
-        LAST_N_HOURS_MAX = 24*365
+        hours = LAST_N_HOURS_MAX = 24*180
     if opmode != 'notime':
         if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
@@ -154,9 +155,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
             if param == field:
                 if param == 'transformation' or param == 'transpath':
                     query['%s__endswith' % param] = request.GET[param]
-
                 elif param == 'modificationhost' and request.GET[param].find('@') < 0:
                     query['%s__contains' % param] = request.GET[param]
+                elif param == 'jeditaskid' and int(request.GET['jeditaskid']) < 4000000:
+                    query['taskid'] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
     if 'jobtype' in request.GET:
@@ -169,6 +171,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         query['prodsourcelabel'] = 'managed'
     elif jobtype == 'test':
         query['prodsourcelabel__contains'] = 'test'
+    print query
     return query
 
 def cleanJobList(jobs, mode='drop'):
@@ -180,7 +183,7 @@ def cleanJobList(jobs, mode='drop'):
                 job['produsername'] = 'Unknown'
         if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
         if job['jobstatus'] == 'failed':
-            job['errorinfo'] = errorInfo(job,nchars=50)
+            job['errorinfo'] = errorInfo(job,nchars=70)
         else:
             job['errorinfo'] = ''
         job['jobinfo'] = ''
@@ -1350,6 +1353,7 @@ def taskInfo(request, jeditaskid=0):
     query = {'jeditaskid' : jeditaskid}
     jobsummary = jobSummary2(query)
     tasks = JediTasks.objects.filter(**query).values()
+    if len(tasks) == 0: tasks = JediTasks.objects.filter(**query).values()
     colnames = []
     columns = []
     try:
@@ -1381,7 +1385,8 @@ def taskInfo(request, jeditaskid=0):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
-        attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
+        if taskrec:
+            attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
         data = {
             'viewParams' : viewParams,
             'task' : taskrec,
