@@ -12,7 +12,7 @@
 {% if requestParams.tier %}<br><b>Tier: {{ requestParams.tier }}</b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.region %}<br><b>Region: {{ requestParams.region }}</b> {% endif %}
-{% if requestParams.siteid %}<br><b>Site: <a href="{% url 'siteInfo' requestParams.siteid %}">{{ requestParams.siteid }}</a></b> {% endif %}
+{% if requestParams.siteid %}<br><b>Site: <a href="{% url 'siteInfo' requestParams.siteid %}">{{ requestParams.siteid }}</a>  &nbsp; <a href="{% url 'siteInfo' requestParams.siteid %}">Show site information page</a></b> {% endif %}
 {% if requestParams.category %}<br><b>Category: {{ requestParams.category }}</b> {% endif %}
 {% if requestParams.status %}<br><b>Status: <span class="{{ requestParams.status }}">{{ requestParams.status }}</span></b> {% endif %}
 <p>

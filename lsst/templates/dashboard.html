@@ -35,6 +35,7 @@ Click the job counts to go to job listings.
 {% if cloudview == 'region' %}
 
 <table width=800><tr><td>
+<b>Region view</b><br>
 This view associates jobs with clouds on the basis of the region in which the processing site is located.
 The alternative <a href="{{ url }}">'cloud' view</a> associates jobs with clouds on the basis of which Tier 1 the job is assigned to (which can be different for a site participating in multi-cloud production).
 Failure rates above {{ errthreshold }}% are shown in red.
@@ -46,7 +47,8 @@ Click the job counts to go to job listings.
 
 {% if cloudview == 'cloud' %}
 <table width=800><tr><td>
-This view associates jobs with clouds on the basis of which Tier 1 the job is assigned to (which can be different from the 'home cloud' of the processing site for a site participating in multi-cloud production). Thus in this view you may see sites listed in the CA cloud which are not located in CA.
+<b>Cloud view</b><br>
+This view associates jobs with clouds on the basis of which Tier 1 the job is assigned to, which can be different from the 'home cloud' of the processing site for a site participating in multi-cloud production (MCP). Thus in this view you may see sites listed in the CA cloud which are not located in CA.
 The alternative <a href="{{ url }}?cloudview=region">'region' view</a> associates jobs with clouds on the basis of the region in which the processing site is located.
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the cloud name in the overall summary to go to the cloud's site summary.
@@ -124,7 +126,7 @@ Click the job counts to go to job listings.
 {% for cloud in summary %}
 <tr height=10 colspan=12></tr>
 <tr>
-<th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}<a href="#cloud_{{ cloud.name }}">{{ cloud.name }}</a> {% else %}  {{ cloud.name }} {% endif %}</th>
+<th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}<a href="#cloud_{{ cloud.name }}">{{ cloud.name }}</a> {% else %}  All clouds {% endif %}</th>
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}"> {{ cloud.count }} </a></td>
 {% for state in cloud.statelist %}
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
@@ -157,7 +159,7 @@ Click the job counts to go to job listings.
 
 <tr height=10 colspan=12></tr>
 <tr>
-<th bgcolor=whitesmoke> {{ cloud.name }} Cloud</th>
+<th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview == 'cloud' %} including MCP {% endif %}</th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}">{{ cloud.count }}</a> </th>
 {% for state in cloud.statelist %}
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
@@ -166,7 +168,7 @@ Click the job counts to go to job listings.
 </tr>
 {% for site in cloud.summary %}
 <tr>
-<td> {{ site.name }} </td>
+<td> {% if site.name %} {{ site.name }} {% else %} Failed before site assignment {% endif %} </td>
 <td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}"> {{ site.count }} </a></td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>

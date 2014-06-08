@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<div class='section'> Site {{ site.siteid }} information </div>
+<div class='section'>{{ site.siteid }} site information </div>
 
 <table>
 {% for att in attrs %}
@@ -25,17 +25,22 @@
 
 <p><a href="{% url 'wnInfo' site.siteid %}">Worker node summary</a><p>
 
-
 <p><a href="{% url 'jobList' %}?computingsite={{site.siteid}}">Recent jobs at this site</a><p>
 
 <p><a href="{% url 'errorSummary' %}?computingsite={{site.siteid}}">Recent job errors at this site</a><p>
-
 
 {% if site.nickname %}
 <p><a href="http://apfmon.lancs.ac.uk/q/{{site.nickname}}">Pilot factory monitor</a><p>
 {% endif %}
 
 {% if viewParams.MON_VO == 'ATLAS' %}
+<p><a href="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/sitehistory?site={{site.siteid}}#currentView=Shifter+view">Site status board</a><p>
+
+<p>DDM dashboard &nbsp;
+<a href="http://dashb-atlas-data.cern.ch/ddm2/#src.cloud=(%22{{site.cloud}}%22)&src.site=(%22{{site.siteid}}%22)&grouping.src=(cloud,site,token)">source</a>
+&nbsp;
+<a href="http://dashb-atlas-data.cern.ch/ddm2/#dst.cloud=(%22{{site.cloud}}%22)&dst.site=(%22{{site.siteid}}%22)&grouping.dst=(cloud,site,token)">destination</a>
+
 <p><a href="http://panda.cern.ch/server/pandamon/query?mode=site&site={{site.siteid}}">Classic (aka old) PanDA monitor page for this site</a><p>
 {% endif %}
 

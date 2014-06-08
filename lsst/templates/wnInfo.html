@@ -13,7 +13,7 @@
 
 <p>Jump to <a href="#outliers">outliers</a>, <a href="#full">full WN list</a>
 
-{% if wnPlot %}
+{% if wnPlotFailed %}
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -23,7 +23,7 @@
         var data = google.visualization.arrayToDataTable([
           ['Time', 'Count'],
 
-{% for wn, count in wnPlot %}
+{% for wn, count in wnPlotFailed %}
           ['{{ wn }}', {{ count }}],
 {% endfor %}
 
@@ -31,14 +31,32 @@
         var options = {
           title: 'Failed jobs per WN',
           legend: { position: 'none' },
-          hAxis: {title: 'WN', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
+          hAxis: {title: 'WN (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
         };
 
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         chart.draw(data, options);
+
+        var data2 = google.visualization.arrayToDataTable([
+          ['Time', 'Count'],
+
+{% for wn, count in wnPlotFinished %}
+          ['{{ wn }}', {{ count }}],
+{% endfor %}
+
+            ])
+        var options2 = {
+          title: 'Finished jobs per WN',
+          legend: { position: 'none' },
+          hAxis: {title: 'WN (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
+        };
+
+        var chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
+        chart2.draw(data2, options2);
       }
     </script>
-    <div id="chart_div" style="width: 1400px; height: 500px;"></div>
+    <div id="chart_div" style="height: 500px;"></div>
+    <div id="chart_div2" style="height: 500px;"></div>
 
 {% endif %}
 

@@ -55,7 +55,7 @@ TLAST = timezone.now() - timedelta(hours=2400)
 PLOW = 1000000
 PHIGH = -1000000
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'vo', 'cloud']
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud']
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
@@ -103,6 +103,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         else:
             if 'jobsetid' in fields: fields.remove('jobsetid')
     else:
+        fields.append('vo')
         LAST_N_HOURS_MAX = 7*24
         JOB_LIMIT = 1000
     if hours > 0:
@@ -408,6 +409,8 @@ def mainPage(request):
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'npars' : len(request.GET),
         }
         data.update(getContextVariables(request))
         return render_to_response('lsst-mainPage.html', data, RequestContext(request))
@@ -750,7 +753,7 @@ def userList(request):
             nhours = 7*24
         query = setupView(request, hours=nhours, limit=3000)
         ## dynamically assemble user summary info
-        values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid'
+        values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'processingtype', 'workinggroup'
         jobs = QuerySetChain(\
                         Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
                         Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
@@ -760,7 +763,12 @@ def userList(request):
         for job in jobs:
             if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
         sumd = userSummaryDict(jobs)
-        jobsumd = jobSummaryDict(request, jobs, [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'vo', 'transformation', ])
+        sumparams = [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'transformation', 'processingtype', 'workinggroup', ]
+        if VOMODE == 'atlas':
+            sumparams.append('atlasrelease')
+        else:
+            sumparams.append('vo')
+        jobsumd = jobSummaryDict(request, jobs, sumparams)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'viewParams' : viewParams,
@@ -1013,7 +1021,8 @@ def wnInfo(request,site,wnname='all'):
     totstates = {}
     totjobs = 0
     wns = {}
-    wnPlot = {}
+    wnPlotFailed = {}
+    wnPlotFinished = {}
     for state in sitestatelist:
         totstates[state] = 0
     for rec in wnsummarydata:
@@ -1032,8 +1041,11 @@ def wnInfo(request,site,wnname='all'):
             slot = '1'
         if wn.startswith('aipanda'): continue
         if jobstatus == 'failed':
-            if not wn in wnPlot: wnPlot[wn] = 0
-            wnPlot[wn] += count
+            if not wn in wnPlotFailed: wnPlotFailed[wn] = 0
+            wnPlotFailed[wn] += count
+        elif jobstatus == 'finished':
+            if not wn in wnPlotFinished: wnPlotFinished[wn] = 0
+            wnPlotFinished[wn] += count
         totjobs += count
         totstates[jobstatus] += count
         if wn not in wns:
@@ -1115,11 +1127,17 @@ def wnInfo(request,site,wnname='all'):
         wns[wn]['outlier'] = outlier
         fullsummary.append(wns[wn])
 
-    kys = wnPlot.keys()
+    kys = wnPlotFailed.keys()
     kys.sort()
-    wnPlotL = []
+    wnPlotFailedL = []
     for k in kys:
-        wnPlotL.append( [ k, wnPlot[k] ] )
+        wnPlotFailedL.append( [ k, wnPlotFailed[k] ] )
+
+    kys = wnPlotFinished.keys()
+    kys.sort()
+    wnPlotFinishedL = []
+    for k in kys:
+        wnPlotFinishedL.append( [ k, wnPlotFinished[k] ] )
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
@@ -1131,7 +1149,8 @@ def wnInfo(request,site,wnname='all'):
             'wnname' : wnname,
             'user' : None,
             'summary' : fullsummary,
-            'wnPlot' : wnPlotL,
+            'wnPlotFailed' : wnPlotFailedL,
+            'wnPlotFinished' : wnPlotFinishedL,
             'hours' : LAST_N_HOURS_MAX,
         }
         return render_to_response('wnInfo.html', data, RequestContext(request))
@@ -1185,15 +1204,16 @@ def dashboard(request, view=''):
             vosummary.append(vos[vo])
 
     else:
-        if view == 'analysis':
-            errthreshold = 15
-        else:
+        if view == 'production':
             errthreshold = 5
+        else:
+            errthreshold = 15
         vosummary = []
 
     cloudview = 'cloud'
     if 'cloudview' in request.GET:
         cloudview = request.GET['cloudview']
+    if view != 'production': cloudview = 'N/A'
     sitesummarydata = siteSummary(query)
     clouds = {}
     totstates = {}
@@ -1201,13 +1221,14 @@ def dashboard(request, view=''):
     for state in sitestatelist:
         totstates[state] = 0
     for rec in sitesummarydata:
-        if cloudview == 'cloud':
-            cloud = rec['cloud']
-        elif cloudview == 'region':
+        if cloudview == 'region':
             if rec['computingsite'] in homeCloud:
                 cloud = homeCloud[rec['computingsite']]
             else:
                 print "ERROR cloud not known", rec
+                cloud = ''
+        else:
+            cloud = rec['cloud']
         site = rec['computingsite']
         jobstatus = rec['jobstatus']
         count = rec['jobstatus__count']

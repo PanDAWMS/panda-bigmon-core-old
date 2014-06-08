@@ -80,7 +80,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 		<!-- Title Area -->
 		<li class="name">
 			<h1>
-				<a href="#">
+				<a href="{% url 'index' %}">
 					{% block title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}
 				</a>
 			</h1>
@@ -93,6 +93,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
       <ul class="left">
         <li class="divider"></li>
 
+{% if viewParams.MON_VO == 'ATLAS' %}
         {% block top_menu_all_1 %}
         <li class="has-dropdown">
           {% block top_menu_1 %}
@@ -100,11 +101,21 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           <ul class="dropdown">
             <li><a href="{% url 'dashboard' %}">All</a></li>
             <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
-            <li><a href="{% url 'dashProduction' %}">Production</a></li>
+            <li><a href="{% url 'dashProduction' %}">Production - Cloud view</a></li>
+            <li><a href="{% url 'dashProduction' %}?cloudview=region">Production - Region view</a></li>
           </ul>
           {% endblock %}
         </li>
        {% endblock %}
+{% else %}
+        {% block top_menu_all_21 %}
+        <li>
+          {% block top_menu_21 %}
+          <a href="{% url 'dashboard' %}">Dashboard</a>
+          {% endblock %}
+        </li>
+        {% endblock %}
+{% endif %}
 
         {% block top_menu_all_2 %}
         <li class="has-dropdown">
@@ -174,7 +185,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         {% block top_menu_all_5 %}
         <li>
           {% block top_menu_5 %}
-          <a href="{% url 'index' %}">Quick search</a>
+          <a href="{% url 'index' %}?mode=quicksearch">Quick search</a>
           {% endblock %}
         </li>
         {% endblock %}
@@ -208,6 +219,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% block top_menu_12 %}
           <a href="#">Other services</a>
           <ul class="dropdown">
+            <li><a href="http://apfmon.lancs.ac.uk/">Pilot factory monitor</a>
             <li><a href="http://dashb-atlas-job.cern.ch/dashboard/request.py/dailysummary#button=jobstatus&sites%5B%5D=All+T3210&sitesCat%5B%5D=All+Clouds&activities%5B%5D=Data+Processing&activities%5B%5D=Extra+Production&activities%5B%5D=Group+Production&activities%5B%5D=MC+Reconstruction&activities%5B%5D=MC+Simulation&activities%5B%5D=Others&activities%5B%5D=T0+Processing&resourcetype=All&sitesSort=7&sitesCatSort=1&start=null&end=null&timerange=last24&granularity=Hourly&generic=3&sortby=3&series=All">Dashboard historical views</a></li>
             <li><a href="http://dashb-atlas-data.cern.ch/ddm2/">DDM dashboard</a>
             <li><a href="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/siteview#currentView=Shifter+view&highlight=false">Site Status Board</a>

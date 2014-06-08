@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block bottom_info %}
+
+{% if npars == 0 %}
 <p>
 Welcome to the {{ viewParams.MON_VO }} PanDA monitor.
 Select what you'd like to have a look at in the top menu bar: dashboard overview; job and task lists; error summaries; user lists and pages; site, cloud and WN information; etc.
@@ -44,6 +46,7 @@ alt='Daily World Production and Analysis Queues (combined)'></a>
 
 {% endif %}
 
+{% endif %}
 <p>
 
 <table>
