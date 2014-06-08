@@ -37,6 +37,7 @@ urlpatterns = patterns('',
     url(r'^dash/$', lsstmon_views.dashboard, name='dashboard'),
     url(r'^dash/analysis/$', lsstmon_views.dashAnalysis, name='dashAnalysis'),
     url(r'^dash/production/$', lsstmon_views.dashProduction, name='dashProduction'),
+    url(r'^workingGroups/$', lsstmon_views.workingGroups, name='workingGroups'),
 
     ### support views for LSST
     url(r'^support/$', core_lsstmon_support_views.maxpandaid, name='supportRoot'),
