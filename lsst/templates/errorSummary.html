@@ -58,16 +58,14 @@
         var options = {
           title: 'Error count timeline',
           legend: { position: 'none' },
-{% comment %}
-          hAxis: {title: 'Date', titleTextStyle: {color: 'black'}, fontSize:9 slantedText:True },
-{% endcomment %}
+          hAxis: {title: 'Time (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
         };
 
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
     </script>
-    <div id="chart_div" style="width: 1000px; height: 500px;"></div>
+    <div id="chart_div" style="height: 500px;"></div>
 
 {% endif %}
 

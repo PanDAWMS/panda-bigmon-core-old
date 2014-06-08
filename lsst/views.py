@@ -30,7 +30,7 @@ from settings.local import dbaccess
 
 homeCloud = {}
 
-statelist = [ 'defined', 'waiting', 'assigned', 'activated', 'sent', 'running', 'holding', 'finished', 'failed', 'cancelled', 'transferring', 'starting', 'pending' ]
+statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
 sitestatelist = [ 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 
 errorcodelist = [ 
@@ -1003,6 +1003,14 @@ def voSummary(query):
     summary.extend(Jobsarchived4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
     return summary
 
+def wgSummary(query):
+    summary = []
+    summary.extend(Jobsdefined4.objects.filter(**query).values('workinggroup','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsactive4.objects.filter(**query).values('workinggroup','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobswaiting4.objects.filter(**query).values('workinggroup','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('workinggroup','jobstatus').annotate(Count('jobstatus')))
+    return summary
+
 def wnSummary(query):
     summary = []
     summary.extend(Jobsactive4.objects.filter(**query).values('modificationhost', 'jobstatus').annotate(Count('jobstatus')).order_by('modificationhost', 'jobstatus'))
@@ -1085,7 +1093,7 @@ def wnInfo(request,site,wnname='all'):
         allwns['statelist'].append(allstate)
     if int(allstated['finished']) + int(allstated['failed']) > 0:
         allwns['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-        if int(allwns['pctfail']) > 20: allwns['pctfail'] = "<font color=red>%s</font>" % allwns['pctfail']
+        if 'pctfail' in allwns and int(allwns['pctfail']) > 20: allwns['pctfail'] = "<font color=red>%s</font>" % allwns['pctfail']
     if wnname == 'all': fullsummary.append(allwns)
     avgwns = {}
     avgwns['name'] = 'Average'
@@ -1119,7 +1127,7 @@ def wnInfo(request,site,wnname='all'):
             wns[wn]['statelist'].append(wns[wn]['states'][state])      
         if wns[wn]['states']['finished']['count'] + wns[wn]['states']['failed']['count'] > 0:
             wns[wn]['pctfail'] =  "%2d" % (100.*float(wns[wn]['states']['failed']['count'])/(wns[wn]['states']['finished']['count']+wns[wn]['states']['failed']['count']))
-            if int(wns[wn]['pctfail']) > 20: wns[wn]['pctfail'] = "<font color=red>%s</font>" % wns[wn]['pctfail']
+            if 'pctfail' in wns[wn] and int(wns[wn]['pctfail']) > 20: wns[wn]['pctfail'] = "<font color=red>%s</font>" % wns[wn]['pctfail']
         if float(wns[wn]['states']['finished']['count']) < float(avgstates['finished'])/5. :
             outlier += " LowFinished "
         if float(wns[wn]['states']['failed']['count']) > float(avgstates['failed'])*3. :
@@ -1200,7 +1208,7 @@ def dashboard(request, view=''):
                 vos[vo]['statelist'].append(vos[vo]['states'][state])
                 if int(vos[vo]['states']['finished']['count']) + int(vos[vo]['states']['failed']['count']) > 0:
                     vos[vo]['pctfail'] = "%2d" % (100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
-                    if int(vos[vo]['pctfail']) > 5: vos[vo]['pctfail'] = "<font color=red>%s</font>" % vos[vo]['pctfail']
+                    if 'pctfail' in vos[vo] and int(vos[vo]['pctfail']) > 5: vos[vo]['pctfail'] = "<font color=red>%s</font>" % vos[vo]['pctfail']
             vosummary.append(vos[vo])
 
     else:
@@ -1279,7 +1287,7 @@ def dashboard(request, view=''):
         allclouds['statelist'].append(allstate)
     if int(allstated['finished']) + int(allstated['failed']) > 0:
         allclouds['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-        if int(allclouds['pctfail']) > errthreshold: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
+        if 'pctfail' in allclouds and int(allclouds['pctfail']) > errthreshold: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
@@ -1295,13 +1303,13 @@ def dashboard(request, view=''):
             sites[site]['summary'] = sitesummary
             if sites[site]['states']['finished']['count'] + sites[site]['states']['failed']['count'] > 0:
                 sites[site]['pctfail'] = "%2d" % (100.*float(sites[site]['states']['failed']['count'])/(sites[site]['states']['finished']['count']+sites[site]['states']['failed']['count']))
-                if int(sites[site]['pctfail']) > errthreshold: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
+                if 'pctfail' in sites[site] and int(sites[site]['pctfail']) > errthreshold: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
 
             cloudsummary.append(sites[site])
         clouds[cloud]['summary'] = cloudsummary
         if clouds[cloud]['states']['finished']['count'] + clouds[cloud]['states']['failed']['count'] > 0:
             clouds[cloud]['pctfail'] =  "%2d" % (100.*float(clouds[cloud]['states']['failed']['count'])/(clouds[cloud]['states']['finished']['count']+clouds[cloud]['states']['failed']['count']))
-            if int(clouds[cloud]['pctfail']) > errthreshold: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
+            if 'pctfail' in clouds[cloud] and int(clouds[cloud]['pctfail']) > errthreshold: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
 
         fullsummary.append(clouds[cloud])
 
@@ -1848,4 +1856,66 @@ def incidentList(request):
         return render_to_response('incidents.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = incidents
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def workingGroups(request):
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+        VOMODE = 'atlas'
+    else:
+        VOMODE = ''
+    if VOMODE != 'atlas':
+        hours = 24*7
+    else:
+        hours = 24
+    query = setupView(request,hours=hours,limit=999999)
+    query['workinggroup__isnull'] = False
+    wgsummarydata = wgSummary(query)
+    wgs = {}
+    for rec in wgsummarydata:
+        wg = rec['workinggroup']
+        if wg == None: continue
+        jobstatus = rec['jobstatus']
+        count = rec['jobstatus__count']
+        if wg not in wgs:
+            wgs[wg] = {}
+            wgs[wg]['name'] = wg
+            wgs[wg]['count'] = 0
+            wgs[wg]['states'] = {}
+            wgs[wg]['statelist'] = []
+            for state in statelist:
+                wgs[wg]['states'][state] = {}
+                wgs[wg]['states'][state]['name'] = state
+                wgs[wg]['states'][state]['count'] = 0
+        wgs[wg]['count'] += count
+        wgs[wg]['states'][jobstatus]['count'] += count
+
+    errthreshold = 15
+    ## Convert dict to summary list
+    wgkeys = wgs.keys()
+    wgkeys.sort()
+    wgsummary = []
+    for wg in wgkeys:
+        for state in statelist:
+            wgs[wg]['statelist'].append(wgs[wg]['states'][state])
+            if int(wgs[wg]['states']['finished']['count']) + int(wgs[wg]['states']['failed']['count']) > 0:
+                wgs[wg]['pctfail'] = "%2d" % (100.*float(wgs[wg]['states']['failed']['count'])/(wgs[wg]['states']['finished']['count']+wgs[wg]['states']['failed']['count']))
+            if 'pctfail' in wgs[wg] and int(wgs[wg]['pctfail']) > errthreshold: wgs[wg]['pctfail'] = "<font color=red>%s</font>" % wgs[wg]['pctfail']
+
+        wgsummary.append(wgs[wg])
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        xurl = extensibleURL(request)
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'url' : request.path,
+            'xurl' : xurl,
+            'user' : None,
+            'wgsummary' : wgsummary,
+            'hours' : hours,
+            'errthreshold' : errthreshold,
+        }
+        return render_to_response('workingGroups.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')

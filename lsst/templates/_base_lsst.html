@@ -103,18 +103,23 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
             <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
             <li><a href="{% url 'dashProduction' %}">Production - Cloud view</a></li>
             <li><a href="{% url 'dashProduction' %}?cloudview=region">Production - Region view</a></li>
+            <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
           </ul>
           {% endblock %}
         </li>
        {% endblock %}
 {% else %}
         {% block top_menu_all_21 %}
-        <li>
+        <li class="has-dropdown">
           {% block top_menu_21 %}
-          <a href="{% url 'dashboard' %}">Dashboard</a>
+          <a href="#">Dashboard</a>
+          <ul class="dropdown">
+            <li><a href="{% url 'dashboard' %}">VOs, sites</a></li>
+            <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
+          </ul>
           {% endblock %}
         </li>
-        {% endblock %}
+       {% endblock %}
 {% endif %}
 
         {% block top_menu_all_2 %}
