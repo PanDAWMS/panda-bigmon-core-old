@@ -1902,6 +1902,7 @@ def workingGroups(request):
             if 'pctfail' in wgs[wg] and int(wgs[wg]['pctfail']) > errthreshold: wgs[wg]['pctfail'] = "<font color=red>%s</font>" % wgs[wg]['pctfail']
 
         wgsummary.append(wgs[wg])
+    if len(wgsummary) == 0: wgsummary = None
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
