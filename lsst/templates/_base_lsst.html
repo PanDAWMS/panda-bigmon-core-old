@@ -145,8 +145,10 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           <a href="#">Tasks</a>
           <ul class="dropdown">
             <li><a href="{% url 'taskList' %}">All</a></li>
+{% if viewParams.MON_VO == 'ATLAS' %}
             <li><a href="{% url 'taskList' %}?tasktype=anal">Analysis</a></li>
             <li><a href="{% url 'taskList' %}?tasktype=prod">Production</a></li>
+{% endif %}
           </ul>
           {% endblock %}
         </li>
