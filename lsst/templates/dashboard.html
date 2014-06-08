@@ -159,7 +159,7 @@ Click the job counts to go to job listings.
 
 <tr height=10 colspan=12></tr>
 <tr>
-<th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' %} including MCP {% endif %}</th>
+<th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' and view != 'analysis' %} including MCP {% endif %}</th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}">{{ cloud.count }}</a> </th>
 <th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
 {% for state in cloud.statelist %}
