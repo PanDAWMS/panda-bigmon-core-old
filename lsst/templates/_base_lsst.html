@@ -166,7 +166,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
           {% block top_menu_3 %}
           <a href="#">Users</a>
           <ul class="dropdown">
+{% if viewParams.MON_VO == 'ATLAS' %}
             <li><a href="{% url 'userList' %}?sortby=date&view=database">Usage stats view</a></li>
+{% endif %}
             <li><a href="{% url 'userList' %}?sortby=date&view=dynamic">Dynamic view</a></li>
           </ul>
           {% endblock %}
