@@ -20,9 +20,9 @@
 	<th>Priority</th>
 </tr>
 <tr>
-	<td><a href="{% url 'userInfo' job.produsername|safe %}">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
+	<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{{ job.pandaid }}</td>
-	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> (JEDI){% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}">{{ job.taskid }}</a> {% endif %}</td>
+	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> (JEDI){% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
@@ -118,7 +118,7 @@
 &nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
 {% endif %}
 
-{% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
+{% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
 
 {% if nfiles > 0 %}
 <p><div class='section'>Job files</div>
@@ -171,9 +171,9 @@
 <p><div class='section'>Other key job parameters</div>
 
 <table>
-	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a></td></tr>{% endif %}
+	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">{{ job.jobsetid }}</a></td></tr>{% endif %}
 	{% if job.processingtype %}<tr><th>Processing type</th><td>{{ job.processingtype }}</td></tr></tr>{% endif %}
-	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
+	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}&display_limit=100">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}

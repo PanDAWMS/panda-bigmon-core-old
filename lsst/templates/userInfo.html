@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<div class='section'>User: <a href="{% url 'userInfo' user %}">{{user}}</a></div>
+<div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a></div>
 
 {% if userstats %}
 <div class="section">Stats from the user DB (updated every few hours)</div>
@@ -43,10 +43,17 @@
 <p>
 {% endif %}
 
-<p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
+<b>Jump to {% if ntasks > 0 %} <a href="#tasks">owned tasks</a> {% endif %} &nbsp; {% if njobsets > 0 %} <a href="#jobsets">recent jobsets</a> {% endif %} &nbsp; {% if njobs > 0 %} <a href="#jobs">recent jobs</a> {% endif %}
+</b>
+<p>
+
+{% if njobs > 0 %}
+
+<p><b>{{ njobs }} jobs</b>
+<br>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
 <br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
 
-<div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Recent job errors</a></div><p>
+<div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Show recent job errors</a></div><p>
 
 <div class='section'>Recent job attributes</div>
 
@@ -61,10 +68,42 @@
 {% endfor %}
 </table>
 
-<div class='section'><a href="{% url 'taskList' %}?username={{ user }}">Show JEDI tasks owned by {{ user }}</a></div>
+{% endif %}
+
+{% if ntasks > 0 %}
+
+<div class='section'><a name="tasks"></a>JEDI tasks owned by {{ user }}</div>
+
+<table>
+<tr>
+	<th>ID<br>Type</th>
+	<th>Name<br>User</th>
+	<th>Status</th>
+	<th>Created</th>
+	<th>Modified</th>
+	<th>Cores</th>
+	<th>Priority</th>
+	<th>Parent</th>
+</tr>
+    {% for task in tasks %}
+	<tr>
+		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
+		<td><font size=-1>{{ task.taskname }}<br>{{ task.username }}</font></td>
+		<td class='{{task.status}}'>{{ task.status }}</td>
+		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
+		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
+		<td>{{ task.corecount }}</td>
+		<td>{{ task.taskpriority }}</td>
+		<td>{% if task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
+
+	</tr>
+    {% endfor %}
+</table>
+
+{% endif %}
 
 {% if njobsets > 0 %}
-<div class='section'> Recent jobsets </div>
+<div class='section'><a name="jobsets"></a> Recent jobsets </div>
 
 <table>
 <tr>
@@ -87,30 +126,33 @@
 </tr>
 {% for jobset in jobsets %}
 <tr>
-<th> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}">{{ jobset.jobsetid }}</a></th>
+<th> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&display_limit=100">{{ jobset.jobsetid }}</a></th>
 <td> {{ jobset.njobs }} </td>
 <td> {{ jobset.tfirst|date:"Y-m-d H:i" }} to {{ jobset.tlast|date:"m-d H:i" }} </td>
 <td> {{ jobset.plow }} to {{ jobset.phigh }} </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=defined"><span class="defined">{{ jobset.sum.defined }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=waiting"><span class="waiting">{{ jobset.sum.waiting }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=assigned"><span class="assigned">{{ jobset.sum.assigned }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=activated"><span class="activated">{{ jobset.sum.activated }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=sent"><span class="sent">{{ jobset.sum.sent }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=starting"><span class="starting">{{ jobset.sum.starting }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=running"><span class="running">{{ jobset.sum.running }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=holding"><span class="holding">{{ jobset.sum.holding }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=transferring"><span class="transferring">{{ jobset.sum.transferring }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=finished"><span class="finished">{{ jobset.sum.finished }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=failed"><span class="failed">{{ jobset.sum.failed }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=cancelled"><span class="cancelled">{{ jobset.sum.cancelled }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=defined&display_limit=100"><span class="defined">{{ jobset.sum.defined }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=waiting&display_limit=100"><span class="waiting">{{ jobset.sum.waiting }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=assigned&display_limit=100"><span class="assigned">{{ jobset.sum.assigned }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=activated&display_limit=100"><span class="activated">{{ jobset.sum.activated }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=sent&display_limit=100"><span class="sent">{{ jobset.sum.sent }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=starting&display_limit=100"><span class="starting">{{ jobset.sum.starting }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=running&display_limit=100"><span class="running">{{ jobset.sum.running }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=holding&display_limit=100"><span class="holding">{{ jobset.sum.holding }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=transferring&display_limit=100"><span class="transferring">{{ jobset.sum.transferring }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=finished&display_limit=100"><span class="finished">{{ jobset.sum.finished }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=failed&display_limit=100"><span class="failed">{{ jobset.sum.failed }}</span></a> </td>
+<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=cancelled&display_limit=100"><span class="cancelled">{{ jobset.sum.cancelled }}</span></a> </td>
 </tr>
 {% endfor %}
 </table>
 <p>
 {% endif %}
 
-
-<div class='section'>Recent jobs</div>
+<div class='section'><a name="jobs"></a>Recent jobs</div>
+{% if njobs > 0 %}
+{% if display_limit %}
+Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
+{% endif %}
 
 <table>
 <tr>
@@ -140,6 +182,12 @@
 	</tr>
     {% endfor %}
 </table>
+
+{% else %}
+
+No jobs found.
+
+{% endif %}
 
 {% endblock %}
 

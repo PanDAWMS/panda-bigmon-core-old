@@ -95,9 +95,9 @@ Click the job counts to go to job listings.
 <tr height=10 colspan=12></tr>
 <tr>
 <th  bgcolor=whitesmoke> {{ vo.name }} </th>
-<th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}">{{ vo.count }}</a> </th>
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
 {% for state in vo.statelist %}
-<th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
 <th  bgcolor=whitesmoke align='right'>{{ vo.pctfail|safe  }} </th>
 </tr>
@@ -127,10 +127,10 @@ Click the job counts to go to job listings.
 <tr height=10 colspan=12></tr>
 <tr>
 <th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}<a href="#cloud_{{ cloud.name }}">{{ cloud.name }}</a> {% else %}  All clouds {% endif %}</th>
-<th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}"> {{ cloud.count }} </a></td>
+<th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ cloud.count }} </a></td>
 <th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
 {% for state in cloud.statelist %}
-<th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
+<th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
 {% endfor %}
 </tr>
 {% endfor %}
@@ -160,19 +160,19 @@ Click the job counts to go to job listings.
 <tr height=10 colspan=12></tr>
 <tr>
 <th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' and view != 'analysis' %} including MCP {% endif %}</th>
-<th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}">{{ cloud.count }}</a> </th>
+<th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ cloud.count }}</a> </th>
 <th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
 {% for state in cloud.statelist %}
-<th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
+<th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
 </tr>
 {% for site in cloud.summary %}
 <tr>
 <td> {% if site.name %} {{ site.name }} {% else %} Failed before site assignment {% endif %} </td>
-<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}"> {{ site.count }} </a></td>
+<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
 <td>{{ site.pctfail|safe  }} </td>
 {% for state in site.summary %}
-<td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
+<td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
 {% endfor %}
 </tr>
 {% endfor %}

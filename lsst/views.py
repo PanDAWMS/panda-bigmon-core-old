@@ -55,7 +55,7 @@ TLAST = timezone.now() - timedelta(hours=2400)
 PLOW = 1000000
 PHIGH = -1000000
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud']
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', ]
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
@@ -90,9 +90,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
         if 'hours' not in request.GET:
-            JOB_LIMIT = 1000
+            JOB_LIMIT = 2000
         else:
-            JOB_LIMIT = 1000
+            JOB_LIMIT = 2000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET or 'jeditaskid' in request.GET:
@@ -141,6 +141,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     else:
         viewParams['selection'] = ""
     for param in request.GET:
+        if param == 'display_limit': continue
         viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
@@ -449,7 +450,7 @@ def errorInfo(job, nchars=300):
 def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobs = []
-    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse'
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -491,6 +492,14 @@ def jobList(request, mode=None, param=None):
     elif '/production' in request.path:
         jobtype = 'production'
 
+    njobsmax = njobs
+    if 'display_limit' in request.GET and int(request.GET['display_limit']) < njobs:
+        display_limit = int(request.GET['display_limit'])
+        njobsmax = display_limit
+        url_nolimit = removeParam(request.get_full_path(), 'display_limit')
+    else:
+        display_limit = None
+        url_nolimit = request.get_full_path()
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(request, jobs)
         xurl = extensibleURL(request)
@@ -498,7 +507,7 @@ def jobList(request, mode=None, param=None):
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
             'requestParams' : request.GET,
-            'jobList': jobs,
+            'jobList': jobs[:njobsmax],
             'jobtype' : jobtype,
             'njobs' : njobs,
             'user' : None,
@@ -510,6 +519,8 @@ def jobList(request, mode=None, param=None):
             'tlast' : TLAST,
             'plow' : PLOW,
             'phigh' : PHIGH,
+            'url_nolimit' : url_nolimit,
+            'display_limit' : display_limit,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
@@ -793,15 +804,38 @@ def userInfo(request, user=''):
     if user == '':
         if 'user' in request.GET: user = request.GET['user']
         if 'produsername' in request.GET: user = request.GET['produsername']
-    query = setupView(request,hours=24,limit=300)
+
+    ## Tasks owned by the user
+    startdate = datetime.utcnow() - timedelta(hours=90*24)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    query = { 'modificationtime__range' : [startdate, enddate] }
+    query['username'] = user
+    tasks = JediTasks.objects.filter(**query).values()
+    tasks = cleanTaskList(tasks)
+    tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    ntasks = len(tasks)
+
+    limit = 2000
+    query = setupView(request,hours=72,limit=limit)
     query['produsername__iexact'] = user
     jobs = []
-    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode'
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'homepackage', 'inputfileproject', 'inputfiletype',
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    if LAST_N_HOURS_MAX > 72: jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    jobsetids = None
+    if len(jobs) == 0 or (len(jobs) < limit and LAST_N_HOURS_MAX > 72):
+        jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+#         if len(jobs) < limit and ntasks == 0:
+#             ## try at least to find some old jobsets
+#             startdate = datetime.utcnow() - timedelta(hours=30*24)
+#             startdate = startdate.strftime(defaultDatetimeFormat)
+#             enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+#             query = { 'modificationtime__range' : [startdate, enddate] }
+#             query['produsername'] = user
+#             jobsetids = Jobsarchived.objects.filter(**query).values('jobsetid').distinct()
     jobs = cleanJobList(jobs)
     query = { 'name__iexact' : user }
     userdb = Users.objects.filter(**query).values()
@@ -844,9 +878,18 @@ def userInfo(request, user=''):
     for jobset in jsk:
         jobsetl.append(jobsets[jobset])
 
+    njobsmax = len(jobs)
+    if 'display_limit' in request.GET and int(request.GET['display_limit']) < len(jobs):
+        display_limit = int(request.GET['display_limit'])
+        njobsmax = display_limit
+        url_nolimit = removeParam(request.get_full_path(), 'display_limit')
+    else:
+        display_limit = None
+        url_nolimit = request.get_full_path()
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype',  ]
         if VOMODE != 'atlas':
             flist.append('vo')
         else:
@@ -858,7 +901,8 @@ def userInfo(request, user=''):
             'user' : user,
             'sumd' : sumd,
             'jobsumd' : jobsumd,
-            'jobList' : jobs,
+            'jobList' : jobs[:njobsmax],
+            'njobs' : len(jobs),
             'query' : query,
             'userstats' : userstats,
             'tfirst' : TFIRST,
@@ -867,6 +911,10 @@ def userInfo(request, user=''):
             'phigh' : PHIGH,
             'jobsets' : jobsetl,
             'njobsets' : len(jobsetl),
+            'url_nolimit' : url_nolimit,
+            'display_limit' : display_limit,
+            'tasks': tasks,
+            'ntasks' : ntasks,
         }
         data.update(getContextVariables(request))
         return render_to_response('userInfo.html', data, RequestContext(request))
@@ -875,7 +923,6 @@ def userInfo(request, user=''):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def siteList(request):
-    print request.GET
     setupView(request, opmode='notime')
     query = {}
     ### Add any extensions to the query determined from the URL  
@@ -1347,14 +1394,6 @@ def dashProduction(request):
 def taskList(request):
     query = setupView(request, hours=180*24, limit=9999999)
     for param in request.GET:
-#         if param == 'category' and request.GET[param] == 'multicloud':
-#             query['multicloud__isnull'] = False
-#         if param == 'category' and request.GET[param] == 'analysis':
-#             query['siteid__contains'] = 'ANALY'
-#         if param == 'category' and request.GET[param] == 'test':
-#             query['siteid__icontains'] = 'test'
-#         if param == 'category' and request.GET[param] == 'production':
-#             prod = True
         for field in JediTasks._meta.get_all_field_names():
             if param == field:
                 if param == 'transpath':
@@ -1364,14 +1403,28 @@ def taskList(request):
     tasks = JediTasks.objects.filter(**query).values()
     tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    ntasks = len(tasks)
+
+    nmax = ntasks
+    if 'display_limit' in request.GET and int(request.GET['display_limit']) < nmax:
+        display_limit = int(request.GET['display_limit'])
+        nmax = display_limit
+        url_nolimit = removeParam(request.get_full_path(), 'display_limit')
+    else:
+        display_limit = None
+        url_nolimit = request.get_full_path()
+        
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = taskSummaryDict(request,tasks)
         data = {
             'viewParams' : viewParams,
             'requestParams' : request.GET,
-            'tasks': tasks,
+            'tasks': tasks[:nmax],
+            'ntasks' : ntasks,
             'sumd' : sumd,
             'xurl' : extensibleURL(request),
+            'url_nolimit' : url_nolimit,
+            'display_limit' : display_limit,
         }
         return render_to_response('taskList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -1379,15 +1432,24 @@ def taskList(request):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def taskInfo(request, jeditaskid=0):
-    if 'jeditaskid' in request.GET:
-        jeditaskid = request.GET['jeditaskid']
-    setupView(request)
-    query = {'jeditaskid' : jeditaskid}
-    jobsummary = jobSummary2(query)
-    tasks = JediTasks.objects.filter(**query).values()
-    if len(tasks) == 0: tasks = JediTasks.objects.filter(**query).values()
+    setupView(request, hours=365*24, limit=999999999)
+    query = {}
+    tasks = []
+    taskrec = None
     colnames = []
     columns = []
+    jobsummary = []
+    if 'jeditaskid' in request.GET: jeditaskid = request.GET['jeditaskid']
+    if jeditaskid != 0:
+        query = {'jeditaskid' : jeditaskid}
+        jobsummary = jobSummary2(query)
+        tasks = JediTasks.objects.filter(**query).values()
+    elif 'taskname' in request.GET:
+        querybyname = {'taskname' : request.GET['taskname'] }
+        tasks = JediTasks.objects.filter(**querybyname).values()
+        if len(tasks) > 0:
+            jeditaskid = tasks[0]['jeditaskid']
+        query = {'jeditaskid' : jeditaskid}
     try:
         taskrec = tasks[0]
         colnames = taskrec.keys()
@@ -1401,6 +1463,7 @@ def taskInfo(request, jeditaskid=0):
             columns.append(pair)
     except IndexError:
         taskrec = None
+
     taskpars = JediTaskparams.objects.filter(**query).values()
     if len(taskpars) > 0:
         taskparams = taskpars[0]['taskparams']
@@ -1415,13 +1478,21 @@ def taskInfo(request, jeditaskid=0):
         taskparams = None
         taskparaml = None
 
+    if taskrec:
+        taskname = taskrec['taskname']
+    elif 'taskname' in request.GET:
+        taskname = request.GET['taskname']
+    else:
+        taskname = ''
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
         if taskrec:
             attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'task' : taskrec,
+            'taskname' : taskname,
             'taskparams' : taskparams,
             'taskparaml' : taskparaml,
             'columns' : columns,

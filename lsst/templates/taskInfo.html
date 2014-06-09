@@ -2,13 +2,13 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA task {{ jeditaskid }} {% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA task {{ jeditaskid }}{% endblock %}
+{% block subtitle %}PanDA task {% if jeditaskid > 0 %}{{ jeditaskid }}:{% endif %} <b>{{ task.taskname }}</b>{% endblock %}
 
 {% block body %}
 
 {% if columns %}
 
-<div class='section'> Task {{ jeditaskid }} information </div>
+<div class='section'> Task {{ jeditaskid }}: {{ taskname }}</div>
 
 <table>
 <tr>
@@ -34,6 +34,8 @@
 	</tr>
 </table>
 
+{% if jobsummary %}
+
 <div class="section"> States of jobs in this task </div>
 <table><tr>
 {% for state in jobsummary %}
@@ -41,17 +43,19 @@
 {% endfor %}
 </tr><tr>
 {% for state in jobsummary %}
-<td> {% if state.count > 0 %} <b> <a href="{% url 'jobList' %}?jeditaskid={{task.jeditaskid}}&jobstatus={{state.name}}"><span class="{{ state.name}}">{{ state.count }}</span></a> </b> {% endif %} </td>
+<td> {% if state.count > 0 %} <b> <a href="{% url 'jobList' %}?jeditaskid={{task.jeditaskid}}&jobstatus={{state.name}}&display_limit=100"><span class="{{ state.name}}">{{ state.count }}</span></a> </b> {% endif %} </td>
 {% endfor %}
 </table>
+
+{% endif %}
 
 {% if task.parent_tid != task.jeditaskid and task.parent_tid != None %}
 <p><a href="{% url 'taskInfo' task.parent_tid %}">Show parent task {{ task.parent_tid }}</a><p>
 {% endif %}
-<p><a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}">Look for child tasks</a><p>
+<p><a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_limit=100">Look for child tasks</a><p>
 
 
-<p><a href="{% url 'jobList' %}?jeditaskid={{jeditaskid}}">Show jobs in this task</a><p>
+<p><a href="{% url 'jobList' %}?jeditaskid={{jeditaskid}}&display_limit=100">Show jobs in this task</a><p>
 
 <p><a href="{% url 'errorSummary' %}?jeditaskid={{jeditaskid}}">Error summary for this task</a><p>
 
@@ -98,7 +102,7 @@
 
 {% else %}
 
-PanDA task {{ jeditaskid }} not found. <p> NB task info pages are only available for JEDI tasks. You can however get a job listing for any task in quick search.
+PanDA task {% if jeditaskid > 0 %}{{ jeditaskid }}:{% endif %} <b>{{ taskname }}</b> not found. <p> NB task info pages are only available for JEDI tasks. You can however get a job listing for any task in quick search.
 
 {% endif %}
 

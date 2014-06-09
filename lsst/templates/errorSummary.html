@@ -25,7 +25,7 @@
 {% if requestParams.jobtype %}<br><b>Job type: {{ requestParams.jobtype }}</b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.computingsite %}<br><b>Site: <a href="{% url 'siteInfo' requestParams.computingsite %}">{{ requestParams.computingsite }}</a></b> {% endif %}
-{% if requestParams.produsername %}<br><b>User: <a href="{% url 'userInfo' requestParams.produsername %}">{{ requestParams.produsername }}</a></b> {% endif %}
+{% if requestParams.produsername %}<br><b>User: <a href="{% url 'userInfo' requestParams.produsername %}?display_limit=100">{{ requestParams.produsername }}</a></b> {% endif %}
 {% if requestParams.jeditaskid %}<br><b>JEDI Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
 {% if requestParams.taskid %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
@@ -90,7 +90,7 @@
 <table>
 <tr><th>Category:code</th><th>Nerrors</th><th>Sample error description</th></tr>
 {% for errval in errsByCount %}
-<tr><th> <a href="{% url 'jobList' %}?jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}"> {{ errval.error }} </a> </th> <td> {{ errval.count }} </td> <td> {{ errval.diag }} </td>  </tr>
+<tr><th> <a href="{% url 'jobList' %}?jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100"> {{ errval.error }} </a> </th> <td> {{ errval.count }} </td> <td> {{ errval.diag }} </td>  </tr>
 {% endfor %}
 </table>
 
@@ -103,7 +103,7 @@
 {% for site in errsBySite %}
 <tr><th> <a href="{% url 'errorSummary' %}?computingsite={{ site.name }}"> {{ site.name }} </a> </th> <th> {{ site.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in site.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?computingsite={{site.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'jobList' %}?computingsite={{site.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>
@@ -117,7 +117,7 @@
 {% for user in errsByUser %}
 <tr><th> <a href="{% url 'errorSummary' %}?produsername={{ user.name }}"> {{ user.name }} </a> </th> <th> {{ user.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in user.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?produsername={{user.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'jobList' %}?produsername={{user.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>
@@ -131,7 +131,7 @@
 {% for task in errsByTask %}
 <tr><th> <a href="{% url 'errorSummary' %}?{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a> </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in task.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?{{task.tasktype}}={{task.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'jobList' %}?{{task.tasktype}}={{task.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>

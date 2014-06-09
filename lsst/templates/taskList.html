@@ -10,7 +10,7 @@
 {% block body %}
 
 {% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
-{% if requestParams.username %}<br><b>User: {{ requestParams.username }}</b> {% endif %}
+{% if requestParams.username %}<br><b>User: <a href="{% url 'userInfo' requestParams.username %}?display_limit=100">{{ requestParams.username }}</a> &nbsp; <a href="{% url 'userInfo' requestParams.username %}?display_limit=100">Show user page</a></b> {% endif %}
 {% if requestParams.tasktype %}<br><b>Task type: {{ requestParams.tasktype }}</b> {% endif %}
 {% if requestParams.transpath %}<br><b>Transformation: {{ requestParams.transpath }}</b> {% endif %}
 {% if requestParams.transuses %}<br><b>Release: {{ requestParams.transuses }}</b> {% endif %}
@@ -23,6 +23,8 @@
 {% if tasks %}
 
 {% if sumd %}
+
+<b>{{ ntasks }} tasks</b>
 
 <div class='section'>Task attribute summary</div>
 
@@ -39,6 +41,9 @@
 {% endif %}
 
 <div class='section'>Task list</div>
+{% if display_limit %}
+Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
+{% endif %}
 
 <table>
 <tr>
