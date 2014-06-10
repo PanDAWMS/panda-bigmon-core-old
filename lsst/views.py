@@ -493,14 +493,13 @@ def jobList(request, mode=None, param=None):
     elif '/production' in request.path:
         jobtype = 'production'
 
-    njobsmax = njobs
     if 'display_limit' in request.GET and int(request.GET['display_limit']) < njobs:
         display_limit = int(request.GET['display_limit'])
-        njobsmax = display_limit
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
-        display_limit = None
+        display_limit = 3000
         url_nolimit = request.get_full_path()
+    njobsmax = display_limit
 
     if 'sortby' in request.GET:
         sortby = request.GET['sortby']
@@ -901,10 +900,10 @@ def userInfo(request, user=''):
     njobsmax = len(jobs)
     if 'display_limit' in request.GET and int(request.GET['display_limit']) < len(jobs):
         display_limit = int(request.GET['display_limit'])
-        njobsmax = display_limit
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
-        display_limit = None
+        display_limit = 3000
+        njobsmax = display_limit
         url_nolimit = request.get_full_path()
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
@@ -1431,7 +1430,8 @@ def taskList(request):
         nmax = display_limit
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
-        display_limit = None
+        display_limit = 3000
+        nmax = display_limit
         url_nolimit = request.get_full_path()
         
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
