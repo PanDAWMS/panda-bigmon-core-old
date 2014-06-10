@@ -55,7 +55,7 @@ TLAST = timezone.now() - timedelta(hours=2400)
 PLOW = 1000000
 PHIGH = -1000000
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', ]
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', ]
 standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
@@ -128,6 +128,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if deepquery:
         opmode = 'notime'
         hours = LAST_N_HOURS_MAX = 24*180
+        limit = JOB_LIMIT = 999999
     if opmode != 'notime':
         if LAST_N_HOURS_MAX <= 72 :
             viewParams['selection'] = ", last %s hours" % LAST_N_HOURS_MAX
@@ -450,7 +451,7 @@ def errorInfo(job, nchars=300):
 def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobs = []
-    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype'
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -500,9 +501,26 @@ def jobList(request, mode=None, param=None):
     else:
         display_limit = None
         url_nolimit = request.get_full_path()
+
+    if 'sortby' in request.GET:
+        sortby = request.GET['sortby']
+        if sortby == 'time-ascending':
+            jobs = sorted(jobs, key=lambda x:x['modificationtime'])
+        if sortby == 'time-descending':
+            jobs = sorted(jobs, key=lambda x:x['modificationtime'], reverse=True)
+            #jobs = sorted(jobs, key=lambda x: time.strptime(x['modificationtime'], '%Y-%m-%d %H:%M:%S')[0:6], reverse=True)
+        elif sortby == 'priority':
+            jobs = sorted(jobs, key=lambda x:x['currentpriority'])
+        elif sortby == 'PandaID':
+            pass
+    else:
+        sortby = "PandaID"
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(request, jobs)
         xurl = extensibleURL(request)
+        nosorturl = removeParam(xurl, 'sortby',mode='extensible')
+        nosorturl = removeParam(nosorturl, 'display_limit', mode='extensible')
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
@@ -521,6 +539,8 @@ def jobList(request, mode=None, param=None):
             'phigh' : PHIGH,
             'url_nolimit' : url_nolimit,
             'display_limit' : display_limit,
+            'sortby' : sortby,
+            'nosorturl' : nosorturl,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
@@ -820,7 +840,7 @@ def userInfo(request, user=''):
     query = setupView(request,hours=72,limit=limit)
     query['produsername__iexact'] = user
     jobs = []
-    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'homepackage', 'inputfileproject', 'inputfiletype',
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -889,7 +909,7 @@ def userInfo(request, user=''):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype',  ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr' ]
         if VOMODE != 'atlas':
             flist.append('vo')
         else:
@@ -1824,8 +1844,10 @@ def errorSummary(request):
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def removeParam(urlquery, parname):
+def removeParam(urlquery, parname, mode='complete'):
     """Remove a parameter from current query"""
+    urlquery = urlquery.replace('&&','&')
+    urlquery = urlquery.replace('?&','?')
     pstr = '.*(%s=[a-zA-Z0-9\.\-]*).*' % parname
     pat = re.compile(pstr)
     mat = pat.match(urlquery)
@@ -1834,8 +1856,8 @@ def removeParam(urlquery, parname):
         urlquery = urlquery.replace(pstr,'')
         urlquery = urlquery.replace('&&','&')
         urlquery = urlquery.replace('?&','?')
-        if urlquery.endswith('?') or urlquery.endswith('&'):
-            urlquery = urlquery[:len(urlquery)-1]
+        if mode != 'extensible':
+            if urlquery.endswith('?') or urlquery.endswith('&'): urlquery = urlquery[:len(urlquery)-1]
     return urlquery
 
 def incidentList(request):

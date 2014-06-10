@@ -81,18 +81,6 @@
 <p>
 {% endif %}
 
-{% if logextract %}
-
-<table width=1000><tr><td bgcolor="#FFF4A3"> <b>Warning: job log extract indicates possible problems </td></tr>
-<tr><td>
-<font size=-1><pre>
-{{ logextract }}
-</pre></font>
-</td></tr>
-</table>
-
-{% endif %}
-
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
 
@@ -221,6 +209,16 @@
 	{% if job.pilotid %}<tr><th>Pilot ID</th><td>{{ job.pilotid }}</td></tr>{% endif %}
 	{% if job.batchid %}<tr><th>Batch ID</th><td>{{ job.batchid }}</td></tr>{% endif %}
 </table>
+
+{% if logextract %}
+<table width=1000><tr><td bgcolor="#FFF4A3"> <b>Warning: job log extract indicates possible problems </td></tr>
+<tr><td>
+<font size=-1><pre>
+{{ logextract }}
+</pre></font>
+</td></tr>
+</table>
+{% endif %}
 
 <p><div class='section'>All job parameters</div></p>
 

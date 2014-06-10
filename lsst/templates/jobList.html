@@ -13,6 +13,7 @@
 {{ viewParams.header }}
 
 <b>{{ njobs }} jobs selected</b>
+
 {% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
 {% if requestParams.jobtype %}<br><b>Job type: {{ requestParams.jobtype }}</b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
@@ -56,37 +57,59 @@
 {% endfor %}
 </table>
 
-<div class="section"> Job list </div>
+<div class="section"><a name="joblist"></a> Job list </div>
 {% if display_limit %}
-Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
+Only the most recent {{ display_limit }} jobs (sorted by PandaID) are shown.
+<br>Remove the limit and sort by 
+<a href="{{nosorturl}}">PandaID</a>, 
+{% else %}
+Sort by 
+{% if sortby == "PandaID" %}
+<b>PandaID</b>,
+{% else %}
+<a href="{{nosorturl}}">PandaID</a>, 
 {% endif %}
+{% endif %}
+
+{% if sortby == "time-ascending" %}
+<b>ascending mod time</b>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>
+{% elif sortby == "time-descending" %}
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <b>descending mod time</b>, <a href="{{nosorturl}}sortby=priority">priority</a>
+{% elif sortby == "priority" %}
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <b>priority</b>
+{% else %}
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>
+{% endif %}
+<p>
 
 <table>
 <tr>
+	<th>PanDA ID<br>Attempt#</th>
 	<th>Owner {% if viewParams.MON_VO != 'ATLAS' %} / VO{% endif %}  </th>
 	<th>Task ID</th>
-	<th>PanDA ID</th>
 	<th>Transformation</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Start</th>
 	<th>End</th>
+	<th>Mod</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
 	<th>Job info</th>
 </tr>
     {% for job in jobList %}
 	<tr>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a><br>{{ job.attemptnr }}</td>
 		<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %}<br><a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }}{% endif %} {% endif %}
 		</td>
 		<td>{% if job.jeditaskid %}<a href="{{xurl}}jeditaskid={{job.jeditaskid}}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
-		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a></td>
 		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
-		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
-		<td>{{ job.starttime|date:"m-d H:i" }}</td>
-		<td>{{ job.endtime|date:"m-d H:i" }}</td>
+		<td><font size=-1>{{ job.creationtime|date:"Y-m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.starttime|date:"m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.endtime|date:"m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.modificationtime|date:"m-d H:i" }}</font></td>
 		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite %}">{{ job.computingsite }}</a></font></td>
 		<td>{{ job.currentpriority }}</td>
 		<td width=250>{% if job.jobinfo != '' %}<font size=-1>{{job.jobinfo|safe}}</font><br>{% endif %}
