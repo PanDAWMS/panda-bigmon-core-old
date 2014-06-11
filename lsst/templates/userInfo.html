@@ -156,26 +156,28 @@ Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit
 
 <table>
 <tr>
-	<th>Panda ID<br>Group {% if viewParams.MON_VO != 'ATLAS' %}VO{% endif %}</th>
+	<th>Panda ID<br>Attempt#<br>Group {% if viewParams.MON_VO != 'ATLAS' %}VO{% endif %}</th>
 	<th>Transformation</th>
 	<th>Jobset</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Start</th>
 	<th>End</th>
+	<th>Mod</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
 	<th>Job info</th>
 </tr>
     {% for job in jobList %}
 	<tr>
-		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a>{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ job.pandaid }}">{{ job.pandaid }}</a>{% if job.attemptnr > 1 %}<br>Attempt {{ job.attemptnr }}{% endif %}{% if job.workinggroup %}<br>{{ job.workinggroup }}{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %}<br>{{ job.vo }}{% endif %}{% endif %}</td>
 		<td class='{{job.transformation}}'><font size=-1>{{ job.transformation }}</font></td>
 		<td>{% if job.jobsetid %}<a href="{{xurl}}jobsetid={{job.jobsetid}}">{{ job.jobsetid }}</a>{% endif %}</td>
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
-		<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
-		<td>{{ job.starttime|date:"m-d H:i" }}</td>
-		<td>{{ job.endtime|date:"m-d H:i" }}</td>
+		<td><font size=-1>{{ job.creationtime|date:"Y-m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.starttime|date:"m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.endtime|date:"m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.modificationtime|date:"m-d H:i" }}</font></td>
 		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite %}">{{ job.computingsite }}</a><font></td>
 		<td>{{ job.currentpriority }}</td>
 		<td width=200>{% if job.errorinfo != '' %}<font size=-1 class='alarm'>{{job.errorinfo|safe}}</font>{% endif %}</td>

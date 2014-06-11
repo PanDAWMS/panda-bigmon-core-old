@@ -114,7 +114,7 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 {% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
 
 {% if nfiles > 0 %}
-<p><div class='section'>Job files</div>
+<p><div class='section'>{{ nfiles }} job files</div>
 <table>
 <tr><th>Filename (Type)</th><th>Size (bytes)</th><th>Status</th><th>Dataset</th></tr>
 {% for file in files %}
