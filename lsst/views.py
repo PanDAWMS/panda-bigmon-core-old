@@ -911,6 +911,7 @@ def userInfo(request, user=''):
     njobsmax = len(jobs)
     if 'display_limit' in request.GET and int(request.GET['display_limit']) < len(jobs):
         display_limit = int(request.GET['display_limit'])
+        njobsmax = display_limit
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
         display_limit = 3000
