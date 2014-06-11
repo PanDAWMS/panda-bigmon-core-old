@@ -17,9 +17,9 @@
 <b>{{ njobs }} jobs selected</b>
 
 {% if sortby == "count" %}
-<p>Sort by <b>count</b>, <a href="{{nosorturl}}">alpha</a><p>
+<p>Sort by <b>count</b>, <a href="{{nosorturl}}">alpha</a>
 {% else %}
-<p>Sort by <a href="{{xurl}}sortby=count">count</a>, <b>alpha</b><p>
+<p>Sort by <a href="{{xurl}}sortby=count">count</a>, <b>alpha</b>
 {% endif %}
 
 {% if requestParams.jobtype %}<br><b>Job type: {{ requestParams.jobtype }}</b> {% endif %}
@@ -33,7 +33,7 @@
 
 <p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}<p>
 
-<p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary<p>
+<p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary
 
 {% if errHist %}
 
@@ -69,7 +69,7 @@
 
 {% endif %}
 
-<p><div class='section'>Error occurrences by job attribute</div><p>
+<div class='section'>Error occurrences by job attribute</div><p>
 
 <table>
 {% for fdict in sumd %}

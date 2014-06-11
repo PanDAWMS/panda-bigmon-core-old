@@ -30,8 +30,8 @@ from settings.local import dbaccess
 
 homeCloud = {}
 
-statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
-sitestatelist = [ 'assigned', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
+statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'throttled', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
+sitestatelist = [ 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 
 errorcodelist = [ 
     { 'name' : 'brokerage', 'error' : 'brokerageerrorcode', 'diag' : 'brokerageerrordiag' },
@@ -414,8 +414,8 @@ def extensibleURL(request, xurl = ''):
         xurl += '&'
     else:
         xurl += '?'
-    if 'jobtype' in request.GET:
-        xurl += "jobtype=%s&" % request.GET['jobtype']
+    #if 'jobtype' in request.GET:
+    #    xurl += "jobtype=%s&" % request.GET['jobtype']
     return xurl
 
 def mainPage(request):
@@ -1828,6 +1828,7 @@ def errorSummary(request):
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         nosorturl = removeParam(request.get_full_path(), 'sortby')
         xurl = extensibleURL(request)
+        print 'xurl',xurl
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,

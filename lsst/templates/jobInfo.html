@@ -23,7 +23,7 @@
 <tr>
 	<td>{{ job.pandaid }}<br>Attempt {{ job.attemptnr }}</td>
 	<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
-	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> (JEDI){% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
+	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
@@ -48,6 +48,7 @@
 {% if job.jobstatus == 'pending' %} Status <b class='pending'>pending</b> indicates that the job record has been injected into the PanDA DB but PanDA has not yet dealt with it. {% endif %}
 {% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received by PanDA and the process of assigning it for execution has begun. {% endif %}
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
+{% if job.jobstatus == 'throttled' %} Status <b class='throttled'>throttled</b> indicates that dispatch of the job has been postponed due to heavy network use by other jobs. {% endif %}
 <p>
 {% if job.attemptnr > 1 %}
 This is attempt number {{ job.attemptnr }} for this job. To see a history of job attempts click on the job name above.
