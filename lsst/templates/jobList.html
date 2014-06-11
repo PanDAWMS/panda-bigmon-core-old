@@ -19,9 +19,10 @@
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.computingsite %}<br><b>Site: <a href="{% url 'siteInfo' requestParams.computingsite %}">{{ requestParams.computingsite }}</a> &nbsp; <a href="{% url 'siteInfo' requestParams.computingsite %}">Show site information page</a></b> {% endif %}
 {% if requestParams.produsername %}<br><b>User: <a href="{% url 'userInfo' requestParams.produsername %}?display_limit=100">{{ requestParams.produsername }}</a> &nbsp; <a href="{% url 'userInfo' requestParams.produsername %}?display_limit=100">Show user page</a></b> {% endif %}
-{% if requestParams.jeditaskid %}<br><b>Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a> &nbsp; <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">Show task information page</a></b> {% endif %}
-{% if requestParams.taskid %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
+{% if requestParams.jeditaskid and requestParams.jeditaskid != 'None' %}<br><b>Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a> &nbsp; <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">Show task information page</a></b> {% endif %}
+{% if requestParams.taskid and requestParams.taskid != 'None' %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
+{% if requestParams.jobname %}<br><b>Job name: {{ requestParams.jobname }}</b> {% endif %}
 <p>
 
 {% if jobList %}
@@ -58,7 +59,7 @@
 </table>
 
 <div class="section"><a name="joblist"></a> Job list </div>
-{% if display_limit %}
+{% if display_limit  and display_limit < njobs %}
 Only the most recent {{ display_limit }} jobs (sorted by PandaID) are shown.
 <br>Remove the limit and sort by 
 <a href="{{nosorturl}}">PandaID</a>, 
@@ -72,13 +73,15 @@ Sort by
 {% endif %}
 
 {% if sortby == "time-ascending" %}
-<b>ascending mod time</b>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>
+<b>ascending mod time</b>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>, <a href="{{nosorturl}}sortby=attemptnr">attemptnr</a>
 {% elif sortby == "time-descending" %}
-<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <b>descending mod time</b>, <a href="{{nosorturl}}sortby=priority">priority</a>
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <b>descending mod time</b>, <a href="{{nosorturl}}sortby=priority">priority</a>, <a href="{{nosorturl}}sortby=attemptnr">attemptnr</a>
 {% elif sortby == "priority" %}
-<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <b>priority</b>
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <b>priority</b>, <a href="{{nosorturl}}sortby=attemptnr">attemptnr</a>
+{% elif sortby == "attemptnr" %}
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>, <b>attemptnr</b>
 {% else %}
-<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>
+<a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>, <a href="{{nosorturl}}sortby=attemptnr">attemptnr</a>
 {% endif %}
 <p>
 

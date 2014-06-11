@@ -31,7 +31,7 @@
 	<td>{{ job.currentpriority }}</td>
 </tr>
 <tr>
-	<td colspan="10"><b>Job name:</b> &nbsp; {{ job.jobname }}</td>
+	<td colspan="10"><b>Job name:</b> &nbsp; <a href="{% url 'jobList' %}?jobname={{ job.jobname }}&taskid={{ job.taskid }}&jeditaskid={{ job.jeditaskid }}&sortby=attemptnr">{{ job.jobname }}</a></td>
 </tr>
 </table>
 {% if job.jobstatus == 'assigned' %} Status <b class='assigned'>assigned</b> indicates the job has been assigned to a site ({{ job.computingsite }}) and preparations to have the input data ready are underway (e.g. subscriptions, tape staging). {% endif %}

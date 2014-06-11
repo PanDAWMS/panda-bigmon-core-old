@@ -124,6 +124,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if 'jeditaskid' in request.GET: deepquery = True
     if 'taskid' in request.GET: deepquery = True
     if 'pandaid' in request.GET: deepquery = True
+    if 'jobname' in request.GET: deepquery = True
     if 'batchid' in request.GET: deepquery = True
     if deepquery:
         opmode = 'notime'
@@ -142,7 +143,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
     else:
         viewParams['selection'] = ""
     for param in request.GET:
+        if request.GET[param] == 'None': continue
+        if request.GET[param] == '': continue
         if param == 'display_limit': continue
+        if param == 'sortby': continue
         viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
@@ -160,8 +164,14 @@ def setupView(request, opmode='', hours=0, limit=-99):
                     query['%s__endswith' % param] = request.GET[param]
                 elif param == 'modificationhost' and request.GET[param].find('@') < 0:
                     query['%s__contains' % param] = request.GET[param]
-                elif param == 'jeditaskid' and int(request.GET['jeditaskid']) < 4000000:
-                    query['taskid'] = request.GET[param]
+                elif param == 'jeditaskid':
+                    if request.GET['jeditaskid'] != 'None':
+                        if int(request.GET['jeditaskid']) < 4000000:
+                            query['taskid'] = request.GET[param]
+                        else:
+                            query[param] = request.GET[param]
+                elif param == 'taskid':
+                    if request.GET['taskid'] != 'None': query[param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
     if 'jobtype' in request.GET:
@@ -509,6 +519,8 @@ def jobList(request, mode=None, param=None):
             jobs = sorted(jobs, key=lambda x:x['modificationtime'], reverse=True)
         elif sortby == 'priority':
             jobs = sorted(jobs, key=lambda x:x['currentpriority'], reverse=True)
+        elif sortby == 'attemptnr':
+            jobs = sorted(jobs, key=lambda x:x['attemptnr'], reverse=True)
         elif sortby == 'PandaID':
             pass
     else:
