@@ -507,9 +507,8 @@ def jobList(request, mode=None, param=None):
             jobs = sorted(jobs, key=lambda x:x['modificationtime'])
         if sortby == 'time-descending':
             jobs = sorted(jobs, key=lambda x:x['modificationtime'], reverse=True)
-            #jobs = sorted(jobs, key=lambda x: time.strptime(x['modificationtime'], '%Y-%m-%d %H:%M:%S')[0:6], reverse=True)
         elif sortby == 'priority':
-            jobs = sorted(jobs, key=lambda x:x['currentpriority'])
+            jobs = sorted(jobs, key=lambda x:x['currentpriority'], reverse=True)
         elif sortby == 'PandaID':
             pass
     else:
