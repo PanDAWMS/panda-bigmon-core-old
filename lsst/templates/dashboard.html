@@ -97,10 +97,10 @@ Click the job counts to go to job listings.
 <tr>
 <th  bgcolor=whitesmoke> {{ vo.name }} </th>
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
+<th  bgcolor=whitesmoke align='right'>{{ vo.pctfail|safe  }} </th>
 {% for state in vo.statelist %}
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
-<th  bgcolor=whitesmoke align='right'>{{ vo.pctfail|safe  }} </th>
 </tr>
 {% endfor %}
 <tr height=10 colspan=12></tr>
