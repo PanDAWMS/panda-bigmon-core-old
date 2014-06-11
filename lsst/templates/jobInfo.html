@@ -9,25 +9,27 @@
 {% if job %}
 <table width="100%">
 <tr>
+	<th>PandaID<br>Attempt#</th>
 	<th>Owner{% if job.workinggroup %} / WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
-	<th>PandaID</th>
 	<th>TaskID</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Start</th>
 	<th>End</th>
-	<th>Site</th>
+	<th>Mod</th>
+	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
 </tr>
 <tr>
+	<td>{{ job.pandaid }}<br>Attempt {{ job.attemptnr }}</td>
 	<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
-	<td>{{ job.pandaid }}</td>
 	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> (JEDI){% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.starttime|date:"m-d H:i" }}</td>
 	<td>{{ job.endtime|date:"m-d H:i" }}</td>
-	<td><a href="{% url 'siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
+	<td>{{ job.modificationtime|date:"m-d H:i" }}</td>
+	<td>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
 	<td>{{ job.currentpriority }}</td>
 </tr>
 <tr>
@@ -47,6 +49,9 @@
 {% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received by PanDA and the process of assigning it for execution has begun. {% endif %}
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
 <p>
+{% if job.attemptnr > 1 %}
+This is attempt number {{ job.attemptnr }} for this job. To see a history of job attempts click on the job name above.
+{% endif %}
 
 {% if pretries %}
 
