@@ -630,6 +630,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             logfile['lfn'] = file['lfn'] 
             logfile['guid'] = file['guid'] 
             logfile['site'] = file['destinationse'] 
+            logfile['scope'] = file['scope']
 
     if 'pilotid' in job and job['pilotid'] is not None and job['pilotid'].startswith('http'):
         stdout = job['pilotid'].split('|')[0]
