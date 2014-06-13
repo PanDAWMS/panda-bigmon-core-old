@@ -1300,6 +1300,19 @@ def dashboard(request, view=''):
             errthreshold = 15
         vosummary = []
 
+    if VOMODE == 'atlas' and len(request.GET) == 0:
+        cloudinfol = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values('name','status')
+    else:
+        cloudinfol = []
+    cloudinfo = {}
+    for c in cloudinfol:
+        cloudinfo[c['name']] = c['status']
+
+    siteinfol = Schedconfig.objects.filter().exclude(cloud='CMS').values('siteid','status')
+    siteinfo = {}
+    for s in siteinfol:
+        siteinfo[s['siteid']] = s['status']    
+
     cloudview = 'cloud'
     if 'cloudview' in request.GET:
         cloudview = request.GET['cloudview']
@@ -1327,6 +1340,7 @@ def dashboard(request, view=''):
         if cloud not in clouds:
             clouds[cloud] = {}
             clouds[cloud]['name'] = cloud
+            if cloud in cloudinfo: clouds[cloud]['status'] = cloudinfo[cloud]
             clouds[cloud]['count'] = 0
             clouds[cloud]['sites'] = {}
             clouds[cloud]['states'] = {}
@@ -1340,6 +1354,7 @@ def dashboard(request, view=''):
         if site not in clouds[cloud]['sites']:
             clouds[cloud]['sites'][site] = {}
             clouds[cloud]['sites'][site]['name'] = site
+            if site in siteinfo: clouds[cloud]['sites'][site]['status'] = siteinfo[site]
             clouds[cloud]['sites'][site]['count'] = 0
             clouds[cloud]['sites'][site]['states'] = {}
             for state in sitestatelist:

@@ -110,6 +110,7 @@ Click the job counts to go to job listings.
 
 <tr bgcolor="lightcyan">
 <th> Cloud </th>
+<th> Status</th>
 <th> nJobs </th>
 <th> % failed </th>
 <th> assigned </th>
@@ -128,7 +129,8 @@ Click the job counts to go to job listings.
 {% for cloud in summary %}
 <tr height=10 colspan=12></tr>
 <tr>
-<th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}{% if cloud.name != '' %}<a href="#cloud_{{ cloud.name }}">{{ cloud.name }}</a>{% else %} Failed before site assigned {% endif %} {% else %}  All clouds {% endif %}</th>
+<th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}{% if cloud.name != '' %}<a href="#cloud_{{ cloud.name }}"><span class="{{cloud.status}}">{{ cloud.name }}</span></a>{% else %} Failed before site assigned {% endif %} {% else %}  All clouds {% endif %}</th>
+<th  bgcolor=whitesmoke> <span class="{{cloud.status}}">{{ cloud.status }}</span> </th>
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ cloud.count }} </a></td>
 <th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
 {% for state in cloud.statelist %}
@@ -144,9 +146,10 @@ Click the job counts to go to job listings.
 
 <tr height=10 colspan=12></tr>
 <tr>
-<td class="tablesection"> <a name="cloud_{{ cloud.name }}">{{ cloud.name }}</a> Cloud, Sites </td>
+<td class="tablesection"> <a name="cloud_{{ cloud.name }}"><span class="{{cloud.status}}">{{ cloud.name }} Cloud</span></a>, Sites </td>
+<td class="tablesection"> Status</td>
 <td class="tablesection"> nJobs </td>
-<th class="tablesection"> % failed </th>
+<td class="tablesection"> % failed </td>
 <td class="tablesection"> assigned </td>
 <td class="tablesection"> throttled </td>
 <td class="tablesection"> activated </td>
@@ -163,6 +166,7 @@ Click the job counts to go to job listings.
 <tr height=10 colspan=12></tr>
 <tr>
 <th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' and view != 'analysis' %} including MCP {% endif %}</th>
+<th bgcolor=whitesmoke> </th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ cloud.count }}</a> </th>
 <th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
 {% for state in cloud.statelist %}
@@ -171,8 +175,9 @@ Click the job counts to go to job listings.
 </tr>
 {% for site in cloud.summary %}
 <tr>
-<td> {% if site.name %} {{ site.name }} {% else %} Failed before site assignment {% endif %} </td>
-<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
+<td> {% if site.name %} <span class="{{ site.status }}">{{ site.name }}</span> {% else %} Failed before site assignment {% endif %} </td>
+<td><span class="{{site.status}}">{{ site.status  }}</span> </td>
+<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{site.status}}"> {{ site.count }} </span></a></td>
 <td>{{ site.pctfail|safe  }} </td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
