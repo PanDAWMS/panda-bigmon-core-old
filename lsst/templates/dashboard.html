@@ -177,7 +177,7 @@ Click the job counts to go to job listings.
 <tr>
 <td> {% if site.name %} <span class="{{ site.status }}">{{ site.name }}</span> {% else %} Failed before site assignment {% endif %} </td>
 <td><span class="{{site.status}}">{{ site.status  }}</span> </td>
-<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{site.status}}"> {{ site.count }} </span></a></td>
+<td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
 <td>{{ site.pctfail|safe  }} </td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
