@@ -56,7 +56,7 @@ PLOW = 1000000
 PHIGH = -1000000
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', ]
-standard_sitefields = [ 'region', 'gocname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
+standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -1042,6 +1042,8 @@ def siteInfo(request, site=''):
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
         attrs.append({'name' : 'GOC name', 'value' : siterec.gocname })
+        attrs.append({'name' : 'Queue (nickname)', 'value' : siterec.nickname })
+        attrs.append({'name' : 'Total queues for this site', 'value' : len(sites) })
         attrs.append({'name' : 'Status', 'value' : siterec.status })
         attrs.append({'name' : 'Comment', 'value' : siterec.comment_field })
         attrs.append({'name' : 'Last modified', 'value' : "%s" % (siterec.lastmod.strftime('%Y-%m-%d %H:%M')) })
@@ -1063,6 +1065,7 @@ def siteInfo(request, site=''):
         data = {
             'viewParams' : viewParams,
             'site' : siterec,
+            'queues' : sites,
             'colnames' : colnames,
             'attrs' : attrs,
             'incidents' : incidents,

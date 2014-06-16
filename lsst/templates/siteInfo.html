@@ -23,6 +23,20 @@
 {% endfor %}
 </table>
 
+{% if queues %}
+
+<div class='section'>All queues for site {{ site.siteid }} </div>
+<table>
+{% for queue in queues %}
+<tr>
+<td> {{ queue.nickname }} </td><td> <span class={{ queue.status }}>{{ queue.status }}</span> </td>
+<td> Modified {{ queue.lastmod }} </td> <td> {{ queue.comment_field }} </td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+
 <p><a href="{% url 'wnInfo' site.siteid %}">Worker node summary</a><p>
 
 <p><a href="{% url 'jobList' %}?computingsite={{site.siteid}}&display_limit=100">Recent jobs at this site</a><p>

@@ -66,7 +66,7 @@
 
 <table>
 <tr>
-	<th>Site name</th>
+	<th>PanDA site name (siteid)<br> Queue name (nickname)</th>
 	<th>GOC site name</th>
 {% if viewParams.MON_VO == 'ATLAS' %}
 	<th>Cloud</th>
@@ -82,7 +82,7 @@
 </tr>
     {% for site in sites %}
 	<tr>
-		<td><a href="{% url 'siteInfo' site.siteid %}">{{ site.siteid }}</a></td>
+		<td><a href="{% url 'siteInfo' site.siteid %}">{{ site.siteid }}</a> <br> {{ site.nickname }} </td>
 		<td> <a href="{{xurl}}gocname={{site.gocname}}">{{ site.gocname }}</a></td>
 {% if viewParams.MON_VO == 'ATLAS' %}
 		<td> {{ site.cloud }}</td>
