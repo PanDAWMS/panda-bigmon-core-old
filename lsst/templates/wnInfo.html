@@ -1,17 +1,15 @@
 {% extends "_base_lsst.html" %}
 {% load url from future %}
 
-{% block page_title %} {{ viewParams.MON_VO }} PanDA WN performance for {{ site }} {% endblock %}
+{% block page_title %} {{ viewParams.MON_VO }} PanDA WN {{ wnname }}@{{ site }} {% endblock %}
 {% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA WN performance for {{ site }}{{ viewParams.selection }}
+{% block subtitle %}PanDA WN slot performance for node {{ wnname }} at {{ site }}{{ viewParams.selection }}
 {% endblock %}
 {% block body %}
 
 {{ viewParams.header }}
 
-<div class='section'>Worker node performance for site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
-
-<p>Jump to <a href="#outliers">outliers</a>, <a href="#full">full WN list</a>
+<div class='section'>Worker node slot performance for node {{ wnname }} at site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
 
 {% if wnPlotFailed %}
 
@@ -20,6 +18,7 @@
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
       function drawChart() {
+{% if wnPlotFailed|length > 0 %}
         var data = google.visualization.arrayToDataTable([
           ['Time', 'Count'],
 
@@ -29,14 +28,16 @@
 
             ])
         var options = {
-          title: 'Failed jobs per WN',
+          title: 'Failed jobs per WN slot',
           legend: { position: 'none' },
-          hAxis: {title: 'WN (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
+          hAxis: {title: 'WN slot (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
         };
 
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         chart.draw(data, options);
+{% endif %}
 
+{% if wnPlotFinished|length > 0 %}
         var data2 = google.visualization.arrayToDataTable([
           ['Time', 'Count'],
 
@@ -46,23 +47,28 @@
 
             ])
         var options2 = {
-          title: 'Finished jobs per WN',
+          title: 'Finished jobs per WN slot',
           legend: { position: 'none' },
           hAxis: {title: 'WN (empty bins suppressed)', titleTextStyle: {color: 'black'},  textStyle: { fontSize:11},},
         };
 
         var chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
         chart2.draw(data2, options2);
+{% endif %}
       }
     </script>
+{% if wnPlotFailed|length > 0 %}
     <div id="chart_div" style="height: 500px;"></div>
+{% endif %}
+{% if wnPlotFinished|length > 0 %}
     <div id="chart_div2" style="height: 500px;"></div>
+{% endif %}
 
 {% endif %}
 
 {% if wnname != 'all' %}
 
-<div class='section'>WN info for {{ wnname }} at site {{ site }}</div>
+<div class='section'>Slot info for worker node {{ wnname }} at site {{ site }}</div>
 
 <table>
 
