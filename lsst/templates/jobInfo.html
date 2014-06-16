@@ -97,9 +97,11 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 {% else %}
 
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-<p>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>, &nbsp;
+<p>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/application_log.txt">stdout</a>, &nbsp;
 <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">job outputs</a>
 {% endif %}
+
+<p>View the job wrapper's (verbose) <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>
 
 <br><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
 

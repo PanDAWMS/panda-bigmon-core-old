@@ -20,6 +20,7 @@ from core.common.models import Jobparamstable
 from core.common.models import Logstable
 from core.common.models import Cloudconfig
 from core.common.models import Incidents
+from core.common.models import Pandalog
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
@@ -55,8 +56,8 @@ TLAST = timezone.now() - timedelta(hours=2400)
 PLOW = 1000000
 PHIGH = -1000000
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', ]
-standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor', ]
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'computingelement' ]
+standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor' ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
@@ -464,7 +465,7 @@ def errorInfo(job, nchars=300):
 def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobs = []
-    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname'
+    values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname', 'computingelement'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -1650,7 +1651,7 @@ def errorSummaryDict(request,jobs):
     sumd = {}
     ## histogram of errors vs. time, for plotting
     errHist = {}
-    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling' ]
+    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'computingelement' ]
 
     for job in jobs:
         if job['jobstatus'] not in [ 'failed', 'transferring', 'holding' ]: continue
@@ -1838,7 +1839,7 @@ def errorSummary(request):
     elif '/production' in request.path:
         jobtype = 'production'
     jobs = []
-    values = 'produsername', 'pandaid', 'cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'currentpriority',
+    values = 'produsername', 'pandaid', 'cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'currentpriority', 'computingelement'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -1987,6 +1988,94 @@ def incidentList(request):
             'ninc' : len(incidents),
         }
         return render_to_response('incidents.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = incidents
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def pandaLogger(request):
+    if 'hours' not in request.GET:
+        hours = 3
+    else:
+        hours = int(request.GET['hours'])
+    setupView(request, hours=hours, limit=9999999)
+    iquery = {}
+    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    iquery['bintime__range'] = [startdate, enddate]
+    getrecs = False
+    if 'category' in request.GET:
+        iquery['name'] = request.GET['category']
+        getrecs = True
+    if 'type' in request.GET:
+        iquery['type'] = request.GET['type']
+        getrecs = True
+    if 'level' in request.GET:
+        iquery['levelname'] = request.GET['level'].upper()
+        getrecs = True
+    counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
+    if getrecs:
+        records = Pandalog.objects.filter(**iquery).values().order_by('bintime').reverse()
+        for r in records:
+            r['levelname'] = r['levelname'].lower()
+    else:
+        records = None
+    logs = {}
+    totcount = 0
+    for inc in counts:
+        name = inc['name']
+        type = inc['type']
+        level = inc['levelname']
+        count = inc['levelname__count']
+        totcount += count
+        if name not in logs:
+            logs[name] = {}
+            logs[name]['name'] = name
+            logs[name]['count'] = 0
+            logs[name]['types'] = {}
+        logs[name]['count'] += count
+        if type not in logs[name]['types']:
+            logs[name]['types'][type] = {}
+            logs[name]['types'][type]['name'] = type
+            logs[name]['types'][type]['count'] = 0
+            logs[name]['types'][type]['levels'] = {}
+        logs[name]['types'][type]['count'] += count
+        if level not in logs[name]['types'][type]['levels']:
+            logs[name]['types'][type]['levels'][level] = {}
+            logs[name]['types'][type]['levels'][level]['name'] = level.lower()
+            logs[name]['types'][type]['levels'][level]['count'] = 0
+        logs[name]['types'][type]['levels'][level]['count'] += count
+
+    ## convert to ordered lists
+    logl = []
+    for l in logs:
+        itemd = {}
+        itemd['name'] = logs[l]['name']
+        itemd['types'] = []
+        for t in logs[l]['types']:
+            logs[l]['types'][t]['levellist'] = []
+            for v in logs[l]['types'][t]['levels']:
+                logs[l]['types'][t]['levellist'].append(logs[l]['types'][t]['levels'][v])
+            logs[l]['types'][t]['levellist'] = sorted(logs[l]['types'][t]['levellist'], key=lambda x:x['name'])
+            typed = {}
+            typed['name'] = logs[l]['types'][t]['name']
+            itemd['types'].append(logs[l]['types'][t])
+        itemd['types'] = sorted(itemd['types'], key=lambda x:x['name'])
+        logl.append(itemd)
+    logl = sorted(logl, key=lambda x:x['name'])
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'user' : None,
+            'logl' : logl,
+            'records' : records,
+            'ninc' : totcount,
+            'xurl' : extensibleURL(request),
+            'hours' : hours,
+        }
+        return render_to_response('pandaLogger.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = incidents
         return  HttpResponse(json_dumps(resp), mimetype='text/html')

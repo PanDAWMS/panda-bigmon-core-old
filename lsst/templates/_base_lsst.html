@@ -39,6 +39,9 @@
 th { text-align:left; border-style:solid; border-width:1px; border-color:grey;}
 td { text-align:left; border-style:solid; border-width:1px; border-color:lightgrey;}
 .alarm { color:red }
+.error { color:red }
+.info { color:black }
+.debug { color:darkgrey }
 .finished { color:#248F24 }
 .done { color:#248F24 }
 .ready { color:#248F24 }
@@ -53,7 +56,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .offline { color:darkgrey }
 .holding { color:#FF9933 }
 .throttled { color:#FF9933 }
-.warning { font-weight: bold; }
+.warning { color:#FF9933 }
 .timeout { color:#FF9933 }
 .running { color:#47D147 }
 .starting { color:#47D147 }
@@ -184,7 +187,6 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
        {% endblock %}
 
-
         {% block top_menu_all_4 %}
         <li>
           {% block top_menu_4 %}
@@ -193,13 +195,19 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
         {% endblock %}
 
-        {% block top_menu_all_8 %}
-        <li>
+       {% block top_menu_all_8 %}
+        <li class="has-dropdown">
           {% block top_menu_8 %}
-          <a href="{% url 'incidentList' %}">Incidents</a>
+          <a href="#">Incidents</a>
+          <ul class="dropdown">
+{% if viewParams.MON_VO == 'ATLAS' %}
+            <li><a href="{% url 'incidentList' %}">Recent incidents</a></li>
+{% endif %}
+            <li><a href="{% url 'pandaLogger' %}">PanDA logger</a></li>
+          </ul>
           {% endblock %}
         </li>
-        {% endblock %}
+       {% endblock %}
 
         {% block top_menu_all_5 %}
         <li>
