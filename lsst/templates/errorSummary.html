@@ -14,7 +14,7 @@
 
 {% if sumd %}
 
-<b>{{ njobs }} jobs selected</b>
+<b>{{ njobs }} jobs found in failed or holding state. </b> &nbsp;  <a href="{% url 'jobList' %}?{{ requestString }}&jobstatus=failed|holding&hours={{hours}}&limit={{limit}}">Show job list</a>
 
 {% if sortby == "count" %}
 <p>Sort by <b>count</b>, <a href="{{nosorturl}}">alpha</a>
@@ -90,7 +90,7 @@
 <table>
 <tr><th>Category:code</th><th>Nerrors</th><th>Sample error description</th></tr>
 {% for errval in errsByCount %}
-<tr><th> <a href="{% url 'jobList' %}?jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100"> {{ errval.error }} </a> </th> <td> {{ errval.count }} </td> <td> {{ errval.diag }} </td>  </tr>
+<tr><th> <a href="{% url 'errorSummary' %}?jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100"> {{ errval.error }} </a> </th> <td> {{ errval.count }} </td> <td> {{ errval.diag }} </td>  </tr>
 {% endfor %}
 </table>
 
@@ -103,7 +103,7 @@
 {% for site in errsBySite %}
 <tr><th> <a href="{% url 'errorSummary' %}?computingsite={{ site.name }}"> {{ site.name }} </a> </th> <th> {{ site.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in site.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?computingsite={{site.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'errorSummary' %}?computingsite={{site.name}}&jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>
@@ -117,7 +117,7 @@
 {% for user in errsByUser %}
 <tr><th> <a href="{% url 'errorSummary' %}?produsername={{ user.name }}"> {{ user.name }} </a> </th> <th> {{ user.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in user.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?produsername={{user.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'errorSummary' %}?produsername={{user.name}}&jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>
@@ -131,7 +131,7 @@
 {% for task in errsByTask %}
 <tr><th> <a href="{% url 'errorSummary' %}?{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a> </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in task.errorlist %}
-<tr><td>  </td> <td> <a href="{% url 'jobList' %}?{{task.tasktype}}={{task.name}}&jobstatus=failed&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
+<tr><td>  </td> <td> <a href="{% url 'errorSummary' %}?{{task.tasktype}}={{task.name}}&jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}
 {% endfor %}
 </table>

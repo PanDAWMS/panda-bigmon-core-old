@@ -172,6 +172,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
                             query[param] = request.GET[param]
                 elif param == 'taskid':
                     if request.GET['taskid'] != 'None': query[param] = request.GET[param]
+                elif request.GET[param].find('|') > 0:
+                    vals = request.GET[param].split('|')
+                    query[param+"__in"] = vals
                 else:
                     query[param] = request.GET[param]
     if 'jobtype' in request.GET:
@@ -1849,9 +1852,11 @@ def errorSummary(request):
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
             'requestParams' : request.GET,
+            'requestString' : request.META['QUERY_STRING'],
             'jobtype' : jobtype,
             'njobs' : njobs,
             'hours' : LAST_N_HOURS_MAX,
+            'limit' : JOB_LIMIT,
             'user' : None,
             'xurl' : xurl,
             'nosorturl' : nosorturl,
