@@ -46,7 +46,7 @@ Click the job counts to go to job listings.
 <tr>
 <td> {{ wg.name }} </td>
 <td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&hours={{hours}}&display_limit=100">{{ wg.count }}</a> </td>
-<td>{{ wg.pctfail|safe  }} </td>
+<td>{% if wg.pctfail > errthreshold %} <font color=red>{{ wg.pctfail  }}</font> {% else %} {{ wg.pctfail  }} {% endif %} </td>
 {% for state in wg.statelist %}
 <td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </td>
 {% endfor %}
