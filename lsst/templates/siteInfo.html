@@ -39,9 +39,9 @@
 
 <p><a href="{% url 'wnInfo' site.siteid %}">Worker node summary</a><p>
 
-<p><a href="{% url 'jobList' %}?computingsite={{site.siteid}}&display_limit=100">Recent jobs at this site</a><p>
+<p>Recent  <a href="{% url 'jobList' %}?computingsite={{site.siteid}}&display_limit=100">jobs</a>, <a href="{% url 'errorSummary' %}?computingsite={{site.siteid}}">job errors</a> at this site<p>
 
-<p><a href="{% url 'errorSummary' %}?computingsite={{site.siteid}}">Recent job errors at this site</a><p>
+<p>Look for recent <a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=brokerage&site={{ site.siteid }}&hours=12">brokerage actions</a> for this site
 
 {% if site.nickname %}
 <p><a href="http://apfmon.lancs.ac.uk/q/{{site.nickname}}">Pilot factory monitor</a><p>

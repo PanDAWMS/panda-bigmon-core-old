@@ -12,11 +12,19 @@
 
 {{ viewParams.header }}
 
-<b>{{ ninc }} log entries</b>
-<p><b>Recent <a href="{% url 'pandaLogger' %}?level=error"><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning"><span class="warning">warnings</span></a></b>
-
-{% if requestParams.site %}<br><b>Site: <a href="{% url 'incidentList' %}?site={{ requestParams.site }}">{{ requestParams.site }}</a></b> {% endif %}
+<b>{{ ninc }} logger entries</b>
+{% if requestParams.category %} <br><b>Log category: {{ requestParams.category }}</b> {% endif %}
+{% if requestParams.type %} <br><b>Log type: {{ requestParams.type }}</b> {% endif %}
+{% if requestParams.level %} <br><b>Log level: <span class="{{ requestParams.level }}">{{ requestParams.level }}</span></b> {% endif %}
+{% if requestParams.taskid %} <br><b>Task ID: <a href="{% url 'taskInfo' requestParams.taskid %}">{{ requestParams.taskid }}</a></b> {% endif %}
+{% if requestParams.site %} <br><b>Site: <a href="{% url 'siteInfo' requestParams.site %}">{{ requestParams.site }}</a></b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
+
+<p>
+{% if requestParams|length == 0 %}
+<p><b>Recent <a href="{% url 'pandaLogger' %}?level=error"><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning"><span class="warning">warnings</span></a></b>
+{% endif %}
+
 
 {% if incHist %}
 
@@ -50,9 +58,9 @@
 <table>
 {% for rec in logl %}
 {% for type in rec.types %}
-<tr bgcolor="#FCFCFC"><th> <a href="{% url 'pandaLogger' %}?category={{rec.name}}">{{ rec.name }}</a> </th><td> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}">{{ type.name }}</a> </td><td>
+<tr bgcolor="#FCFCFC"><th> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&limit=1000">{{ rec.name }}</a> </th><td> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&limit=1000">{{ type.name }}</a> </td><td>
 {% for level in type.levellist %}
-<a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&level={{level.name}}"><span class="{{ level.name }}">{{ level.name }}</span>({{ level.count }})</a> &nbsp; 
+<a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&level={{level.name}}&limit=1000"><span class="{{ level.name }}">{{ level.name }}</span>({{ level.count }})</a> &nbsp; 
 {% endfor %}
 </td></tr>
 {% endfor %}
@@ -64,15 +72,16 @@
 
 {% if records %}
 
-<div class='section'>Logger records</div>
+<div class='section'>Latest {{ records|length }} log records</div>
 
 <table>
+<tr><th>Logged at</th><th>Category</th><th>Type</th><th>Level</th><th>Log message</th></tr>
 {% for inc in records %}
 <tr><td> {{ inc.bintime|date:"Y-m-d H:i" }} </td>
 <td> {{ inc.name }}</td>
 <td> {{ inc.type }}</td>
 <td> <span class="{{inc.levelname}}">{{ inc.levelname }}</span></td>
-<td> {{ inc.message|safe }}</td>
+<td><font size=-1> {% if inc.loguser != '' %} <i>Logged by {{ inc.loguser }}:</i> &nbsp; {% endif %} {% if inc.pid > 0 %} PandaID={{ inc.pid }} &nbsp; {% endif %} {{ inc.message|safe }}</font></td>
 </tr>
 {% endfor %}
 </table>

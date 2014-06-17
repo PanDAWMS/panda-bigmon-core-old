@@ -2013,9 +2013,16 @@ def pandaLogger(request):
     if 'level' in request.GET:
         iquery['levelname'] = request.GET['level'].upper()
         getrecs = True
+    if 'taskid' in request.GET:
+        iquery['message__startswith'] = request.GET['taskid']
+        getrecs = True
+    if 'site' in request.GET:
+        iquery['message__startswith'] = request.GET['site']
+        getrecs = True
+
     counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
-        records = Pandalog.objects.filter(**iquery).values().order_by('bintime').reverse()
+        records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
         for r in records:
             r['levelname'] = r['levelname'].lower()
     else:
