@@ -43,6 +43,8 @@ urlpatterns = patterns('',
     ### support views for LSST
     url(r'^support/$', core_lsstmon_support_views.maxpandaid, name='supportRoot'),
     url(r'^support/maxpandaid/$', core_lsstmon_support_views.maxpandaid, name='supportMaxpandaid'),
+    url(r'^support/jobinfouservohrs/(?P<vo>[-A-Za-z0-9_.+ @]+)/(?P<nhours>\d+)/$', core_lsstmon_support_views.jobUserOrig, name='supportJobUserVoHrs'),
+    url(r'^support/jobinfouservo/(?P<vo>[-A-Za-z0-9_.+ @]+)/(?P<ndays>\d+)/$', core_lsstmon_support_views.jobUserDaysOrig, name='supportJobUserVo'),
 
     ### robots.txt
     url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
