@@ -56,7 +56,7 @@ TLAST = timezone.now() - timedelta(hours=2400)
 PLOW = 1000000
 PHIGH = -1000000
 
-standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'computingelement' ]
+standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'computingelement', 'specialhandling' ]
 standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor' ]
 standard_taskfields = [ 'tasktype', 'status', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
 
@@ -1262,6 +1262,10 @@ def wnInfo(request,site,wnname='all'):
         wns[wn]['outlier'] = outlier
         fullsummary.append(wns[wn])
 
+    if 'sortby' in request.GET:
+        if request.GET['sortby'] in sitestatelist:
+            fullsummary = sorted(fullsummary, key=lambda x:x['states'][request.GET['sortby']],reverse=True)
+
     kys = wnPlotFailed.keys()
     kys.sort()
     wnPlotFailedL = []
@@ -1457,10 +1461,12 @@ def dashboard(request, view=''):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
+        nosorturl = removeParam(xurl, 'sortby',mode='extensible')
         data = {
             'viewParams' : viewParams,
             'url' : request.path,
             'xurl' : xurl,
+            'nosorturl' : nosorturl,
             'user' : None,
             'summary' : fullsummary,
             'vosummary' : vosummary,
