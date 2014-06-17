@@ -981,7 +981,7 @@ def siteList(request):
                 query[param] = request.GET[param]
 
     siteres = Schedconfig.objects.filter(**query).exclude(cloud='CMS').values()
-    mcpres = Schedconfig.objects.filter(status='online').exclude(cloud='CMS').exclude(siteid__icontains='test').values('siteid','multicloud')
+    mcpres = Schedconfig.objects.filter(status='online').exclude(cloud='CMS').exclude(siteid__icontains='test').values('siteid','multicloud','cloud').order_by('siteid')
     sites = []
     for site in siteres:
         if 'category' in request.GET and request.GET['category'] == 'multicloud':
@@ -1016,11 +1016,21 @@ def siteList(request):
                     cloud['tspace'] = site['tspace']
             for site in mcpres:
                 mcpclouds = site['multicloud'].split(',')
-                if cloud['name'] in mcpclouds: mcpsites[cloud['name']].append(site['siteid'])
-            mcpsites[cloud['name']].sort()
+                if cloud['name'] in mcpclouds or cloud['name'] == site['cloud']:
+                    sited = {}
+                    sited['name'] = site['siteid']
+                    sited['cloud'] = site['cloud']
+                    if site['cloud'] == cloud['name']:
+                        sited['type'] = 'home'
+                    else:
+                        sited['type'] = 'mcp'
+                    mcpsites[cloud['name']].append(sited)
             cloud['mcpsites'] = ''
             for s in mcpsites[cloud['name']]:
-                cloud['mcpsites'] += "%s &nbsp; " % s
+                if s['type'] == 'home':
+                    cloud['mcpsites'] += "<b>%s</b> &nbsp; " % s['name']
+                else:
+                    cloud['mcpsites'] += "%s &nbsp; " % s['name']
     else:
         clouds = None
 

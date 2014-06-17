@@ -43,7 +43,7 @@
 <td>{{ cloud.space }}</td>
 <td> {{ cloud.tspace|date:"m-d H:i" }}</td>
 </tr>
-<tr><td colspan=7> <font size=-2><b>MCP sites:</b> {{ cloud.mcpsites|safe }}</font></td></tr>
+<tr><td colspan=7> <font size=-2><b>MCP sites (home cloud sites in bold):</b> {{ cloud.mcpsites|safe }}</font></td></tr>
 {% endif %}
 {% endfor %}
 </table>
@@ -108,8 +108,9 @@
 <div class='section'><a name="mcpsites"></a>Multicloud production sites in this cloud</div>
 
 <table>
+<tr><th>Site ({{ requestParams.cloud }} home cloud sites in bold)</th><th>Home cloud</th></tr>
 {% for site in mcpsites %}
-<tr><td><a href="{% url 'siteInfo' site %}">{{ site }}</a></td></tr>
+<tr><td><a href="{% url 'siteInfo' site.name %}">{% if site.type == 'home' %}<b>{{ site.name }}</b> {% else %} {{ site.name }} {% endif %}</a></td><td>{% if site.type == 'home' %} <b>{{ site.cloud }}</b> {% else %} {{ site.cloud }} {% endif %}</td></tr>
 {% endfor %}
 </table>
 

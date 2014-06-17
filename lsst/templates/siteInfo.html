@@ -52,6 +52,8 @@
 {% if viewParams.MON_VO == 'ATLAS' %}
 <p><a href="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/sitehistory?site={{site.siteid}}#currentView=Shifter+view">Site status board</a><p>
 
+<p><a href="https://atlas-logbook.cern.ch/elog/ATLAS+Computer+Operations+Logbook/?mode=full&reverse=0&reverse=1&npp=20&Subject={{site.siteid}}">elogs (site name in title)</a><p>
+
 <p>DDM dashboard &nbsp;
 <a href="http://dashb-atlas-data.cern.ch/ddm2/#src.cloud=(%22{{site.cloud}}%22)&src.site=(%22{{site.siteid}}%22)&grouping.src=(cloud,site,token)">source</a>
 &nbsp;
