@@ -1146,6 +1146,7 @@ def wnSummary(query):
 
 def wnInfo(request,site,wnname='all'):
     """ Give worker node level breakdown of site activity. Spot hot nodes, error prone nodes. """
+    errthreshold = 15
     if wnname != 'all':
         query = setupView(request,hours=72,limit=999999)
         query['modificationhost__endswith'] = wnname
@@ -1219,8 +1220,9 @@ def wnInfo(request,site,wnname='all'):
         allstated[state] = totstates[state]
         allwns['statelist'].append(allstate)
     if int(allstated['finished']) + int(allstated['failed']) > 0:
-        allwns['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-        if 'pctfail' in allwns and int(allwns['pctfail']) > 20: allwns['pctfail'] = "<font color=red>%s</font>" % allwns['pctfail']
+        allwns['pctfail'] = int(100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
+    else:
+        allwns['pctfail'] = 0
     if wnname == 'all': fullsummary.append(allwns)
     avgwns = {}
     avgwns['name'] = 'Average'
@@ -1245,16 +1247,17 @@ def wnInfo(request,site,wnname='all'):
             allstate['count'] = ''
             allstated[state] = ''
         avgwns['statelist'].append(allstate)
+        avgwns['pctfail'] = allwns['pctfail']
     if wnname == 'all': fullsummary.append(avgwns)
 
     for wn in wnkeys:
         outlier = ''
         wns[wn]['slotcount'] = len(wns[wn]['slotd'])
+        wns[wn]['pctfail'] = 0
         for state in sitestatelist:
             wns[wn]['statelist'].append(wns[wn]['states'][state])      
         if wns[wn]['states']['finished']['count'] + wns[wn]['states']['failed']['count'] > 0:
-            wns[wn]['pctfail'] =  "%2d" % (100.*float(wns[wn]['states']['failed']['count'])/(wns[wn]['states']['finished']['count']+wns[wn]['states']['failed']['count']))
-            if 'pctfail' in wns[wn] and int(wns[wn]['pctfail']) > 20: wns[wn]['pctfail'] = "<font color=red>%s</font>" % wns[wn]['pctfail']
+            wns[wn]['pctfail'] = int(100.*float(wns[wn]['states']['failed']['count'])/(wns[wn]['states']['finished']['count']+wns[wn]['states']['failed']['count']))
         if float(wns[wn]['states']['finished']['count']) < float(avgstates['finished'])/5. :
             outlier += " LowFinished "
         if float(wns[wn]['states']['failed']['count']) > float(avgstates['failed'])*3. :
@@ -1265,6 +1268,8 @@ def wnInfo(request,site,wnname='all'):
     if 'sortby' in request.GET:
         if request.GET['sortby'] in sitestatelist:
             fullsummary = sorted(fullsummary, key=lambda x:x['states'][request.GET['sortby']],reverse=True)
+        elif request.GET['sortby'] == 'pctfail':
+            fullsummary = sorted(fullsummary, key=lambda x:x['pctfail'],reverse=True)
 
     kys = wnPlotFailed.keys()
     kys.sort()
@@ -1291,6 +1296,7 @@ def wnInfo(request,site,wnname='all'):
             'wnPlotFailed' : wnPlotFailedL,
             'wnPlotFinished' : wnPlotFinishedL,
             'hours' : LAST_N_HOURS_MAX,
+            'errthreshold' : errthreshold,
         }
         return render_to_response('wnInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -1298,7 +1304,7 @@ def wnInfo(request,site,wnname='all'):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def dashboard(request, view=''):
-    errthreshold = 15
+    errthreshold = 10
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
         VOMODE = 'atlas'
     else:
@@ -1338,9 +1344,14 @@ def dashboard(request, view=''):
             for state in sitestatelist:
                 vos[vo]['statelist'].append(vos[vo]['states'][state])
                 if int(vos[vo]['states']['finished']['count']) + int(vos[vo]['states']['failed']['count']) > 0:
-                    vos[vo]['pctfail'] = "%2d" % (100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
-                    if 'pctfail' in vos[vo] and int(vos[vo]['pctfail']) > 5: vos[vo]['pctfail'] = "<font color=red>%s</font>" % vos[vo]['pctfail']
+                    vos[vo]['pctfail'] = int(100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
             vosummary.append(vos[vo])
+
+        if 'sortby' in request.GET:
+            if request.GET['sortby'] in statelist:
+                vosummary = sorted(vosummary, key=lambda x:x['states'][request.GET['sortby']],reverse=True)
+            elif request.GET['sortby'] == 'pctfail':
+                vosummary = sorted(vosummary, key=lambda x:x['pctfail'],reverse=True)
 
     else:
         if view == 'production':
@@ -1432,8 +1443,9 @@ def dashboard(request, view=''):
         allstated[state] = totstates[state]
         allclouds['statelist'].append(allstate)
     if int(allstated['finished']) + int(allstated['failed']) > 0:
-        allclouds['pctfail'] = "%2d" % (100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
-        if 'pctfail' in allclouds and int(allclouds['pctfail']) > errthreshold: allclouds['pctfail'] = "<font color=red>%s</font>" % allclouds['pctfail']
+        allclouds['pctfail'] = int(100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
+    else:
+        allclouds['pctfail'] = 0
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
@@ -1448,22 +1460,35 @@ def dashboard(request, view=''):
                 sitesummary.append(sites[site]['states'][state])
             sites[site]['summary'] = sitesummary
             if sites[site]['states']['finished']['count'] + sites[site]['states']['failed']['count'] > 0:
-                sites[site]['pctfail'] = "%2d" % (100.*float(sites[site]['states']['failed']['count'])/(sites[site]['states']['finished']['count']+sites[site]['states']['failed']['count']))
-                if 'pctfail' in sites[site] and int(sites[site]['pctfail']) > errthreshold: sites[site]['pctfail'] = "<font color=red>%s</font>" % sites[site]['pctfail']
+                sites[site]['pctfail'] = int(100.*float(sites[site]['states']['failed']['count'])/(sites[site]['states']['finished']['count']+sites[site]['states']['failed']['count']))
+            else:
+                sites[site]['pctfail'] = 0
 
             cloudsummary.append(sites[site])
         clouds[cloud]['summary'] = cloudsummary
         if clouds[cloud]['states']['finished']['count'] + clouds[cloud]['states']['failed']['count'] > 0:
-            clouds[cloud]['pctfail'] =  "%2d" % (100.*float(clouds[cloud]['states']['failed']['count'])/(clouds[cloud]['states']['finished']['count']+clouds[cloud]['states']['failed']['count']))
-            if 'pctfail' in clouds[cloud] and int(clouds[cloud]['pctfail']) > errthreshold: clouds[cloud]['pctfail'] = "<font color=red>%s</font>" % clouds[cloud]['pctfail']
+            clouds[cloud]['pctfail'] =  int(100.*float(clouds[cloud]['states']['failed']['count'])/(clouds[cloud]['states']['finished']['count']+clouds[cloud]['states']['failed']['count']))
 
         fullsummary.append(clouds[cloud])
+
+    if 'sortby' in request.GET:
+        if request.GET['sortby'] in statelist:
+            fullsummary = sorted(fullsummary, key=lambda x:x['states'][request.GET['sortby']],reverse=True)
+            cloudsummary = sorted(cloudsummary, key=lambda x:x['states'][request.GET['sortby']],reverse=True)
+            for cloud in clouds:
+                clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['states'][request.GET['sortby']]['count'],reverse=True)
+        elif request.GET['sortby'] == 'pctfail':
+            fullsummary = sorted(fullsummary, key=lambda x:x['pctfail'],reverse=True)
+            cloudsummary = sorted(cloudsummary, key=lambda x:x['pctfail'],reverse=True)
+            for cloud in clouds:
+                clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['pctfail'],reverse=True)
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         nosorturl = removeParam(xurl, 'sortby',mode='extensible')
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'url' : request.path,
             'xurl' : xurl,
             'nosorturl' : nosorturl,
@@ -2186,8 +2211,7 @@ def workingGroups(request):
         for state in statelist:
             wgs[wg]['statelist'].append(wgs[wg]['states'][state])
             if int(wgs[wg]['states']['finished']['count']) + int(wgs[wg]['states']['failed']['count']) > 0:
-                wgs[wg]['pctfail'] = "%2d" % (100.*float(wgs[wg]['states']['failed']['count'])/(wgs[wg]['states']['finished']['count']+wgs[wg]['states']['failed']['count']))
-            if 'pctfail' in wgs[wg] and int(wgs[wg]['pctfail']) > errthreshold: wgs[wg]['pctfail'] = "<font color=red>%s</font>" % wgs[wg]['pctfail']
+                wgs[wg]['pctfail'] = int(100.*float(wgs[wg]['states']['failed']['count'])/(wgs[wg]['states']['finished']['count']+wgs[wg]['states']['failed']['count']))
 
         wgsummary.append(wgs[wg])
     if len(wgsummary) == 0: wgsummary = None

@@ -85,7 +85,7 @@
 <th> <a href="{{nosorturl}}?sortby=finished">finished</a> </th>
 <th> <a href="{{nosorturl}}?sortby=failed">failed</a> </th>
 <th> <a href="{{nosorturl}}?sortby=cancelled">cancelled</a> </th>
-<th> % failed </th>
+<th> <a href="{{nosorturl}}?sortby=pctfail">% failed</a> </th>
 <th> outliers </th>
 </tr>
 
@@ -99,7 +99,7 @@
 <td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
 {% endif %}
 {% endfor %}
-<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.pctfail > errthreshold %} <font color=red>{{ wn.pctfail  }}</font> {% else %} {{ wn.pctfail  }} {% endif %} </th>
 <td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
 </tr>
 {% endfor %}
@@ -134,7 +134,7 @@ Click the job counts to go to job listings.
 <th> <a href="{{nosorturl}}?sortby=finished">finished</a> </th>
 <th> <a href="{{nosorturl}}?sortby=failed">failed</a> </th>
 <th> <a href="{{nosorturl}}?sortby=cancelled">cancelled</a> </th>
-<th> % failed </th>
+<th> <a href="{{nosorturl}}?sortby=pctfail">% failed</a> </th>
 <th> outliers </th>
 </tr>
 
@@ -150,7 +150,7 @@ Click the job counts to go to job listings.
 <td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
 {% endif %}
 {% endfor %}
-<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.pctfail > errthreshold %} <font color=red>{{ wn.pctfail  }}</font> {% else %} {{ wn.pctfail  }} {% endif %} </th>
 <td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
 </tr>
 
@@ -175,7 +175,7 @@ Click the job counts to go to job listings.
 <th> <a href="{{nosorturl}}?sortby=finished">finished</a> </th>
 <th> <a href="{{nosorturl}}?sortby=failed">failed</a> </th>
 <th> <a href="{{nosorturl}}?sortby=cancelled">cancelled</a> </th>
-<th> % failed </th>
+<th> <a href="{{nosorturl}}?sortby=pctfail">% failed</a> </th>
 <th> outliers </th>
 </tr>
 
@@ -189,7 +189,7 @@ Click the job counts to go to job listings.
 <td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
 {% endif %}
 {% endfor %}
-<td>{{ wn.pctfail|safe  }} </th>
+<td> {% if wn.pctfail > errthreshold %} <font color=red>{{ wn.pctfail  }}</font> {% else %} {{ wn.pctfail  }} {% endif %} </th>
 <td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
 </tr>
 {% endfor %}

@@ -9,6 +9,8 @@
 
 {{ viewParams.header }}
 
+{% if requestParams.sortby %} <p><b>Sorted by: {{ requestParams.sortby }} </b><p> {% endif %}
+
 {% if viewParams.MON_VO != 'ATLAS' %}
 
 <table width=800><tr><td>
@@ -16,6 +18,7 @@ This page summarizes recent job status for VOs, clouds and sites. Click on the n
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the cloud name in the overall summary to go to the cloud's site summary.
 Click the job counts to go to job listings.
+Click on column titles to sort.
 </tr></td></table>
 <p>
 
@@ -41,6 +44,7 @@ The alternative <a href="{% url 'dashProduction' %}">'cloud' view</a> associates
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the cloud name in the overall summary to go to the cloud's site summary.
 Click the job counts to go to job listings.
+Click on column titles to sort.
 </tr></td></table>
 <p>
 
@@ -53,6 +57,7 @@ The alternative <a href="{% url 'dashProduction' %}?cloudview=region">'region' v
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the cloud name in the overall summary to go to the cloud's site summary.
 Click the job counts to go to job listings.
+Click on column titles to sort.
 </tr></td></table>
 <p>
 {% endif %}
@@ -76,21 +81,21 @@ Click the job counts to go to job listings.
 {% if viewParams.MON_VO != 'ATLAS' %}
 
 <tr bgcolor="lightcyan">
-<th> VO </th>
+<th> <a href="{{nosorturl}}">VO</a> </th>
 <th>  </th>
 <th> nJobs </th>
-<th> % failed </th>
-<th> assigned </th>
-<th> throttled </th>
-<th> activated </th>
-<th> sent </th>
-<th> starting </th>
-<th> running </th>
-<th> holding </th>
-<th> transferring </th>
-<th> finished </th>
-<th> failed </th>
-<th> cancelled </th>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=assigned">assigned</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=throttled">throttled</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=activated">activated</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=sent">sent</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=starting">starting</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=running">running</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=holding">holding</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=transferring">transferring</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=finished">finished</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=failed">failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </td>
 </tr>
 
 {% for vo in vosummary %}
@@ -99,7 +104,7 @@ Click the job counts to go to job listings.
 <th  bgcolor=whitesmoke> {{ vo.name }} </th>
 <th bgcolor=whitesmoke> </th>
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
-<th  bgcolor=whitesmoke align='right'>{{ vo.pctfail|safe  }} </th>
+<th  bgcolor=whitesmoke align='right'>  {% if vo.pctfail > errthreshold %} <font color=red>{{ vo.pctfail  }}</font> {% else %} {{ vo.pctfail  }} {% endif %}  </th>
 {% for state in vo.statelist %}
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
@@ -111,21 +116,21 @@ Click the job counts to go to job listings.
 
 
 <tr bgcolor="lightcyan">
-<th> Cloud </th>
+<th> <a href="{{nosorturl}}">Cloud</a> </th>
 <th> Status</th>
 <th> nJobs </th>
-<th> % failed </th>
-<th> assigned </th>
-<th> throttled </th>
-<th> activated </th>
-<th> sent </th>
-<th> starting </th>
-<th> running </th>
-<th> holding </th>
-<th> transferring </th>
-<th> finished </th>
-<th> failed </th>
-<th> cancelled </th>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=assigned">assigned</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=throttled">throttled</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=activated">activated</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=sent">sent</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=starting">starting</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=running">running</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=holding">holding</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=transferring">transferring</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=finished">finished</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=failed">failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </td>
 </tr>
 
 {% for cloud in summary %}
@@ -134,7 +139,7 @@ Click the job counts to go to job listings.
 <th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}{% if cloud.name != '' %}<a href="#cloud_{{ cloud.name }}"><span class="{{cloud.status}}">{{ cloud.name }}</span></a>{% else %} Failed before site assigned {% endif %} {% else %}  All clouds {% endif %}</th>
 <th  bgcolor=whitesmoke> <span class="{{cloud.status}}">{{ cloud.status }}</span> </th>
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ cloud.count }} </a></td>
-<th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
+<th  bgcolor=whitesmoke align='right'> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </th>
 {% for state in cloud.statelist %}
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
 {% endfor %}
@@ -151,18 +156,18 @@ Click the job counts to go to job listings.
 <td class="tablesection"> <a name="cloud_{{ cloud.name }}"><span class="{{cloud.status}}">{{ cloud.name }} Cloud</span></a>, Sites </td>
 <td class="tablesection"> Status</td>
 <td class="tablesection"> nJobs </td>
-<td class="tablesection"> % failed </td>
-<td class="tablesection"> assigned </td>
-<td class="tablesection"> throttled </td>
-<td class="tablesection"> activated </td>
-<td class="tablesection"> sent </td>
-<td class="tablesection"> starting </td>
-<td class="tablesection"> running </td>
-<td class="tablesection"> holding </td>
-<td class="tablesection"> transferring </td>
-<td class="tablesection"> finished </td>
-<td class="tablesection"> failed </td>
-<td class="tablesection"> cancelled </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=assigned">assigned</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=throttled">throttled</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=activated">activated</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=sent">sent</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=starting">starting</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=running">running</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=holding">holding</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=transferring">transferring</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=finished">finished</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=failed">failed</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </td>
 </tr>
 
 <tr height=10 colspan=12></tr>
@@ -170,7 +175,7 @@ Click the job counts to go to job listings.
 <th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' and view != 'analysis' %} including MCP {% endif %}</th>
 <th bgcolor=whitesmoke> </th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ cloud.count }}</a> </th>
-<th  bgcolor=whitesmoke align='right'>{{ cloud.pctfail|safe  }} </th>
+<th  bgcolor=whitesmoke align='right'> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %}  </th>
 {% for state in cloud.statelist %}
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
@@ -180,7 +185,7 @@ Click the job counts to go to job listings.
 <td> {% if site.name %} <a href="{% url 'siteInfo' site.name %}"><span class="{{ site.status }}">{{ site.name }}</span></a> {% else %} Failed before site assignment {% endif %} </td>
 <td><span class="{{site.status}}">{{ site.status  }}</span> </td>
 <td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
-<td>{{ site.pctfail|safe  }} </td>
+<td> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
 {% endfor %}
