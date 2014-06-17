@@ -113,6 +113,7 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 &nbsp; <a href='{{stderr}}'>stderr</a>,
 &nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
 {% endif %}
+<br><a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=pilotLog&pandaid={{ pandaid }}">Look for PanDA logger records for this job</a>
 
 {% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
 

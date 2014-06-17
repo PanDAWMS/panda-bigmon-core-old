@@ -2048,7 +2048,9 @@ def pandaLogger(request):
     if 'site' in request.GET:
         iquery['message__startswith'] = request.GET['site']
         getrecs = True
-
+    if 'pandaid' in request.GET:
+        iquery['pid'] = request.GET['pandaid']
+        getrecs = True
     counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
         records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
