@@ -49,10 +49,15 @@
 
 {% endif %}
 
+<p>
 {% if task.parent_tid != task.jeditaskid and task.parent_tid != None %}
-<p><a href="{% url 'taskInfo' task.parent_tid %}">Show parent task {{ task.parent_tid }}</a><p>
+Parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}</a>. &nbsp; 
 {% endif %}
-<p><a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_limit=100">Look for child tasks</a><p>
+Look for <a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_limit=100">child tasks</a><p>
+
+{% if viewParams.MON_VO == 'ATLAS' %}
+<p><a href="http://bigpanda.cern.ch/prodsys/prodtask/task/{{ task.jeditaskid }}/">Prodsys task page for task {{ task.jeditaskid }}</a><p>
+{% endif %}
 
 <p><a href="{% url 'pandaLogger' %}?category=panda.mon.bamboo&type=taskbrokerage&taskid={{ jeditaskid }}">Look for brokerage actions for this task</a><p>
 
