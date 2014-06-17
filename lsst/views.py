@@ -1287,6 +1287,7 @@ def wnInfo(request,site,wnname='all'):
         xurl = extensibleURL(request)
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'url' : request.path,
             'xurl' : xurl,
             'site' : site,

@@ -3,13 +3,15 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA WN {{ wnname }}@{{ site }} {% endblock %}
 {% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA WN slot performance for node {{ wnname }} at {{ site }}{{ viewParams.selection }}
+{% block subtitle %}PanDA WN slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at {{ site }}{{ viewParams.selection }}
 {% endblock %}
 {% block body %}
 
 {{ viewParams.header }}
 
-<div class='section'>Worker node slot performance for node {{ wnname }} at site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
+<div class='section'>Worker node slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
+
+{% if requestParams.sortby %} <p><b>Sorted by: {{ requestParams.sortby }} </b><p> {% endif %}
 
 {% if wnPlotFailed %}
 
