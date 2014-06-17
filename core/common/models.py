@@ -685,8 +685,7 @@ class PandaidsModiftime(models.Model):
         db_table = u'pandaids_modiftime'
 
 class Pandalog(models.Model):
-    id = models.BigIntegerField(primary_key=True, db_column='ID') # Field name made lowercase.
-    bintime = models.DateTimeField(db_column='BINTIME') # Field name made lowercase.
+    bintime = models.DateTimeField(db_column='BINTIME', primary_key=True) # Field name made lowercase.
     name = models.CharField(max_length=90, db_column='NAME', blank=True) # Field name made lowercase.
     module = models.CharField(max_length=90, db_column='MODULE', blank=True) # Field name made lowercase.
     loguser = models.CharField(max_length=240, db_column='LOGUSER', blank=True) # Field name made lowercase.
