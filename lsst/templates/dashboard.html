@@ -77,6 +77,7 @@ Click the job counts to go to job listings.
 
 <tr bgcolor="lightcyan">
 <th> VO </th>
+<th>  </th>
 <th> nJobs </th>
 <th> % failed </th>
 <th> assigned </th>
@@ -96,6 +97,7 @@ Click the job counts to go to job listings.
 <tr height=10 colspan=12></tr>
 <tr>
 <th  bgcolor=whitesmoke> {{ vo.name }} </th>
+<th> </th>
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
 <th  bgcolor=whitesmoke align='right'>{{ vo.pctfail|safe  }} </th>
 {% for state in vo.statelist %}
