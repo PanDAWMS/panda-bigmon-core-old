@@ -25,8 +25,26 @@
 <p><b>Recent <a href="{% url 'pandaLogger' %}?level=error"><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning"><span class="warning">warnings</span></a></b>
 {% endif %}
 
+<p>
+{% if logl %}
+<table>
+{% for rec in logl %}
+{% for type in rec.types %}
+<tr bgcolor="#FCFCFC"><th> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&limit=2000">{{ rec.name }}</a> </th><td> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&limit=2000">{{ type.name }}</a> </td><td>
+{% for level in type.levellist %}
+<a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&level={{level.name}}&limit=2000"><span class="{{ level.name }}">{{ level.name }}</span>({{ level.count }})</a> &nbsp; 
+{% endfor %}
+</td></tr>
+{% endfor %}
+<tr height=10></tr>
+{% endfor %}
+</table>
+{% endif %}
+<p>
 
-{% if incHist %}
+{% if records %}
+
+{% if logHist %}
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -35,12 +53,12 @@
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
           ['Time', 'Count'],
-{% for time, count in incHist %}
+{% for time, count in logHist %}
           ['{{ time|date:"m-d H:i" }}', {{ count }}],
 {% endfor %}
             ])
         var options = {
-          title: 'Incident timeline',
+          title: 'Log timeline, latest {{ records|length }} logs',
           legend: { position: 'none' },
           hAxis: {title: 'Time (30min bins, empty bins suppressed)'}
         };
@@ -52,25 +70,6 @@
     <div id="chart_div" style="height: 500px;"></div>
 
 {% endif %}
-
-<p>
-{% if logl %}
-<table>
-{% for rec in logl %}
-{% for type in rec.types %}
-<tr bgcolor="#FCFCFC"><th> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&limit=1000">{{ rec.name }}</a> </th><td> <a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&limit=1000">{{ type.name }}</a> </td><td>
-{% for level in type.levellist %}
-<a href="{% url 'pandaLogger' %}?category={{rec.name}}&type={{type.name}}&level={{level.name}}&limit=1000"><span class="{{ level.name }}">{{ level.name }}</span>({{ level.count }})</a> &nbsp; 
-{% endfor %}
-</td></tr>
-{% endfor %}
-<tr height=10></tr>
-{% endfor %}
-</table>
-{% endif %}
-<p>
-
-{% if records %}
 
 <div class='section'>Latest {{ records|length }} log records</div>
 

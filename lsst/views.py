@@ -1994,7 +1994,7 @@ def incidentList(request):
 
 def pandaLogger(request):
     if 'hours' not in request.GET:
-        hours = 3
+        hours = 6
     else:
         hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
@@ -2023,10 +2023,22 @@ def pandaLogger(request):
     counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
         records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
+        ## histogram of logs vs. time, for plotting
+        logHist = {}
         for r in records:
             r['levelname'] = r['levelname'].lower()
+            tm = r['bintime']
+            tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
+            if not tm in logHist: logHist[tm] = 0
+            logHist[tm] += 1
+        kys = logHist.keys()
+        kys.sort()
+        logHistL = []
+        for k in kys:
+            logHistL.append( [ k, logHist[k] ] )
     else:
         records = None
+        logHistL = None
     logs = {}
     totcount = 0
     for inc in counts:
@@ -2079,6 +2091,7 @@ def pandaLogger(request):
             'logl' : logl,
             'records' : records,
             'ninc' : totcount,
+            'logHist' : logHistL,
             'xurl' : extensibleURL(request),
             'hours' : hours,
         }
