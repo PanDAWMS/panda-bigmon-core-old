@@ -91,9 +91,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
         if 'hours' not in request.GET:
-            JOB_LIMIT = 2000
+            JOB_LIMIT = 3000
         else:
-            JOB_LIMIT = 2000
+            JOB_LIMIT = 3000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET or 'jeditaskid' in request.GET:
@@ -282,9 +282,13 @@ def jobSummaryDict(request, jobs, fieldlist = None):
         kys.sort()
         for ky in kys:
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        if 'sortby' in request.GET and request.GET['sortby'] == 'count':
+            iteml = sorted(iteml, key=lambda x:x['kvalue'], reverse=True)
+        else:
+            iteml = sorted(iteml, key=lambda x:str(x['kname']).lower())
         itemd['list'] = iteml
         suml.append(itemd)
-    suml = sorted(suml, key=lambda x:x['field'])
+        suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
 def siteSummaryDict(sites):

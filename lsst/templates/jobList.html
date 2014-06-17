@@ -45,7 +45,7 @@
 
 {% if jobList %}
 
-<div class="section"> Job attribute summary </div>
+<div class="section"> Job attribute summary   &nbsp; Sort by {% if requestParams.sortby == 'count' %} count, <a href="{{nosorturl}}">alpha</a> {% else %} <a href="{{nosorturl}}sortby=count">count</a>, alpha {% endif %}</div>
 
 <table>
 {% for fdict in sumd %}
