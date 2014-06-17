@@ -33,7 +33,8 @@
 <th>Space updated</th>
 </tr>
 {% for cloud in clouds %}
-<tr><th><a href="{% url 'siteList' %}?cloud={{ cloud.name }}">{{ cloud.name }}</a></th>
+{% if cloud.display %}
+<tr><th rowspan=2><a href="{% url 'siteList' %}?cloud={{ cloud.name }}">{{ cloud.name }}</a></th>
 <td><font size=-1><a href="{% url 'siteList' %}?siteid={{ cloud.tier1 }}">{{ cloud.tier1 }}</a></font></td>
 <td class="{{ cloud.status }}">{{ cloud.status }}</td>
 <td><font size=-1>{{ cloud.comment_field }}<br>{{ cloud.modtime|date:"Y-m-d H:i" }} {{ cloud.moduser }}</font></td>
@@ -41,6 +42,9 @@
 <td width=300><font size=-1>{{ cloud.tier1se }}</font></td>
 <td>{{ cloud.space }}</td>
 <td> {{ cloud.tspace|date:"m-d H:i" }}</td>
+</tr>
+<tr><td colspan=7> <font size=-2><b>MCP sites:</b> {{ cloud.mcpsites|safe }}</font></td></tr>
+{% endif %}
 {% endfor %}
 </table>
 {% endif %}
@@ -62,11 +66,11 @@
 {% endfor %}
 </table>
 
-<div class='section'>Site list</div>
+<div class='section'>Site list {% if mcpsites %} (<a href="#mcpsites">MCP sites are below</a>) {% endif %}</div>
 
 <table>
 <tr>
-	<th>PanDA site name (siteid)<br> Queue name (nickname)</th>
+	<th>PanDA site name<br> Queue name (where different)</th>
 	<th>GOC site name</th>
 {% if viewParams.MON_VO == 'ATLAS' %}
 	<th>Cloud</th>
@@ -82,7 +86,7 @@
 </tr>
     {% for site in sites %}
 	<tr>
-		<td><a href="{% url 'siteInfo' site.siteid %}">{{ site.siteid }}</a> <br> {{ site.nickname }} </td>
+		<td><a href="{% url 'siteInfo' site.siteid %}">{{ site.siteid }}</a> {% if site.nickname != site.siteid %}  <br> {{ site.nickname }} {% endif %} </td>
 		<td> <a href="{{xurl}}gocname={{site.gocname}}">{{ site.gocname }}</a></td>
 {% if viewParams.MON_VO == 'ATLAS' %}
 		<td> {{ site.cloud }}</td>
@@ -98,6 +102,18 @@
 	</tr>
     {% endfor %}
 </table>
+
+{% if mcpsites %}
+
+<div class='section'><a name="mcpsites"></a>Multicloud production sites in this cloud</div>
+
+<table>
+{% for site in mcpsites %}
+<tr><td><a href="{% url 'siteInfo' site %}">{{ site }}</a></td></tr>
+{% endfor %}
+</table>
+
+{% endif %}
 
 {% else %}
     <p>No matches to query.</p>

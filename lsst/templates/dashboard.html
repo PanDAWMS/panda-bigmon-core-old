@@ -177,7 +177,7 @@ Click the job counts to go to job listings.
 </tr>
 {% for site in cloud.summary %}
 <tr>
-<td> {% if site.name %} <span class="{{ site.status }}">{{ site.name }}</span> {% else %} Failed before site assignment {% endif %} </td>
+<td> {% if site.name %} <a href="{% url 'siteInfo' site.name %}"><span class="{{ site.status }}">{{ site.name }}</span></a> {% else %} Failed before site assignment {% endif %} </td>
 <td><span class="{{site.status}}">{{ site.status  }}</span> </td>
 <td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
 <td>{{ site.pctfail|safe  }} </td>

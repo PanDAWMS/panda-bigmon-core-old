@@ -1,9 +1,5 @@
-import json
-import logging
-import pytz
-import re
+import logging, re, json
 from datetime import datetime, timedelta
-from json import dumps as json_dumps  ### FIXME - cleanup
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
@@ -12,8 +8,6 @@ from django.db.models import Count
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from django.core.serializers.json import DjangoJSONEncoder
-#from django.core import serializers
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
@@ -50,6 +44,7 @@ errorcodelist = [
     { 'name' : 'taskbuffer', 'error' : 'taskbuffererrorcode', 'diag' : 'taskbuffererrordiag' },
     { 'name' : 'transformation', 'error' : 'transexitcode', 'diag' : None },
     ]
+
 
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
@@ -986,12 +981,13 @@ def siteList(request):
                 query[param] = request.GET[param]
 
     siteres = Schedconfig.objects.filter(**query).exclude(cloud='CMS').values()
+    mcpres = Schedconfig.objects.filter(status='online').exclude(cloud='CMS').exclude(siteid__icontains='test').values('siteid','multicloud')
     sites = []
     for site in siteres:
         if 'category' in request.GET and request.GET['category'] == 'multicloud':
             if (site['multicloud'] == 'None') or (not re.match('[A-Z]+',site['multicloud'])): continue
         sites.append(site)
-    sites = sorted(sites, key=lambda x:x['nickname'])
+    sites = sorted(sites, key=lambda x:x['siteid'])
     if prod:
         newsites = []
         for site in sites:
@@ -1006,14 +1002,25 @@ def siteList(request):
         if site['maxtime'] and (site['maxtime'] > 0) : site['maxtime'] = "%.1f" % ( float(site['maxtime'])/3600. )
         site['space'] = "%d" % (site['space']/1000.)
 
-    if VOMODE == 'atlas' and len(request.GET) == 0:
+    if VOMODE == 'atlas' and (len(request.GET) == 0 or 'cloud' in request.GET):
         clouds = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values()
         clouds = sorted(clouds, key=lambda x:x['name'])
+        mcpsites = {}
         for cloud in clouds:
+            cloud['display'] = True
+            if 'cloud' in request.GET and request.GET['cloud'] != cloud['name']: cloud['display'] = False
+            mcpsites[cloud['name']] = []
             for site in sites:
                 if site['siteid'] == cloud['tier1']:
                     cloud['space'] = site['space']
                     cloud['tspace'] = site['tspace']
+            for site in mcpres:
+                mcpclouds = site['multicloud'].split(',')
+                if cloud['name'] in mcpclouds: mcpsites[cloud['name']].append(site['siteid'])
+            mcpsites[cloud['name']].sort()
+            cloud['mcpsites'] = ''
+            for s in mcpsites[cloud['name']]:
+                cloud['mcpsites'] += "%s &nbsp; " % s
     else:
         clouds = None
 
@@ -1027,6 +1034,7 @@ def siteList(request):
             'sumd' : sumd,
             'xurl' : extensibleURL(request),
         }
+        if 'cloud' in request.GET: data['mcpsites'] = mcpsites[request.GET['cloud']]
         #data.update(getContextVariables(request))
         return render_to_response('siteList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -1046,31 +1054,34 @@ def siteInfo(request, site=''):
         siterec = sites[0]
         colnames = siterec.get_all_fields()
     except IndexError:
-        siterec = {}
+        siterec = None
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
-        attrs.append({'name' : 'GOC name', 'value' : siterec.gocname })
-        attrs.append({'name' : 'Queue (nickname)', 'value' : siterec.nickname })
-        attrs.append({'name' : 'Total queues for this site', 'value' : len(sites) })
-        attrs.append({'name' : 'Status', 'value' : siterec.status })
-        attrs.append({'name' : 'Comment', 'value' : siterec.comment_field })
-        attrs.append({'name' : 'Last modified', 'value' : "%s" % (siterec.lastmod.strftime('%Y-%m-%d %H:%M')) })
-        attrs.append({'name' : 'Cloud', 'value' : siterec.cloud })
-        attrs.append({'name' : 'Multicloud', 'value' : siterec.multicloud })
-        attrs.append({'name' : 'Tier', 'value' : siterec.tier })
-        attrs.append({'name' : 'DDM endpoint', 'value' : siterec.ddm })
-        attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(siterec.maxmemory)/1000.) })
-        attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(siterec.maxtime)/3600.) })
-        attrs.append({'name' : 'Space', 'value' : "%d TB as of %s" % ((float(siterec.space)/1000.), siterec.tspace.strftime('%m-%d %H:%M')) })
+        if siterec:
+            attrs.append({'name' : 'GOC name', 'value' : siterec.gocname })
+            attrs.append({'name' : 'Queue (nickname)', 'value' : siterec.nickname })
+            attrs.append({'name' : 'Total queues for this site', 'value' : len(sites) })
+            attrs.append({'name' : 'Status', 'value' : siterec.status })
+            attrs.append({'name' : 'Comment', 'value' : siterec.comment_field })
+            attrs.append({'name' : 'Last modified', 'value' : "%s" % (siterec.lastmod.strftime('%Y-%m-%d %H:%M')) })
+            attrs.append({'name' : 'Cloud', 'value' : siterec.cloud })
+            attrs.append({'name' : 'Multicloud', 'value' : siterec.multicloud })
+            attrs.append({'name' : 'Tier', 'value' : siterec.tier })
+            attrs.append({'name' : 'DDM endpoint', 'value' : siterec.ddm })
+            attrs.append({'name' : 'Maximum memory', 'value' : "%.1f GB" % (float(siterec.maxmemory)/1000.) })
+            attrs.append({'name' : 'Maximum time', 'value' : "%.1f hours" % (float(siterec.maxtime)/3600.) })
+            attrs.append({'name' : 'Space', 'value' : "%d TB as of %s" % ((float(siterec.space)/1000.), siterec.tspace.strftime('%m-%d %H:%M')) })
 
-        iquery = {}
-        startdate = datetime.utcnow() - timedelta(hours=24*30)
-        startdate = startdate.strftime(defaultDatetimeFormat)
-        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-        iquery['at_time__range'] = [startdate, enddate]
-        iquery['description__contains'] = 'queue=%s' % siterec.nickname
-        incidents = Incidents.objects.filter(**iquery).order_by('at_time').reverse().values()
+            iquery = {}
+            startdate = datetime.utcnow() - timedelta(hours=24*30)
+            startdate = startdate.strftime(defaultDatetimeFormat)
+            enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+            iquery['at_time__range'] = [startdate, enddate]
+            iquery['description__contains'] = 'queue=%s' % siterec.nickname
+            incidents = Incidents.objects.filter(**iquery).order_by('at_time').reverse().values()
+        else:
+            incidents = []
         data = {
             'viewParams' : viewParams,
             'site' : siterec,
@@ -2007,9 +2018,9 @@ def pandaLogger(request):
         hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
     iquery = {}
-    startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=hours)
+    startdate = datetime.utcnow() - timedelta(hours=hours)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().replace(tzinfo=pytz.utc).strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     iquery['bintime__range'] = [startdate, enddate]
     getrecs = False
     if 'category' in request.GET:
@@ -2028,14 +2039,9 @@ def pandaLogger(request):
         iquery['message__startswith'] = request.GET['site']
         getrecs = True
 
+    counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
         records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
-
-        ### if json output has been requested, return it now
-        if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-            resp = records
-            return  HttpResponse(json_dumps(list(resp), cls=DjangoJSONEncoder), mimetype='application/javascript')
-
         ## histogram of logs vs. time, for plotting
         logHist = {}
         for r in records:
@@ -2052,8 +2058,6 @@ def pandaLogger(request):
     else:
         records = None
         logHistL = None
-
-    counts = Pandalog.objects.filter(**iquery).values('name', 'type', 'levelname').annotate(Count('levelname')).order_by('name', 'type', 'levelname')
     logs = {}
     totcount = 0
     for inc in counts:
@@ -2111,9 +2115,9 @@ def pandaLogger(request):
             'hours' : hours,
         }
         return render_to_response('pandaLogger.html', data, RequestContext(request))
-#    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-#        resp = records
-#        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = incidents
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def workingGroups(request):
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
