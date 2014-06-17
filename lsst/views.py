@@ -1,5 +1,9 @@
-import logging, re, json
+import json
+import logging
+import pytz
+import re
 from datetime import datetime, timedelta
+from json import dumps as json_dumps  ### FIXME - cleanup
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
@@ -8,6 +12,8 @@ from django.db.models import Count
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
+#from django.core import serializers
 
 from core.common.utils import getPrefix, getContextVariables, QuerySetChain
 from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeFormat
@@ -44,7 +50,6 @@ errorcodelist = [
     { 'name' : 'taskbuffer', 'error' : 'taskbuffererrorcode', 'diag' : 'taskbuffererrordiag' },
     { 'name' : 'transformation', 'error' : 'transexitcode', 'diag' : None },
     ]
-
 
 _logger = logging.getLogger('bigpandamon')
 viewParams = {}
@@ -2002,9 +2007,9 @@ def pandaLogger(request):
         hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
     iquery = {}
-    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=hours)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().replace(tzinfo=pytz.utc).strftime(defaultDatetimeFormat)
     iquery['bintime__range'] = [startdate, enddate]
     getrecs = False
     if 'category' in request.GET:
@@ -2023,9 +2028,14 @@ def pandaLogger(request):
         iquery['message__startswith'] = request.GET['site']
         getrecs = True
 
-    counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
         records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
+
+        ### if json output has been requested, return it now
+        if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+            resp = records
+            return  HttpResponse(json_dumps(list(resp), cls=DjangoJSONEncoder), mimetype='application/javascript')
+
         ## histogram of logs vs. time, for plotting
         logHist = {}
         for r in records:
@@ -2042,6 +2052,8 @@ def pandaLogger(request):
     else:
         records = None
         logHistL = None
+
+    counts = Pandalog.objects.filter(**iquery).values('name', 'type', 'levelname').annotate(Count('levelname')).order_by('name', 'type', 'levelname')
     logs = {}
     totcount = 0
     for inc in counts:
@@ -2099,9 +2111,9 @@ def pandaLogger(request):
             'hours' : hours,
         }
         return render_to_response('pandaLogger.html', data, RequestContext(request))
-    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = incidents
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+#    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+#        resp = records
+#        return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def workingGroups(request):
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
