@@ -878,7 +878,10 @@ def userInfo(request, user=''):
         userstats = userdb[0]
         user = userstats['name']
         for field in ['cpua1', 'cpua7', 'cpup1', 'cpup7' ]:
-            userstats[field] = "%0.1f" % ( float(userstats[field])/3600.)
+            try:
+                userstats[field] = "%0.1f" % ( float(userstats[field])/3600.)
+            except:
+                userstats[field] = '-'
     else:
         userstats = None
 
@@ -1994,7 +1997,7 @@ def incidentList(request):
 
 def pandaLogger(request):
     if 'hours' not in request.GET:
-        hours = 6
+        hours = 12
     else:
         hours = int(request.GET['hours'])
     setupView(request, hours=hours, limit=9999999)
