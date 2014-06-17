@@ -47,7 +47,7 @@
 {% if sumd %}
 <table>
 {% for fdict in sumd %}
-<tr><th> {{ fdict.param }} </th><td>
+<tr><th> {{ fdict.param }} ({{ fdict.list|length }})</th><td>
 {% for item in fdict.list %}
 {{ item.kname }}(<a href="{{xurl}}{{fdict.param}}={{item.kname}}">{{ item.kvalue }}</a>) &nbsp; 
 {% endfor %}

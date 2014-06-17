@@ -57,7 +57,7 @@
 
 <table>
 {% for fdict in sumd %}
-<tr><th> {{ fdict.field }} </th><td>
+<tr><th> {{ fdict.field }} ({{ fdict.list|length }})</th><td>
 {% for item in fdict.list %}
 {% if item.kname != '' %}
 {% if fdict.field == 'status' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
