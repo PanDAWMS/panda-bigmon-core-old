@@ -987,7 +987,14 @@ def siteList(request):
         if 'category' in request.GET and request.GET['category'] == 'multicloud':
             if (site['multicloud'] == 'None') or (not re.match('[A-Z]+',site['multicloud'])): continue
         sites.append(site)
-    sites = sorted(sites, key=lambda x:x['siteid'])
+    if 'sortby' in request.GET and request.GET['sortby'] == 'maxmemory':
+        sites = sorted(sites, key=lambda x:-x['maxmemory'])
+    elif 'sortby' in request.GET and request.GET['sortby'] == 'maxtime':
+        sites = sorted(sites, key=lambda x:-x['maxtime'])
+    elif 'sortby' in request.GET and request.GET['sortby'] == 'gocname':
+        sites = sorted(sites, key=lambda x:x['gocname'])
+    else:
+        sites = sorted(sites, key=lambda x:x['siteid'])
     if prod:
         newsites = []
         for site in sites:
@@ -1033,7 +1040,8 @@ def siteList(request):
                     cloud['mcpsites'] += "%s &nbsp; " % s['name']
     else:
         clouds = None
-
+    xurl = extensibleURL(request)
+    nosorturl = removeParam(xurl, 'sortby',mode='extensible')
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = siteSummaryDict(sites)
         data = {
@@ -1042,7 +1050,8 @@ def siteList(request):
             'sites': sites,
             'clouds' : clouds,
             'sumd' : sumd,
-            'xurl' : extensibleURL(request),
+            'xurl' : xurl,
+            'nosorturl' : nosorturl,
         }
         if 'cloud' in request.GET: data['mcpsites'] = mcpsites[request.GET['cloud']]
         #data.update(getContextVariables(request))

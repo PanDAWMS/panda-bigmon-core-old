@@ -19,6 +19,8 @@
 
 {% if clouds %}
 
+<div class='section'>Jump to <a href="#siteatt">site attribute summary</a>, <a href="#sites">site list</a></div>
+
 <div class='section'>Clouds</div>
 <font size=-1>TLo, THi are transfer timeouts for low and high priority jobs</font>
 <table>
@@ -51,7 +53,7 @@
 
 {% if sites %}
 
-<div class='section'>Site attribute summary</div>
+<div class='section'><a name="siteatt"></a>Site attribute summary</div>
 
 <table>
 {% for fdict in sumd %}
@@ -66,12 +68,12 @@
 {% endfor %}
 </table>
 
-<div class='section'>Site list {% if mcpsites %} (<a href="#mcpsites">MCP sites are below</a>) {% endif %}</div>
+<div class='section'><a name="sites"></a>Site list {% if mcpsites %} (<a href="#mcpsites">MCP sites are below</a>) {% endif %}</div>
 
 <table>
 <tr>
-	<th>PanDA site name<br> Queue name (where different)</th>
-	<th>GOC site name</th>
+	<th><a href="{{nosorturl}}#sites">PanDA site name</a><br> Queue name (where different)</th>
+	<th><a href="{{nosorturl}}sortby=gocname#sites">GOC site name</a></th>
 {% if viewParams.MON_VO == 'ATLAS' %}
 	<th>Cloud</th>
 {% else %}
@@ -79,8 +81,8 @@
 {% endif %}
 	<th>Status</th>
 	<th>Tier</th>
-	<th>Max mem<br>(MB)</th>
-	<th>Max time<br>(hr)</th>
+	<th><a href="{{nosorturl}}sortby=maxmemory#sites">Max mem</a><br>(MB)</th>
+	<th><a href="{{nosorturl}}sortby=maxtime#sites">Max time</a><br>(hr)</th>
 	<th>Multicloud</th>
 	<th>Comment</th>
 </tr>
