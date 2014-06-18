@@ -186,19 +186,19 @@ def jobUserOrig(request, vo='lsst', nhours=LAST_N_HOURS):
 
     jobs.extend(Jobsactive4.objects.filter(\
                 vo=vo, \
-                modificationtime__range=[startdate, enddate] \
+                creationtime__range=[startdate, enddate] \
     ).values())
     jobs.extend(Jobsdefined4.objects.filter(\
                 vo=vo, \
-                modificationtime__range=[startdate, enddate] \
+                creationtime__range=[startdate, enddate] \
     ).values())
     jobs.extend(Jobswaiting4.objects.filter(\
                 vo=vo, \
-                modificationtime__range=[startdate, enddate] \
+                creationtime__range=[startdate, enddate] \
     ).values())
     jobs.extend(Jobsarchived4.objects.filter(\
                 vo=vo, \
-                modificationtime__range=[startdate, enddate] \
+                creationtime__range=[startdate, enddate] \
     ).values())
 
     ### Handle json output
