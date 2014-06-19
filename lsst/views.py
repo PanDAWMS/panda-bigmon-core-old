@@ -1125,12 +1125,16 @@ def siteInfo(request, site=''):
 def siteSummary(query):
     summary = []
     summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
+    summary.extend(Jobsdefined4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
+    summary.extend(Jobswaiting4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
     summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
     return summary
 
 def voSummary(query):
     summary = []
     summary.extend(Jobsactive4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobsdefined4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
+    summary.extend(Jobswaiting4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
     summary.extend(Jobsarchived4.objects.filter(**query).values('vo','jobstatus').annotate(Count('jobstatus')))
     return summary
 
@@ -1400,6 +1404,7 @@ def dashboard(request, view=''):
         site = rec['computingsite']
         jobstatus = rec['jobstatus']
         count = rec['jobstatus__count']
+        if jobstatus not in sitestatelist: continue
         totjobs += count
         totstates[jobstatus] += count
         if cloud not in clouds:
