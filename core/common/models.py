@@ -513,6 +513,7 @@ class JediTasks(models.Model):
     errordialog = models.CharField(max_length=765, db_column='ERRORDIALOG', blank=True) # Field name made lowercase.
     countrygroup = models.CharField(max_length=20, db_column='COUNTRYGROUP', blank=True)  # Field name made lowercase.
     parent_tid = models.BigIntegerField(db_column='PARENT_TID', blank=True)  # Field name made lowercase.
+    eventservice = models.IntegerField(null=True, db_column='EVENTSERVICE', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'jedi_tasks'
 
