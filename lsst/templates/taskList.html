@@ -18,6 +18,7 @@
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.parent_tid %}<br><b>Parent task: {{ requestParams.parent_tid }}</b> {% endif %}
 {% if requestParams.status %}<br><b>Task status: <span class='{{requestParams.status}}'>{{ requestParams.status }}</span></b> {% endif %}
+{% if requestParams.eventservice %}<br><b>Event service tasks</b> {% endif %}
 
 <p>
 {% if tasks %}

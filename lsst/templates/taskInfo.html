@@ -50,6 +50,10 @@
 {% endif %}
 
 <p>
+{% if task.eventservice == 1 %}
+This is an event service task<p>
+{% endif %}
+
 {% if task.parent_tid != task.jeditaskid and task.parent_tid != None %}
 Parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}</a>. &nbsp; 
 {% endif %}

@@ -136,6 +136,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
             <li><a href="{% url 'jobList' %}?jobtype=analysis&display_limit=100">Analysis</a></li>
             <li><a href="{% url 'jobList' %}?jobtype=production&display_limit=100">Production</a></li>
             <li><a href="{% url 'jobList' %}?jobtype=groupproduction&display_limit=100">Group production</a></li>
+            <li><a href="{% url 'jobList' %}?jobtype=eventservice&display_limit=100">Event service</a></li>
 {% endif %}
             <li><a href="{% url 'jobList' %}?jobtype=test&display_limit=100">Test</a></li>
           </ul>
@@ -152,6 +153,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 {% if viewParams.MON_VO == 'ATLAS' %}
             <li><a href="{% url 'taskList' %}?tasktype=anal&display_limit=100">Analysis</a></li>
             <li><a href="{% url 'taskList' %}?tasktype=prod&display_limit=100">Production</a></li>
+            <li><a href="{% url 'taskList' %}?eventservice=1&display_limit=100">Event service</a></li>
 {% endif %}
           </ul>
           {% endblock %}

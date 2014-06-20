@@ -1533,6 +1533,8 @@ def taskList(request):
                     query['%s__endswith' % param] = request.GET[param]
                 else:
                     query[param] = request.GET[param]
+        if param == 'eventservice':
+            query['eventservice'] = 1
     tasks = JediTasks.objects.filter(**query).values()
     tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
