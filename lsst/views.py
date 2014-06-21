@@ -117,6 +117,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
     ## For site-specific queries, allow longer time window
     if 'computingsite' in request.GET:
         LAST_N_HOURS_MAX = 72
+    if 'jobtype' in request.GET and request.GET['jobtype'] == 'eventservice':
+        LAST_N_HOURS_MAX = 72
     ## hours specified in the URL takes priority over the above
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
@@ -193,6 +195,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
     elif jobtype == 'groupproduction':
         query['prodsourcelabel'] = 'managed'
         query['workinggroup__isnull'] = False
+    elif jobtype == 'eventservice':
+        query['specialhandling__contains'] = 'eventservice'
     elif jobtype == 'test':
         query['prodsourcelabel__icontains'] = 'test'
     print query
@@ -638,12 +642,13 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
     nfiles = len(files) 
     logfile = {} 
-    for file in files:         
+    for file in files:
         if file['type'] == 'log': 
             logfile['lfn'] = file['lfn'] 
             logfile['guid'] = file['guid'] 
             logfile['site'] = file['destinationse'] 
             logfile['scope'] = file['scope']
+        file['fsize'] = int(file['fsize']/1000000)
 
     if 'pilotid' in job and job['pilotid'] is not None and job['pilotid'].startswith('http'):
         stdout = job['pilotid'].split('|')[0]
@@ -694,11 +699,11 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         for ds in datasetids:
             dslist.append(ds)
         datasets = JediDatasets.objects.filter(datasetid__in=dslist).values()
-        files = JediDatasetContents.objects.filter(fileid__in=flist).values()        
+        dsfiles = JediDatasetContents.objects.filter(fileid__in=flist).values()        
         for ds in datasets:
             print 'dataset', ds['datasetname'], ds['datasetid']
             datasetids[int(ds['datasetid'])]['dict'] = ds
-        for f in files:
+        for f in dsfiles:
             print 'file', f['lfn'], f['fileid']
             fileids[int(f['fileid'])]['dict'] = f
         for evrange in evtable:
@@ -728,6 +733,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'job': job,
             'columns' : columns,
             'files' : files,
+            'dsfiles' : dsfiles,
             'nfiles' : nfiles,
             'logfile' : logfile,
             'stdout' : stdout,
@@ -2335,6 +2341,12 @@ def fileInfo(request):
     
     if file:
         files = JediDatasetContents.objects.filter(**query).values()
+        for f in files:
+            f['fsizemb'] = int(f['fsize']/1000000)
+            dsets = JediDatasets.objects.filter(datasetid=f['datasetid']).values()
+            if len(dsets) > 0:
+                f['datasetname'] = dsets[0]['datasetname']
+
     if len(files) > 0:
         frec = files[0]
         file = frec['lfn']

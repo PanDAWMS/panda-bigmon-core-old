@@ -16,7 +16,7 @@
 	<th>GUID</th>
 	<th>Scope</th>
 	<th>Type</th>
-	<th>Size</th>
+	<th>Size (MB)</th>
 	<th>Task</th>
 	<th>Status</th>
 	<th>Created</th>
@@ -28,12 +28,12 @@
 		<td>{{ frec.guid }}</td>
 		<td>{{ frec.scope }}</td>
 		<td>{{ frec.type }}</td>
-		<td>{{ frec.fsize }}</td>
+		<td>{{ frec.fsizemb }}</td>
 		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
 		<td class='{{frec.status}}'>{{ frec.status }}</td>
 		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ frec.attemptnr }}</td>
-		<td><a href="{% url 'datasetInfo' %}?datasetid={{ frec.datasetid }}">{{ frec.datasetid }}</a></td>
+		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ frec.datasetname }}">{{ frec.datasetname }}</a></font></td>
 	</tr>
 </table>
 

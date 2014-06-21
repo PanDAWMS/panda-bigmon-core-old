@@ -31,7 +31,7 @@
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 <p>
 
-<p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}<p>
+<p>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}<p>
 
 <p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary
 

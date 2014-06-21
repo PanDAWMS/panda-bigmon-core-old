@@ -26,7 +26,7 @@
 <p>
 
 {% if jobList %}
-<p>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
+<p>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}
 <br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
 {% endif %}
 

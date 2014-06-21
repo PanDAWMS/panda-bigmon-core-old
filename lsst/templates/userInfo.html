@@ -50,7 +50,7 @@
 {% if njobs > 0 %}
 
 <p><b>{{ njobs }} jobs</b>
-<br>Job modification times in this listing range from {{ tfirst }} to {{ tlast }}
+<br>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}
 <br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
 
 <div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Show recent job errors</a></div><p>
