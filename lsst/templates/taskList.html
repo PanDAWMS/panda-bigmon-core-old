@@ -43,7 +43,9 @@
 
 <div class='section'>Task list</div>
 {% if display_limit %}
+{% if tasks|length >= display_limit %}
 Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
+{% endif %}
 {% endif %}
 
 <table>
