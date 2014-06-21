@@ -125,12 +125,22 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 <tr><td>
 <font size=-1>
 {% if viewParams.MON_VO == 'ATLAS' %}
-<a href="http://panda.cern.ch/?overview=findfile&archive=yes&lfn={{file.lfn}}&guid={{file.guid}}">{{ file.lfn}}</a>
+   {% if file.type != 'pseudo_input' %}
+   <a href="{% url 'fileInfo' %}?guid={{file.guid}}&scope={{file.scope}}">{{ file.lfn}}</a>
+    {% else %}
+    {{ file.lfn }}
+    {% endif %}
 {% else %}
 {{ file.lfn}}
 {% endif %} ({{ file.type }})
 </font>
-</td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td><td><font size=-1> {{ file.dataset }} </font></td></tr>
+</td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td>
+<td>
+   {% if file.type != 'pseudo_input' %}
+   <font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.dataset}}"> {{ file.dataset }} </a></font></td></tr>
+    {% else %}
+    {{ file.dataset }}
+    {% endif %}
 {% endfor %}
 </table>
 {% endif %}

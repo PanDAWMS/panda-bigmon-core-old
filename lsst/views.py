@@ -2334,11 +2334,20 @@ def fileInfo(request):
     if 'filename' in request.GET:
         file = request.GET['filename']
         query['lfn'] = request.GET['filename']
+    elif 'lfn' in request.GET:
+        file = request.GET['lfn']
+        query['lfn'] = request.GET['lfn']
     elif 'fileid' in request.GET:
         file = request.GET['fileid']
         query['fileid'] = request.GET['fileid']
+    elif 'guid' in request.GET:
+        file = request.GET['guid']
+        query['guid'] = request.GET['guid']
     else:
         file = None
+    if 'scope' in request.GET:
+        query['scope'] = request.GET['scope']
+
     
     if file:
         files = JediDatasetContents.objects.filter(**query).values()
