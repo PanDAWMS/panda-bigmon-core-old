@@ -58,6 +58,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .throttled { color:#FF9933 }
 .warning { color:#FF9933 }
 .timeout { color:#FF9933 }
+.discarded { color:#FF9933 }
 .running { color:#47D147 }
 .starting { color:#47D147 }
 .scouting { color:#47D147 }
@@ -189,13 +190,18 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         </li>
        {% endblock %}
 
-        {% block top_menu_all_4 %}
-        <li>
+
+       {% block top_menu_all_4 %}
+        <li class="has-dropdown">
           {% block top_menu_4 %}
-          <a href="{% url 'siteList' %}">Sites</a>
+          <a href="#">Sites</a>
+          <ul class="dropdown">
+            <li><a href="{% url 'siteList' %}">Clouds, sites</a></li>
+            <li><a href="{% url 'workQueues' %}">Work queues</a></li>
+          </ul>
           {% endblock %}
         </li>
-        {% endblock %}
+       {% endblock %}
 
        {% block top_menu_all_8 %}
         <li class="has-dropdown">

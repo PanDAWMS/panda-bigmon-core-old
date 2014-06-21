@@ -25,6 +25,9 @@ from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
 from core.common.models import JediTaskparams
 from core.common.models import JediEvents
+from core.common.models import JediDatasets
+from core.common.models import JediDatasetContents
+from core.common.models import JediWorkQueue
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
@@ -33,6 +36,7 @@ homeCloud = {}
 
 statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'throttled', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
 sitestatelist = [ 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
+eventservicestatelist = [ 'ready', 'sent', 'running', 'finished', 'cancelled', 'discarded', 'done' ]
 
 errorcodelist = [ 
     { 'name' : 'brokerage', 'error' : 'brokerageerrorcode', 'diag' : 'brokerageerrordiag' },
@@ -228,7 +232,7 @@ def cleanJobList(jobs, mode='drop'):
                 if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
                     dropJob = retry['newpandaid']
-            if dropJob == 0:
+            if (dropJob == 0) or isEventService(job):
                 newjobs.append(job)
             else:
                 droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
@@ -479,6 +483,7 @@ def jobList(request, mode=None, param=None):
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
     for job in jobs:
+        print job['pandaid']
         if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
     droplist = []
     if len(taskids) == 1:
@@ -494,7 +499,7 @@ def jobList(request, mode=None, param=None):
                 if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
                     ## there is a retry for this job. Drop it.
                     dropJob = retry['newpandaid']
-            if dropJob == 0:
+            if dropJob == 0 or isEventService(job):
                 newjobs.append(job)
             else:
                 droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
@@ -569,7 +574,7 @@ def jobList(request, mode=None, param=None):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def isEventService(job):
-    if 'specialhandling' in job and job['specialhandling'].find('eventservice') >= 0:
+    if 'specialhandling' in job and ( job['specialhandling'].find('eventservice') >= 0 or job['specialhandling'].find('esmerge') >= 0 ):
         return True
     else:
         return False
@@ -675,8 +680,31 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         pretries = None
 
     if isEventService(job):
-        ## for ES jobs, pass the event table
+        ## for ES jobs, prepare the event table
         evtable = JediEvents.objects.filter(pandaid=job['pandaid']).values()
+        fileids = {}
+        datasetids = {}
+        for evrange in evtable:
+            fileids[int(evrange['fileid'])] = {}
+            datasetids[int(evrange['datasetid'])] = {}
+        flist = []
+        for f in fileids:
+            flist.append(f)
+        dslist = []
+        for ds in datasetids:
+            dslist.append(ds)
+        datasets = JediDatasets.objects.filter(datasetid__in=dslist).values()
+        files = JediDatasetContents.objects.filter(fileid__in=flist).values()        
+        for ds in datasets:
+            print 'dataset', ds['datasetname'], ds['datasetid']
+            datasetids[int(ds['datasetid'])]['dict'] = ds
+        for f in files:
+            print 'file', f['lfn'], f['fileid']
+            fileids[int(f['fileid'])]['dict'] = f
+        for evrange in evtable:
+            evrange['fileid'] = fileids[int(evrange['fileid'])]['dict']['lfn']
+            evrange['datasetid'] = datasetids[evrange['datasetid']]['dict']['datasetname']
+            evrange['status'] = eventservicestatelist[evrange['status']]
     else:
         evtable = None
 
@@ -2244,3 +2272,113 @@ def workingGroups(request):
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+def datasetInfo(request):
+    setupView(request, hours=365*24, limit=999999999)
+    query = {}
+    dsets = []
+    dsrec = None
+    colnames = []
+    columns = []
+    if 'datasetname' in request.GET:
+        dataset = request.GET['datasetname']
+        query['datasetname'] = request.GET['datasetname']
+    elif 'datasetid' in request.GET:
+        dataset = request.GET['datasetid']
+        query['datasetid'] = request.GET['datasetid']
+    else:
+        dataset = None
+    
+    if dataset:
+        dsets = JediDatasets.objects.filter(**query).values()
+    if len(dsets) > 0:
+        dsrec = dsets[0]
+        dataset = dsrec['datasetname']
+        colnames = dsrec.keys()
+        colnames.sort()
+        for k in colnames:
+            val = dsrec[k]
+            if dsrec[k] == None:
+                val = ''
+                continue
+            pair = { 'name' : k, 'value' : val }
+            columns.append(pair)
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'dsrec' : dsrec,
+            'datasetname' : dataset,
+            'columns' : columns,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('datasetInfo.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+
+def fileInfo(request):
+    setupView(request, hours=365*24, limit=999999999)
+    query = {}
+    files = []
+    frec = None
+    colnames = []
+    columns = []
+    if 'filename' in request.GET:
+        file = request.GET['filename']
+        query['lfn'] = request.GET['filename']
+    elif 'fileid' in request.GET:
+        file = request.GET['fileid']
+        query['fileid'] = request.GET['fileid']
+    else:
+        file = None
+    
+    if file:
+        files = JediDatasetContents.objects.filter(**query).values()
+    if len(files) > 0:
+        frec = files[0]
+        file = frec['lfn']
+        colnames = frec.keys()
+        colnames.sort()
+        for k in colnames:
+            val = frec[k]
+            if frec[k] == None:
+                val = ''
+                continue
+            pair = { 'name' : k, 'value' : val }
+            columns.append(pair)
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'frec' : frec,
+            'filename' : file,
+            'columns' : columns,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('fileInfo.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+
+def workQueues(request):
+    setupView(request, hours=180*24, limit=9999999)
+    query = {}
+    for param in request.GET:
+        for field in JediWorkQueue._meta.get_all_field_names():
+            if param == field:
+                query[param] = request.GET[param]
+    queues = JediWorkQueue.objects.filter(**query).values()
+    queues = sorted(queues, key=lambda x:x['queue_name'],reverse=True)
+        
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'queues': queues,
+            'xurl' : extensibleURL(request),
+        }
+        return render_to_response('workQueues.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse(json_dumps(queues), mimetype='text/html')
+

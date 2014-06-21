@@ -69,8 +69,15 @@ Task name </td><td><font size=-1><input id="taskname" name="taskname" size="25" 
 <tr><td><form action="{% url 'siteInfo' %}" method='get'>
 Site </td><td><font size=-1><input id="site" name="site" size="25" maxlength="50" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
-<tr><td><form action="{% url 'userInfo' %}?display_limit=100" method='get'>
+<tr><td><form action="{% url 'userInfo' %}" method='get'>
 User </td><td><font size=-1><input id="user" name="user" size="25" maxlength="50" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+
+<tr><td><form action="{% url 'datasetInfo' %}" method='get'>
+Dataset </td><td><font size=-1><input id="datasetname" name="datasetname" size="25" maxlength="300" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+
+<tr><td><form action="{% url 'fileInfo' %}" method='get'>
+File </td><td><font size=-1><input id="filename" name="filename" size="25" maxlength="300" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+
 </table>
 
 </td></tr>

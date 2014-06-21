@@ -1,0 +1,67 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA file {{ filename }} {% endblock %}
+{% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block subtitle %}PanDA file <b>{{ filename }}</b>{% endblock %}
+
+{% block body %}
+
+{% if columns %}
+
+<div class='section'> File {{ filename }}</div>
+
+<table>
+<tr>
+	<th>ID</th>
+	<th>GUID</th>
+	<th>Scope</th>
+	<th>Type</th>
+	<th>Size</th>
+	<th>Task</th>
+	<th>Status</th>
+	<th>Created</th>
+	<th>Attempt</th>
+	<th>Dataset</th>
+</tr>
+	<tr>
+		<td>{{ frec.fileid }}</td>
+		<td>{{ frec.guid }}</td>
+		<td>{{ frec.scope }}</td>
+		<td>{{ frec.type }}</td>
+		<td>{{ frec.fsize }}</td>
+		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
+		<td class='{{frec.status}}'>{{ frec.status }}</td>
+		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
+		<td>{{ frec.attemptnr }}</td>
+		<td><a href="{% url 'datasetInfo' %}?datasetid={{ frec.datasetid }}">{{ frec.datasetid }}</a></td>
+	</tr>
+</table>
+
+<p>
+
+<div class='section'> All file attributes</div>
+
+<table>
+{% for col in columns %}
+<tr><th>{{ col.name }} </th><td> {% if col.value != 'None' %} {{ col.value }} {% endif %}</td></tr>
+{% endfor %}
+</table>
+
+{% else %}
+
+PanDA file <b>{{ filename }}</b> not found.
+
+{% endif %}
+
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}

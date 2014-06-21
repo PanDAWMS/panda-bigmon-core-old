@@ -1,0 +1,83 @@
+{% extends "_base_lsst.html" %}
+{% load url from future %}
+
+{% block page_title %} {{ viewParams.MON_VO }} PanDA work queues{% endblock %}
+{% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
+{% block subtitle %}PanDA work queues{{viewParams.selection }}
+{% if vo %} &nbsp; for VO {{ vo }}
+{% endif %}
+{% endblock %}
+{% block body %}
+
+{% if requestParams.status %}<br><b>Task status: <span class='{{requestParams.status}}'>{{ requestParams.status }}</span></b> {% endif %}
+{% if requestParams.eventservice %}<br><b>Event service tasks</b> {% endif %}
+
+<p>
+{% if queues %}
+
+<b>{{ queues|length }} queues</b>
+
+{% if sumd %}
+
+<div class='section'>Queue attribute summary</div>
+
+<table>
+{% for fdict in sumd %}
+<tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
+{% for item in fdict.list %}
+{% if fdict.field == 'status' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
+{% endfor %}
+</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<div class='section'>Work queue list</div>
+
+<table>
+<tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>Status</th>
+	<th>Partition</th>
+	<th>Stretchable</th>
+	<th>Share</th>
+	<th>Order</th>
+	<th>Criteria</th>
+	<th>Variables</th>
+</tr>
+    {% for queue in queues %}
+	<tr>
+		<td>{{ queue.queue_name }}</td>
+		<td>{{ queue.queue_type }}</td>
+		<td class='{{queue.status}}'>{{ queue.status }}</td>
+		<td>{{ queue.partitionid }}</td>
+		<td>{{ queue.stretchable }}</td>
+		<td>{{ queue.queue_share }}</td>
+		<td>{{ queue.queue_order }}</td>
+		<td>{{ queue.criteria }}</td>
+		<td>{{ queue.variables }}</td>
+	</tr>
+    {% endfor %}
+</table>
+
+{% else %}
+    <p>No matches to query.</p>
+{% endif %}
+{% endblock %}
+
+{% block bottom_info %}
+{% endblock %}
+
+{% block left_menu %}
+{% comment %}
+<div class="left-menu">
+  {% block left_menu_content %}
+    <span class="left-menu-title">Menu</span>
+     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
+  {% endblock %}
+</div>
+{% endcomment %}
+{% endblock %}
+

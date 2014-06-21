@@ -135,30 +135,34 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 </table>
 {% endif %}
 
-{% if eventservice %}
-<p><div class='section'>This is an event service job. Event records:</div>
+{% if "esmerge" in job.specialhandling %}
+
+<b>This is an event service merge job.</b>
+
+{% elif eventservice %}
+<p><div class='section'>This is an event service job. Event range records:</div>
 
 <table>
 <tr>
 <th> Min event </th>
-<th> Max event </th>
-<th> Processed up to event </th>
+<th> Max </th>
+<th> Processed<br>up to </th>
 <th> Status </th>
 <th> ProcessID </th>
-<th> FileID </th>
-<th> DatasetID </th>
 <th> Attempt </th>
+<th> File </th>
+<th> Dataset </th>
 </tr>
 {% for ev in evtable %}
 <tr>
 <td> {{ ev.def_min_eventid }} </td>
 <td> {{ ev.def_max_eventid }} </td>
 <td> {{ ev.processed_upto_eventid }} </td>
-<td> {{ ev.status }} </td>
+<td> <span class="{{ ev.status }}">{{ ev.status }}</span> </td>
 <td> {{ ev.job_processid }} </td>
-<td> {{ ev.fileid }} </td>
-<td> {{ ev.datasetid }} </td>
 <td> {{ ev.attemptnr }} </td>
+<td> <font size=-1><a href="{% url 'fileInfo' %}?filename={{ ev.fileid }}">{{ ev.fileid }}</font> </td>
+<td> <font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ ev.datasetid }}">{{ ev.datasetid }}</a></font> </td>
 </tr>
 {% endfor %}
 </table>
