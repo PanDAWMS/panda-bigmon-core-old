@@ -42,6 +42,7 @@ urlpatterns = patterns('',
     url(r'^fileInfo/$', lsstmon_views.fileInfo, name='fileInfo'),
     url(r'^fileList/$', lsstmon_views.fileList, name='fileList'),
     url(r'^datasetInfo/$', lsstmon_views.datasetInfo, name='datasetInfo'),
+   url(r'^datasetList/$', lsstmon_views.datasetList, name='datasetList'),
     url(r'^workQueues/$', lsstmon_views.workQueues, name='workQueues'),
 
     ### support views for LSST
