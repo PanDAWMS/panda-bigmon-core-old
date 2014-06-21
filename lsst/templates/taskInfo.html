@@ -49,7 +49,9 @@
 
 {% endif %}
 
-<p>For documentation on PanDA JEDI tasks <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">see here</a>.<p>
+<p>Documentation on PanDA JEDI tasks:
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">status transitions</a>,
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.<p>
 
 {% if task.jeditaskid %}
 <p><a href="{% url 'datasetList' %}?jeditaskid={{jeditaskid}}">Show datasets for this task</a>

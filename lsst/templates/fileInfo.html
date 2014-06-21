@@ -18,6 +18,7 @@
 	<th>Type</th>
 	<th>Size (MB)</th>
 	<th>Task</th>
+	<th>Job</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Attempt</th>
@@ -30,12 +31,17 @@
 		<td>{{ frec.type }}</td>
 		<td>{{ frec.fsizemb }}</td>
 		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ frec.pandaid }}">{{ frec.pandaid }}</a></td>
 		<td class='{{frec.status}}'>{{ frec.status }}</td>
 		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ frec.attemptnr }}</td>
 		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ frec.datasetname }}">{{ frec.datasetname }}</a></font></td>
 	</tr>
 </table>
+
+<p>Documentation on PanDA JEDI files:
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_file_status">status transitions</a>,
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Dataset_Contents_table">schema</a>.<p>
 
 <p>
 

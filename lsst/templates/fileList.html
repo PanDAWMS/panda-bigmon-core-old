@@ -17,24 +17,28 @@
 
 <table>
 <tr>
+	<th>Filename</th>
 	<th>ID</th>
 	<th>GUID</th>
 	<th>Scope</th>
 	<th>Type</th>
 	<th>Size (MB)</th>
 	<th>Task</th>
+	<th>Job</th>
 	<th>Status</th>
 	<th>Created</th>
 	<th>Attempt</th>
 </tr>
 {% for frec in files %}
 	<tr>
+		<td><a href="{% url 'fileInfo' %}?lfn={{ frec.lfn }}">{{ frec.lfn }}</a></td>
 		<td>{{ frec.fileid }}</td>
 		<td>{{ frec.guid }}</td>
 		<td>{{ frec.scope }}</td>
 		<td>{{ frec.type }}</td>
 		<td>{{ frec.fsizemb }}</td>
 		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
+		<td><a href="{% url 'jobInfo' %}?pandaid={{ frec.pandaid }}">{{ frec.pandaid }}</a></td>
 		<td class='{{frec.status}}'>{{ frec.status }}</td>
 		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ frec.attemptnr }}</td>
