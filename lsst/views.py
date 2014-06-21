@@ -668,6 +668,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     except IndexError:
         jobparams = None
 
+    dsfiles = []
     ## If this is a JEDI job, look for job retries
     if 'jeditaskid' in job and job['jeditaskid'] > 0:
         ## Look for retries of this job
@@ -2372,6 +2373,44 @@ def fileInfo(request):
         return render_to_response('fileInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+
+def fileList(request):
+    setupView(request, hours=365*24, limit=999999999)
+    query = {}
+    files = []
+    frec = None
+    colnames = []
+    columns = []
+    datasetname = ''
+    datasetid = 0
+    if 'datasetname' in request.GET:
+        datasetname = request.GET['datasetname']
+        dsets = JediDatasets.objects.filter(datasetname=datasetname).values()
+        if len(dsets) > 0:
+            datasetid = dsets[0]['datasetid']
+    elif 'datasetid' in request.GET:
+        datasetid = request.GET['datasetid']
+        dsets = JediDatasets.objects.filter(datasetid=datasetid).values()
+        if len(dsets) > 0:
+            datasetname = dsets[0]['datasetname']
+
+    files = []
+    if datasetid > 0:
+        query['datasetid'] = datasetid
+        files = JediDatasetContents.objects.filter(**query).values()
+        for f in files:
+            f['fsizemb'] = int(f['fsize']/1000000)
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'files' : files,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('fileList.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse(json_dumps(files), mimetype='text/html')
 
 def workQueues(request):
     setupView(request, hours=180*24, limit=9999999)
