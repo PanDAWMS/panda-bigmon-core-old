@@ -1,17 +1,20 @@
 {% extends "_base_lsst.html" %}{% load url from future %}
 
-{% block page_title %} {{ viewParams.MON_VO }} PanDA dataset {{ datasetname }} {% endblock %}
+{% block page_title %} {{ viewParams.MON_VO }} PanDA datasets {% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA dataset <b>{{ datasetname }}</b>{% endblock %}
+{% block subtitle %}PanDA datasets{{ viewParams.selection }}{% endblock %}
 
 {% block body %}
 
-{% if columns %}
+{% if requestParams.jeditaskid and requestParams.jeditaskid != 'None' %}<br><b>Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
 
-<div class='section'> Dataset {{ datasetname }}</div>
+{% if datasets %}
+<p>
+<div class='section'> Datasets</div>
 
 <table>
 <tr>
+	<th>Name</th>
 	<th>ID</th>
 	<th>Type</th>
 	<th>Stream</th>
@@ -22,39 +25,25 @@
 	<th>Created</th>
 	<th>Modified</th>
 </tr>
+{% for dsrec in datasets %}
 	<tr>
+		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ dsrec.datasetname }}">{{ dsrec.datasetname }}</a></font></td>
 		<td>{{ dsrec.datasetid }}</td>
 		<td>{{ dsrec.type }}</td>
 		<td>{{ dsrec.streamname }}</td>
-		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ dsrec.jeditaskid }}">{{ dsrec.jeditaskid }}</a></td>
+		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ dsrec.jeditaskid }}</a></td>
 		<td>{{ dsrec.state }}</td>
 		<td class='{{dsrec.status}}'>{{ dsrec.status }}</td>
 		<td>{{ dsrec.nfiles }}</td>
 		<td>{{ dsrec.creationtime|date:"Y-m-d H:i" }}</td>
 		<td>{{ dsrec.modificationtime|date:"Y-m-d H:i" }}</td>
 	</tr>
-</table>
-
-<p>
-
-<div class='section'><a href="{% url 'fileList' %}?datasetname={{ datasetname }}">Show files in dataset</a></div>
-
-<p>
-For information on the PanDA JEDI dataset table <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Datasets_table">see here</a>.
-
-<p>
-
-<div class='section'> All dataset attributes</div>
-
-<table>
-{% for col in columns %}
-<tr><th>{{ col.name }} </th><td> {% if col.value != 'None' %} {{ col.value }} {% endif %}</td></tr>
 {% endfor %}
 </table>
 
 {% else %}
 
-PanDA dataset <b>{{ datasetname }}</b> not found.
+No datasets matching search were found.
 
 {% endif %}
 

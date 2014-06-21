@@ -2324,6 +2324,27 @@ def datasetInfo(request):
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
 
+def datasetList(request):
+    setupView(request, hours=365*24, limit=999999999)
+    query = {}
+    dsets = []
+    if 'jeditaskid' in request.GET:
+        query['jeditaskid'] = request.GET['jeditaskid']
+    
+    if len(query) > 0:
+        dsets = JediDatasets.objects.filter(**query).values()
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : request.GET,
+            'datasets' : dsets,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('datasetList.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+
 def fileInfo(request):
     setupView(request, hours=365*24, limit=999999999)
     query = {}

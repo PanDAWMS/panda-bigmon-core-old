@@ -49,6 +49,10 @@
 
 {% endif %}
 
+{% if task.jeditaskid %}
+<p><a href="{% url 'datasetList' %}?jeditaskid={{jeditaskid}}">Show datasets for this task</a>
+{% endif %}
+
 <p>
 {% if task.eventservice == 1 %}
 This is an event service task<p>
