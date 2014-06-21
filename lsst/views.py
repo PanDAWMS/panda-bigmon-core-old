@@ -2449,8 +2449,8 @@ def workQueues(request):
         for field in JediWorkQueue._meta.get_all_field_names():
             if param == field:
                 query[param] = request.GET[param]
-    queues = JediWorkQueue.objects.filter(**query).values()
-    queues = sorted(queues, key=lambda x:x['queue_name'],reverse=True)
+    queues = JediWorkQueue.objects.filter(**query).order_by('queue_type','queue_order').values()
+    #queues = sorted(queues, key=lambda x:x['queue_name'],reverse=True)
         
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
