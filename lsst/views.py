@@ -2313,6 +2313,10 @@ def datasetInfo(request):
                 dsets = moredsets
                 for ds in dsets:
                     ds['datasetname'] = ds['name']
+                    ds['creationtime'] = ds['creationdate']
+                    ds['modificationtime'] = ds['modificationdate']
+                    ds['nfiles'] = ds['numberfiles']
+                    ds['datasetid'] = ds['vuid']
     if len(dsets) > 0:
         dsrec = dsets[0]
         dataset = dsrec['datasetname']
