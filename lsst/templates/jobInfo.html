@@ -136,11 +136,7 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 </font>
 </td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td>
 <td>
-   {% if file.type != 'pseudo_input' %}
    <font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.dataset}}"> {{ file.dataset }} </a></font></td></tr>
-    {% else %}
-    {{ file.dataset }}
-    {% endif %}
 {% endfor %}
 </table>
 {% endif %}
