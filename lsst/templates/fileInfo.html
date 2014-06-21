@@ -12,8 +12,7 @@
 
 <table>
 <tr>
-	<th>ID</th>
-	<th>GUID</th>
+	<th>ID<br>GUID</th>
 	<th>Scope</th>
 	<th>Type</th>
 	<th>Size (MB)</th>
@@ -25,16 +24,15 @@
 	<th>Dataset</th>
 </tr>
 	<tr>
-		<td>{{ frec.fileid }}</td>
-		<td>{{ frec.guid }}</td>
+		<td><font size=-1>{{ frec.fileid }}<br>{{ frec.guid }}</font></td>
 		<td>{{ frec.scope }}</td>
 		<td>{{ frec.type }}</td>
 		<td>{{ frec.fsizemb }}</td>
-		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
+		<td>{% if frec.jeditaskid %} <a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a> {% endif %}</td>
 		<td><a href="{% url 'jobInfo' %}?pandaid={{ frec.pandaid }}">{{ frec.pandaid }}</a></td>
 		<td class='{{frec.status}}'>{{ frec.status }}</td>
 		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
-		<td>{{ frec.attemptnr }}</td>
+		<td>{% if frec.attemptnr %} {{ frec.attemptnr }} {% endif %}</td>
 		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ frec.datasetname }}">{{ frec.datasetname }}</a></font></td>
 	</tr>
 </table>

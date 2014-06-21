@@ -31,7 +31,7 @@
 </tr>
 {% for frec in files %}
 	<tr>
-		<td><a href="{% url 'fileInfo' %}?lfn={{ frec.lfn }}">{{ frec.lfn }}</a></td>
+		<td><a href="{% url 'fileInfo' %}?lfn={{ frec.lfn }}&pandaid={{frec.pandaid}}">{{ frec.lfn }}</a></td>
 		<td>{{ frec.fileid }}</td>
 		<td>{{ frec.guid }}</td>
 		<td>{{ frec.scope }}</td>

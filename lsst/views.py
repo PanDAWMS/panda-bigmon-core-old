@@ -14,6 +14,7 @@ from core.common.settings import STATIC_URL, FILTER_UI_ENV, defaultDatetimeForma
 from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaiting4, Jobsarchived4, Jobsarchived
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
+from core.common.models import Datasets
 from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
@@ -2298,6 +2299,20 @@ def datasetInfo(request):
     
     if dataset:
         dsets = JediDatasets.objects.filter(**query).values()
+        if len(dsets) == 0:
+            startdate = datetime.utcnow() - timedelta(hours=30*24)
+            startdate = startdate.strftime(defaultDatetimeFormat)
+            enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+            query = { 'modificationdate__range' : [startdate, enddate] }
+            if 'datasetname' in request.GET:
+                query['name'] = request.GET['datasetname']
+            elif 'datasetid' in request.GET:
+                query['vuid'] = request.GET['datasetid']
+            moredsets = Datasets.objects.filter(**query).values()
+            if len(moredsets) > 0:
+                dsets = moredsets
+                for ds in dsets:
+                    ds['datasetname'] = ds['name']
     if len(dsets) > 0:
         dsrec = dsets[0]
         dataset = dsrec['datasetname']
@@ -2368,12 +2383,24 @@ def fileInfo(request):
         file = None
     if 'scope' in request.GET:
         query['scope'] = request.GET['scope']
-
+    if 'pandaid' in request.GET and request.GET['pandaid'] != '':
+        query['pandaid'] = request.GET['pandaid']
     
     if file:
         files = JediDatasetContents.objects.filter(**query).values()
+        if len(files) == 0:
+            morefiles = Filestable4.objects.filter(**query).values()
+            if len(morefiles) == 0:
+                morefiles.extend(FilestableArch.objects.filter(**query).values())
+            if len(morefiles) > 0:
+                files = morefiles
+                for f in files:
+                    f['creationdate'] = f['modificationtime']
+                    f['fileid'] = f['row_id']
+                    f['datasetname'] = f['dataset']
+
         for f in files:
-            f['fsizemb'] = int(f['fsize']/1000000)
+            f['fsizemb'] = "%0.2f" % (f['fsize']/1000000.)
             dsets = JediDatasets.objects.filter(datasetid=f['datasetid']).values()
             if len(dsets) > 0:
                 f['datasetname'] = dsets[0]['datasetname']
@@ -2429,7 +2456,7 @@ def fileList(request):
         query['datasetid'] = datasetid
         files = JediDatasetContents.objects.filter(**query).values()
         for f in files:
-            f['fsizemb'] = int(f['fsize']/1000000)
+            f['fsizemb'] = "%0.2f" % (f['fsize']/1000000.)
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
