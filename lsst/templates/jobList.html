@@ -93,8 +93,8 @@ Sort by
 	<th>Transformation</th>
 	<th>Status</th>
 	<th>Created</th>
-	<th>Start</th>
-	<th>End</th>
+	<th>Time to<br>start</th>
+	<th>Duration</th>
 	<th>Mod</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
@@ -110,8 +110,8 @@ Sort by
 
 		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 		<td><font size=-1>{{ job.creationtime|date:"Y-m-d H:i" }}</font></td>
-		<td><font size=-1>{{ job.starttime|date:"m-d H:i" }}</font></td>
-		<td><font size=-1>{{ job.endtime|date:"m-d H:i" }}</font></td>
+		<td><font size=-1>{{ job.waittime }}</font></td>
+		<td><font size=-1>{{ job.duration }}</font></td>
 		<td><font size=-1>{{ job.modificationtime|date:"m-d H:i" }}</font></td>
 		<td><font size=-1>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite %}">{{ job.computingsite }}</a></font></td>
 		<td>{{ job.currentpriority }}</td>

@@ -217,6 +217,14 @@ def cleanJobList(jobs, mode='drop'):
             job['errorinfo'] = ''
         job['jobinfo'] = ''
         if isEventService(job): job['jobinfo'] = 'Event service job'
+        job['duration'] = ""
+        #if job['jobstatus'] in ['finished','failed','holding']:
+        if job['endtime'] and job['starttime']:
+            job['duration'] = "%s" % (job['endtime'] - job['starttime'])
+        job['waittime'] = ""
+        #if job['jobstatus'] in ['running','finished','failed','holding','cancelled','transferring']:
+        if job['starttime'] and job['creationtime']:
+            job['waittime'] = "%s" % (job['starttime'] - job['creationtime'])
 
     if mode == 'nodrop': return jobs
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries

@@ -14,8 +14,8 @@
 	<th>TaskID</th>
 	<th>Status</th>
 	<th>Created</th>
-	<th>Start</th>
-	<th>End</th>
+	<th>Time<br>to start</th>
+	<th>Duration</th>
 	<th>Mod</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
@@ -26,8 +26,8 @@
 	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
-	<td>{{ job.starttime|date:"m-d H:i" }}</td>
-	<td>{{ job.endtime|date:"m-d H:i" }}</td>
+	<td>{{ job.waittime }}</td>
+	<td>{{ job.duration }}</td>
 	<td>{{ job.modificationtime|date:"m-d H:i" }}</td>
 	<td>{% if viewParams.MON_VO == 'ATLAS' %}<a href="{{xurl}}cloud={{job.cloud}}">{{job.cloud}}</a> {% endif %}<a href="{% url 'siteInfo' job.computingsite  %}">{{ job.computingsite }}</a></td>
 	<td>{{ job.currentpriority }}</td>
