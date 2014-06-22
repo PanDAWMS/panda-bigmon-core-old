@@ -219,11 +219,11 @@ def cleanJobList(jobs, mode='drop'):
         if isEventService(job): job['jobinfo'] = 'Event service job'
         job['duration'] = ""
         #if job['jobstatus'] in ['finished','failed','holding']:
-        if job['endtime'] and job['starttime']:
+        if 'endtime' in job and 'starttime' in job and job['endtime'] and job['starttime']:
             job['duration'] = "%s" % (job['endtime'] - job['starttime'])
         job['waittime'] = ""
         #if job['jobstatus'] in ['running','finished','failed','holding','cancelled','transferring']:
-        if job['starttime'] and job['creationtime']:
+        if 'creationtime' in job and 'starttime' in job and job['starttime'] and job['creationtime']:
             job['waittime'] = "%s" % (job['starttime'] - job['creationtime'])
 
     if mode == 'nodrop': return jobs
@@ -496,7 +496,6 @@ def jobList(request, mode=None, param=None):
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
     for job in jobs:
-        print job['pandaid']
         if 'jeditaskid' in job: taskids[job['jeditaskid']] = 1
     droplist = []
     if len(taskids) == 1:
@@ -711,10 +710,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         datasets = JediDatasets.objects.filter(datasetid__in=dslist).values()
         dsfiles = JediDatasetContents.objects.filter(fileid__in=flist).values()        
         for ds in datasets:
-            print 'dataset', ds['datasetname'], ds['datasetid']
             datasetids[int(ds['datasetid'])]['dict'] = ds
         for f in dsfiles:
-            print 'file', f['lfn'], f['fileid']
             fileids[int(f['fileid'])]['dict'] = f
         for evrange in evtable:
             evrange['fileid'] = fileids[int(evrange['fileid'])]['dict']['lfn']
@@ -1976,7 +1973,6 @@ def errorSummary(request):
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         nosorturl = removeParam(request.get_full_path(), 'sortby')
         xurl = extensibleURL(request)
-        print 'xurl',xurl
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
