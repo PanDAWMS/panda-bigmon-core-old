@@ -19,6 +19,7 @@ from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
 from core.common.models import Logstable
+from core.common.models import Jobsdebug
 from core.common.models import Cloudconfig
 from core.common.models import Incidents
 from core.common.models import Pandalog
@@ -643,6 +644,18 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     else:
         logextract = None
 
+    ## Check for debug info
+    if 'specialhandling' in job and job['specialhandling'].find('debug') >= 0:
+        debugmode = True
+    else:
+        debugmode = False
+    debugstdout = None
+    if debugmode:
+        if 'showdebug' in request.GET:
+            debugstdoutrec = Jobsdebug.objects.filter(pandaid=pandaid).values()
+            if len(debugstdoutrec) > 0:
+                debugstdout = debugstdoutrec['stdout']
+
     ## Get job files
     files = []
     files.extend(Filestable4.objects.filter(pandaid=pandaid).order_by('type').values())
@@ -736,6 +749,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         data = {
             'prefix': getPrefix(request),
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'pandaid': pandaid,
             'job': job,
             'columns' : columns,
@@ -754,6 +768,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'pretries' : pretries,
             'eventservice' : isEventService(job),
             'evtable' : evtable,
+            'debugmode' : debugmode,
+            'debugstdout' : debugstdout,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))
