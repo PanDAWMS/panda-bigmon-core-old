@@ -166,14 +166,22 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if request.META['HTTP_HOST'].startswith(vo):
             query['vo'] = vo   
     for param in request.GET:
-        if param == 'cloud' and request.GET[param] == 'All': continue
-        if param == 'priorityrange':
+        if param == 'cloud' and request.GET[param] == 'All':
+            continue
+        elif param == 'priorityrange':
             mat = re.match('([0-9]+)\:([0-9]+)', request.GET[param])
             if mat:
                 plo = int(mat.group(1))
                 phi = int(mat.group(2))
                 query['currentpriority__gte'] = plo
                 query['currentpriority__lte'] = phi                
+        elif param == 'jobsetrange':
+            mat = re.match('([0-9]+)\:([0-9]+)', request.GET[param])
+            if mat:
+                plo = int(mat.group(1))
+                phi = int(mat.group(2))
+                query['jobsetid__gte'] = plo
+                query['jobsetid__lte'] = phi 
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'transformation' or param == 'transpath':
@@ -237,6 +245,10 @@ def cleanJobList(jobs, mode='drop'):
             plo = int(job['currentpriority'])-int(job['currentpriority'])%100
             phi = plo+99
             job['priorityrange'] = "%d:%d" % ( plo, phi )
+        if 'jobsetid' in job and job['jobsetid']:
+            plo = int(job['jobsetid'])-int(job['jobsetid'])%100
+            phi = plo+99
+            job['jobsetrange'] = "%d:%d" % ( plo, phi )
 
     if mode == 'nodrop': return jobs
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
@@ -290,7 +302,7 @@ def jobSummaryDict(request, jobs, fieldlist = None):
         flist = standard_fields
     for job in jobs:
         for f in flist:
-            if job[f]:
+            if f in job and job[f]:
                 if f == 'taskid' and int(job[f]) < 1000000 and 'produsername' not in request.GET: continue
                 if not f in sumd: sumd[f] = {}
                 if not job[f] in sumd[f]: sumd[f][job[f]] = 0
@@ -308,24 +320,23 @@ def jobSummaryDict(request, jobs, fieldlist = None):
         itemd['field'] = f
         iteml = []
         kys = sumd[f].keys()
-        if f == 'priorityrange':
+        if f in  ( 'priorityrange', 'jobsetrange' ):
             skys = []
             for k in kys:
                 skys.append( { 'key' : k, 'val' : int(k[:k.index(':')]) } )
-            
             skys = sorted(skys, key=lambda x:x['val'])
-            print skys
             kys = []
             for sk in skys:
                 kys.append(sk['key'])
-            print kys
+        elif f in ( 'attemptnr', 'jeditaskid', 'taskid', ):
+            kys = sorted(kys, key=lambda x:int(x))
         else:
             kys.sort()
         for ky in kys:
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
         if 'sortby' in request.GET and request.GET['sortby'] == 'count':
             iteml = sorted(iteml, key=lambda x:x['kvalue'], reverse=True)
-        elif f != 'priorityrange':
+        elif f not in ( 'priorityrange', 'jobsetrange', 'attemptnr', 'jeditaskid', 'taskid', ):
             iteml = sorted(iteml, key=lambda x:str(x['kname']).lower())
         itemd['list'] = iteml
         suml.append(itemd)
@@ -895,7 +906,7 @@ def userList(request):
         )
         jobs = cleanJobList(jobs)
         sumd = userSummaryDict(jobs)
-        sumparams = [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'transformation', 'processingtype', 'workinggroup', 'priorityrange' ]
+        sumparams = [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'transformation', 'processingtype', 'workinggroup', 'priorityrange', 'jobsetrange' ]
         if VOMODE == 'atlas':
             sumparams.append('atlasrelease')
         else:
@@ -1015,12 +1026,13 @@ def userInfo(request, user=''):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'priorityrange' ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'priorityrange', 'jobsetrange' ]
         if VOMODE != 'atlas':
             flist.append('vo')
         else:
             flist.append('atlasrelease')
         jobsumd = jobSummaryDict(request, jobs, flist)
+        njobsetmax = 100
         data = {
             'viewParams' : viewParams,
             'requestParams' : request.GET,
@@ -1036,7 +1048,8 @@ def userInfo(request, user=''):
             'tlast' : TLAST,
             'plow' : PLOW,
             'phigh' : PHIGH,
-            'jobsets' : jobsetl,
+            'jobsets' : jobsetl[:njobsetmax-1],
+            'njobsetmax' : njobsetmax,
             'njobsets' : len(jobsetl),
             'url_nolimit' : url_nolimit,
             'display_limit' : display_limit,

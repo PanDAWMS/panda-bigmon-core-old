@@ -9,6 +9,7 @@
 <div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a></div>
 
 {% if requestParams.priorityrange %}<br><b>Current priority range: {{ requestParams.priorityrange }}</b> {% endif %}
+{% if requestParams.jobsetrange %}<br><b>Jobset ID range: {{ requestParams.jobsetrange }}</b> {% endif %}
 <p>
 
 {% if userstats %}
@@ -62,11 +63,16 @@
 
 <table>
 {% for fdict in jobsumd %}
-<tr><th> {{ fdict.field }} </th><td>
+<tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
+
+{% if fdict.list|length > 300 %}
+{{ fdict.list|length }} {{ fdict.field }} values is too many to show
+{% else %}
 {% for item in fdict.list %}
 {% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
 <a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
 {% endfor %}
+{% endif %}
 </td></tr>
 {% endfor %}
 </table>
@@ -106,7 +112,7 @@
 {% endif %}
 
 {% if njobsets > 0 %}
-<div class='section'><a name="jobsets"></a> Recent jobsets </div>
+<div class='section'><a name="jobsets"></a> Recent jobsets {% if njobsetmax <= njobsets %} (listing limited to {{ njobsetmax }}) {% endif %}</div>
 
 <table>
 <tr>
