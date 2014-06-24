@@ -184,7 +184,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
                 query['jobsetid__lte'] = phi 
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
-                if param == 'transformation' or param == 'transpath':
+                if param == 'specialhandling':
+                    query['specialhandling__contains'] = request.GET[param]
+                elif param == 'transformation' or param == 'transpath':
                     query['%s__endswith' % param] = request.GET[param]
                 elif param == 'modificationhost' and request.GET[param].find('@') < 0:
                     query['%s__contains' % param] = request.GET[param]
@@ -304,15 +306,17 @@ def jobSummaryDict(request, jobs, fieldlist = None):
         for f in flist:
             if f in job and job[f]:
                 if f == 'taskid' and int(job[f]) < 1000000 and 'produsername' not in request.GET: continue
-                if not f in sumd: sumd[f] = {}
-                if not job[f] in sumd[f]: sumd[f][job[f]] = 0
-                sumd[f][job[f]] += 1
-        if job['specialhandling']:
-            if not 'specialhandling' in sumd: sumd['specialhandling'] = {}
-            shl = job['specialhandling'].split()
-            for v in shl:
-                if not v in sumd['specialhandling']: sumd['specialhandling'][v] = 0
-                sumd['specialhandling'][v] += 1
+                if f == 'specialhandling':
+                    if not 'specialhandling' in sumd: sumd['specialhandling'] = {}
+                    shl = job['specialhandling'].split()
+                    for v in shl:
+                        if not v in sumd['specialhandling']: sumd['specialhandling'][v] = 0
+                        sumd['specialhandling'][v] += 1
+                else:
+                    if not f in sumd: sumd[f] = {}
+                    if not job[f] in sumd[f]: sumd[f][job[f]] = 0
+                    sumd[f][job[f]] += 1
+
     ## convert to ordered lists
     suml = []
     for f in sumd:
