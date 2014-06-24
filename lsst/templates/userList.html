@@ -15,6 +15,11 @@
 Alternate view: <a href="{% url 'userList' %}?view=database&sortby=date">Summary usage information updated every few hours</a><p>
 {% endif %}
 
+{% if plow  %}
+<p>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}
+<br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
+{% endif %}
+
 <div class="section">Recent job attribute summary</div>
 
 <table>

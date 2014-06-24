@@ -8,6 +8,9 @@
 
 <div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a></div>
 
+{% if requestParams.priorityrange %}<br><b>Current priority range: {{ requestParams.priorityrange }}</b> {% endif %}
+<p>
+
 {% if userstats %}
 <div class="section">Stats from the user DB (updated every few hours)</div>
 <table>

@@ -167,6 +167,13 @@ def setupView(request, opmode='', hours=0, limit=-99):
             query['vo'] = vo   
     for param in request.GET:
         if param == 'cloud' and request.GET[param] == 'All': continue
+        if param == 'priorityrange':
+            mat = re.match('([0-9]+)\:([0-9]+)', request.GET[param])
+            if mat:
+                plo = int(mat.group(1))
+                phi = int(mat.group(2))
+                query['currentpriority__gte'] = plo
+                query['currentpriority__lte'] = phi                
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'transformation' or param == 'transpath':
@@ -212,7 +219,7 @@ def cleanJobList(jobs, mode='drop'):
             else:
                 job['produsername'] = 'Unknown'
         if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
-        if job['jobstatus'] == 'failed':
+        if job['jobstatus'] == 'failed' and 'brokerageerrorcode' in job:
             job['errorinfo'] = errorInfo(job,nchars=70)
         else:
             job['errorinfo'] = ''
@@ -226,6 +233,10 @@ def cleanJobList(jobs, mode='drop'):
         #if job['jobstatus'] in ['running','finished','failed','holding','cancelled','transferring']:
         if 'creationtime' in job and 'starttime' in job and job['starttime'] and job['creationtime']:
             job['waittime'] = "%s" % (job['starttime'] - job['creationtime'])
+        if 'currentpriority' in job:
+            plo = int(job['currentpriority'])-int(job['currentpriority'])%100
+            phi = plo+99
+            job['priorityrange'] = "%d:%d" % ( plo, phi )
 
     if mode == 'nodrop': return jobs
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
@@ -297,12 +308,24 @@ def jobSummaryDict(request, jobs, fieldlist = None):
         itemd['field'] = f
         iteml = []
         kys = sumd[f].keys()
-        kys.sort()
+        if f == 'priorityrange':
+            skys = []
+            for k in kys:
+                skys.append( { 'key' : k, 'val' : int(k[:k.index(':')]) } )
+            
+            skys = sorted(skys, key=lambda x:x['val'])
+            print skys
+            kys = []
+            for sk in skys:
+                kys.append(sk['key'])
+            print kys
+        else:
+            kys.sort()
         for ky in kys:
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
         if 'sortby' in request.GET and request.GET['sortby'] == 'count':
             iteml = sorted(iteml, key=lambda x:x['kvalue'], reverse=True)
-        else:
+        elif f != 'priorityrange':
             iteml = sorted(iteml, key=lambda x:str(x['kname']).lower())
         itemd['list'] = iteml
         suml.append(itemd)
@@ -863,17 +886,16 @@ def userList(request):
             nhours = 7*24
         query = setupView(request, hours=nhours, limit=3000)
         ## dynamically assemble user summary info
-        values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'processingtype', 'workinggroup'
+        values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'processingtype', 'workinggroup', 'currentpriority'
         jobs = QuerySetChain(\
                         Jobsdefined4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
                         Jobsactive4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
                         Jobswaiting4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
                         Jobsarchived4.objects.filter(**query).order_by('-modificationtime')[:JOB_LIMIT].values(*values),
         )
-        for job in jobs:
-            if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
+        jobs = cleanJobList(jobs)
         sumd = userSummaryDict(jobs)
-        sumparams = [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'transformation', 'processingtype', 'workinggroup', ]
+        sumparams = [ 'jobstatus', 'prodsourcelabel', 'specialhandling', 'transformation', 'processingtype', 'workinggroup', 'priorityrange' ]
         if VOMODE == 'atlas':
             sumparams.append('atlasrelease')
         else:
@@ -889,6 +911,10 @@ def userList(request):
             'jobsumd' : jobsumd,
             'userdb' : userdbl,
             'userstats' : userstats,
+            'tfirst' : TFIRST,
+            'tlast' : TLAST,
+            'plow' : PLOW,
+            'phigh' : PHIGH,
         }
         data.update(getContextVariables(request))
         return render_to_response('userList.html', data, RequestContext(request))
@@ -989,7 +1015,7 @@ def userInfo(request, user=''):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = userSummaryDict(jobs)
-        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr' ]
+        flist =  [ 'jobstatus', 'prodsourcelabel', 'processingtype', 'specialhandling', 'transformation', 'jobsetid', 'taskid', 'jeditaskid', 'computingsite', 'cloud', 'workinggroup', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'priorityrange' ]
         if VOMODE != 'atlas':
             flist.append('vo')
         else:
@@ -997,6 +1023,7 @@ def userInfo(request, user=''):
         jobsumd = jobSummaryDict(request, jobs, flist)
         data = {
             'viewParams' : viewParams,
+            'requestParams' : request.GET,
             'xurl' : extensibleURL(request),
             'user' : user,
             'sumd' : sumd,

@@ -23,6 +23,7 @@
 {% if requestParams.taskid and requestParams.taskid != 'None' %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 {% if requestParams.jobname %}<br><b>Job name: {{ requestParams.jobname }}</b> {% endif %}
+{% if requestParams.priorityrange %}<br><b>Current priority range: {{ requestParams.priorityrange }}</b> {% endif %}
 <p>
 
 {% if jobList %}
