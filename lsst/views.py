@@ -229,7 +229,7 @@ def cleanJobList(jobs, mode='drop'):
             else:
                 job['produsername'] = 'Unknown'
         if job['transformation']: job['transformation'] = job['transformation'].split('/')[-1]
-        if job['jobstatus'] == 'failed' and 'brokerageerrorcode' in job:
+        if (job['jobstatus'] == 'failed' or job['jobstatus'] == 'cancelled') and 'brokerageerrorcode' in job:
             job['errorinfo'] = errorInfo(job,nchars=70)
         else:
             job['errorinfo'] = ''
