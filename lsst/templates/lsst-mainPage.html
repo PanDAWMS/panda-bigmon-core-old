@@ -12,9 +12,7 @@
 {% block bottom_info %}
 
 {% if npars == 0 %}
-<p>
-Welcome to the {{ viewParams.MON_VO }} PanDA monitor.
-Select what you'd like to have a look at in the top menu bar: dashboard overview; job and task lists; error summaries; user lists and pages; site, cloud and WN information; etc.
+
 
 {% if viewParams.MON_VO == 'ATLAS' %}
 
@@ -44,13 +42,19 @@ alt='Daily World Production and Analysis Queues (combined)'></a>
 </tr>
 </table>
 
+{% else %}
+
+<p>
+Welcome to the {{ viewParams.MON_VO }} PanDA monitor.
+Select what you'd like to have a look at in the top menu bar: dashboard overview; job and task lists; error summaries; user lists and pages; site, cloud and WN information; etc.
+
 {% endif %}
 
 {% endif %}
 <p>
 
-<table>
-<tr><td> <div class='section'>Quick search</div></td>
+<table height="100px">
+<tr><td> <div class='section'>Search</div></td>
 <td>
 
 <table>
@@ -80,8 +84,37 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 
 </table>
 
-</td></tr>
-</table>
+</td>
+
+{% if npars == 0 %}
+
+<td> <div class='section'>News </td>
+<td>
+<div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"><font size=-1>
+<style>
+    li.news{padding:0px; margin-left: 1.2em; text-indent: -.5em;}
+</style>
+<ul>
+<!-- most recent at the top -->
+<li class="news">20140624: Priority ranges added to job attribute summaries to show how priorities are apportioned and allow drill-down</li>
+<li class="news">20140624: Jobset ranges added to job attribute summaries to de-clutter listings with many jobsets</li>
+<li class="news">20140623: Debug mode supported in job detail pages (—debugMode option on analysis jobs; for production use see <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaShiftGuide#How_to_use_debug_mode">here</a></li>
+<li class="news">20140622: Show time to start, duration instead of start time, end time</li>
+<li class="news">20140621: JEDI dataset, file, file list pages added, linked from job detail pages, quick search etc.</li>
+<li class="news">20140620: JEDI work queue added under Sites menu</li>
+<li class="news">20140620: Event service job, task listings added</li>
+<li class="news">20140617: Expanded sorting support</li>
+<li class="news">20140617: Show multi-cloud production sites associated with clouds</li>
+<li class="news">20140616: PanDA logger added</li>
+<li class="news">20140611: Throttled state supported</li>
+<li class="news">20140610: Working group dashboard added, summarizing job status by WG</li>
+</ul>
+</font></div>
+</td>
+
+{% endif %}
+
+</tr></table>
 
 {% endblock %}
 
