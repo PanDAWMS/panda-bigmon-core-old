@@ -15,9 +15,9 @@
 Alternate view: <a href="{% url 'userList' %}?view=database&sortby=date">Summary usage information updated every few hours</a><p>
 {% endif %}
 
-{% if plow  %}
-<p>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}
-<br>Job current priorities in this listing range from {{ plow }} to {{ phigh }}
+{% if plow %}
+<p>Job <b>modification times</b> in this listing range from <b>{{ tfirst|date:"Y-m-d H:i" }}</b> to <b>{{ tlast|date:"Y-m-d H:i" }}</b>.
+<br>Job <b>current priorities</b> in this listing range from <b>{{ plow }}</b> to <b>{{ phigh }}</b>. See priorityrange in the job attribute summary to see how priorities are distributed.
 {% endif %}
 
 <div class="section">Recent job attribute summary</div>
