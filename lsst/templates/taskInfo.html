@@ -14,12 +14,13 @@
 <tr>
 	<th>ID<br>Type</th>
 	<th>Name<br>User</th>
-	<th>Status</th>
+	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status {% else %} Status {% endif %}</th>
 	<th>Created</th>
 	<th>Modified</th>
 	<th>Cores</th>
 	<th>Priority</th>
 	<th>Parent</th>
+	{% if taskparams.ticketID %} <th>Tracker</th> {% endif %}
 </tr>
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
@@ -29,8 +30,10 @@
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
 		<td>{{ task.corecount }}</td>
 		<td>{{ task.taskpriority }}</td>
-		<td><a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a></td>
-
+		<td><a href="{% url 'taskInfo' task.parent_tid %}">{% if task.parent_tid != task.jeditaskid %} {{ task.parent_tid }} {% endif %}</a></td>
+{% if taskparams.ticketID %}
+        <td><a href="https://its.cern.ch/jira/browse/{{ taskparams.ticketID }}">{{ taskparams.ticketSystemType }}</a></td>
+{% endif %}
 	</tr>
 </table>
 
@@ -49,9 +52,26 @@
 
 {% endif %}
 
+{% if task.errordialog %}
+<table width=1000><tr><td bgcolor="#FFFBDA"><font color='brown'> <b>Logged status: {{ task.errordialog|safe }}</b></font></td></tr>
+{% if logtxt %}
+<tr><td>
+<font size=-1><pre>
+{{ logtxt }}
+</pre></font>
+</td></tr>
+{% endif %}
+</table>
+{% endif %}
+
 <p>Documentation on PanDA JEDI tasks:
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">status transitions</a>,
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.<p>
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a>,
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.
+{% if viewParams.MON_VO == 'ATLAS' %}
+For an explanation of production, DEFT, and JEDI states, their transitions and relationships, 
+<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ProdSys#Transition_of_Request_and_Task_s">see here</a>.
+{% endif %}
+<p>
 
 {% if task.jeditaskid %}
 <p><a href="{% url 'datasetList' %}?jeditaskid={{jeditaskid}}">Show datasets for this task</a>

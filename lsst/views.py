@@ -1,4 +1,4 @@
-import logging, re, json
+import logging, re, json, commands
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
@@ -1641,6 +1641,26 @@ def taskList(request):
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     ntasks = len(tasks)
 
+    ## for now, pull all the task params to match info with tasks. Won't scale. 
+    taskpard = {}
+    taskpars = JediTaskparams.objects.filter().values()
+    for t in taskpars:
+        tid = t['jeditaskid']
+        taskparams = t['taskparams']
+        try:
+            taskparams = json.loads(taskparams)
+        except:
+            taskparams = {}
+        if 'ticketID' in taskparams:
+            taskpard[tid] = {}
+            taskpard[tid]['ticketSystemType'] = taskparams['ticketSystemType']
+            taskpard[tid]['ticketID'] = taskparams['ticketID']
+    for t in tasks:
+        tid = t['jeditaskid']
+        if tid in taskpard and 'ticketID' in taskpard[tid]:
+            t['ticketSystemType'] = taskpard[tid]['ticketSystemType']
+            t['ticketID'] = taskpard[tid]['ticketID']
+
     nmax = ntasks
     if 'display_limit' in request.GET and int(request.GET['display_limit']) < nmax:
         display_limit = int(request.GET['display_limit'])
@@ -1720,7 +1740,18 @@ def taskInfo(request, jeditaskid=0):
     elif 'taskname' in request.GET:
         taskname = request.GET['taskname']
     else:
-        taskname = ''
+        taskname = ''        
+
+    logtxt = None
+    if taskrec['errordialog']:
+        mat = re.match('^.*"([^"]+)"',taskrec['errordialog'])
+        if mat:
+            errurl = mat.group(1)
+            cmd = "curl -s -f --compressed '%s'" % errurl
+            logpfx = u"logtxt: %s\n" % cmd
+            logout = commands.getoutput(cmd)
+            if len(logout) > 0: logtxt = logout
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
         if taskrec:
@@ -1736,6 +1767,7 @@ def taskInfo(request, jeditaskid=0):
             'attrs' : attrs,
             'jobsummary' : jobsummary,
             'jeditaskid' : jeditaskid,
+            'logtxt' : logtxt,
         }
         data.update(getContextVariables(request))
         return render_to_response('taskInfo.html', data, RequestContext(request))

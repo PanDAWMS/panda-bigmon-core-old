@@ -17,7 +17,7 @@
 {% if requestParams.processingtype %}<br><b>Processing type: {{ requestParams.processingtype }}</b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
 {% if requestParams.parent_tid %}<br><b>Parent task: {{ requestParams.parent_tid }}</b> {% endif %}
-{% if requestParams.status %}<br><b>Task status: <span class='{{requestParams.status}}'>{{ requestParams.status }}</span></b> {% endif %}
+{% if requestParams.status %}<br><b>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status {% else %}Task status {% endif %}: <span class='{{requestParams.status}}'>{{ requestParams.status }}</span></b> {% endif %}
 {% if requestParams.eventservice %}<br><b>Event service tasks</b> {% endif %}
 
 <p>
@@ -51,25 +51,26 @@ Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimi
 <table>
 <tr>
 	<th>ID<br>Type</th>
-	<th>Name<br>User</th>
-	<th>Status</th>
+	<th>Name<br>User<br><font color='brown'>Logged status</font></th>
+	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}</th>
 	<th>Created</th>
 	<th>Modified</th>
-	<th>Cores</th>
 	<th>Priority</th>
 	<th>Parent</th>
+	<th>Track</th>
 </tr>
     {% for task in tasks %}
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
-		<td><font size=-1>{{ task.taskname }}<br>{{ task.username }}</font></td>
+        </td>
+		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.username }}<br><font color='brown'>{{ task.errordialog|safe }}</font>
+		</font></td>
 		<td class='{{task.status}}'>{{ task.status }}</td>
 		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
-		<td>{{ task.corecount }}</td>
 		<td>{{ task.taskpriority }}</td>
-		<td>{% if task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
-
+		<td>{% if task.parent_tid and task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
+        <td>{% if task.ticketID %}<a href="https://its.cern.ch/jira/browse/{{ task.ticketID }}">{{ task.ticketSystemType }}</a> {% endif %}</td>
 	</tr>
     {% endfor %}
 </table>
