@@ -157,9 +157,24 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if param == 'display_limit': continue
         if param == 'sortby': continue
         viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
-    startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+
+    startdate = None
+    if 'time_from' in request.GET:
+        time_from = request.GET.get('time_from', 0)
+        if time_from:
+            time_from = float(time_from)/1000.
+            startdate = datetime.utcfromtimestamp(time_from).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
+    if not startdate:
+        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
+        startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = None
+    if 'time_to' in request.GET:
+    	time_to = request.GET.get('time_to', 0)
+    	if time_to:
+            time_to = float(time_to)/1000.
+            enddate = datetime.utcfromtimestamp(time_to).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
+    if not enddate:
+        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
     ### Add any extensions to the query determined from the URL
     for vo in [ 'atlas', 'lsst' ]:
@@ -1641,26 +1656,6 @@ def taskList(request):
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     ntasks = len(tasks)
 
-    ## for now, pull all the task params to match info with tasks. Won't scale. 
-    taskpard = {}
-    taskpars = JediTaskparams.objects.filter().values()
-    for t in taskpars:
-        tid = t['jeditaskid']
-        taskparams = t['taskparams']
-        try:
-            taskparams = json.loads(taskparams)
-        except:
-            taskparams = {}
-        if 'ticketID' in taskparams:
-            taskpard[tid] = {}
-            taskpard[tid]['ticketSystemType'] = taskparams['ticketSystemType']
-            taskpard[tid]['ticketID'] = taskparams['ticketID']
-    for t in tasks:
-        tid = t['jeditaskid']
-        if tid in taskpard and 'ticketID' in taskpard[tid]:
-            t['ticketSystemType'] = taskpard[tid]['ticketSystemType']
-            t['ticketID'] = taskpard[tid]['ticketID']
-
     nmax = ntasks
     if 'display_limit' in request.GET and int(request.GET['display_limit']) < nmax:
         display_limit = int(request.GET['display_limit'])
@@ -1734,6 +1729,9 @@ def taskInfo(request, jeditaskid=0):
     else:
         taskparams = None
         taskparaml = None
+    if not taskrec['ticketid'] and taskparams:
+        if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
+        if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']
 
     if taskrec:
         taskname = taskrec['taskname']

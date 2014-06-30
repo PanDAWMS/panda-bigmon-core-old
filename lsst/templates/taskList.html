@@ -70,7 +70,7 @@ Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimi
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
 		<td>{{ task.taskpriority }}</td>
 		<td>{% if task.parent_tid and task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
-        <td>{% if task.ticketID %}<a href="https://its.cern.ch/jira/browse/{{ task.ticketID }}">{{ task.ticketSystemType }}</a> {% endif %}</td>
+        <td>{% if task.ticketid %}<a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}">{{ task.ticketsystemtype }}</a> {% endif %}</td>
 	</tr>
     {% endfor %}
 </table>

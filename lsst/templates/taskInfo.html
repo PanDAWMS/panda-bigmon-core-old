@@ -20,7 +20,7 @@
 	<th>Cores</th>
 	<th>Priority</th>
 	<th>Parent</th>
-	{% if taskparams.ticketID %} <th>Tracker</th> {% endif %}
+	{% if task.ticketid %} <th>Tracker</th> {% endif %}
 </tr>
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
@@ -31,8 +31,8 @@
 		<td>{{ task.corecount }}</td>
 		<td>{{ task.taskpriority }}</td>
 		<td><a href="{% url 'taskInfo' task.parent_tid %}">{% if task.parent_tid != task.jeditaskid %} {{ task.parent_tid }} {% endif %}</a></td>
-{% if taskparams.ticketID %}
-        <td><a href="https://its.cern.ch/jira/browse/{{ taskparams.ticketID }}">{{ taskparams.ticketSystemType }}</a></td>
+{% if task.ticketid %}
+        <td><a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}">{{ task.ticketsystemtype }}</a></td>
 {% endif %}
 	</tr>
 </table>
