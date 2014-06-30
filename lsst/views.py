@@ -1642,6 +1642,9 @@ def dashProduction(request):
 
 def taskList(request):
     query = setupView(request, hours=180*24, limit=9999999)
+
+    #taskjobstates = jobSummaryForTasks(request)
+
     for param in request.GET:
         for field in JediTasks._meta.get_all_field_names():
             if param == field:
@@ -1665,7 +1668,28 @@ def taskList(request):
         display_limit = 3000
         nmax = display_limit
         url_nolimit = request.get_full_path()
-        
+       
+    ## Get status of input processing as indicator of task progress
+    dsquery = {}
+    dsquery['type__in'] = ['input', 'pseudo_input' ]
+    dsquery['masterid__isnull'] = True
+    dsets = JediDatasets.objects.filter(**dsquery).values('jeditaskid','nfiles','nfilesfinished','nfilesfailed')
+    dsinfo = {}
+    if len(dsets) > 0:
+        for ds in dsets:        
+            taskid = ds['jeditaskid']
+            if taskid not in dsinfo:
+                dsinfo[taskid] = ds
+    for task in tasks:
+        #if task['status'] == 'running' and task['jeditaskid'] in dsinfo:
+        if (task['jeditaskid'] in dsinfo) and (int(dsinfo[task['jeditaskid']]['nfiles']) > 0):
+            task['dsinfo'] = dsinfo[task['jeditaskid']]
+            nfiles = int(task['dsinfo']['nfiles'])
+            nfinished = int(task['dsinfo']['nfilesfinished'])
+            nfailed = int(task['dsinfo']['nfilesfailed'])
+            task['dsinfo']['pctfinished'] = int(100.*nfinished/nfiles)
+            task['dsinfo']['pctfailed'] = int(100.*nfailed/nfiles)
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = taskSummaryDict(request,tasks)
         data = {
@@ -1750,6 +1774,22 @@ def taskInfo(request, jeditaskid=0):
             logout = commands.getoutput(cmd)
             if len(logout) > 0: logtxt = logout
 
+    dsquery = {}
+    dsquery['type__in'] = ['input', 'pseudo_input' ]
+    dsquery['masterid__isnull'] = True
+    dsquery['jeditaskid'] = jeditaskid
+    dsets = JediDatasets.objects.filter(**dsquery).values('jeditaskid','nfiles','nfilesfinished','nfilesfailed')
+    dsinfo = None
+    if len(dsets) > 0:
+        dsinfo = dsets[0]
+        if int(dsinfo['nfiles']) > 0:
+            nfiles = int(dsinfo['nfiles'])
+            nfinished = int(dsinfo['nfilesfinished'])
+            nfailed = int(dsinfo['nfilesfailed'])
+            dsinfo['pctfinished'] = int(100.*nfinished/nfiles)
+            dsinfo['pctfailed'] = int(100.*nfailed/nfiles)
+            taskrec['dsinfo'] = dsinfo
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
         if taskrec:
@@ -1798,6 +1838,53 @@ def jobSummary(query):
                 continue
         jobstates.append(statecount)
     return jobstates            
+
+def jobSummaryForTasks(request):
+    tquery = {}
+    tquery['status'] = 'running'
+    tquery['tasktype'] = 'prod'
+    tquery['jeditaskid__gt'] = 4000000
+    tasklist = JediTasks.objects.filter(**tquery).values_list('jeditaskid', flat=True)
+    print 'task list', len(tasklist), tasklist
+    query = setupView(request, hours=3*24, limit=9999999)
+    query['jobstatus__in'] = [ 'running', 'finished', 'failed', 'cancelled', 'holding', 'transferring' ]
+    query['jeditaskid__in'] = tasklist
+    print query
+    jobs = []
+    jobs.extend(Jobsdefined4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobswaiting4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsactive4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsarchived4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+    jobs.extend(Jobsarchived.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
+
+    ## Filter out the jobs superseded by retries
+    retries = JediJobRetryHistory.objects.filter().order_by('newpandaid').values()
+    droplist = []
+    newjobs = []
+    for job in jobs:
+        dropJob = 0
+        pandaid = job['pandaid']
+        for retry in retries:
+            if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                ## there is a retry for this job. Drop it.
+                dropJob = retry['newpandaid']
+        if dropJob == 0:
+            newjobs.append(job)
+        else:
+            droplist.append( { 'pandaid' : pandaid, 'newpandaid' : dropJob } )
+    droplist = sorted(droplist, key=lambda x:-x['pandaid'])
+    jobs = newjobs
+
+    taskd = {}
+    for job in jobs:
+        task = job['jeditaskid']
+        status = job['jobstatus']
+        if task not in taskd:
+            taskd[task] = {}
+            for s in statelist:
+                taskd[task][s] = 0
+        taskd[task][status] += 1
+    return taskd
 
 def jobSummary2(query):
     jobs = []

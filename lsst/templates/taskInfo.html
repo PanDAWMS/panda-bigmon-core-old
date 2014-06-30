@@ -39,6 +39,9 @@
 
 {% if jobsummary %}
 
+{% if task.dsinfo %}
+<p><b>Status of input files in this task:</b> &nbsp; Number of input files: <b>{{task.dsinfo.nfiles}}</b> &nbsp; Finished files: <span  class='finished'><b>{{task.dsinfo.nfilesfinished}} ({{task.dsinfo.pctfinished}}%)</b></span> &nbsp; Failed files: <span class='failed'><b>{{task.dsinfo.nfilesfailed}} ({{task.dsinfo.pctfailed}}%)</b></span><p> {% endif %}
+
 <div class="section"> States of jobs in this task   &nbsp; <a href="{% url 'jobList' %}?jeditaskid={{jeditaskid}}&display_limit=100">Show jobs</a> </div>
 <table><tr>
 {% for state in jobsummary %}

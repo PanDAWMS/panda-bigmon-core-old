@@ -52,7 +52,7 @@ Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimi
 <tr>
 	<th>ID<br>Type</th>
 	<th>Name<br>User<br><font color='brown'>Logged status</font></th>
-	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}</th>
+	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}<br>Nfile <span class='finished'>fin%</class> <span class='failed'>fail%</span></th>
 	<th>Created</th>
 	<th>Modified</th>
 	<th>Priority</th>
@@ -65,7 +65,9 @@ Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimi
         </td>
 		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.username }}<br><font color='brown'>{{ task.errordialog|safe }}</font>
 		</font></td>
-		<td class='{{task.status}}'>{{ task.status }}</td>
+		<td><span  class='{{task.status}}'>{{ task.status }}</span>
+        {% if task.dsinfo.nfiles > 0 %} <br>{{task.dsinfo.nfiles}} {% if task.dsinfo.nfilesfinished > 0 %}<span  class='finished'>{{task.dsinfo.pctfinished}}%</span>{% endif %} {% if task.dsinfo.nfilesfailed > 0 %}<span class='failed'>{{task.dsinfo.pctfailed}}%</span>{% endif %} {% endif %}
+		</td>
 		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
 		<td>{{ task.taskpriority }}</td>
