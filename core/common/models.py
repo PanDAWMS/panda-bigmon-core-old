@@ -514,6 +514,8 @@ class JediTasks(models.Model):
     countrygroup = models.CharField(max_length=20, db_column='COUNTRYGROUP', blank=True)  # Field name made lowercase.
     parent_tid = models.BigIntegerField(db_column='PARENT_TID', blank=True)  # Field name made lowercase.
     eventservice = models.IntegerField(null=True, db_column='EVENTSERVICE', blank=True) # Field name made lowercase.
+    ticketid = models.CharField(max_length=50, db_column='TICKETID', blank=True)  # Field name made lowercase.
+    ticketsystemtype = models.CharField(max_length=16, db_column='TICKETSYSTEMTYPE', blank=True)  # Field name made lowercase.
     class Meta:
         db_table = u'jedi_tasks'
 
