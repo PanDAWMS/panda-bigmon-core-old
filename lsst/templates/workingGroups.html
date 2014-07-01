@@ -3,7 +3,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA working groups{% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA working group dashboard{{ viewParams.selection }}
+{% block subtitle %}PanDA working group dashboard{{ viewParams.selection|safe }}
 {% endblock %}
 {% block body %}
 
@@ -18,6 +18,30 @@ Click the job counts to go to job listings.
 </tr></td></table>
 <p>
 
+<span class='section'>Working group task summary</span> &nbsp; &nbsp; <font size=-1>Hover over state name to see full name. <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">Task state documentation</a></font>
+
+<table>
+<tr bgcolor="lightcyan">
+<th>Working group</th>
+<th><font size=-1>nTask</font></th>
+{% for state in taskstates %}
+<th><div title="{{state.state}}"><font size=-1><span class="{{ state.state }}"> {{ state.short }} </span></font></div></th>
+{% endfor %}
+</tr>
+
+{% for fdict in tasksummary %}
+<tr><td> {{ fdict.field }} </td>
+<td> <a href="{% url 'taskList' %}?workinggroup={{fdict.field}}&days={{days}}">{{ fdict.count }}</a></td>
+{% for item in fdict.list %}
+<td> <a href="{% url 'taskList' %}?workinggroup={{fdict.field}}&status={{item.kname}}&days={{days}}"><span class='{{item.kname}}'>{{ item.kvalue }}</span></a></td>
+{% endfor %}
+</tr>
+{% endfor %}
+
+</table>
+
+<p>
+
 <div class='section'>Working group job summary</div>
 
 <table>
@@ -26,29 +50,29 @@ Click the job counts to go to job listings.
 <th> Working group</th>
 <th> nJobs </th>
 <th> %failed </th>
-<th> defined </th>
-<th> waiting </th>
-<th> pending </th>
-<th> assigned </th>
-<th> throttled </th>
-<th> activated </th>
-<th> sent </th>
-<th> starting </th>
-<th> running </th>
-<th> holding </th>
-<th> transferring </th>
-<th> finished </th>
-<th> failed </th>
-<th> cancelled </th>
+<th class='defined'> defined </th>
+<th class='waiting'> waiting </th>
+<th class='pending'> pending </th>
+<th class='assigned'> assigned </th>
+<th class='throttled'> throttled </th>
+<th class='activated'> activated </th>
+<th class='sent'> sent </th>
+<th class='starting'> starting </th>
+<th class='running'> running </th>
+<th class='holding'> holding </th>
+<th class='transferring'> transferring </th>
+<th class='finished'> finished </th>
+<th class='failed'> failed </th>
+<th class='cancelled'> cancelled </th>
 </tr>
 
 {% for wg in wgsummary %}
 <tr>
 <td> {{ wg.name }} </td>
-<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&hours={{hours}}&display_limit=100">{{ wg.count }}</a> </td>
+<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&days={{days}}&display_limit=100">{{ wg.count }}</a> </td>
 <td>{% if wg.pctfail > errthreshold %} <font color=red>{{ wg.pctfail  }}</font> {% else %} {{ wg.pctfail  }} {% endif %} </td>
 {% for state in wg.statelist %}
-<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </td>
+<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&jobstatus={{ state.name }}&days={{days}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </td>
 {% endfor %}
 </tr>
 {% endfor %}

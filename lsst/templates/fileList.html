@@ -2,7 +2,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA files {% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA files{{ viewParams.selection }}{% endblock %}
+{% block subtitle %}PanDA files{{ viewParams.selection|safe }}{% endblock %}
 
 {% block body %}
 

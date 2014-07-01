@@ -50,7 +50,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .online { color:#248F24 }
 .failed { color:red }
 .aborted { color:red }
+.aborting { color:red }
 .broken { color:red }
+.tobroken { color:red }
 .cancelled { color:darkgrey }
 .brokeroff { color:darkgrey }
 .test { color:darkgrey }
@@ -60,16 +62,25 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .warning { color:#FF9933 }
 .timeout { color:#FF9933 }
 .discarded { color:#FF9933 }
+.finishing { color:#FF9933 }
 .running { color:#47D147 }
+.topreprocess { color:#47D147 }
+.preprocessing { color:#47D147 }
+.prepared { color:#47D147 }
 .starting { color:#47D147 }
 .scouting { color:#47D147 }
+.scouted { color:#47D147 }
 .transferring { color:#47D147 }
 .activated { color:blue }
 .assigning { color:blue }
 .defined { color:grey }
+.registered { color:grey }
 .assigned { color:black }
 .pending { color:grey }
 .waiting { color:grey }
+.toretry { color:grey }
+.toincexec { color:grey }
+.rerefine { color:grey }
 .sent { color:#FF9933 }
 .section{ font-weight:bold; color:darkblue; padding-bottom:10px }
 .tablesection{ font-weight:bold; background-color:lightcyan; border-style:solid; border-width:1px; border-color:grey;}

@@ -3,7 +3,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA tasks{% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA {% if viewParams.MON_VO == 'ATLAS' %} JEDI {% endif %} task list{{viewParams.selection }}
+{% block subtitle %}PanDA {% if viewParams.MON_VO == 'ATLAS' %} JEDI {% endif %} task list{{viewParams.selection|safe }}
 {% if vo %} &nbsp; for VO {{ vo }}
 {% endif %}
 {% endblock %}

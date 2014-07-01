@@ -3,7 +3,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA WN {{ wnname }}@{{ site }} {% endblock %}
 {% block title %} <a href="{% url 'mainPage' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA WN slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at {{ site }}{{ viewParams.selection }}
+{% block subtitle %}PanDA WN slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at {{ site }}{{ viewParams.selection|safe }}
 {% endblock %}
 {% block body %}
 

@@ -39,6 +39,13 @@ homeCloud = {}
 statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'throttled', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
 sitestatelist = [ 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 eventservicestatelist = [ 'ready', 'sent', 'running', 'finished', 'cancelled', 'discarded', 'done' ]
+taskstatelist = [ 'registered', 'defined', 'assigning', 'ready', 'pending', 'scouting', 'scouted', 'running', 'prepared', 'done', 'failed', 'finished', 'aborting', 'aborted', 'finishing', 'topreprocess', 'preprocessing', 'tobroken', 'broken', 'toretry', 'toincexec', 'rerefine' ]
+taskstatelist_short = [ 'reg', 'def', 'assgn', 'rdy', 'pend', 'scout', 'sctd', 'run', 'prep', 'done', 'fail', 'finish', 'abrtg', 'abrtd', 'finishg', 'toprep', 'preprc', 'tobrok', 'broken', 'retry', 'incexe', 'refine' ]
+taskstatedict = []
+for i in range (0, len(taskstatelist)):
+    tsdict = { 'state' : taskstatelist[i], 'short' : taskstatelist_short[i] }
+    taskstatedict.append(tsdict)
+
 
 errorcodelist = [ 
     { 'name' : 'brokerage', 'error' : 'brokerageerrorcode', 'diag' : 'brokerageerrordiag' },
@@ -96,7 +103,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     fields = standard_fields
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
-        if 'hours' not in request.GET:
+        if 'hours' not in request.GET and 'days' not in request.GET:
             JOB_LIMIT = 3000
         else:
             JOB_LIMIT = 3000
@@ -104,7 +111,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in request.GET or 'jeditaskid' in request.GET:
             if 'jobsetid' not in fields: fields.append('jobsetid')
-            if ('hours' not in request.GET) and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
+            if ('hours' not in request.GET) and ('days' not in request.GET) and ('jobsetid' in request.GET or 'taskid' in request.GET or 'jeditaskid' in request.GET):
                 ## Cases where deep query is safe
                 deepquery = True
         else:
@@ -124,6 +131,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
     ## hours specified in the URL takes priority over the above
     if 'hours' in request.GET:
         LAST_N_HOURS_MAX = int(request.GET['hours'])
+    if 'days' in request.GET:
+        LAST_N_HOURS_MAX = int(request.GET['days'])*24
     if limit != -99 and limit >= 0:
         ## Call param overrides default, but not a param on the URL
         JOB_LIMIT = limit
@@ -146,9 +155,13 @@ def setupView(request, opmode='', hours=0, limit=-99):
             viewParams['selection'] = ", last %d days" % (float(LAST_N_HOURS_MAX)/24.)
         if JOB_LIMIT < 100000 and JOB_LIMIT > 0:
             viewParams['selection'] += " (limit %s per table)" % JOB_LIMIT
-        viewParams['selection'] += ". Query params: hours=%s" % LAST_N_HOURS_MAX
+        viewParams['selection'] += ". &nbsp; <font size=-1><b>Query params:</b> "
+        #if 'days' not in request.GET:
+        #    viewParams['selection'] += "hours=%s" % LAST_N_HOURS_MAX
+        #else:
+        #    viewParams['selection'] += "days=%s" % int(LAST_N_HOURS_MAX/24)
         if JOB_LIMIT < 100000 and JOB_LIMIT > 0:
-            viewParams['selection'] += ", limit=%s" % JOB_LIMIT
+            viewParams['selection'] += "  &nbsp; <b>limit=</b>%s" % JOB_LIMIT
     else:
         viewParams['selection'] = ""
     for param in request.GET:
@@ -156,7 +169,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if request.GET[param] == '': continue
         if param == 'display_limit': continue
         if param == 'sortby': continue
-        viewParams['selection'] += ", %s=%s " % ( param, request.GET[param] )
+        viewParams['selection'] += "  &nbsp; <b>%s=</b>%s " % ( param, request.GET[param] )
+    viewParams['selection'] += "</font>"
 
     startdate = None
     if 'time_from' in request.GET:
@@ -181,8 +195,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
         if request.META['HTTP_HOST'].startswith(vo):
             query['vo'] = vo   
     for param in request.GET:
-        if param == 'cloud' and request.GET[param] == 'All':
-            continue
+        if param in ('hours', 'days'): continue
+        if param == 'cloud' and request.GET[param] == 'All': continue
         elif param == 'priorityrange':
             mat = re.match('([0-9]+)\:([0-9]+)', request.GET[param])
             if mat:
@@ -480,6 +494,56 @@ def taskSummaryDict(request, tasks, fieldlist = None):
         kys.sort()
         for ky in kys:
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        itemd['list'] = iteml
+        suml.append(itemd)
+    suml = sorted(suml, key=lambda x:x['field'])
+    return suml
+
+def wgTaskSummary(request):
+    """ Return a dictionary summarizing the field values for the chosen most interesting fields """
+    query = {}
+    hours = 24*7
+    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    query['modificationtime__range'] = [startdate, enddate]
+    query['workinggroup__isnull'] = False
+    summary = JediTasks.objects.filter(**query).values('workinggroup','status').annotate(Count('status')).order_by('workinggroup','status')
+    totstates = {}
+    tottasks = 0
+    wgsum = {}
+    for state in taskstatelist:
+        totstates[state] = 0
+    for rec in summary:
+        wg = rec['workinggroup']
+        status = rec['status']
+        count = rec['status__count']
+        if status not in taskstatelist: continue
+        tottasks += count
+        totstates[status] += count
+        if wg not in wgsum:
+            wgsum[wg] = {}
+            wgsum[wg]['name'] = wg
+            wgsum[wg]['count'] = 0
+            wgsum[wg]['states'] = {}
+            wgsum[wg]['statelist'] = []
+            for state in taskstatelist:
+                wgsum[wg]['states'][state] = {}
+                wgsum[wg]['states'][state]['name'] = state
+                wgsum[wg]['states'][state]['count'] = 0
+        wgsum[wg]['count'] += count
+        wgsum[wg]['states'][status]['count'] += count
+
+    ## convert to ordered lists
+    suml = []
+    for f in wgsum:
+        itemd = {}
+        itemd['field'] = f
+        itemd['count'] = wgsum[f]['count']
+        kys = taskstatelist
+        iteml = []
+        for ky in kys:
+            iteml.append({ 'kname' : ky, 'kvalue' : wgsum[f]['states'][ky]['count'] })
         itemd['list'] = iteml
         suml.append(itemd)
     suml = sorted(suml, key=lambda x:x['field'])
@@ -2445,11 +2509,17 @@ def workingGroups(request):
     else:
         VOMODE = ''
     if VOMODE != 'atlas':
-        hours = 24*7
+        days = 30
     else:
-        hours = 24
+        days = 7
+    hours = days*24
     query = setupView(request,hours=hours,limit=999999)
     query['workinggroup__isnull'] = False
+
+    ## WG task summary
+    tasksummary = wgTaskSummary(request)
+
+    ## WG job summary
     wgsummarydata = wgSummary(query)
     wgs = {}
     for rec in wgsummarydata:
@@ -2493,7 +2563,10 @@ def workingGroups(request):
             'xurl' : xurl,
             'user' : None,
             'wgsummary' : wgsummary,
+            'taskstates' : taskstatedict,
+            'tasksummary' : tasksummary,
             'hours' : hours,
+            'days' : days,
             'errthreshold' : errthreshold,
         }
         return render_to_response('workingGroups.html', data, RequestContext(request))

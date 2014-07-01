@@ -3,7 +3,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA jobs{% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA jobs<font size=-1>{{ viewParams.selection }}</font>
+{% block subtitle %}PanDA jobs<font size=-1>{{ viewParams.selection|safe }}</font>
 {% if user %} &nbsp; user={{ user }} {% endif %}
 {% if site %} &nbsp; site={{ site }} {% endif %}
 {% if vo %} &nbsp; VO={{ vo }} {% endif %}
