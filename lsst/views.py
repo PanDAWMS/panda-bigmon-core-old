@@ -1643,8 +1643,6 @@ def dashProduction(request):
 def taskList(request):
     query = setupView(request, hours=180*24, limit=9999999)
 
-    #taskjobstates = jobSummaryForTasks(request)
-
     for param in request.GET:
         for field in JediTasks._meta.get_all_field_names():
             if param == field:
@@ -1679,16 +1677,28 @@ def taskList(request):
         for ds in dsets:        
             taskid = ds['jeditaskid']
             if taskid not in dsinfo:
-                dsinfo[taskid] = ds
+                dsinfo[taskid] = []
+            dsinfo[taskid].append(ds)
     for task in tasks:
         #if task['status'] == 'running' and task['jeditaskid'] in dsinfo:
-        if (task['jeditaskid'] in dsinfo) and (int(dsinfo[task['jeditaskid']]['nfiles']) > 0):
-            task['dsinfo'] = dsinfo[task['jeditaskid']]
-            nfiles = int(task['dsinfo']['nfiles'])
-            nfinished = int(task['dsinfo']['nfilesfinished'])
-            nfailed = int(task['dsinfo']['nfilesfailed'])
-            task['dsinfo']['pctfinished'] = int(100.*nfinished/nfiles)
-            task['dsinfo']['pctfailed'] = int(100.*nfailed/nfiles)
+        dstotals = None
+        if (task['jeditaskid'] in dsinfo):
+            nfiles = 0
+            nfinished = 0
+            nfailed = 0
+            for ds in dsinfo[task['jeditaskid']]:
+                if int(ds['nfiles']) > 0:
+                    nfiles += int(ds['nfiles'])
+                    nfinished += int(ds['nfilesfinished'])
+                    nfailed += int(ds['nfilesfailed'])
+            if nfiles > 0:
+                dstotals = {}
+                dstotals['nfiles'] = nfiles
+                dstotals['nfilesfinished'] = nfinished
+                dstotals['nfilesfailed'] = nfailed
+                dstotals['pctfinished'] = int(100.*nfinished/nfiles)
+                dstotals['pctfailed'] = int(100.*nfailed/nfiles)
+        task['dsinfo'] = dstotals
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = taskSummaryDict(request,tasks)
@@ -1741,6 +1751,9 @@ def taskInfo(request, jeditaskid=0):
         taskrec = None
 
     taskpars = JediTaskparams.objects.filter(**query).values()
+    jobparams = None
+    taskparams = None
+    taskparaml = None
     if len(taskpars) > 0:
         taskparams = taskpars[0]['taskparams']
         taskparams = json.loads(taskparams)
@@ -1750,12 +1763,29 @@ def taskInfo(request, jeditaskid=0):
         for k in tpkeys:
             rec = { 'name' : k, 'value' : taskparams[k] }
             taskparaml.append(rec)
-    else:
-        taskparams = None
-        taskparaml = None
-    if not taskrec['ticketid'] and taskparams:
+        jobparams = taskparams['jobParameters']
+        jobparams.append(taskparams['log'])
+        jobparamstxt = []
+        for p in jobparams:
+            if p['type'] == 'constant':
+                ptxt = p['value']
+            elif p['type'] == 'template':
+                ptxt = "<i>%s template:</i> value='%s' " % ( p['param_type'], p['value'] )
+                for v in p:
+                    if v in ['type', 'param_type', 'value' ]: continue
+                    ptxt += "  %s='%s'" % ( v, p[v] )
+            else:
+                ptxt = '<i>unknown parameter type %s:</i> ' % p['type']
+                for v in p:
+                    if v in ['type', ]: continue
+                    ptxt += "  %s='%s'" % ( v, p[v] )
+            jobparamstxt.append(ptxt)
+        jobparamstxt = sorted(jobparamstxt, key=lambda x:x.lower())
+
+    if (taskrec['ticketsystemtype'] == '') and taskparams:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']
+    print 'ticket', taskrec['ticketid'], taskrec['ticketsystemtype']
 
     if taskrec:
         taskname = taskrec['taskname']
@@ -1775,20 +1805,29 @@ def taskInfo(request, jeditaskid=0):
             if len(logout) > 0: logtxt = logout
 
     dsquery = {}
-    dsquery['type__in'] = ['input', 'pseudo_input' ]
-    dsquery['masterid__isnull'] = True
     dsquery['jeditaskid'] = jeditaskid
-    dsets = JediDatasets.objects.filter(**dsquery).values('jeditaskid','nfiles','nfilesfinished','nfilesfailed')
+    dsets = JediDatasets.objects.filter(**dsquery).values()
     dsinfo = None
+    nfiles = 0
+    nfinished = 0
+    nfailed = 0
     if len(dsets) > 0:
-        dsinfo = dsets[0]
-        if int(dsinfo['nfiles']) > 0:
-            nfiles = int(dsinfo['nfiles'])
-            nfinished = int(dsinfo['nfilesfinished'])
-            nfailed = int(dsinfo['nfilesfailed'])
+        for ds in dsets:
+            if ds['type'] not in ['input', 'pseudo_input' ]: continue
+            if ds['masterid']: continue
+            if int(ds['nfiles']) > 0:
+                nfiles += int(ds['nfiles'])
+                nfinished += int(ds['nfilesfinished'])
+                nfailed += int(ds['nfilesfailed'])
+        dsets = sorted(dsets, key=lambda x:x['datasetname'].lower())
+        if nfiles > 0:
+            dsinfo = {}
+            dsinfo['nfiles'] = nfiles
+            dsinfo['nfilesfinished'] = nfinished
+            dsinfo['nfilesfailed'] = nfailed
             dsinfo['pctfinished'] = int(100.*nfinished/nfiles)
             dsinfo['pctfailed'] = int(100.*nfailed/nfiles)
-            taskrec['dsinfo'] = dsinfo
+    taskrec['dsinfo'] = dsinfo
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
@@ -1801,11 +1840,13 @@ def taskInfo(request, jeditaskid=0):
             'taskname' : taskname,
             'taskparams' : taskparams,
             'taskparaml' : taskparaml,
+            'jobparams' : jobparamstxt,
             'columns' : columns,
             'attrs' : attrs,
             'jobsummary' : jobsummary,
             'jeditaskid' : jeditaskid,
             'logtxt' : logtxt,
+            'datasets' : dsets,
         }
         data.update(getContextVariables(request))
         return render_to_response('taskInfo.html', data, RequestContext(request))
@@ -1845,11 +1886,9 @@ def jobSummaryForTasks(request):
     tquery['tasktype'] = 'prod'
     tquery['jeditaskid__gt'] = 4000000
     tasklist = JediTasks.objects.filter(**tquery).values_list('jeditaskid', flat=True)
-    print 'task list', len(tasklist), tasklist
     query = setupView(request, hours=3*24, limit=9999999)
     query['jobstatus__in'] = [ 'running', 'finished', 'failed', 'cancelled', 'holding', 'transferring' ]
     query['jeditaskid__in'] = tasklist
-    print query
     jobs = []
     jobs.extend(Jobsdefined4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
     jobs.extend(Jobswaiting4.objects.filter(**query).values('pandaid','jobstatus','jeditaskid'))
@@ -2533,6 +2572,7 @@ def datasetList(request):
     
     if len(query) > 0:
         dsets = JediDatasets.objects.filter(**query).values()
+        dsets = sorted(dsets, key=lambda x:x['datasetname'].lower())
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {

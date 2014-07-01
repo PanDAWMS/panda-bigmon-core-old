@@ -13,7 +13,7 @@
 <table>
 <tr>
 	<th>ID<br>Type</th>
-	<th>Name<br>User</th>
+	<th>Name<br>WorkingGroup &nbsp; User</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status {% else %} Status {% endif %}</th>
 	<th>Created</th>
 	<th>Modified</th>
@@ -24,7 +24,7 @@
 </tr>
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
-		<td><font size=-1>{{ task.taskname }}<br><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font></td>
+		<td><font size=-1>{{ task.taskname }}<br>{% if task.workinggroup %} {{ task.workinggroup }} &nbsp; {% endif %} <a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font></td>
 		<td class='{{task.status}}'>{{ task.status }}</td>
 		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
@@ -74,11 +74,6 @@
 For an explanation of production, DEFT, and JEDI states, their transitions and relationships, 
 <a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ProdSys#Transition_of_Request_and_Task_s">see here</a>.
 {% endif %}
-<p>
-
-{% if task.jeditaskid %}
-<p><a href="{% url 'datasetList' %}?jeditaskid={{jeditaskid}}">Show datasets for this task</a>
-{% endif %}
 
 <p>
 {% if task.eventservice == 1 %}
@@ -99,6 +94,43 @@ Look for <a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_
 
 <p><a href="{% url 'errorSummary' %}?jeditaskid={{jeditaskid}}">Error summary for this task</a><p>
 
+{% if datasets %}
+<p>
+<div class='section'> Datasets</div>
+
+<table>
+<tr>
+	<th>Name</th>
+	<th>ID</th>
+	<th>Type</th>
+	<th>Stream</th>
+	<th>State</th>
+	<th>Status</th>
+	<th>Nfiles</th>
+	<th>Created</th>
+	<th>Modified</th>
+</tr>
+{% for dsrec in datasets %}
+	<tr>
+		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ dsrec.datasetname }}">{{ dsrec.datasetname }}</a></font></td>
+		<td>{{ dsrec.datasetid }}</td>
+		<td>{{ dsrec.type }}</td>
+		<td>{{ dsrec.streamname }}</td>
+		<td>{{ dsrec.state }}</td>
+		<td class='{{dsrec.status}}'>{{ dsrec.status }}</td>
+		<td>{{ dsrec.nfiles }}</td>
+		<td>{{ dsrec.creationtime|date:"Y-m-d H:i" }}</td>
+		<td>{{ dsrec.modificationtime|date:"m-d H:i" }}</td>
+	</tr>
+{% endfor %}
+</table>
+
+{% else %}
+
+No datasets were found for this task
+
+{% endif %}
+
 {% if sumd %}
 <table>
 {% for fdict in sumd %}
@@ -112,12 +144,24 @@ Look for <a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_
 </table>
 {% endif %}
 
+{% if jobparams %}
+<div class='section'> Job parameters</div>
+<table>
+{% for p in jobparams %}
+<tr><td><font size=-1>{{ p|safe }}</font></td></tr>
+{% endfor %}
+</table>
+<p>
+{% endif %}
+
 {% if taskparams %}
 
-<div class='section'> Task parameters from taskparams table</div>
+<div class='section'> Prodsys task parameters</div>
 <table>
 {% for p in taskparaml %}
+{% if p.name != 'jobParameters' and p.name != 'log' %}
 <tr><th> {{ p.name }} </th><td>{% if p.value != None %} {{ p.value }} {% endif %}</td></tr>
+{% endif %}
 {% endfor %}
 </table>
 <p>
@@ -132,7 +176,7 @@ Look for <a href="{% url 'taskList' %}?parent_tid={{ task.jeditaskid }}&display_
 {% endif %}
 
 
-<div class='section'> All task parameters from task table</div>
+<div class='section'> PanDA/JEDI task parameters</div>
 
 <table>
 {% for col in columns %}
