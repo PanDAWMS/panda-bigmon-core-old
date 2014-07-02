@@ -8,9 +8,9 @@
 
 {% if job %}
 <table width="100%">
-<tr>
+<tr bgcolor='lightcyan'>
 	<th>PandaID<br>Attempt#</th>
-	<th>Owner{% if job.workinggroup %} / WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
+	<th>Owner{% if job.workinggroup %} &nbsp;  WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
 	<th>TaskID</th>
 	<th>Status</th>
 	<th>Created</th>
@@ -36,14 +36,15 @@
 	<td colspan="10"><b>Job name:</b> &nbsp; <a href="{% url 'jobList' %}?jobname={{ job.jobname }}&taskid={{ job.taskid }}&jeditaskid={{ job.jeditaskid }}&sortby=attemptnr">{{ job.jobname }}</a> &nbsp; #{{ job.attemptnr }}</td>
 </tr>
 </table>
+<font size=-1>
 {% if job.jobstatus == 'assigned' %} Status <b class='assigned'>assigned</b> indicates the job has been assigned to a site ({{ job.computingsite }}) and preparations to have the input data ready are underway (e.g. subscriptions, tape staging). {% endif %}
 {% if job.jobstatus == 'activated' %} Status <b class='activated'>activated</b> indicates that the job is ready to be dispatched to a pilot at the site where it will run, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'running' %} Status <b class='running'>running</b> indicates that the job is running at its execution site, {{ job.computingsite }}. {% endif %}
 {% if job.jobstatus == 'starting' %} Status <b class='starting'>starting</b> indicates that the job has been picked up for execution but not yet launched by a pilot on a worker node. Used in environments where pilots don't directly pick up jobs (e.g. Nordugrid). {% endif %}
 {% if job.jobstatus == 'holding' %} Status <b class='holding'>holding</b> indicates that the job has completed but output validation and processing (eg. registering outputs in datasets) is still underway. {% endif %}
 {% if job.jobstatus == 'finished' %} Status <b class='finished'>finished</b> indicates that the job has successfully completed. {% endif %}
-{% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed at some stage. Information on where the error occurred and with what error condition can be found in the key job parameters table below. {% endif %}
-{% if job.jobstatus == 'cancelled' %} Status <b class='cancelled'>cancelled</b> indicates that the job has been cancelled, either by the user or by the system. Further information may be available in the key job parameters table below. {% endif %}
+{% if job.jobstatus == 'failed' %} Status <b class='failed'>failed</b> indicates that the job has failed at some stage. Information on where the error occurred and with what error condition can be found in the job parameters table below. {% endif %}
+{% if job.jobstatus == 'cancelled' %} Status <b class='cancelled'>cancelled</b> indicates that the job has been cancelled, either by the user or by the system. Further information may be available in the job parameters table below. {% endif %}
 {% if job.jobstatus == 'sent' %} Status <b class='sent'>sent</b> indicates that the job was sent to a pilot for execution but the pilot has not yet acknowledged receipt. If this state persists for any length of time, all is not well with the job.{% endif %}
 {% if job.jobstatus == 'pending' %} Status <b class='pending'>pending</b> indicates that the job record has been injected into the PanDA DB but PanDA has not yet dealt with it. {% endif %}
 {% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received by PanDA and the process of assigning it for execution has begun. {% endif %}
@@ -53,9 +54,9 @@
 {% if job.attemptnr > 1 %}
 This is attempt number {{ job.attemptnr }} for this job. To see a history of job attempts click on the job name above.
 {% endif %}
+</font>
 
 {% if pretries %}
-
 <table width=900><tr><td>
 <div class="section">This job is a retry of previous job(s)</div>
 <font size=-1>
@@ -68,7 +69,6 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 {% endif %}
 
 {% if retries %}
-
 <table width=900><tr><td>
 <div class="section">Retries of this job</div>
 <font size=-1>
@@ -81,39 +81,60 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 {% endif %}
 
 {% if lsstData %}
-<p><b>LSST job info:</b>
+<p>
+<b>LSST job info:</b>
 &nbsp; Pipeline task: <b>{{ lsstData.pipelinetask }}</b>
 &nbsp; process: <a href="http://srs.slac.stanford.edu/Pipeline-II/exp/SRS/pi.jsp?pi={{lsstData.processinstance}}">{{lsstData.processinstance}}</a>
 <p>
+{% endif %}
+
+<table>
+<tr><th bgcolor='lightcyan'>View:</th>
+
+{% if job.jobsetid %}
+<td>
+<a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">jobset {{ job.jobsetid }}</a>
+</td>
 {% endif %}
 
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
 
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' or job.jobstatus == 'holding' or job.jobstatus == 'transferring'  %}
-<p><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}&scope={{logfile.scope}}">Find and view logfiles</a>
+<td><a href="http://panda.cern.ch/?overview=viewlogfile&nocachemark=yes&guid={{logfile.guid}}&lfn={{logfile.lfn}}&site={{logfile.site}}&scope={{logfile.scope}}">logfiles</a>
+</td>
 {% endif %}
 
 {% else %}
 
 {% if job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-<p>View the job's <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/application_log.txt">stdout</a>, &nbsp;
-<a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">job outputs</a>
+<td>
+job <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/application_log.txt">stdout</a ,
+<a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/output/">outputs</a>
+</td>
 {% endif %}
 
-<p>View the job wrapper's (verbose) <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">stdout</a>
+<td>
+<a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{{pandaid}}/logs/athena_stdout.txt">payload stdout</a>
+</td>
 
-<br><a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>Download the job cache tarball</a> containing the job execution scripts
+<td>
+<a href='http://pilots1.pandawms.org/pandawms-jobcache/jobcache-{{job.pandaid}}.tar.gz'>job cache tarball</a>
+</td>
 
 {% endif %}
 {% endif %}
 
 {% if job.jobstatus == 'holding' or job.jobstatus == 'finished' or job.jobstatus == 'failed' %}
-{% if stdout %}<br>View the pilot job's &nbsp; <a href='{{stdout}}'>stdout</a>,
-&nbsp; <a href='{{stderr}}'>stderr</a>,
-&nbsp; <a href='{{stdlog}}'>batch log</a> {% endif %}
+{% if stdout %}<td>pilot job <a href='{{stdout}}'>stdout</a>, <a href='{{stderr}}'>stderr</a>,
+<a href='{{stdlog}}'>batch log</a> </td>{% endif %}
 {% endif %}
-<br><a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=pilotLog&pandaid={{ pandaid }}">Look for PanDA logger records for this job</a>
+
+<td>
+<a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=pilotLog&pandaid={{ pandaid }}">logger records</a>
+</td>
+
+</tr></table>
 
 {% if debugmode %}
 {% if debugstdout %}
@@ -142,11 +163,9 @@ But if you want, you can check.
 {% endif %}
 {% endif %}
 
-{% if job.jobsetid %}<p><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">Show the associated jobset {{ job.jobsetid }}</a>{% endif %}
-
 {% if nfiles > 0 %}
-<p><div class='section'>{{ nfiles }} job files</div>
 <table>
+<tr><th colspan=20 bgcolor='lightcyan'> {{ nfiles }} job files </th></tr>
 <tr><th>Filename (Type)</th><th>Size (MB)</th><th>Status</th><th>Dataset</th></tr>
 {% for file in files %}
 <tr><td>
@@ -202,15 +221,14 @@ But if you want, you can check.
 
 {% endif %}
 
-<p><div class='section'>Other key job parameters</div>
-
 <table>
+<tr><th colspan=20 bgcolor='lightcyan'> Other key job parameters </th></tr>
 	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">{{ job.jobsetid }}</a></td></tr>{% endif %}
 	{% if job.processingtype %}<tr><th>Processing type</th><td>{{ job.processingtype }}</td></tr></tr>{% endif %}
 	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}&display_limit=100">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
 	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
-	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }}</td></tr></tr>{% endif %}
+	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }} (non-zero exit code from job payload)</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td><a href="{% url 'jobInfo' job.parentid %}">{{ job.parentid }}</a></td></tr></tr>{% endif %}
 	{% if job.proddblock %}<tr><th>Proddblock</th><td><a href="http://panda.cern.ch/server/pandamon/query?dataset={{ job.proddblock }}">{{ job.proddblock }}</a></td></tr>{% endif %}
 	{% if job.workinggroup %}<tr><th>Working group</th><td>{{ job.workinggroup }}</td></tr></tr>{% endif %}
@@ -266,9 +284,8 @@ But if you want, you can check.
 </table>
 {% endif %}
 
-<p><div class='section'>All job parameters</div></p>
-
 <table>
+<tr><th colspan=20 bgcolor='lightcyan'> All job parameters </th></tr>
 {% for col in columns %}
 <tr><th>{{ col.name }}</th><td> {{ col.value }} </td></tr>
 {% endfor %}
@@ -279,15 +296,3 @@ But if you want, you can check.
 {% endif %}
 
 {% endblock %}
-
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
-{% endblock %}
-

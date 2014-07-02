@@ -4,15 +4,9 @@
 {% block title %} {{ viewParams.MON_VO }} PanDA monitor{% endblock %}
 {% block subtitle %}{{ viewParams.MON_VO }} PanDA monitor home page{% endblock %}
 
-{% block header-nav-chain %}{% endblock %}
-
-{% block body %}
-{% endblock %}
-
 {% block bottom_info %}
 
 {% if npars == 0 %}
-
 
 {% if viewParams.MON_VO == 'ATLAS' %}
 
@@ -53,7 +47,7 @@ Select what you'd like to have a look at in the top menu bar: dashboard overview
 {% endif %}
 <p>
 
-<table height="100px">
+<table height="30px">
 <tr><td> <div class='section'>Search</div></td>
 <td>
 
@@ -124,15 +118,3 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 </tr></table>
 
 {% endblock %}
-
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
-{% endblock %}
-

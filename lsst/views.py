@@ -236,9 +236,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
         jobtype = request.GET['jobtype']
     else:
         jobtype = opmode
-    if jobtype == 'analysis':
+    if jobtype in ( 'analysis', 'anal' ):
         query['prodsourcelabel__in'] = ['panda', 'user']
-    elif jobtype == 'production':
+    elif jobtype in ( 'production', 'prod' ):
         query['prodsourcelabel'] = 'managed'
     elif jobtype == 'groupproduction':
         query['prodsourcelabel'] = 'managed'
@@ -499,7 +499,7 @@ def taskSummaryDict(request, tasks, fieldlist = None):
     suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
-def wgTaskSummary(request):
+def wgTaskSummary(request, fieldname='workinggroup', view='all'):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     query = {}
     hours = 24*7
@@ -508,14 +508,18 @@ def wgTaskSummary(request):
     enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query['modificationtime__range'] = [startdate, enddate]
     query['workinggroup__isnull'] = False
-    summary = JediTasks.objects.filter(**query).values('workinggroup','status').annotate(Count('status')).order_by('workinggroup','status')
+    if view == 'production':
+        query['tasktype'] = 'prod'
+    elif view == 'analysis':
+        query['tasktype'] = 'anal'
+    summary = JediTasks.objects.filter(**query).values(fieldname,'status').annotate(Count('status')).order_by(fieldname,'status')
     totstates = {}
     tottasks = 0
     wgsum = {}
     for state in taskstatelist:
         totstates[state] = 0
     for rec in summary:
-        wg = rec['workinggroup']
+        wg = rec[fieldname]
         status = rec['status']
         count = rec['status__count']
         if status not in taskstatelist: continue
@@ -1673,6 +1677,8 @@ def dashboard(request, view=''):
             for cloud in clouds:
                 clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['pctfail'],reverse=True)
 
+    cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         nosorturl = removeParam(xurl, 'sortby',mode='extensible')
@@ -1689,6 +1695,9 @@ def dashboard(request, view=''):
             'cloudview': cloudview,
             'hours' : hours,
             'errthreshold' : errthreshold,
+            'cloudTaskSummary' : cloudTaskSummary,
+            'taskstates' : taskstatedict,
+            'taskdays' : 7,
         }
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':

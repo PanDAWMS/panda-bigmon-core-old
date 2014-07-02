@@ -33,6 +33,33 @@ Click on column titles to sort.
 <div class='section'>All jobs</div>
 {% endif %}
 
+{% if cloudTaskSummary %}
+
+<span class='section'>Task summary by cloud</span> &nbsp; &nbsp; <font size=-1>Hover over state name to see full name. <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">Task state documentation</a></font><p>
+
+<table>
+<tr bgcolor="lightcyan">
+<th>Cloud</th>
+<th><font size=-1>nTask</font></th>
+{% for state in taskstates %}
+<th><div title="{{state.state}}"><font size=-1><span class="{{ state.state }}"> {{ state.short }} </span></font></div></th>
+{% endfor %}
+</tr>
+
+{% for fdict in cloudTaskSummary %}
+<tr><td> {{ fdict.field }} </td>
+<td> <a href="{% url 'taskList' %}?cloud={{fdict.field}}&jobtype={{view}}&days={{taskdays}}">{{ fdict.count }}</a></td>
+{% for item in fdict.list %}
+<td> <a href="{% url 'taskList' %}?cloud={{fdict.field}}&status={{item.kname}}&jobtype={{view}}&days={{taskdays}}"><span class='{{item.kname}}'>{{ item.kvalue }}</span></a></td>
+{% endfor %}
+</tr>
+{% endfor %}
+
+</table>
+
+<p>
+{% endif %}
+
 {% if view != 'analysis' %}
 
 {% if cloudview == 'region' %}

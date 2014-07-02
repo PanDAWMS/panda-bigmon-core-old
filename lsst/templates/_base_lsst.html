@@ -326,7 +326,7 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
     <!-- bread-crumbs -->
     <div class="right">
       {% block header-nav-chain %}
-      Generated {% now "DATETIME_FORMAT" %} UTC
+      <font size=-1> Generated {% now "DATETIME_FORMAT" %} UTC </font>
       {% endblock %}
     </div>
     <!-- End bread-crumbs -->
@@ -334,12 +334,14 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
   <!-- End sub-title and bread-crumbs -->
 
   {% block left_menu %}
+{% comment %}
   <div class="left-menu">
     {% block left_menu_content %}
       <span class="left-menu-title">Menu</span>
        <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
     {% endblock %}
   </div>
+{% endcomment %}
   {% endblock %}
 
 
@@ -348,7 +350,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 			<!-- Desktop Slider -->
 			<div class="hide-for-small">
 				{% block body %}
+{% comment %}
 					<img src="http://placehold.it/1000x400&text=Place for tabular data or summary plot/graphics" alt="slide image">
+{% endcomment %}
 				{% endblock %}
 			</div>
 			{% block extra_js_bottombody %}{% endblock %}
@@ -359,7 +363,9 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 			<div class="row">
 				<div class="small-12 show-for-small"><br>
 					{% block body_mobile %}
+{% comment %}
 						<img src="http://placehold.it/1000x600&text=For Small Screens" />
+{% endcomment %}
 					{% endblock %}
 				</div>
 			</div>
@@ -383,7 +389,6 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 
   <footer>
     <div class="large-12 columns">
-      <hr />
         {% block bottom_copy %}
             <table borderwidth=0><tr><td valign="bottom">
           <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a> &nbsp; <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
