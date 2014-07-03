@@ -90,6 +90,8 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 </style>
 <ul>
 <!-- most recent at the top -->
+<li class="news">20140702: Added contextual help framework
+<li class="news">20140702: Improved file info for JEDI's more complex file processing
 <li class="news">20140701: Added working group task summary to WG dashboard
 <li class="news">20140701: Added inline dataset list, job parameters to task detail page
 <li class="news">20140630: Show input file counts (Nfiles, Nfinished, Nfailed) for tasks to indicate progress
@@ -116,5 +118,23 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 {% endif %}
 
 </tr></table>
+
+{% endblock %}
+
+{% block helptext %}
+
+This contextual help section is found at the bottom of each monitor page. Not all are populated with information as yet.
+Use the help menu in the upper right corner to navigate directly here.
+<br>
+
+Send your suggestions and requests for the PanDA monitor (or PanDA in general) to <a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>.
+
+<br>
+
+PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA twiki</a>.
+
+{% if viewParams.MON_VO == 'ATLAS' %}
+For ATLAS PanDA specifics see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PanDA">ATLAS-internal PanDA twiki</a>.
+{% endif %}
 
 {% endblock %}

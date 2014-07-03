@@ -84,6 +84,11 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
 .sent { color:#FF9933 }
 .section{ font-weight:bold; color:darkblue; padding-bottom:10px }
 .tablesection{ font-weight:bold; background-color:lightcyan; border-style:solid; border-width:1px; border-color:grey;}
+.docsection{ background-color:#b2d546; font-weight:bold; border-style:solid; border-width:1px; border-color:#324f00;}
+.doctext{ background-color:#e4f9a6; border-style:solid; border-width:1px; border-color:#324f00;}
+.help { color:#b2d546 }
+.helplight { color:#e4f9a6 }
+.helpdark { color:forestgreen }
 
 .inputW{width:10em}
 </STYLE>
@@ -299,12 +304,12 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
         {% block top_menu_all_11 %}
         <li class="has-dropdown">
           {% block top_menu_11 %}
-          <a href="#">Help</a>
+          <a href="#"><span class='help'>Help</span></a>
           <ul class="dropdown">
-            <li><a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaAthena#Job_priority">How job priority is calculated</a>
-            <li><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a></li>
-            <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a></li>
-            <li><a href="http://pandawms.org">Big PanDA home</a></li>
+            <li><a href="#doc"><span class='help'>See the bottom of the page for contextual help if available</span></a>
+            <li><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>
+            <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a>
+            <li><a href="http://pandawms.org">Big PanDA home</a>
           </ul>
           {% endblock %}
         </li>
@@ -390,6 +395,22 @@ td { text-align:left; border-style:solid; border-width:1px; border-color:lightgr
   <footer>
     <div class="large-12 columns">
         {% block bottom_copy %}
+
+<table width=1000>
+<a name="doc"></a>
+<tr class="docsection"><th> Help </th></tr>
+<tr><td class="doctext">
+
+{% block helptext %}
+Contextual help for this page is not yet available.
+<br>
+Send your suggestions and requests to <a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>.
+PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA twiki</a>.
+{% endblock %}
+
+</td></tr>
+</table>
+
             <table borderwidth=0><tr><td valign="bottom">
           <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td><td valign="bottom"><font size=-1>Brought to you by the PanDA team. All times are in UTC.<br><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a> &nbsp; <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td></tr></table>
         {% endblock %}

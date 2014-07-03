@@ -8,40 +8,43 @@
 
 {% if files %}
 
-{% if requestParams.datasetname %}<br><b>Dataset: {{ requestParams.datasetname }}</b> {% endif %}
-{% if requestParams.datasetid %}<br><b>Dataset ID: {{ requestParams.datasetid }}</b> {% endif %}
-
+{% if requestParams.datasetname %}<br>Files in dataset <b>{{ requestParams.datasetname }}</b> {% endif %}
+{% if requestParams.datasetid %}<br>Files in dataset ID = <b>{{ requestParams.datasetid }}</b> {% endif %}
+<p>
+<b>{{ files|length }} listed files</b>
+{% if nfiles != files|length %} <br> <b>{{ nfiles }} unique files</b> {% endif %}
+{% if requestParams.datasetname or requestParams.datasetid or nfiles != files|length %}
+<br>A given file can appear multiple times within a JEDI dataset. Each entry corresponds to a distinct processing of the file, associated with a particular PanDA job and attempt number.
+{% endif %}
 <p>
 
-<div class='section'>Files</div>
-
 <table>
-<tr>
-	<th>Filename</th>
-	<th>ID</th>
-	<th>GUID</th>
+<tr class='tablesection'>
+	<th>File name</th>
 	<th>Scope</th>
 	<th>Type</th>
 	<th>Size (MB)</th>
 	<th>Task</th>
-	<th>Job</th>
+	<th>PanDA Job</th>
+	<th>Attempt</th>
 	<th>Status</th>
 	<th>Created</th>
-	<th>Attempt</th>
+	<th>GUID</th>
+	<th>File ID</th>
 </tr>
 {% for frec in files %}
 	<tr>
-		<td><a href="{% url 'fileInfo' %}?lfn={{ frec.lfn }}&pandaid={{frec.pandaid}}">{{ frec.lfn }}</a></td>
-		<td>{{ frec.fileid }}</td>
-		<td>{{ frec.guid }}</td>
+		<td><a href="{% url 'fileInfo' %}?lfn={{ frec.lfn }}">{{ frec.lfn }}</a></td>
 		<td>{{ frec.scope }}</td>
 		<td>{{ frec.type }}</td>
 		<td>{{ frec.fsizemb }}</td>
 		<td><a href="{% url 'taskInfo' %}?jeditaskid={{ frec.jeditaskid }}">{{ frec.jeditaskid }}</a></td>
-		<td><a href="{% url 'jobInfo' %}?pandaid={{ frec.pandaid }}">{{ frec.pandaid }}</a></td>
+		<td>{% if frec.pandaid %}<a href="{% url 'jobInfo' %}?pandaid={{ frec.pandaid }}">{{ frec.pandaid }}</a> {% endif %}</td>
+		<td>{{ frec.attemptnr }}</td>
 		<td class='{{frec.status}}'>{{ frec.status }}</td>
 		<td>{{ frec.creationdate|date:"Y-m-d H:i" }}</td>
-		<td>{{ frec.attemptnr }}</td>
+		<td>{{ frec.guid }}</td>
+		<td>{{ frec.fileid }}</td>
 	</tr>
 {% endfor %}
 </table>

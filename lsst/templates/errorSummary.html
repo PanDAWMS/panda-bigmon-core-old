@@ -14,7 +14,7 @@
 
 {% if sumd %}
 
-<b>{{ njobs }} jobs found in failed or holding state. </b> &nbsp;  <a href="{% url 'jobList' %}?{{ requestString }}&jobstatus=failed|holding&hours={{hours}}&limit={{limit}}">Show job list</a>
+<b>{{ njobs }} jobs found in failed or holding state. </b> &nbsp;  <a href="{% url 'jobList' %}?{{ requestString }}&jobstatus=failed|holding&hours={{hours}}&limit={{limit}}"><b>Show job list</b></a>
 
 {% if sortby == "count" %}
 <p>Sort by <b>count</b>, <a href="{{nosorturl}}">alpha</a>
@@ -31,7 +31,7 @@
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
 <p>
 
-<p>Job modification times in this listing range from {{ tfirst|date:"Y-m-d H:i" }} to {{ tlast|date:"Y-m-d H:i" }}<p>
+<p>Job modification times in this listing range from <b>{{ tfirst|date:"Y-m-d H:i" }}</b> to <b>{{ tlast|date:"Y-m-d H:i" }}</b><p>
 
 <p>Go to <a href="#summary">overall</a>, <a href="#sites">site</a>, <a href="#users">user</a>, <a href="#tasks">task</a> summary
 
@@ -48,11 +48,6 @@
 {% for time, count in errHist %}
           ['{{ time|date:"m-d H:i" }}', {{ count }}],
 {% endfor %}
-{% comment %}
-        [ 'One', 1 ],
-        [ 'Two', 2 ],
-        [ 'Three', 3 ],
-{% endcomment %}
 
             ])
         var options = {
@@ -69,9 +64,8 @@
 
 {% endif %}
 
-<div class='section'>Error occurrences by job attribute</div><p>
-
 <table>
+<tr class='tablesection'><th colspan=20> Error occurrences by job attribute </th></tr>
 {% for fdict in sumd %}
 <tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
 {% for item in fdict.list %}
@@ -85,21 +79,20 @@
 {% endif %}
 
 {% if errsByCount %}
-<a name="summary"><p><div class='section'>Overall error summary</div><p></a>
-
+<a name="summary"></a>
 <table>
+<tr class='tablesection'><th colspan=20> Overall error summary </th></tr>
 <tr><th>Category:code</th><th>Nerrors</th><th>Sample error description</th></tr>
 {% for errval in errsByCount %}
 <tr><th> <a href="{{xurl}}jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100"> {{ errval.error }} </a> </th> <td> {{ errval.count }} </td> <td> {{ errval.diag }} </td>  </tr>
 {% endfor %}
 </table>
-
 {% endif %}
 
 {% if errsBySite %}
-<a name="sites"><p><div class='section'>Site error summary</div><p></a>
-
+<a name="sites"></a>
 <table>
+<tr class='tablesection'><th colspan=20> Site error summary </th></tr>
 {% for site in errsBySite %}
 <tr><th> <a href="{{xurl}}computingsite={{ site.name }}"> {{ site.name }} </a> </th> <th> {{ site.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in site.errorlist %}
@@ -107,13 +100,12 @@
 {% endfor %}
 {% endfor %}
 </table>
-
 {% endif %}
 
 {% if errsByUser %}
-<a name="users"><p><div class='section'>User error summary</div><p></a>
-
+<a name="users"></a>
 <table>
+<tr class='tablesection'><th colspan=20> User error summary </th></tr>
 {% for user in errsByUser %}
 <tr><th> <a href="{{xurl}}produsername={{ user.name }}"> {{ user.name }} </a> </th> <th> {{ user.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in user.errorlist %}
@@ -121,13 +113,12 @@
 {% endfor %}
 {% endfor %}
 </table>
-
 {% endif %}
 
 {% if errsByTask %}
-<a name="tasks"><p><div class='section'>Task error summary</div><p></a>
-
+<a name="tasks"></a>
 <table>
+<tr class='tablesection'><th colspan=20> Task error summary </th></tr>
 {% for task in errsByTask %}
 <tr><th> <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a> </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in task.errorlist %}
@@ -138,7 +129,7 @@
 
 {% else %}
 
-No jobs found.
+No failed/holding jobs found.
 
 {% endif %}
 

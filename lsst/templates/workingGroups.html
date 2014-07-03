@@ -11,17 +11,9 @@
 
 {% if wgsummary %}
 
-<table width=800><tr><td>
-This page summarizes recent job status for working groups.
-Failure rates above {{ errthreshold }}% are shown in red.
-Click the job counts to go to job listings.
-</tr></td></table>
-<p>
-
-<span class='section'>Working group task summary</span> &nbsp; &nbsp; <font size=-1>Hover over state name to see full name. <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">Task state documentation</a></font>
-
 <table>
-<tr bgcolor="lightcyan">
+<tr class='tablesection'><th colspan=30> Working group task summary</span> &nbsp; &nbsp; <font size=-1>Hover over state name to see full name. <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">Task state documentation</a></font> </th></tr>
+<tr class='tablesection'>
 <th>Working group</th>
 <th><font size=-1>nTask</font></th>
 {% for state in taskstates %}
@@ -42,11 +34,9 @@ Click the job counts to go to job listings.
 
 <p>
 
-<div class='section'>Working group job summary</div>
-
 <table>
-
-<tr bgcolor="lightcyan">
+<tr class='tablesection'><th colspan=30> Working group job summary </th></tr>
+<tr class='tablesection'>
 <th> Working group</th>
 <th> nJobs </th>
 <th> %failed </th>
@@ -86,16 +76,11 @@ No jobs with working group set were found.
 
 {% endblock %}
 
-{% block bottom_info %}
-{% endblock %}
+{% block helptext %}
 
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
+This page summarizes recent task and job status for working groups.
+Failure rates above {{ errthreshold }}% are shown in red.
+Click the job counts to go to job listings.
+For task state documentation <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status'>see this twiki</a>.
+
 {% endblock %}

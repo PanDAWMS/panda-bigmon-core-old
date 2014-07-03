@@ -25,11 +25,8 @@
 
 {% if sumd %}
 
-<b>{{ ntasks }} tasks</b>
-
-<div class='section'>Task attribute summary</div>
-
 <table>
+<tr class='tablesection'><th colspan=20> Task attribute summary, {{ ntasks }} tasks </th></tr>
 {% for fdict in sumd %}
 <tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
 {% for item in fdict.list %}
@@ -41,15 +38,13 @@
 </table>
 {% endif %}
 
-<div class='section'>Task list</div>
-{% if display_limit %}
-{% if tasks|length >= display_limit %}
-Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
-{% endif %}
-{% endif %}
-
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> Task list
+{% if display_limit %} {% if tasks|length >= display_limit %}
+&nbsp; &nbsp; <font size=-1>Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimit }}">Remove the limit</a></font>
+{% endif %} {% endif %}
+</th></tr>
+<tr class='tablesection'>
 	<th>ID<br>Type</th>
 	<th>Name<br>User<br><font color='brown'>Logged status</font></th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}<br>Nfile <span class='finished'>fin%</class> <span class='failed'>fail%</span></th>
@@ -80,19 +75,5 @@ Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimi
 {% else %}
     <p>No matches to query.</p>
 {% endif %}
-{% endblock %}
-
-{% block bottom_info %}
-{% endblock %}
-
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
 {% endblock %}
 

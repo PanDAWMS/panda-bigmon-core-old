@@ -12,8 +12,7 @@
 
 {{ viewParams.header }}
 
-<b>{{ njobs }} jobs selected</b>
-
+<b>{{ njobs }} jobs in this selection</b>
 {% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
 {% if requestParams.jobtype %}<br><b>Job type: {{ requestParams.jobtype }}</b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
@@ -46,9 +45,8 @@
 
 {% if jobList %}
 
-<div class="section"> Job attribute summary   &nbsp; Sort by {% if requestParams.sortby == 'count' %} count, <a href="{{nosorturl}}">alpha</a> {% else %} <a href="{{nosorturl}}sortby=count">count</a>, alpha {% endif %}</div>
-
 <table>
+<tr class='tablesection'><th colspan=20> Job attribute summary   &nbsp; Sort by {% if requestParams.sortby == 'count' %} count, <a href="{{nosorturl}}">alpha</a> {% else %} <a href="{{nosorturl}}sortby=count">count</a>, alpha {% endif %} </th></tr>
 {% for fdict in sumd %}
 <tr><th> {{ fdict.field }} ({{ fdict.list|length }})</th><td>
 {% for item in fdict.list %}
@@ -59,10 +57,11 @@
 {% endfor %}
 </table>
 
-<div class="section"><a name="joblist"></a> Job list </div>
+<table>
+<tr class='tablesection'><th colspan=20>
+<a name="joblist"></a> Job list &nbsp; &nbsp; 
 {% if display_limit  and display_limit < njobs %}
-Only the most recent {{ display_limit }} jobs (sorted by PandaID) are shown.
-<br>Remove the limit and sort by 
+<font size=-1>Only the most recent {{ display_limit }} jobs (sorted by PandaID) are shown. Remove the limit and sort by 
 <a href="{{nosorturl}}">PandaID</a>, 
 {% else %}
 Sort by 
@@ -84,10 +83,9 @@ Sort by
 {% else %}
 <a href="{{nosorturl}}sortby=time-ascending">ascending mod time</a>, <a href="{{nosorturl}}sortby=time-descending">descending mod time</a>, <a href="{{nosorturl}}sortby=priority">priority</a>, <a href="{{nosorturl}}sortby=attemptnr">attemptnr</a>
 {% endif %}
-<p>
-
-<table>
-<tr>
+</font>
+</th></tr>
+<tr class='tablesection'>
 	<th>PanDA ID<br>Attempt#</th>
 	<th>Owner {% if viewParams.MON_VO != 'ATLAS' %} / VO{% endif %}<br>Group  </th>
 	<th>Task ID</th>

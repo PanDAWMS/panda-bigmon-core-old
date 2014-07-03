@@ -2705,6 +2705,7 @@ def fileInfo(request):
                     f['creationdate'] = f['modificationtime']
                     f['fileid'] = f['row_id']
                     f['datasetname'] = f['dataset']
+                    f['oldfiletable'] = 1
 
         for f in files:
             f['fsizemb'] = "%0.2f" % (f['fsize']/1000000.)
@@ -2713,6 +2714,8 @@ def fileInfo(request):
                 f['datasetname'] = dsets[0]['datasetname']
 
     if len(files) > 0:
+        files = sorted(files, key=lambda x:x['pandaid'], reverse=True)
+        print 'files', files
         frec = files[0]
         file = frec['lfn']
         colnames = frec.keys()
@@ -2730,6 +2733,7 @@ def fileInfo(request):
             'viewParams' : viewParams,
             'requestParams' : request.GET,
             'frec' : frec,
+            'files' : files,
             'filename' : file,
             'columns' : columns,
         }
@@ -2765,11 +2769,18 @@ def fileList(request):
         for f in files:
             f['fsizemb'] = "%0.2f" % (f['fsize']/1000000.)
 
+    ## Count the number of distinct files
+    filed = {}
+    for f in files:
+        filed[f['lfn']] = 1
+    nfiles = len(filed)
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
             'viewParams' : viewParams,
             'requestParams' : request.GET,
             'files' : files,
+            'nfiles' : nfiles,
         }
         data.update(getContextVariables(request))
         return render_to_response('fileList.html', data, RequestContext(request))
