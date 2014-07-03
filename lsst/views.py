@@ -1506,6 +1506,7 @@ def dashboard(request, view=''):
         hours = 24*7
     else:
         hours = 12
+    if 'hours' in request.GET: hours = request.GET['hours']
     query = setupView(request,hours=hours,limit=999999,opmode=view)
 
     if VOMODE != 'atlas':
