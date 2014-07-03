@@ -18,6 +18,8 @@ from core.common.models import Datasets
 from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
+from core.common.models import Metatable
+from core.common.models import MetatableArch
 from core.common.models import Logstable
 from core.common.models import Jobsdebug
 from core.common.models import Cloudconfig
@@ -816,10 +818,17 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     ## Get job parameters
     jobparamrec = Jobparamstable.objects.filter(pandaid=pandaid)
     jobparams = None
-    try:
-        if jobparamrec: jobparams = jobparamrec[0].jobparameters
-    except IndexError:
-        jobparams = None
+    if len(jobparamrec) > 0: jobparams = jobparamrec[0].jobparameters
+
+    ## Get job metadata
+    metadatarec = Metatable.objects.filter(pandaid=pandaid)
+    metadata = None
+    if len(metadatarec) > 0:
+        metadata = metadatarec[0].metadata
+    else:
+        metadatarec = MetatableArch.objects.filter(pandaid=pandaid)
+        if len(metadatarec) > 0:
+            metadata = metadatarec[0].metadata
 
     dsfiles = []
     ## If this is a JEDI job, look for job retries
@@ -893,6 +902,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'stderr' : stderr,
             'stdlog' : stdlog,
             'jobparams' : jobparams,
+            'metadata' : metadata,
             'jobid' : jobid,
             'lsstData' : lsstData,
             'logextract' : logextract,

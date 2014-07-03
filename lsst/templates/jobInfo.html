@@ -271,6 +271,16 @@ But if you want, you can check.
 </table>
 {% endif %}
 
+{% if metadata %}
+<table width=1000><tr><td bgcolor="#f8d9ff"> <b>Job metadata </td></tr>
+<tr><td>
+<font size=-1><pre>
+{{ metadata }}
+</pre></font>
+</td></tr>
+</table>
+{% endif %}
+
 <table>
 <tr><th colspan=20 bgcolor='lightcyan'> All job parameters </th></tr>
 {% for col in columns %}
