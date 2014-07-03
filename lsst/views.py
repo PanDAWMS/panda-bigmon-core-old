@@ -227,6 +227,11 @@ def setupView(request, opmode='', hours=0, limit=-99):
                             query[param] = request.GET[param]
                 elif param == 'taskid':
                     if request.GET['taskid'] != 'None': query[param] = request.GET[param]
+                elif param == 'pandaid':
+                    try:
+                        query['pandaid'] = int(request.GET['pandaid'])
+                    except:
+                        query['jobname'] = request.GET['pandaid']
                 elif request.GET[param].find('|') > 0:
                     vals = request.GET[param].split('|')
                     query[param+"__in"] = vals
@@ -719,18 +724,23 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     jobid = '?'
     if pandaid:
         jobid = pandaid
-        query['pandaid'] = pandaid
+        try:
+            query['pandaid'] = int(pandaid)
+        except:
+            query['jobname'] = pandaid
     if batchid:
         jobid = batchid
         query['batchid'] = batchid
     if 'pandaid' in request.GET:
         pandaid = request.GET['pandaid']
         jobid = pandaid
-        query['pandaid'] = pandaid
     elif 'batchid' in request.GET:
         batchid = request.GET['batchid']
         jobid = "'"+batchid+"'"
         query['batchid'] = batchid
+    elif 'jobname' in request.GET:
+        jobid = request.GET['jobname']
+
     startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = []
     jobs.extend(Jobsdefined4.objects.filter(**query).values())
@@ -746,6 +756,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     columns = []
     try:
         job = jobs[0]
+        pandaid = job['pandaid']
         colnames = job.keys()
         colnames.sort()
         for k in colnames:

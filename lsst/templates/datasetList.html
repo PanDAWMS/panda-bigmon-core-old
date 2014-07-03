@@ -2,7 +2,7 @@
 
 {% block page_title %} {{ viewParams.MON_VO }} PanDA datasets {% endblock %}
 {% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA datasets{{ viewParams.selection|safe }}{% endblock %}
+{% block subtitle %}PanDA datasets<font size=-1>{{ viewParams.selection|safe }}</font>{% endblock %}
 
 {% block body %}
 
@@ -10,10 +10,10 @@
 
 {% if datasets %}
 <p>
-<div class='section'> Datasets</div>
 
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> Datasets </th></tr>
+<tr class='tablesection'>
 	<th>Name</th>
 	<th>ID</th>
 	<th>Type</th>
@@ -49,13 +49,12 @@ No datasets matching search were found.
 
 {% endblock %}
 
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
+{% block helptext %}
+
+<p>
+See the JEDI twiki for documentation on PanDA JEDI dataset
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_dataset_status">status transitions</a> and
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Datasets_table">schema</a>.
+</p>
+
 {% endblock %}

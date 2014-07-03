@@ -53,7 +53,7 @@ Select what you'd like to have a look at in the top menu bar: dashboard overview
 
 <table>
 <tr><td><form action="{% url 'jobInfo' %}" method='get'>
-Panda ID </td><td><font size=-1> <input id="pandaid" name="pandaid" size="25" maxlength="15" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+PanDA job ID or name</td><td><font size=-1> <input id="pandaid" name="pandaid" size="25" maxlength="200" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'jobInfo' %}" method='get'>
 Batch ID</td><td><font size=-1> <input id="batchid" name="batchid" size="25" maxlength="200" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
@@ -85,10 +85,6 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 <td> <div class='section'>News </td>
 <td>
 <div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"><font size=-1>
-<style>
-    li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
-</style>
-<ul>
 <!-- most recent at the top -->
 <li class="news">20140702: Added contextual help framework
 <li class="news">20140702: Improved file info for JEDI's more complex file processing
@@ -123,18 +119,48 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 
 {% block helptext %}
 
-This contextual help section is found at the bottom of each monitor page. Not all are populated with information as yet.
+{% if npars == 0 %}
+
+<p>
+This contextual help section is found at the bottom of each monitor page.
 Use the help menu in the upper right corner to navigate directly here.
-<br>
+</p>
 
+<p>
 Send your suggestions and requests for the PanDA monitor (or PanDA in general) to <a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>.
+</p>
 
-<br>
-
+<p>
 PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA twiki</a>.
+</p>
 
 {% if viewParams.MON_VO == 'ATLAS' %}
-For ATLAS PanDA specifics see the <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PanDA">ATLAS-internal PanDA twiki</a>.
+
+<p>
+For ATLAS users there is documentation on <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/DAonPanda'>distributed analysis on PanDA</a> describing how to use pathena, prun etc.
+</p>
+
+<p>
+Use the <a href="https://groups.cern.ch/group/hn-atlas-dist-analysis-help">hn-atlas-dist-analysis-help e-group</a> to learn about distributed analysis problems and their reported solutions and to report problems of your own.
+A <a href='https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasDAST'>distributed analysis shift team (DAST)</a> provides user support for distributed analysis. The <a href='https://atlas-logbook.cern.ch/elog/ATLAS+Computer+Operations+Logbook/'>ATLAS Computer Operations Logbook</a> logs service issues with PanDA and much else.
+Issues with ATLAS PanDA itself are tracked in the <a href="https://its.cern.ch/jira/browse/ATLASPANDA">JIRA ATLASPANDA project</a>.
+Other ATLAS PanDA specifics can be found on the <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PanDA">ATLAS-internal PanDA twiki</a>.
+</p>
+
 {% endif %}
+
+{% endif %}
+
+<p><ul>
+<b>Notes on available searches:</b>
+<li class="news"> PanDA ID or name: numeric ID or full job name, displays job detail page
+<li class="news"> Batch ID: the batch system ID for the batch job running the pilot. Used e.g. by site people to find what PanDA job a local batch job corresponds to.
+<li class="news"> Task ID: the numeric ID for a JEDI task, displays the task's detail page. Detail pages for old (non-JEDI) tasks are not available. For old type tasks, the search brings up a listing of jobs in the task.
+<li class="news"> Task name: as above, using task name rather than numeric ID.
+<li class="news"> Site: the name of a PanDA site (PanDA resource), displays a detail page for the site. From there you can click through to details on worker node performance etc.
+<li class="news"> User: the user name exactly as known to PanDA, case insensitive. See the user list pages for the names as known to PanDA.
+<li class="news"> Dataset: the JEDI dataset name, displays a detail page for the dataset. JEDI datasets record information necessary for processing datasets, they are not part of the data management system. 
+<li class="news"> File: as for datasets; these are the files contained in JEDI datasets. The file information records e.g. processing attempts on a file (full file or range of events in a file).
+</ul></p>
 
 {% endblock %}

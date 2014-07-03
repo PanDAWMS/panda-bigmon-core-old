@@ -77,3 +77,19 @@
 {% endif %}
 {% endblock %}
 
+{% block helptext %}
+
+<p>
+The JEDI twiki has information on JEDI task
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a> and
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.
+</p>
+
+{% if viewParams.MON_VO == 'ATLAS' %}
+<p>
+Prodsys, DEFT, and JEDI task states, transitions and relationships are
+<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ProdSys#Transition_of_Request_and_Task_s">described here on the Prodsys twiki</a>.
+</p>
+{% endif %}
+
+{% endblock %}
