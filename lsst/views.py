@@ -1506,7 +1506,6 @@ def dashboard(request, view=''):
         hours = 24*7
     else:
         hours = 12
-    if 'hours' in request.GET: hours = request.GET['hours']
     query = setupView(request,hours=hours,limit=999999,opmode=view)
 
     if VOMODE != 'atlas':
@@ -1694,7 +1693,7 @@ def dashboard(request, view=''):
             'vosummary' : vosummary,
             'view' : view,
             'cloudview': cloudview,
-            'hours' : hours,
+            'hours' : LAST_N_HOURS_MAX,
             'errthreshold' : errthreshold,
             'cloudTaskSummary' : cloudTaskSummary,
             'taskstates' : taskstatedict,
