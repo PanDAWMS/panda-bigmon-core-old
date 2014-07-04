@@ -9,7 +9,7 @@
 
 {{ viewParams.header }}
 
-<div class='section'>Worker node slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at site <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
+<div class='section'>Worker node slot performance {% if wnname != 'all' %} for node {{ wnname }} {% endif %} at <a href="{% url 'siteInfo' site %}">{{ site }}</a></div>
 
 {% if requestParams.sortby %} <p><b>Sorted by: {{ requestParams.sortby }} </b><p> {% endif %}
 
@@ -70,11 +70,9 @@
 
 {% if wnname != 'all' %}
 
-<div class='section'>Slot info for worker node {{ wnname }} at site {{ site }}</div>
-
 <table>
-
-<tr bgcolor="lightcyan">
+<tr class='tablesection'><th colspan=20> Slot info for worker node {{ wnname }} at {{ site }}</th></tr>
+<tr class='tablesection'>
 <th> WN </th>
 <th> nSlots </th>
 <th> nJobs </th>
@@ -111,19 +109,10 @@
 
 {% else %}
 
-<table width=800><tr><td>
-Slot count shown is the number of uniquely named slots (from the slot@WN convention of slot/WN naming) that have picked up jobs in the interval, which may be less than the actual number of batch slots on the WN. Statistics shown are aggregated over all slots on the WN. For a breakdown by slot for a particular WN, click the WN name.
-Failure rates above 20% are shown in red.
-Click the cloud name in the overall summary to go to the cloud's site summary.
-Click the job counts to go to job listings.
-</tr></td></table>
-<p>
-
-<div class='section'><a name="outliers"></a>WN outliers for site {{ site }}</div>
-
+{% comment %}
 <table>
-
-<tr bgcolor="lightcyan">
+<tr class='tablesection'><th colspan=20> WN outliers for {{ site }} </th></tr>
+<tr class='tablesection'>
 <th> WN </th>
 <th> nSlots </th>
 <th> nJobs </th>
@@ -159,11 +148,10 @@ Click the job counts to go to job listings.
 {% endif %}
 {% endfor %}
 </table>
-<p>
-<div class='section'><a name="full"></a>WN full summary for site {{ site }}</div>
+{% endcomment %}
 
 <table>
-
+<tr class='tablesection'><th colspan=20> WN summary for {{ site }} </th></tr>
 <tr bgcolor="lightcyan">
 <th> WN </th>
 <th> nSlots </th>
@@ -202,16 +190,19 @@ Click the job counts to go to job listings.
 
 {% endblock %}
 
-{% block bottom_info %}
-{% endblock %}
+{% block helptext %}
 
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
+{% if wnname != 'all' %}
+
+This shows job activity for the batch slots active on a particular worker node.
+
+{% else %}
+
+Slot count shown is the number of uniquely named slots (from the slot@WN convention of slot/WN naming) that have picked up jobs in the interval, which may be less than the actual number of batch slots on the WN. Statistics shown are aggregated over all slots on the WN. For a breakdown by slot for a particular WN, click the WN name.
+Failure rates above 20% are shown in red.
+Click the cloud name in the overall summary to go to the cloud's site summary.
+Click the job counts to go to job listings.
+
+{% endif %}
+
 {% endblock %}

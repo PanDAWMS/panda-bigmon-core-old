@@ -15,8 +15,6 @@
 <p>
 {% if queues %}
 
-<b>{{ queues|length }} queues</b>
-
 {% if sumd %}
 
 <div class='section'>Queue attribute summary</div>
@@ -33,14 +31,9 @@
 </table>
 {% endif %}
 
-<p>Documentation on PanDA JEDI work queues:
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Work_queues">functional description</a>,
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Work_Queue_table">table schema</a>.
-
-<div class='section'>Work queue list</div>
-
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> {{ queues|length }} Work queues </th></tr>
+<tr class='tablesection'>
 	<th>Name</th>
 	<th>ID</th>
 	<th>Type</th>
@@ -73,17 +66,16 @@
 {% endif %}
 {% endblock %}
 
-{% block bottom_info %}
-{% endblock %}
+{% block helptext %}
 
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
-{% endblock %}
+<p>
+Documentation on PanDA JEDI work queues:
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Work_queues">functional description</a>,
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Work_Queue_table">table schema</a>.
+</p>
 
+<p>
+Work queues will be the basis for a new dynamic resource requirements based queue scheme currently in development.
+</p>
+
+{% endblock %}
