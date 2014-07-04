@@ -59,9 +59,8 @@
 
 <div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Show recent job errors</a></div><p>
 
-<div class='section'>Recent job attributes</div>
-
 <table>
+<tr class='tablesection'><th colspan=20> Recent job attributes </th></tr>
 {% for fdict in jobsumd %}
 <tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
 
@@ -81,10 +80,9 @@
 
 {% if ntasks > 0 %}
 
-<div class='section'><a name="tasks"></a>JEDI tasks owned by {{ user }}</div>
-
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> <a name="tasks"></a>JEDI tasks owned by {{ user }} </th></tr>
+<tr class='tablesection'>
 	<th>ID<br>Type</th>
 	<th>Name<br>User</th>
 	<th>Status</th>
@@ -112,10 +110,10 @@
 {% endif %}
 
 {% if njobsets > 0 %}
-<div class='section'><a name="jobsets"></a> Recent jobsets {% if njobsetmax <= njobsets %} (listing limited to {{ njobsetmax }}. Use the jobset ranges in the attribute summary to see more jobsets.) {% endif %}</div>
 
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> <a name="jobsets"></a> Recent jobsets {% if njobsetmax <= njobsets %} (listing limited to {{ njobsetmax }}. Use the jobset ranges in the attribute summary to see more jobsets) {% endif %} </th></tr>
+<tr class='tablesection'>
 <th> Jobset ID </th>
 <th> nJobs </th>
 <th> Modification times </th>
@@ -157,14 +155,13 @@
 <p>
 {% endif %}
 
-<div class='section'><a name="jobs"></a>Recent jobs</div>
 {% if njobs > 0 %}
-{% if display_limit %}
-Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
-{% endif %}
 
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20> <a name="jobs"></a>Recent jobs {% if display_limit %} &nbsp; &nbsp; 
+Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
+{% endif %}</th></tr>
+<tr class='tablesection'>
 	<th>Panda ID<br>Attempt#<br>Group {% if viewParams.MON_VO != 'ATLAS' %}VO{% endif %}</th>
 	<th>Transformation</th>
 	<th>Jobset</th>
