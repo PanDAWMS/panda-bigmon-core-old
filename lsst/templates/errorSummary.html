@@ -135,17 +135,14 @@ No failed/holding jobs found.
 
 {% endblock %}
 
-{% block bottom_info %}
+{% block helptext %}
+<p>
+This page summarizes the failure modes of recent jobs. PanDA has several error categories based on where the error occurred: in the PanDA server (taskbuffer), the server's dispatcher, the pilot, the DDM services invoked by the pilot, the transformation (job payload). With particular errors designated by particular codes, and each error having an associated error description (which can differ job to job as they detail the error).
+</p>
+<p>
+This page summarizes category:code occurrences for various views of interest: overall error summary, error breakdown by site, by user, and by task. 
+</p>
+<p>
+If you drill down eg. into the failures at a particular site, by clicking the site name, you will bring up a page summarizing errors at that site. The limit depth of the query will now be applied entirely to the site you have zeroed in on, so you will get more failure information (the limit is necessary for performance reasons). The timeline plot, attribute summary, and category:code breakdown will now be exclusive to the site of interest. Similarly for drilling down to users and tasks. 
+</p>
 {% endblock %}
-
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
-{% endblock %}
-
