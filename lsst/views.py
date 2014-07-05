@@ -847,6 +847,33 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         retries = None
         pretries = None
 
+    ## jobset info
+    libjob = None
+    runjobs = []
+    mergejobs = []
+    if 'jobsetid' in job and job['jobsetid'] > 0:
+        jsquery = {}
+        jsquery['jobsetid'] = job['jobsetid']
+        jsquery['produsername'] = job['produsername']
+        values = [ 'pandaid', 'prodsourcelabel', 'processingtype', 'transformation' ]
+        print jsquery
+        jsjobs = []
+        jsjobs.extend(Jobsdefined4.objects.filter(**jsquery).values(*values))
+        jsjobs.extend(Jobsactive4.objects.filter(**jsquery).values(*values))
+        jsjobs.extend(Jobswaiting4.objects.filter(**jsquery).values(*values))
+        jsjobs.extend(Jobsarchived4.objects.filter(**jsquery).values(*values))
+        jsjobs.extend(Jobsarchived.objects.filter(**jsquery).values(*values))
+        if len(jsjobs) > 0:
+            for j in jsjobs:
+                id = j['pandaid']
+                if j['transformation'].find('runAthena') >= 0:
+                    runjobs.append(id)
+                elif j['transformation'].find('buildJob') >= 0:
+                    libjob = id
+                if j['processingtype'] == 'usermerge':
+                    mergejobs.append(id)
+        print 'jobset', libjob, runjobs,mergejobs
+
     if isEventService(job):
         ## for ES jobs, prepare the event table
         evtable = JediEvents.objects.filter(pandaid=job['pandaid']).values()
@@ -912,6 +939,9 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             'evtable' : evtable,
             'debugmode' : debugmode,
             'debugstdout' : debugstdout,
+            'libjob' : libjob,
+            'runjobs' : runjobs,
+            'mergejobs' : mergejobs,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobInfo.html', data, RequestContext(request))

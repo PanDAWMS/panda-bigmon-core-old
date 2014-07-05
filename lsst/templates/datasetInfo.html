@@ -51,13 +51,16 @@
 
 {% else %}
 
-PanDA dataset <b>{{ datasetname }}</b> not found.
+No PanDA dataset <b>{{ datasetname }}</b> found.
 
 {% endif %}
 
 {% endblock %}
 
 {% block helptext %}
+
+{% if columns %}
+
 
 {% if dsrec.vuid %}
 
@@ -73,6 +76,12 @@ See the JEDI twiki for documentation on dataset
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_dataset_status">status transitions</a> and
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Datasets_table">schema</a>.
 </p>
+
+{% endif %}
+
+{% else %}
+
+You can try looking up the dataset <a href="http://panda.cern.ch/server/pandamon/query?dataset={{ datasetname }}">in the old monitor</a> which will try to find it in DQ2
 
 {% endif %}
 

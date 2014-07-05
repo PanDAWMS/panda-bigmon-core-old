@@ -12,11 +12,14 @@
 	<th>PandaID<br>Attempt#</th>
 	<th>Owner{% if job.workinggroup %} &nbsp;  WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
 	<th>TaskID</th>
+{% if job.parentid %}
+    <th>Parent</th>
+{% endif %}
 	<th>Status</th>
 	<th>Created</th>
 	<th>Time<br>to start</th>
 	<th>Duration</th>
-	<th>Mod</th>
+	<th>Modified</th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}Cloud {% endif%}Site</th>
 	<th>Priority</th>
 </tr>
@@ -24,6 +27,10 @@
 	<td>{{ job.pandaid }}<br>Attempt {{ job.attemptnr }}</td>
 	<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
+{% if job.parentid %}
+    <td> <a href="{% url 'jobInfo' %}?pandaid={{ job.parentid }}"> {{ job.parentid }} </a>
+    </td>
+{% endif %}
 	<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
 	<td>{{ job.creationtime|date:"Y-m-d H:i" }}</td>
 	<td>{{ job.waittime }}</td>
@@ -33,7 +40,13 @@
 	<td>{{ job.currentpriority }}</td>
 </tr>
 <tr>
-	<td colspan="10"><b>Job name:</b> &nbsp; <a href="{% url 'jobList' %}?jobname={{ job.jobname }}&taskid={{ job.taskid }}&jeditaskid={{ job.jeditaskid }}&sortby=attemptnr">{{ job.jobname }}</a> &nbsp; #{{ job.attemptnr }}</td>
+	<td colspan="20"><b>Job name:</b> <a href="{% url 'jobList' %}?jobname={{ job.jobname }}&taskid={{ job.taskid }}&jeditaskid={{ job.jeditaskid }}&sortby=attemptnr">{{ job.jobname }}</a> 
+	{% if job.processingtype %} &nbsp; <b>type:</b> {{ job.processingtype }} {% endif %}
+    {% if job.transformation %} &nbsp; <b>transformation:</b> {{ job.transformation|safe }} {% endif %}
+	</td>
+</tr>
+<tr> 
+	<td colspan="20"> <b>Datasets:</b> &nbsp; {% if job.proddblock %} <b>In:</b> <a href="{% url 'datasetInfo' %}?datasetname={{ job.proddblock }}"> {{ job.proddblock }} </a> {% endif %} {% if job.destinationdblock %} &nbsp; <b>Out:</b> <a href="{% url 'datasetInfo' %}?datasetname={{ job.destinationdblock }}"> {{ job.destinationdblock }} </a> {% endif %} </td>
 </tr>
 </table>
 <font size=-1>
@@ -42,6 +55,37 @@
 This is attempt number {{ job.attemptnr }} for this job. To see a history of job attempts click on the job name above.
 {% endif %}
 </font>
+
+<table>
+	{% if job.jobdispatchererrorcode %}
+		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
+		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
+	{% endif %}
+	{% if job.brokerageerrorcode %}
+		<tr><th class="alarm">Brokerage error code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th class="alarm">Brokerage error message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.ddmerrorcode %}
+		<tr><th class="alarm">DDM error code</th><td class="alarm">{{ job.ddmerrorcode }}</td></tr>
+		<tr><th class="alarm">DDM error message</th><td class="alarm">{{ job.ddmerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.exeerrorcode %}
+		<tr><th class="alarm">Execution error code</th><td class="alarm">{{ job.exeerrorcode }}</td></tr>
+		<tr><th class="alarm">Execution error message</th><td class="alarm">{{ job.exeerrordiag }}</td></tr>
+	{% endif %}
+	{% if job.piloterrorcode %}
+		<tr><th class="alarm">Pilot error code</th><td class="alarm">{{ job.piloterrorcode }}</td></tr>
+		<tr><th class="alarm">Pilot error message</th><td class="alarm">{{ job.piloterrordiag }}</td></tr>
+	{% endif %}
+	{% if job.superrorcode %}
+		<tr><th class="alarm">Sup error code</th><td>{{ job.superrorcode }}</td></tr>
+		<tr><th class="alarm">Sup error message</th><td>{{ job.superrordiag }}</td></tr>
+	{% endif %}
+	{% if job.taskbuffererrorcode %}
+		<tr><th class="alarm">TaskBuffer error code</th><td class="alarm">{{ job.taskbuffererrorcode }}</td></tr>
+		<tr><th class="alarm">TaskBuffer error message</th><td class="alarm">{{ job.taskbuffererrordiag }}</td></tr>
+	{% endif %}
+</table>
 
 {% if pretries %}
 <table width=900><tr><td>
@@ -76,13 +120,7 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 {% endif %}
 
 <table>
-<tr><th bgcolor='lightcyan'>View:</th>
-
-{% if job.jobsetid %}
-<td>
-<a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">jobset {{ job.jobsetid }}</a>
-</td>
-{% endif %}
+<tr><th bgcolor='lightcyan'>Job information</th>
 
 {% if logfile.lfn %}
 {% if viewParams.MON_VO == 'ATLAS' %}
@@ -121,7 +159,33 @@ job <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{
 <a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=pilotLog&pandaid={{ pandaid }}">logger records</a>
 </td>
 
-</tr></table>
+</tr>
+
+{% if job.jobsetid %}
+<tr height=10></tr>
+<tr><th  class='tablesection'>Jobset {{ job.jobsetid }}</th>
+
+{% if libjob and libjob != job.pandaid  %}
+<td>
+<a href="{% url 'jobInfo' %}?pandaid={{ libjob }}">build job {{ libjob }}</a>
+</td>
+{% endif %}
+
+{% if runjobs|length > 0 %}
+<td>
+<a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&transformation={{ job.transformation }}">{{ runjobs|length }} run jobs</a>
+</td>
+{% endif %}
+
+{% if mergejobs|length > 0 %}
+<td>
+<a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&processingtype=usermerge">{{ mergejobs|length }} merge jobs</a>
+</td>
+{% endif %}
+
+{% endif %}
+
+</table>
 
 {% if debugmode %}
 {% if debugstdout %}
@@ -210,10 +274,6 @@ But if you want, you can check.
 
 <table>
 <tr><th colspan=20 bgcolor='lightcyan'> Other key job parameters </th></tr>
-	{% if job.jobsetid %}<tr><th>Jobset ID</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&jobsetid={{job.jobsetid}}&display_limit=100">{{ job.jobsetid }}</a></td></tr>{% endif %}
-	{% if job.processingtype %}<tr><th>Processing type</th><td>{{ job.processingtype }}</td></tr></tr>{% endif %}
-	{% if job.prodsourcelabel %}<tr><th>Job type</th><td><a href="{% url 'jobList' %}?produsername={{job.produsername}}&prodsourcelabel={{job.prodsourcelabel}}&display_limit=100">{{ job.prodsourcelabel }}</a></td></tr>{% endif %}
-	{% if job.transformation %}<tr><th>Payload script (transformation)</th><td>{{ job.transformation|safe }}</td></tr></tr>{% endif %}
 	{% if job.atlasrelease %}<tr><th>Release</th><td>{{ job.atlasrelease }}</td></tr></tr>{% endif %}
 	{% if job.transexitcode != '0' and job.transexitcode != 'None' and job.transexitcode != '' %}<tr><th class="alarm">Transformation exit code</th><td class="alarm">{{ job.transexitcode }} (non-zero exit code from job payload)</td></tr></tr>{% endif %}
 	{% if job.parentid %}<tr><th>Parent job ID</th><td><a href="{% url 'jobInfo' job.parentid %}">{{ job.parentid }}</a></td></tr></tr>{% endif %}
@@ -223,34 +283,6 @@ But if you want, you can check.
 	{% if job.specialhandling %}<tr><th>Special handling</th><td>{{ job.specialhandling }}</td></tr>{% endif %}
 	{% if job.nevents %}<tr><th># events</th><td>{{ job.nevents }}</td></tr>{% endif %}
 	{% if job.attemptnr %}<tr><th>Attempt number</th><td>{{ job.attemptnr }} of a maximum {{ job.maxattempt }}</td></tr></tr>{% endif %}
-	{% if job.jobdispatchererrorcode %}
-		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
-		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
-	{% endif %}
-	{% if job.brokerageerrorcode %}
-		<tr><th class="alarm">Brokerage error code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
-		<tr><th class="alarm">Brokerage error message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
-	{% endif %}
-	{% if job.ddmerrorcode %}
-		<tr><th class="alarm">DDM error code</th><td class="alarm">{{ job.ddmerrorcode }}</td></tr>
-		<tr><th class="alarm">DDM error message</th><td class="alarm">{{ job.ddmerrordiag }}</td></tr>
-	{% endif %}
-	{% if job.exeerrorcode %}
-		<tr><th class="alarm">Execution error code</th><td class="alarm">{{ job.exeerrorcode }}</td></tr>
-		<tr><th class="alarm">Execution error message</th><td class="alarm">{{ job.exeerrordiag }}</td></tr>
-	{% endif %}
-	{% if job.piloterrorcode %}
-		<tr><th class="alarm">Pilot error code</th><td class="alarm">{{ job.piloterrorcode }}</td></tr>
-		<tr><th class="alarm">Pilot error message</th><td class="alarm">{{ job.piloterrordiag }}</td></tr>
-	{% endif %}
-	{% if job.superrorcode %}
-		<tr><th class="alarm">Sup error code</th><td>{{ job.superrorcode }}</td></tr>
-		<tr><th class="alarm">Sup error message</th><td>{{ job.superrordiag }}</td></tr>
-	{% endif %}
-	{% if job.taskbuffererrorcode %}
-		<tr><th class="alarm">TaskBuffer error code</th><td class="alarm">{{ job.taskbuffererrorcode }}</td></tr>
-		<tr><th class="alarm">TaskBuffer error message</th><td class="alarm">{{ job.taskbuffererrordiag }}</td></tr>
-	{% endif %}
 	{% if job.destinationse %}<tr><th>Output destination</th><td>{{ job.destinationse }}</td></tr>{% endif %}
 	{% if job.cpuconsumptiontime %}
 		<tr><th>CPU consumption time (s)</th><td>{{ job.cpuconsumptiontime }}</td></tr>
@@ -296,6 +328,12 @@ But if you want, you can check.
 
 {% block helptext %}
 
+{% if job.attemptnr > 0 %}
+<p>
+Re-attempts of a job share the same job name. To see all attempts, click the job name in the top summary.
+</p>
+{% endif %}
+
 <p>
 {% if job.jobstatus == 'assigned' %} Status <b class='assigned'>assigned</b> indicates the job has been assigned to a site ({{ job.computingsite }}) and preparations to have the input data ready are underway (e.g. subscriptions, tape staging). {% endif %}
 {% if job.jobstatus == 'activated' %} Status <b class='activated'>activated</b> indicates that the job is ready to be dispatched to a pilot at the site where it will run, {{ job.computingsite }}. {% endif %}
@@ -310,8 +348,7 @@ But if you want, you can check.
 {% if job.jobstatus == 'defined' %} Status <b class='defined'>defined</b> indicates that the job has been received by PanDA and the process of assigning it for execution has begun. {% endif %}
 {% if job.jobstatus == 'waiting' %} Status <b class='waiting'>waiting</b> indicates that data handling preparations for the job are underway and have to be completed before the job can be activated. {% endif %}
 {% if job.jobstatus == 'throttled' %} Status <b class='throttled'>throttled</b> indicates that dispatch of the job has been postponed due to heavy network use by other jobs. {% endif %}
-</p>
-<p>
+
 For information on PanDA job states and their transitions <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/PandaShiftGuide#Job_state_definitions_in_Panda'>see here</a>.
 </p>
 
@@ -319,11 +356,27 @@ For information on PanDA job states and their transitions <a href='https://twiki
 If you're wondering how job priority is calculated, <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaAthena#Job_priority">see here</a>.
 </p>
 
-{% if viewParams.MON_VO == 'ATLAS' and job.jobstatus == 'failed' and not debugmode %}
+{% if viewParams.MON_VO == 'ATLAS' %}
+
+{% if job.jobstatus == 'failed' and not debugmode %}
 <p>
 Note that the --debugMode option is available as a pathena/prun option, it causes the job to report its stdout every few minutes, and you can view it here on monitor job pages.
 </p>
 {% endif %}
 
+<p>
+Documentation on <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/DAonPanda'>distributed analysis on PanDA</a> (how to use pathena, prun etc.)
+</p>
+
+{% if not job.jeditaskid %}
+
+<p>
+You may want to look at using JEDI for analysis. 
+New documentation on JEDI for analysis</b>, its advantages and how to use it, 
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">can be found here</a>.
+</p>
+{% endif %}
+
+{% endif %}
 
 {% endblock %}
