@@ -215,6 +215,17 @@ But if you want, you can check.
 {% endif %}
 
 {% if nfiles > 0 %}
+            <script language=javascript type='text/javascript'>
+            function toggle_files() {
+            var el = document.getElementById("filestable"); 
+            if ( el.style.display != 'none' ) { 
+             el.style.display = 'none' } 
+            else { el.style.display = ''; } 
+             } </script>
+
+<a style="cursor:pointer;" onClick=toggle_files()><font size=-1 color=black>Show/hide list of {{ files|length }} job files</font></a>
+
+<div id="filestable" style="display: inline">
 <table>
 <tr><th colspan=20 bgcolor='lightcyan'> {{ nfiles }} job files </th></tr>
 <tr><th>Filename (Type)</th><th>Size (MB)</th><th>Status</th><th>Dataset</th></tr>
@@ -236,7 +247,10 @@ But if you want, you can check.
    <font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.dataset}}"> {{ file.dataset }} </a></font></td></tr>
 {% endfor %}
 </table>
+</div>
 {% endif %}
+
+<p>
 
 {% if "esmerge" in job.specialhandling %}
 
