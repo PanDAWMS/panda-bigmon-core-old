@@ -159,11 +159,15 @@ job <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{
 <a href="{% url 'pandaLogger' %}?category=panda.mon.prod&type=pilotLog&pandaid={{ pandaid }}">logger records</a>
 </td>
 
+<td>
+<a href="{% url 'jobList' %}?parentid={{ job.pandaid }}">look for child jobs</a>
+</td>
+
 </tr>
 
 {% if job.jobsetid %}
 <tr height=10></tr>
-<tr><th  class='tablesection'>Jobset {{ job.jobsetid }}</th>
+<tr><th  class='tablesection'>Jobset <a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}">{{ job.jobsetid }}</a></th>
 
 {% if libjob and libjob != job.pandaid  %}
 <td>
@@ -172,15 +176,11 @@ job <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{
 {% endif %}
 
 {% if runjobs|length > 0 %}
-<td>
-<a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&transformation={{ job.transformation }}">{{ runjobs|length }} run jobs</a>
-</td>
+<td><a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&processingtype=pathena">{{ runjobs|length }} run jobs</a></td>
 {% endif %}
 
 {% if mergejobs|length > 0 %}
-<td>
-<a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&processingtype=usermerge">{{ mergejobs|length }} merge jobs</a>
-</td>
+<td><a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}&processingtype=usermerge">{{ mergejobs|length }} merge jobs</a></td>
 {% endif %}
 
 {% endif %}
