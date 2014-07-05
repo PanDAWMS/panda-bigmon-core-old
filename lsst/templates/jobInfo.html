@@ -58,32 +58,32 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 
 <table>
 	{% if job.jobdispatchererrorcode %}
-		<tr><th class="alarm">Job dispatch error code</th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
-		<tr><th class="alarm">Job dispatch error message</th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Job dispatch error code</span></th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Job dispatch error message</span></th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
 	{% endif %}
 	{% if job.brokerageerrorcode %}
-		<tr><th class="alarm">Brokerage error code</th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
-		<tr><th class="alarm">Brokerage error message</th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Brokerage error code</span></th><td class="alarm">{{ job.brokerageerrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Brokerage error message</span></th><td class="alarm">{{ job.brokerageerrordiag }}</td></tr>
 	{% endif %}
 	{% if job.ddmerrorcode %}
-		<tr><th class="alarm">DDM error code</th><td class="alarm">{{ job.ddmerrorcode }}</td></tr>
-		<tr><th class="alarm">DDM error message</th><td class="alarm">{{ job.ddmerrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">DDM error code</span></th><td class="alarm">{{ job.ddmerrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">DDM error message</span></th><td class="alarm">{{ job.ddmerrordiag }}</td></tr>
 	{% endif %}
 	{% if job.exeerrorcode %}
-		<tr><th class="alarm">Execution error code</th><td class="alarm">{{ job.exeerrorcode }}</td></tr>
-		<tr><th class="alarm">Execution error message</th><td class="alarm">{{ job.exeerrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Execution error code</span></th><td class="alarm">{{ job.exeerrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Execution error message</span></th><td class="alarm">{{ job.exeerrordiag }}</td></tr>
 	{% endif %}
 	{% if job.piloterrorcode %}
-		<tr><th class="alarm">Pilot error code</th><td class="alarm">{{ job.piloterrorcode }}</td></tr>
-		<tr><th class="alarm">Pilot error message</th><td class="alarm">{{ job.piloterrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Pilot error code</span></th><td class="alarm">{{ job.piloterrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Pilot error message</span></th><td class="alarm">{{ job.piloterrordiag }}</td></tr>
 	{% endif %}
 	{% if job.superrorcode %}
-		<tr><th class="alarm">Sup error code</th><td>{{ job.superrorcode }}</td></tr>
-		<tr><th class="alarm">Sup error message</th><td>{{ job.superrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Supervisor error code</span></th><td class="alarm">{{ job.superrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">Supervisor error message</span></th><td class="alarm">{{ job.superrordiag }}</td></tr>
 	{% endif %}
 	{% if job.taskbuffererrorcode %}
-		<tr><th class="alarm">TaskBuffer error code</th><td class="alarm">{{ job.taskbuffererrorcode }}</td></tr>
-		<tr><th class="alarm">TaskBuffer error message</th><td class="alarm">{{ job.taskbuffererrordiag }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">TaskBuffer error code</span></th><td class="alarm">{{ job.taskbuffererrorcode }}</td></tr>
+		<tr><th class="tablesection"><span class="alarm">TaskBuffer error message</span></th><td class="alarm">{{ job.taskbuffererrordiag }}</td></tr>
 	{% endif %}
 </table>
 
