@@ -1765,7 +1765,7 @@ def dashProduction(request):
 #    fieldName = forms.CharField(max_length=100)
 
 def taskList(request):
-    query = setupView(request, hours=180*24, limit=9999999)
+    query = setupView(request, hours=30*24, limit=9999999)
 
     for param in request.GET:
         for field in JediTasks._meta.get_all_field_names():
@@ -1778,7 +1778,7 @@ def taskList(request):
             query['eventservice'] = 1
     tasks = JediTasks.objects.filter(**query).values()
     tasks = cleanTaskList(tasks)
-    tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+
     ntasks = len(tasks)
 
     nmax = ntasks
@@ -1804,8 +1804,14 @@ def taskList(request):
                 dsinfo[taskid] = []
             dsinfo[taskid].append(ds)
     for task in tasks:
+        if len(task['errordialog']) > 100: task['errordialog'] = task['errordialog'][:90]+'...'
         #if task['status'] == 'running' and task['jeditaskid'] in dsinfo:
-        dstotals = None
+        dstotals = {}
+        dstotals['nfiles'] = 0
+        dstotals['nfilesfinished'] = 0
+        dstotals['nfilesfailed'] = 0
+        dstotals['pctfinished'] = 0
+        dstotals['pctfailed'] = 0
         if (task['jeditaskid'] in dsinfo):
             nfiles = 0
             nfinished = 0
@@ -1822,8 +1828,33 @@ def taskList(request):
                 dstotals['nfilesfailed'] = nfailed
                 dstotals['pctfinished'] = int(100.*nfinished/nfiles)
                 dstotals['pctfailed'] = int(100.*nfailed/nfiles)
+
         task['dsinfo'] = dstotals
 
+    if 'sortby' in request.GET:
+        sortby = request.GET['sortby']
+        if sortby == 'time-ascending':
+            tasks = sorted(tasks, key=lambda x:x['modificationtime'])
+        if sortby == 'time-descending':
+            tasks = sorted(tasks, key=lambda x:x['modificationtime'], reverse=True)
+        elif sortby == 'priority':
+            tasks = sorted(tasks, key=lambda x:x['taskpriority'], reverse=True)
+        elif sortby == 'nfiles':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['nfiles'], reverse=True)
+        elif sortby == 'pctfinished':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfinished'], reverse=True)
+        elif sortby == 'pctfailed':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfailed'], reverse=True)
+        elif sortby == 'taskname':
+            tasks = sorted(tasks, key=lambda x:x['taskname'])
+        elif sortby == 'jeditaskid' or sortby == 'taskid':
+            tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    else:
+        sortby = "jeditaskid"
+        tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+
+    xurl = extensibleURL(request)
+    nosorturl = removeParam(xurl, 'sortby',mode='extensible')
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = taskSummaryDict(request,tasks)
         data = {
@@ -1832,7 +1863,8 @@ def taskList(request):
             'tasks': tasks[:nmax],
             'ntasks' : ntasks,
             'sumd' : sumd,
-            'xurl' : extensibleURL(request),
+            'xurl' : xurl,
+            'nosorturl' : nosorturl,
             'url_nolimit' : url_nolimit,
             'display_limit' : display_limit,
         }

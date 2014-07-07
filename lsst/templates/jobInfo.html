@@ -223,7 +223,9 @@ But if you want, you can check.
             else { el.style.display = ''; } 
              } </script>
 
+{% if files|length > 10 %}
 <a style="cursor:pointer;" onClick=toggle_files()><font size=-1 color=black>Show/hide list of {{ files|length }} job files</font></a>
+{% endif %}
 
 <div id="filestable" style="display: inline">
 <table>

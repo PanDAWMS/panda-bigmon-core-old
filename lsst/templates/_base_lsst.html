@@ -173,11 +173,11 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
           {% block top_menu_6 %}
           <a href="#">Tasks</a>
           <ul class="dropdown">
-            <li><a href="{% url 'taskList' %}?display_limit=100">All</a></li>
+            <li><a href="{% url 'taskList' %}?display_limit=300">All</a></li>
 {% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'taskList' %}?tasktype=anal&display_limit=100">Analysis</a></li>
-            <li><a href="{% url 'taskList' %}?tasktype=prod&display_limit=100">Production</a></li>
-            <li><a href="{% url 'taskList' %}?eventservice=1&display_limit=100">Event service</a></li>
+            <li><a href="{% url 'taskList' %}?tasktype=anal&display_limit=300">Analysis</a></li>
+            <li><a href="{% url 'taskList' %}?tasktype=prod&display_limit=300">Production</a></li>
+            <li><a href="{% url 'taskList' %}?eventservice=1&display_limit=300">Event service</a></li>
 {% endif %}
           </ul>
           {% endblock %}
