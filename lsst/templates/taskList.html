@@ -49,7 +49,7 @@
 	<th><a href="{{nosorturl}}sortby=taskname">Task name</a><br>Type &nbsp; Group &nbsp; User {% if requestParams.tasktype == 'prod' %} &nbsp; TrackerLink {% endif %}<br><font color='brown'>Logged status</font></th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}<br><a href="{{nosorturl}}sortby=nfiles">Nfiles</a></th>
 	<th><a href="{{nosorturl}}sortby=pctfinished"><span class='finished'>fin%</span></a> <a href="{{nosorturl}}sortby=pctfailed"><span class='failed'>fail%</span></a></th>
-	<th><a href="{{nosorturl}}sortby=time_descending">Modified</a></th>
+	<th><a href="{{nosorturl}}sortby=time-descending">Modified</a></th>
 	<th><a href="{{nosorturl}}sortby=priority">Priority</a></th>
 </tr>
     {% for task in tasks %}
