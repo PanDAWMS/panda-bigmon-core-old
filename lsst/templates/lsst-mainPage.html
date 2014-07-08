@@ -102,7 +102,7 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"><font size=-1>
 <!-- most recent at the top -->
 <li class="news">20140708: Stalled jobs search added
-<li class="news">20140708: Show jobs transferring &gt;36hrs in prod dash
+<li class="news">20140708: Show jobs transferring &gt;36hrs, by cloud, in prod dash
 <li class="news">20140707: Task page sorting
 <li class="news">20140704: Links to <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">new documentation on JEDI for analysis</a>
 <li class="news">20140703: Metadata added to job pages
@@ -185,7 +185,7 @@ Other ATLAS PanDA specifics can be found on the <a href="https://twiki.cern.ch/t
 <li class="news"> User: the user name exactly as known to PanDA, case insensitive. See the user list pages for the names as known to PanDA.
 <li class="news"> Dataset: the JEDI dataset name, displays a detail page for the dataset. JEDI datasets record information necessary for processing datasets, they are not part of the data management system. 
 <li class="news"> File: as for datasets; these are the files contained in JEDI datasets. The file information records e.g. processing attempts on a file (full file or range of events in a file).
-<li class="news"> Stalled jobs: shows jobs that have been in the selected state more than N hours (determined from the statechangetime parameter)
+<li class="news"> Stalled jobs: shows jobs that have been in the selected state for more than N hours (determined from the statechangetime job parameter)
 </ul></p>
 
 {% endblock %}

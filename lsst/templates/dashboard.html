@@ -28,7 +28,28 @@ Click on column titles to sort.
 
 {% if noldtransjobs > 0 %}
 <p>
-<div class='section'>Jobs in transferring state more than {{ hoursSinceUpdate }} hours: <a href="{% url 'jobList' %}?transferringnotupdated={{ hoursSinceUpdate }}&display_limit=100"> {{ noldtransjobs }}</a></div>
+<table>
+<tr class='tablesection'> <th colspan=20> Jobs in transferring state more than {{ hoursSinceUpdate }} hours, by home cloud</a></th></tr>
+<tr class='tablesection'>
+<th> Total </th>
+{% for cloud in transclouds %}
+<th> {{ cloud.name }} </th>
+{% endfor %}
+</tr>
+<tr>
+<td> <a href="{% url 'jobList' %}?transferringnotupdated={{ hoursSinceUpdate }}&display_limit=100">{{ noldtransjobs }}</a> </td>
+{% for cloud in transclouds %}
+<td> {{ cloud.count }} </td>
+{% endfor %}
+</tr>
+<tr class='tablesection'> <th colspan=20> By multi-cloud production cloud</a></th></tr>
+<tr>
+<td> <a href="{% url 'jobList' %}?transferringnotupdated={{ hoursSinceUpdate }}&display_limit=100">{{ noldtransjobs }}</a> </td>
+{% for cloud in transrclouds %}
+<td> <a href="{% url 'jobList' %}?transferringnotupdated={{ hoursSinceUpdate }}&cloud={{ cloud.name }}&display_limit=100">{{ cloud.count }}</a> </td>
+{% endfor %}
+</tr>
+</table>
 </p>
 {% endif %}
 

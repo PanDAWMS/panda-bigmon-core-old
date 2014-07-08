@@ -37,6 +37,7 @@ from core.common.settings.config import ENV
 from settings.local import dbaccess
 
 homeCloud = {}
+cloudList = [ 'CA', 'CERN', 'DE', 'ES', 'FR', 'IT', 'ND', 'NL', 'RU', 'TW', 'UK', 'US' ]
 
 statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'throttled', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
 sitestatelist = [ 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
@@ -262,6 +263,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
 
 def cleanJobList(jobs, mode='drop'):
     for job in jobs:
+        try:
+            job['homecloud'] = homeCloud[job['cloud']]
+        except:
+            job['homecloud'] = None
         if not job['produsername']:
             if job['produserid']:
                 job['produsername'] = job['produserid']
@@ -1740,9 +1745,7 @@ def dashboard(request, view=''):
 
     hoursSinceUpdate = 36
     if view == 'production':
-        oldtransjobs = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
-        print oldtransjobs
-        noldtransjobs = oldtransjobs
+        noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
     else:
         noldtransjobs = 0
 
@@ -1766,6 +1769,8 @@ def dashboard(request, view=''):
             'taskstates' : taskstatedict,
             'taskdays' : 7,
             'noldtransjobs' : noldtransjobs,
+            'transclouds' : transclouds,
+            'transrclouds' : transrclouds,
             'hoursSinceUpdate' : hoursSinceUpdate,
         }
         return render_to_response('dashboard.html', data, RequestContext(request))
@@ -2910,7 +2915,7 @@ def workQueues(request):
         return  HttpResponse(json_dumps(queues), mimetype='text/html')
 
 def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values = standard_fields, count = False):
-    query = {}
+    query = setupView(request, opmode='notime', limit=99999999)
     if 'jobstatus' in request.GET: state = request.GET['jobstatus']
     if 'transferringnotupdated' in request.GET: hoursSinceUpdate = int(request.GET['transferringnotupdated'])
     if 'statenotupdated' in request.GET: hoursSinceUpdate = int(request.GET['statenotupdated'])
@@ -2922,13 +2927,39 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
     #query['statechangetime__gte'] = mindate
     query['jobstatus'] = state
     if count:
-        jobs = Jobsactive4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
-        jobs2 = Jobsdefined4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
-        jobs3 = Jobswaiting4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
-        if jobs: count = jobs[0]['jobstatus__count']
-        if jobs2: count += jobs2[0]['jobstatus__count']
-        if jobs3: count += jobs3[0]['jobstatus__count']
-        return count
+        jobs = []
+        jobs.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+        jobs.extend(Jobsdefined4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+        jobs.extend(Jobswaiting4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')))
+        ncount = 0
+        perCloud = {}
+        perRCloud = {}
+        for cloud in cloudList:
+            perCloud[cloud] = 0
+            perRCloud[cloud] = 0
+        for job in jobs:
+            site = job['computingsite']
+            if site in homeCloud:
+                cloud = homeCloud[site]
+                if not cloud in perCloud:
+                    perCloud[cloud] = 0
+                perCloud[cloud] += job['jobstatus__count']
+            cloud = job['cloud']
+            if not cloud in perRCloud:
+                perRCloud[cloud] = 0
+            perRCloud[cloud] += job['jobstatus__count']
+            ncount += job['jobstatus__count']
+        perCloudl = []
+        for c in perCloud:
+            pcd = { 'name' : c, 'count' : perCloud[c] }
+            perCloudl.append(pcd)
+        perCloudl = sorted(perCloudl, key=lambda x:x['name'])
+        perRCloudl = []
+        for c in perRCloud:
+            pcd = { 'name' : c, 'count' : perRCloud[c] }
+            perRCloudl.append(pcd)
+        perRCloudl = sorted(perRCloudl, key=lambda x:x['name'])
+        return ncount, perCloudl, perRCloudl
     else:
         jobs = []
         jobs.extend(Jobsactive4.objects.filter(**query).values(*values))
