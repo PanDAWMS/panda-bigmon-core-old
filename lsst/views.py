@@ -2176,7 +2176,7 @@ def errorSummaryDict(request,jobs):
     sumd = {}
     ## histogram of errors vs. time, for plotting
     errHist = {}
-    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'computingelement' ]
+    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'computingelement', 'jobstatus' ]
 
     for job in jobs:
         if job['jobstatus'] not in [ 'failed', 'transferring', 'holding' ]: continue
