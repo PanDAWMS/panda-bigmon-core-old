@@ -1561,6 +1561,15 @@ def wnInfo(request,site,wnname='all'):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def dashboard(request, view=''):
+
+    hoursSinceUpdate = 36
+    if view == 'production':
+        noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
+    else:
+        noldtransjobs = 0
+        transclouds = []
+        transrclouds = []
+
     errthreshold = 10
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
         VOMODE = 'atlas'
@@ -1742,12 +1751,6 @@ def dashboard(request, view=''):
                 clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['pctfail'],reverse=True)
 
     cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
-
-    hoursSinceUpdate = 36
-    if view == 'production':
-        noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
-    else:
-        noldtransjobs = 0
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
