@@ -29,6 +29,8 @@
 {% if requestParams.jeditaskid %}<br><b>JEDI Task: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }} &nbsp; {{ taskname }}</a> </b> {% endif %}
 {% if requestParams.taskid %}<br><b>Task ID: {{ requestParams.taskid }}</b> {% endif %}
 {% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
+{% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
+
 <p>
 
 <p>Job modification times in this listing range from <b>{{ tfirst|date:"Y-m-d H:i" }}</b> to <b>{{ tlast|date:"Y-m-d H:i" }}</b><p>

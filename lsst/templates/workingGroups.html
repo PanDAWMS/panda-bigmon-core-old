@@ -60,7 +60,7 @@
 <tr>
 <td> {{ wg.name }} </td>
 <td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&days={{days}}&display_limit=100">{{ wg.count }}</a> </td>
-<td>{% if wg.pctfail > errthreshold %} <font color=red>{{ wg.pctfail  }}</font> {% else %} {{ wg.pctfail  }} {% endif %} </td>
+<td><a href="{% url 'errorSummary' %}?workinggroup={{wg.name}}&days={{days}}">{% if wg.pctfail > errthreshold %} <font color=red>{{ wg.pctfail  }}</font> {% else %} {{ wg.pctfail  }} {% endif %}</a> </td>
 {% for state in wg.statelist %}
 <td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&jobstatus={{ state.name }}&days={{days}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </td>
 {% endfor %}
@@ -81,6 +81,7 @@ No jobs with working group set were found.
 This page summarizes recent task and job status for working groups.
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the job counts to go to job listings.
+Click on the failure percentage to go to an error summary.
 For task state documentation <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status'>see this twiki</a>.
 
 {% endblock %}
