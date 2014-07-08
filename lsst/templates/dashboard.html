@@ -168,7 +168,7 @@ Click on column titles to sort.
 <th  bgcolor=whitesmoke> {% if cloud.name != 'All' %}{% if cloud.name != '' %}<a href="#cloud_{{ cloud.name }}"><span class="{{cloud.status}}">{{ cloud.name }}</span></a>{% else %} Failed before site assigned {% endif %} {% else %}  All clouds {% endif %}</th>
 <th  bgcolor=whitesmoke> <span class="{{cloud.status}}">{{ cloud.status }}</span> </th>
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ cloud.count }} </a></td>
-<th  bgcolor=whitesmoke align='right'> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </th>
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a></th>
 {% for state in cloud.statelist %}
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
 {% endfor %}
@@ -204,7 +204,7 @@ Click on column titles to sort.
 <th bgcolor=whitesmoke> {{ cloud.name }} all sites {% if cloudview != 'region' and view != 'analysis' %} including MCP {% endif %}</th>
 <th bgcolor=whitesmoke> </th>
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ cloud.count }}</a> </th>
-<th  bgcolor=whitesmoke align='right'> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %}  </th>
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a> </th>
 {% for state in cloud.statelist %}
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
@@ -214,7 +214,7 @@ Click on column titles to sort.
 <td> {% if site.name %} <a href="{% url 'siteInfo' site.name %}"><span class="{{ site.status }}">{{ site.name }}</span></a> {% else %} Failed before site assignment {% endif %} </td>
 <td><span class="{{site.status}}">{{ site.status  }}</span> </td>
 <td align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ site.count }} </a></td>
-<td> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </td>
+<td> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&computingsite={{site.name}}&hours={{hours}}"> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </a> </td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
 {% endfor %}

@@ -48,7 +48,7 @@
 	<th><a href="{{nosorturl}}">ID</a><br>Parent</th>
 	<th><a href="{{nosorturl}}sortby=taskname">Task name</a><br>Type &nbsp; Group &nbsp; User {% if requestParams.tasktype == 'prod' %} &nbsp; TrackerLink {% endif %}<br><font color='brown'>Logged status</font></th>
 	<th>{% if viewParams.MON_VO == 'ATLAS' %}JEDI task status{% else %}Status{% endif %}<br><a href="{{nosorturl}}sortby=nfiles">Nfiles</a></th>
-	<th><a href="{{nosorturl}}sortby=pctfinished"><span class='finished'>fin%</span></a> <a href="{{nosorturl}}sortby=pctfailed"><span class='failed'>fail%</span></a></th>
+	<th>Input files <br><a href="{{nosorturl}}sortby=pctfinished"><span class='finished'>finish%</span></a> <a href="{{nosorturl}}sortby=pctfailed"><span class='failed'>fail%</span></a></th>
 	<th><a href="{{nosorturl}}sortby=time-descending">Modified</a></th>
 	<th><a href="{{nosorturl}}sortby=priority">Priority</a></th>
 </tr>
@@ -59,7 +59,7 @@
 		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.tasktype }} &nbsp; {% if task.workinggroup %} <a href="{% url 'taskList' %}?workinggroup={{ task.workinggroup }}">{{ task.workinggroup }} &nbsp; {% endif %} <a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font> {% if task.ticketid %} &nbsp; <a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}"> {% if task.ticketsystemtype %}{{ task.ticketsystemtype }} {% else %} JIRA {% endif %}</a> {% endif %} <br><font color='brown'>{{ task.errordialog|safe }}</font></td>
 		<td><span  class='{{task.status}}'>{{ task.status }}</span>
         {% if task.dsinfo.nfiles > 0 %} <br>{{task.dsinfo.nfiles}} {% endif %} </td>
-        <td>{% if task.dsinfo.nfilesfinished > 0 %}<span  class='finished'>{{task.dsinfo.pctfinished}}%</span>{% endif %} {% if task.dsinfo.nfilesfailed > 0 %}<span class='failed'>{{task.dsinfo.pctfailed}}%</span>{% endif %}
+        <td>{% if task.dsinfo.nfilesfinished > 0 %}<span  class='finished'>{{task.dsinfo.pctfinished}}%</span>{% endif %} {% if task.dsinfo.nfilesfailed > 0 %}<a href="{% url 'errorSummary' %}?jeditaskid={{task.jeditaskid}}"><span class='failed'> {{task.dsinfo.pctfailed}}%{% if task.dsinfo.pctfailed == 0 %} ({{ task.dsinfo.nfilesfailed }} files) {% endif %}</span>{% endif %}</a>
 		</td>
 		<td><font size=-1>{{ task.modificationtime|date:"Y-m-d H:i" }}</font></td>
 		<td>{{ task.taskpriority }}</td>
@@ -73,6 +73,11 @@
 {% endblock %}
 
 {% block helptext %}
+
+<p>
+Finished/failed progress of the task is indicated by the percentage of input files that are finished/failed.
+Click on the failed file percentage to see a summary of the errors. When the failed file percentage is zero (rounded) but the number of failed files is non-zero, the number of failed files is shown.
+</p>
 
 <p>
 The JEDI twiki has information on JEDI task

@@ -693,6 +693,10 @@ def jobList(request, mode=None, param=None):
     else:
         sortby = "PandaID"
 
+    taskname = ''
+    if 'jeditaskid' in request.GET:
+        taskname = getTaskName('jeditaskid',request.GET['jeditaskid'])
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         sumd = jobSummaryDict(request, jobs)
         xurl = extensibleURL(request)
@@ -718,6 +722,7 @@ def jobList(request, mode=None, param=None):
             'display_limit' : display_limit,
             'sortby' : sortby,
             'nosorturl' : nosorturl,
+            'taskname' : taskname,
         }
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
@@ -2344,11 +2349,22 @@ def errorSummaryDict(request,jobs):
 
     return errsByCountL, errsBySiteL, errsByUserL, errsByTaskL, suml, errHistL
 
+def getTaskName(tasktype,taskid):
+    taskname = ''
+    if tasktype == 'taskid':
+        taskname = ''
+    elif tasktype == 'jeditaskid':
+        tasks = JediTasks.objects.filter(jeditaskid=taskid).values('taskname')
+        if len(tasks) > 0:
+            taskname = tasks[0]['taskname']
+    return taskname
+
 def errorSummary(request):
     if 'sortby' in request.GET:
         sortby = request.GET['sortby']
     else:
         sortby = 'alpha'
+
     query = setupView(request, hours=12, limit=3000)
     query['jobstatus__in'] = [ 'failed', 'holding' ]
     jobtype = ''
@@ -2368,6 +2384,11 @@ def errorSummary(request):
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
     errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs)
+
+    taskname = ''
+    if 'jeditaskid' in request.GET:
+        taskname = getTaskName('jeditaskid',request.GET['jeditaskid'])
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         nosorturl = removeParam(request.get_full_path(), 'sortby')
         xurl = extensibleURL(request)
@@ -2392,6 +2413,7 @@ def errorSummary(request):
             'tfirst' : TFIRST,
             'tlast' : TLAST,
             'sortby' : sortby,
+            'taskname' : taskname,
         }
         data.update(getContextVariables(request))
         return render_to_response('errorSummary.html', data, RequestContext(request))

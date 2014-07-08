@@ -191,7 +191,7 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
           {% block top_menu_7 %}
           <a href="#">Errors</a>
           <ul class="dropdown">
-            <li><a href="{% url 'errorSummary' %}?sortyby=count">All</a></li>
+            <li><a href="{% url 'errorSummary' %}?sortby=count">All</a></li>
 {% if viewParams.MON_VO == 'ATLAS' %}
             <li><a href="{% url 'errorSummary' %}?jobtype=analysis&sortby=count">Analysis</a></li>
             <li><a href="{% url 'errorSummary' %}?jobtype=production&sortby=count">Production</a></li>
