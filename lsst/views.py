@@ -620,7 +620,9 @@ def jobList(request, mode=None, param=None):
     jobs = []
     values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname', 'computingelement'
     if 'transferringnotupdated' in request.GET:
-        jobs = stateNotUpdated(request, state='transferring', hoursSinceUpdate=int(request.GET['transferringnotupdated']),values=values)
+        jobs = stateNotUpdated(request, state='transferring', values=values)
+    elif 'statenotupdated' in request.GET:
+        jobs = stateNotUpdated(request, values=values)
     else:
         jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
         jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -2909,6 +2911,9 @@ def workQueues(request):
 
 def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values = standard_fields, count = False):
     query = {}
+    if 'jobstatus' in request.GET: state = request.GET['jobstatus']
+    if 'transferringnotupdated' in request.GET: hoursSinceUpdate = int(request.GET['transferringnotupdated'])
+    if 'statenotupdated' in request.GET: hoursSinceUpdate = int(request.GET['statenotupdated'])
     moddate = datetime.utcnow() - timedelta(hours=hoursSinceUpdate)
     moddate = moddate.strftime(defaultDatetimeFormat)
     mindate = datetime.utcnow() - timedelta(hours=24*30)
@@ -2918,8 +2923,15 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
     query['jobstatus'] = state
     if count:
         jobs = Jobsactive4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
-        print 'count',jobs
-        return jobs[0]['jobstatus__count']
+        jobs2 = Jobsdefined4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
+        jobs3 = Jobswaiting4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
+        if jobs: count = jobs[0]['jobstatus__count']
+        if jobs2: count += jobs2[0]['jobstatus__count']
+        if jobs3: count += jobs3[0]['jobstatus__count']
+        return count
     else:
-        jobs = Jobsactive4.objects.filter(**query).values(*values)
+        jobs = []
+        jobs.extend(Jobsactive4.objects.filter(**query).values(*values))
+        jobs.extend(Jobsdefined4.objects.filter(**query).values(*values))
+        jobs.extend(Jobswaiting4.objects.filter(**query).values(*values))
         return jobs

@@ -76,6 +76,21 @@ Dataset </td><td><font size=-1><input id="datasetname" name="datasetname" size="
 <tr><td><form action="{% url 'fileInfo' %}" method='get'>
 File </td><td><font size=-1><input id="filename" name="filename" size="25" maxlength="300" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
+<tr><td><form action="{% url 'jobList' %}" method='get'>
+Stalled jobs </td><td> in 
+<select name="jobstatus" class="input8">
+    <option value="defined"><span class="defined">defined</span></option>
+    <option value="waiting"><span class="waiting">waiting</span></option>
+    <option value="assigned"><span class="assigned">assigned</span></option>
+    <option value="activated"><span class="activated">activated</span></option>
+    <option value="starting"><span class="starting">starting</span></option>
+    <option value="running"><span class="running">running</span></option>
+    <option value="holding"><span class="holding">holding</span></option>
+    <option value="transferring"><span class="transferring">transferring</span></option>
+</select>
+for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='submit' value='Submit' /></form></font></td></tr>
+
+
 </table>
 
 </td>
@@ -86,6 +101,7 @@ File </td><td><font size=-1><input id="filename" name="filename" size="25" maxle
 <td>
 <div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"><font size=-1>
 <!-- most recent at the top -->
+<li class="news">20140708: Stalled jobs search added
 <li class="news">20140708: Show jobs transferring &gt;36hrs in prod dash
 <li class="news">20140707: Task page sorting
 <li class="news">20140704: Links to <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">new documentation on JEDI for analysis</a>
@@ -169,6 +185,7 @@ Other ATLAS PanDA specifics can be found on the <a href="https://twiki.cern.ch/t
 <li class="news"> User: the user name exactly as known to PanDA, case insensitive. See the user list pages for the names as known to PanDA.
 <li class="news"> Dataset: the JEDI dataset name, displays a detail page for the dataset. JEDI datasets record information necessary for processing datasets, they are not part of the data management system. 
 <li class="news"> File: as for datasets; these are the files contained in JEDI datasets. The file information records e.g. processing attempts on a file (full file or range of events in a file).
+<li class="news"> Stalled jobs: shows jobs that have been in the selected state more than N hours (determined from the statechangetime parameter)
 </ul></p>
 
 {% endblock %}
