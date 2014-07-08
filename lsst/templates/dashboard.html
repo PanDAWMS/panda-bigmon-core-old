@@ -25,6 +25,14 @@ Click on column titles to sort.
 <div class='section'>VO / Cloud / Site summary</div>
 {% else %}
 
+
+{% if noldtransjobs > 0 %}
+<p>
+<div class='section'>Jobs in transferring state more than {{ hoursSinceUpdate }} hours: <a href="{% url 'jobList' %}?transferringnotupdated={{ hoursSinceUpdate }}&display_limit=100"> {{ noldtransjobs }}</a></div>
+</p>
+{% endif %}
+
+<p>
 {% if view == 'analysis' %}
 <div class='section'>Analysis jobs</div>
 {% elif view == 'production' %}
@@ -32,6 +40,7 @@ Click on column titles to sort.
 {% else %}
 <div class='section'>All jobs</div>
 {% endif %}
+</p>
 
 {% if cloudTaskSummary %}
 

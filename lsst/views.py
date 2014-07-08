@@ -189,7 +189,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
     	if time_to:
             time_to = float(time_to)/1000.
             enddate = datetime.utcfromtimestamp(time_to).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
-    if not enddate:
+    if 'earlierthan' in request.GET:
+        enddate = datetime.utcnow() - timedelta(hours=int(request.GET['earlierthan']))
+        enddate = enddate.strftime(defaultDatetimeFormat)
+    if enddate == None:
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
     ### Add any extensions to the query determined from the URL
@@ -616,11 +619,14 @@ def jobList(request, mode=None, param=None):
     query = setupView(request)
     jobs = []
     values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'destinationse', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname', 'computingelement'
-    jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-    jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+    if 'transferringnotupdated' in request.GET:
+        jobs = stateNotUpdated(request, state='transferring', hoursSinceUpdate=int(request.GET['transferringnotupdated']),values=values)
+    else:
+        jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+        jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+        jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+        jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
+        jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
 
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
@@ -1730,6 +1736,14 @@ def dashboard(request, view=''):
 
     cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
 
+    hoursSinceUpdate = 36
+    if view == 'production':
+        oldtransjobs = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
+        print oldtransjobs
+        noldtransjobs = oldtransjobs
+    else:
+        noldtransjobs = 0
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         nosorturl = removeParam(xurl, 'sortby',mode='extensible')
@@ -1749,6 +1763,8 @@ def dashboard(request, view=''):
             'cloudTaskSummary' : cloudTaskSummary,
             'taskstates' : taskstatedict,
             'taskdays' : 7,
+            'noldtransjobs' : noldtransjobs,
+            'hoursSinceUpdate' : hoursSinceUpdate,
         }
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -2891,3 +2907,19 @@ def workQueues(request):
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         return  HttpResponse(json_dumps(queues), mimetype='text/html')
 
+def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values = standard_fields, count = False):
+    query = {}
+    moddate = datetime.utcnow() - timedelta(hours=hoursSinceUpdate)
+    moddate = moddate.strftime(defaultDatetimeFormat)
+    mindate = datetime.utcnow() - timedelta(hours=24*30)
+    mindate = mindate.strftime(defaultDatetimeFormat)
+    query['statechangetime__lte'] = moddate
+    #query['statechangetime__gte'] = mindate
+    query['jobstatus'] = state
+    if count:
+        jobs = Jobsactive4.objects.filter(**query).values('jobstatus').annotate(Count('jobstatus'))
+        print 'count',jobs
+        return jobs[0]['jobstatus__count']
+    else:
+        jobs = Jobsactive4.objects.filter(**query).values(*values)
+        return jobs
