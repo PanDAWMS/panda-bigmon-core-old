@@ -230,7 +230,7 @@ But if you want, you can check.
 <div id="filestable" style="display: inline">
 <table>
 <tr><th colspan=20 bgcolor='lightcyan'> {{ nfiles }} job files </th></tr>
-<tr><th>Filename (Type)</th><th>Size (MB)</th><th>Status</th><th>Dataset</th></tr>
+<tr><th>Filename (Type)</th><th>Scope</th><th>Size (MB)</th><th>Status</th><th>Attempt (max)</th><th>Dataset</th></tr>
 {% for file in files %}
 <tr><td>
 <font size=-1>
@@ -244,9 +244,13 @@ But if you want, you can check.
 {{ file.lfn}}
 {% endif %} ({{ file.type }})
 </font>
-</td><td> {{ file.fsize }} </td><td class='{{file.status}}'> {{ file.status }} </td>
-<td>
-   <font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.dataset}}"> {{ file.dataset }} </a></font></td></tr>
+</td>
+<td> <font size=-1>{{ file.scope }}</font> </td>
+<td> {{ file.fsize }} </td>
+<td class='{{file.status}}'> {{ file.status }} </td>
+<td> {% if file.attemptnr %} {{ file.attemptnr }} ({{ file.maxattempt }}){% endif %} </td>
+<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.datasetname}}"> {{ file.datasetname }}</a></font></td>
+</tr>
 {% endfor %}
 </table>
 </div>

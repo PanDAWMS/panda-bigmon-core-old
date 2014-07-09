@@ -815,18 +815,40 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             if len(debugstdoutrec) > 0:
                 debugstdout = debugstdoutrec['stdout']
 
-    ## Get job files
+    ## Get job files. First look in JEDI datasetcontents
     files = []
-    files.extend(Filestable4.objects.filter(pandaid=pandaid).order_by('type').values())
-    if len(files) == 0:
-        files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
+    files.extend(JediDatasetContents.objects.filter(pandaid=pandaid).order_by('type').values())
+    if len(files) > 0:
+        for f in files:
+            f['fsizemb'] = "%0.2f" % (f['fsize']/1000000.)
+            dsets = JediDatasets.objects.filter(datasetid=f['datasetid']).values()
+            if len(dsets) > 0:
+                f['datasetname'] = dsets[0]['datasetname']
+    else:
+        files.extend(Filestable4.objects.filter(pandaid=pandaid).order_by('type').values())
+        if len(files) == 0:
+            files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
+        if len(files) > 0:
+                for f in files:
+                    f['creationdate'] = f['modificationtime']
+                    f['fileid'] = f['row_id']
+                    f['datasetname'] = f['dataset']
+                    f['oldfiletable'] = 1
+
     nfiles = len(files) 
     logfile = {} 
     for file in files:
         if file['type'] == 'log': 
             logfile['lfn'] = file['lfn'] 
             logfile['guid'] = file['guid'] 
-            logfile['site'] = file['destinationse'] 
+            if 'destinationse' in file:
+                logfile['site'] = file['destinationse'] 
+            else:
+                logfilerec = Filestable4.objects.filter(pandaid=pandaid, lfn=logfile['lfn']).values()
+                if len(logfilerec) == 0:
+                    logfilerec = FilestableArch.objects.filter(pandaid=pandaid, lfn=logfile['lfn']).values()
+                if len(logfilerec) > 0:
+                    logfile['site'] = logfilerec[0]['destinationse']
             logfile['scope'] = file['scope']
         file['fsize'] = int(file['fsize']/1000000)
 
