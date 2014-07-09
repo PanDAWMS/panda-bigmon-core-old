@@ -222,6 +222,20 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
           <a href="#">Sites</a>
           <ul class="dropdown">
             <li><a href="{% url 'siteList' %}">Clouds, sites</a></li>
+{% if viewParams.MON_VO == 'ATLAS' %}
+            <li><a href="{% url 'siteList' %}?cloud=CA">CA</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=CERN">CERN</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=DE">DE</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=ES">ES</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=FR">FR</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=IT">IT</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=ND">ND</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=NL">NL</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=RU">RU</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=TW">TW</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=UK">UK</a></li>
+            <li><a href="{% url 'siteList' %}?cloud=US">US</a></li>
+{% endif %}
             <li><a href="{% url 'workQueues' %}">Work queues</a></li>
           </ul>
           {% endblock %}

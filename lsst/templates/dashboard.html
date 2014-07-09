@@ -54,16 +54,6 @@ Click on column titles to sort.
 </p>
 {% endif %}
 
-<p>
-{% if view == 'analysis' %}
-<div class='section'>Analysis jobs</div>
-{% elif view == 'production' %}
-<div class='section'>Production jobs</div>
-{% else %}
-<div class='section'>All jobs</div>
-{% endif %}
-</p>
-
 {% if cloudTaskSummary %}
 
 <table>
@@ -132,6 +122,13 @@ Click on column titles to sort.
 {% endif %}
 
 <tr class='tablesection'><th colspan=20> Cloud / Site summary 
+{% if view == 'analysis' %}
+of analysis jobs
+{% elif view == 'production' %}
+of production jobs
+{% else %}
+of all jobs
+{% endif %}
 {% if view != 'analysis' %}
 {% if cloudview == 'region' %}
 - Region view &nbsp; &nbsp; For a description of region view 

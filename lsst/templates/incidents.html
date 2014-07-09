@@ -72,17 +72,9 @@
 
 {% endblock %}
 
-{% block bottom_info %}
-{% endblock %}
+{% block helptext %}
 
-{% block left_menu %}
-{% comment %}
-<div class="left-menu">
-  {% block left_menu_content %}
-    <span class="left-menu-title">Menu</span>
-     <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-  {% endblock %}
-</div>
-{% endcomment %}
+The PanDA logger service, based on the <a href="https://docs.python.org/2/library/logging.html">python logging module</a>, is used by PanDA services to log alarms, incidents, errors etc. Recorded incidents in site and cloud control (such as auto blacklisting/whitelisting of sites) are shown here.  
+
 {% endblock %}
 
