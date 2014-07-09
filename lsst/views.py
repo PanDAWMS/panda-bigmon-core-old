@@ -851,6 +851,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
                     logfilerec = FilestableArch.objects.filter(pandaid=pandaid, lfn=logfile['lfn']).values()
                 if len(logfilerec) > 0:
                     logfile['site'] = logfilerec[0]['destinationse']
+                    logfile['guid'] = logfilerec[0]['guid']
             logfile['scope'] = file['scope']
         file['fsize'] = int(file['fsize']/1000000)
 
