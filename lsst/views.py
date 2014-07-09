@@ -128,7 +128,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
         LAST_N_HOURS_MAX = hours
     ## For site-specific queries, allow longer time window
     if 'computingsite' in request.GET:
-        LAST_N_HOURS_MAX = 72
+        LAST_N_HOURS_MAX = 12
     if 'jobtype' in request.GET and request.GET['jobtype'] == 'eventservice':
         LAST_N_HOURS_MAX = 72
     ## hours specified in the URL takes priority over the above
@@ -238,6 +238,13 @@ def setupView(request, opmode='', hours=0, limit=-99):
                         query['pandaid'] = int(request.GET['pandaid'])
                     except:
                         query['jobname'] = request.GET['pandaid']
+                elif param == 'computingsite':
+                    if request.GET[param].startswith('*') and request.GET[param].endswith('*'):
+                        query['%s__contains' % param] = request.GET[param].replace('*','')
+                    elif request.GET[param].endswith('*'):
+                        query['%s__startswith' % param] = request.GET[param].replace('*','')
+                    elif request.GET[param].startswith('*'):
+                        query['%s__endswith' % param] = request.GET[param].replace('*','')
                 elif request.GET[param].find('|') > 0:
                     vals = request.GET[param].split('|')
                     query[param+"__in"] = vals
@@ -1409,10 +1416,10 @@ def wnInfo(request,site,wnname='all'):
     """ Give worker node level breakdown of site activity. Spot hot nodes, error prone nodes. """
     errthreshold = 15
     if wnname != 'all':
-        query = setupView(request,hours=72,limit=999999)
+        query = setupView(request,hours=12,limit=999999)
         query['modificationhost__endswith'] = wnname
     else:
-        query = setupView(request,hours=72,limit=999999)
+        query = setupView(request,hours=12,limit=999999)
     query['computingsite'] = site
     wnsummarydata = wnSummary(query)
     totstates = {}
@@ -2176,7 +2183,7 @@ def errorSummaryDict(request,jobs):
     sumd = {}
     ## histogram of errors vs. time, for plotting
     errHist = {}
-    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'computingelement', 'jobstatus' ]
+    flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'jobstatus' ]
 
     for job in jobs:
         if job['jobstatus'] not in [ 'failed', 'transferring', 'holding' ]: continue

@@ -147,4 +147,6 @@ This page summarizes category:code occurrences for various views of interest: ov
 <p>
 If you drill down eg. into the failures at a particular site, by clicking the site name, you will bring up a page summarizing errors at that site. The limit depth of the query will now be applied entirely to the site you have zeroed in on, so you will get more failure information (the limit is necessary for performance reasons). The timeline plot, attribute summary, and category:code breakdown will now be exclusive to the site of interest. Similarly for drilling down to users and tasks. 
 </p>
+<p>
+<b>Wildcards:</b> The computingsite parameter on the URL supports wildcards such that multiple sites can be included in the error summary. eg. computingsite=UKI-*, computingsite=*MCORE, computingsite=*-MAN-*
 {% endblock %}
