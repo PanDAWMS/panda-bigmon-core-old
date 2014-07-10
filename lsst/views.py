@@ -2601,6 +2601,8 @@ def pandaLogger(request):
         ## histogram of logs vs. time, for plotting
         logHist = {}
         for r in records:
+            r['message'] = r['message'].replace('<','')
+            r['message'] = r['message'].replace('>','')
             r['levelname'] = r['levelname'].lower()
             tm = r['bintime']
             tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)

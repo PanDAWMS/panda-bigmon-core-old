@@ -101,7 +101,11 @@ parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}
 {% endif %}
 
 <td>
-<a href="{% url 'pandaLogger' %}?category=panda.mon.bamboo&type=taskbrokerage&taskid={{ jeditaskid }}">brokerage actions</a>
+<a href="{% url 'pandaLogger' %}?category=panda.mon.bamboo&type=taskbrokerage&taskid={{ jeditaskid }}">brokerage log</a>
+</td>
+
+<td>
+<a href="{% url 'pandaLogger' %}?category=panda.mon.jedidev&type=jobgenerator&jeditaskid={{ jeditaskid }}">job generator log</a>
 </td>
 
 <td>
