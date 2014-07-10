@@ -158,7 +158,7 @@
 {% if njobs > 0 %}
 
 <table>
-<tr class='tablesection'><th colspan=20> <a name="jobs"></a>Recent jobs {% if display_limit %} &nbsp; &nbsp; 
+<tr class='tablesection'><th colspan=20> <a name="jobs"></a>Recent jobs {% if display_limit < jobList|length %} &nbsp; &nbsp; 
 Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
 {% endif %}</th></tr>
 <tr class='tablesection'>

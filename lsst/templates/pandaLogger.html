@@ -22,7 +22,7 @@
 
 <p>
 {% if requestParams|length == 0 %}
-<p><b>Recent <a href="{% url 'pandaLogger' %}?level=error"><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning"><span class="warning">warnings</span></a></b>
+<p><b>Recent <a href="{% url 'pandaLogger' %}?level=error"&limit=2000><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning&limit=2000"><span class="warning">warnings</span></a></b>
 {% endif %}
 
 <p>
