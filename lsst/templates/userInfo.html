@@ -6,16 +6,18 @@
 
 {% block body %}
 
+<p>
 <div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a></div>
 
 {% if requestParams.priorityrange %}<br><b>Current priority range: {{ requestParams.priorityrange }}</b> {% endif %}
 {% if requestParams.jobsetrange %}<br><b>Jobset ID range: {{ requestParams.jobsetrange }}</b> {% endif %}
-<p>
+{% if requestParams.jobsetid %}<br><b>Jobset ID: {{ requestParams.jobsetid }}</b> {% endif %}
+</p>
 
 {% if userstats %}
-<div class="section">Stats from the user DB (updated every few hours)</div>
 <table>
-<tr>
+<tr class='tablesection'><th colspan=20>Stats from the user DB (updated every few hours)</th></tr>
+<tr class='tablesection'>
 <th> User </th>
 <th> Jobs in last week </th>
 <th> Latest job in the DB stats </th>
