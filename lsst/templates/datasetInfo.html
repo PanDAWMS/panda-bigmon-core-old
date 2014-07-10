@@ -30,15 +30,15 @@
 		<td class='{{dsrec.status}}'>{{ dsrec.status }}</td>
 		<td>{{ dsrec.nfiles }}</td>
 		<td>{{ dsrec.creationtime|date:"Y-m-d H:i" }}</td>
-		<td>{{ dsrec.modificationtime|date:"Y-m-d H:i" }}</td>
+		<td>{{ dsrec.modificationtime|date:"m-d H:i" }}</td>
 	</tr>
 </table>
 
-<p>
-
 {% if not dsrec.vuid %}
 
+<p>
 <div class='section'><a href="{% url 'fileList' %}?datasetname={{ datasetname }}">Show files in dataset</a></div>
+</p>
 
 {% endif %}
 
