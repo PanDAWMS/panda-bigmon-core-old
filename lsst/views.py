@@ -2589,6 +2589,9 @@ def pandaLogger(request):
     if 'taskid' in request.GET:
         iquery['message__startswith'] = request.GET['taskid']
         getrecs = True
+    if 'jeditaskid' in request.GET:
+        iquery['message__icontains'] = "jeditaskid=%s" % request.GET['jeditaskid']
+        getrecs = True
     if 'site' in request.GET:
         iquery['message__startswith'] = request.GET['site']
         getrecs = True
