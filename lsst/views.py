@@ -2566,17 +2566,8 @@ def incidentList(request):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def pandaLogger(request):
-    if 'hours' not in request.GET:
-        hours = 12
-    else:
-        hours = int(request.GET['hours'])
-    setupView(request, hours=hours, limit=9999999)
-    iquery = {}
-    startdate = datetime.utcnow() - timedelta(hours=hours)
-    startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
-    iquery['bintime__range'] = [startdate, enddate]
     getrecs = False
+    iquery = {}
     if 'category' in request.GET:
         iquery['name'] = request.GET['category']
         getrecs = True
@@ -2598,6 +2589,18 @@ def pandaLogger(request):
     if 'pandaid' in request.GET:
         iquery['pid'] = request.GET['pandaid']
         getrecs = True
+    if 'hours' not in request.GET:
+        if getrecs:
+            hours = 72
+        else:
+            hours = 24
+    else:
+        hours = int(request.GET['hours'])
+    setupView(request, hours=hours, limit=9999999)
+    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = startdate.strftime(defaultDatetimeFormat)
+    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    iquery['bintime__range'] = [startdate, enddate]
     counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
         records = Pandalog.objects.filter(**iquery).order_by('bintime').reverse()[:JOB_LIMIT].values()
