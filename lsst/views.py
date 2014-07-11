@@ -35,6 +35,10 @@ from core.common.models import JediWorkQueue
 from core.common.settings.config import ENV
 
 from settings.local import dbaccess
+import ErrorCodes
+errorFields = []
+errorCodes = {}
+errorStages = {}
 
 homeCloud = {}
 cloudList = [ 'CA', 'CERN', 'DE', 'ES', 'FR', 'IT', 'ND', 'NL', 'RU', 'TW', 'UK', 'US' ]
@@ -90,12 +94,16 @@ def setupHomeCloud():
 
 def initRequest(request):
     global requestParams
+    global errorFields, errorCodes, errorStages
     requestParams = {}
     for p in request.GET:
         pval = request.GET[p]
         pval = pval.replace('+',' ')
         requestParams[p.lower()] = pval
     setupHomeCloud()
+    if len(errorFields) == 0:
+    	codes = ErrorCodes.ErrorCodes()
+    	errorFields, errorCodes, errorStages = codes.getErrorCodes()
 
 def setupView(request, opmode='', hours=0, limit=-99):
     global VOMODE
@@ -631,7 +639,9 @@ def errorInfo(job, nchars=300):
     if int(job['taskbuffererrorcode']) != 0:
         errtxt += 'Task buffer error %s: %s <br>' % ( job['taskbuffererrorcode'], job['taskbuffererrordiag'] )
     if job['transexitcode'] != '' and job['transexitcode'] is not None and int(job['transexitcode']) > 0:
-        errtxt += 'Transformation exit code %s' % job['transexitcode']
+        errtxt += 'Trf exit code %s.' % job['transexitcode']
+    desc = getErrorDescription(job)
+    if len(desc) > 0: errtxt += '%s<br>' % desc
     if len(errtxt) > nchars:
         ret = errtxt[:nchars] + '...'
     else:
@@ -925,7 +935,6 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         jsquery['jobsetid'] = job['jobsetid']
         jsquery['produsername'] = job['produsername']
         values = [ 'pandaid', 'prodsourcelabel', 'processingtype', 'transformation' ]
-        print jsquery
         jsjobs = []
         jsjobs.extend(Jobsdefined4.objects.filter(**jsquery).values(*values))
         jsjobs.extend(Jobsactive4.objects.filter(**jsquery).values(*values))
@@ -941,7 +950,6 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
                     libjob = id
                 if j['processingtype'] == 'usermerge':
                     mergejobs.append(id)
-        print 'jobset', libjob, runjobs,mergejobs
 
     if isEventService(job):
         ## for ES jobs, prepare the event table
@@ -981,6 +989,11 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
                 lsstData['pipelinestream'] = lsstParams.group(3)
     else:
         lsstData = None
+
+    if job['jobstatus'] == 'failed' or job['jobstatus'] == 'holding':
+        errorinfo = getErrorDescription(job)
+        if len(errorinfo) > 0:
+            job['errorinfo'] = errorinfo
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
@@ -2030,7 +2043,6 @@ def taskInfo(request, jeditaskid=0):
     if (taskrec['ticketsystemtype'] == '') and taskparams:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']
-    print 'ticket', taskrec['ticketid'], taskrec['ticketsystemtype']
 
     if taskrec:
         taskname = taskrec['taskname']
@@ -2894,7 +2906,6 @@ def fileInfo(request):
 
     if len(files) > 0:
         files = sorted(files, key=lambda x:x['pandaid'], reverse=True)
-        print 'files', files
         frec = files[0]
         file = frec['lfn']
         colnames = frec.keys()
@@ -3042,3 +3053,27 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
         jobs.extend(Jobsdefined4.objects.filter(**query).values(*values))
         jobs.extend(Jobswaiting4.objects.filter(**query).values(*values))
         return jobs
+
+def getErrorDescription(job):
+    txt = ''
+    for errcode in errorCodes.keys():
+        errval = 0
+        if job.has_key(errcode.lower()):
+            errval = job[errcode.lower()]
+            if errval != 0 and errval != '0' and errval != None:
+                errval = int(errval)                                                                                                                                                      
+                errdiag = errcode.replace('ErrorCode','ErrorDiag')
+                if errcode.find('ErrorCode') > 0:
+                    diagtxt = job[errdiag.lower()]
+                else:
+                    diagtxt = ''
+                if len(diagtxt) > 0:
+                    desc = diagtxt
+                elif errval in errorCodes[errcode]:
+                    desc = errorCodes[errcode][errval]
+                else:
+                    desc = "Unknown %s error code %s" % ( errcode, errval )
+                errname = errcode.replace('ErrorCode','')
+                errname = errname.replace('ExitCode','')
+                txt += " <b>%s:</b> %s" % ( errname, desc )                                                                                                                                                                                                                               
+    return txt

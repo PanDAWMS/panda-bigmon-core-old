@@ -57,6 +57,9 @@ This is attempt number {{ job.attemptnr }} for this job. To see a history of job
 </font>
 
 <table>
+    {% if job.errorinfo %}
+		<tr><th class="tablesection"><span class="alarm">Error description</span></th><td class="alarm">{{ job.errorinfo|safe }}</td></tr>
+    {% endif %}
 	{% if job.jobdispatchererrorcode %}
 		<tr><th class="tablesection"><span class="alarm">Job dispatch error code</span></th><td class="alarm">{{ job.jobdispatchererrorcode }}</td></tr>
 		<tr><th class="tablesection"><span class="alarm">Job dispatch error message</span></th><td class="alarm">{{ job.jobdispatchererrordiag }}</td></tr>
