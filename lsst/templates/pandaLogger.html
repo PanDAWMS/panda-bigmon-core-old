@@ -12,12 +12,15 @@
 
 {{ viewParams.header }}
 
+<p>
 {% if requestParams.category %} <br><b>Log category: {{ requestParams.category }}</b> {% endif %}
 {% if requestParams.type %} <br><b>Log type: {{ requestParams.type }}</b> {% endif %}
 {% if requestParams.level %} <br><b>Log level: <span class="{{ requestParams.level }}">{{ requestParams.level }}</span></b> {% endif %}
 {% if requestParams.taskid %} <br><b>Task ID: <a href="{% url 'taskInfo' requestParams.taskid %}">{{ requestParams.taskid }}</a></b> {% endif %}
+{% if requestParams.jeditaskid %} <br><b>Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid %}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
 {% if requestParams.site %} <br><b>Site: <a href="{% url 'siteInfo' requestParams.site %}">{{ requestParams.site }}</a></b> {% endif %}
 {% if requestParams.cloud %}<br><b>Cloud: {{ requestParams.cloud }}</b> {% endif %}
+</p>
 
 {% if requestParams|length == 0 %}
 <p><b>View recent <a href="{% url 'pandaLogger' %}?level=error"&limit=2000><span class="error">errors</span></a>, <a href="{% url 'pandaLogger' %}?level=warning&limit=2000"><span class="warning">warnings</span></a></b>
@@ -83,6 +86,12 @@
 </tr>
 {% endfor %}
 </table>
+</p>
+
+{% elif getrecs %}
+
+<p>
+No matching log records found
 </p>
 
 {% endif %}

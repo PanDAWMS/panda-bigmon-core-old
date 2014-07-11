@@ -6,7 +6,7 @@
 
 {% block bottom_info %}
 
-{% if npars == 0 %}
+{% if requestParams|length == 0 %}
 
 {% if viewParams.MON_VO == 'ATLAS' %}
 
@@ -95,7 +95,7 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 
 </td>
 
-{% if npars == 0 %}
+{% if requestParams|length == 0 %}
 
 <td> <div class='section'>News </td>
 <td>
@@ -144,7 +144,7 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 
 {% block helptext %}
 
-{% if npars == 0 %}
+{% if requestParams|length == 0 %}
 
 <p>
 This contextual help section is found at the bottom of each monitor page.
