@@ -3061,7 +3061,10 @@ def getErrorDescription(job):
         if job.has_key(errcode.lower()):
             errval = job[errcode.lower()]
             if errval != 0 and errval != '0' and errval != None:
-                errval = int(errval)                                                                                                                                                      
+                try:
+                    errval = int(errval)                                                                                                                                                      
+                except:
+                    errval = -1
                 errdiag = errcode.replace('ErrorCode','ErrorDiag')
                 if errcode.find('ErrorCode') > 0:
                     diagtxt = job[errdiag.lower()]
