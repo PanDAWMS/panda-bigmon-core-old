@@ -639,7 +639,7 @@ class Metatable(models.Model):
         db_table = u'metatable'
 
 class MetatableArch(models.Model):
-    pandaid = models.BigIntegerField(db_column='PANDAID') # Field name made lowercase.
+    pandaid = models.BigIntegerField(db_column='PANDAID', primary_key=True)
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME') # Field name made lowercase.
     metadata = models.TextField(db_column='METADATA', blank=True) # Field name made lowercase.
     class Meta:
