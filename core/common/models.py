@@ -562,16 +562,16 @@ class JediTasks(models.Model):
 
 class JediWorkQueue(models.Model):
     queue_id = models.IntegerField(primary_key=True, db_column='QUEUE_ID') # Field name made lowercase.
-    queue_name = models.CharField(max_length=48, db_column='QUEUE_NAME') # Field name made lowercase.
-    queue_type = models.CharField(max_length=48, db_column='QUEUE_TYPE') # Field name made lowercase.
-    vo = models.CharField(max_length=48, db_column='VO') # Field name made lowercase.
-    status = models.CharField(max_length=192, db_column='STATUS', blank=True) # Field name made lowercase.
+    queue_name = models.CharField(max_length=16, db_column='QUEUE_NAME')  # Field name made lowercase.
+    queue_type = models.CharField(max_length=16, db_column='QUEUE_TYPE')  # Field name made lowercase.
+    vo = models.CharField(max_length=16, db_column='VO')  # Field name made lowercase.
+    status = models.CharField(max_length=64, db_column='STATUS', blank=True)  # Field name made lowercase.
     partitionid = models.IntegerField(null=True, db_column='PARTITIONID', blank=True) # Field name made lowercase.
     stretchable = models.IntegerField(null=True, db_column='STRETCHABLE', blank=True) # Field name made lowercase.
     queue_share = models.IntegerField(null=True, db_column='QUEUE_SHARE', blank=True) # Field name made lowercase.
     queue_order = models.IntegerField(null=True, db_column='QUEUE_ORDER', blank=True) # Field name made lowercase.
-    criteria = models.CharField(max_length=768, db_column='CRITERIA', blank=True) # Field name made lowercase.
-    variables = models.CharField(max_length=768, db_column='VARIABLES', blank=True) # Field name made lowercase.
+    criteria = models.CharField(max_length=256, db_column='CRITERIA', blank=True)  # Field name made lowercase.
+    variables = models.CharField(max_length=256, db_column='VARIABLES', blank=True)  # Field name made lowercase.
     class Meta:
         db_table = u'jedi_work_queue'
 
