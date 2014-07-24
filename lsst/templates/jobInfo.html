@@ -168,7 +168,7 @@ job <a href="http://pandawms.org/pandajobslogstmp/lsst/data/jschovan/pandajobs/{
 
 </tr>
 
-{% if job.jobsetid %}
+{% if job.jobsetid and job.jobsetid > 0 %}
 <tr height=10></tr>
 <tr><th  class='tablesection'>Jobset <a href="{% url 'jobList' %}?produsername={{ job.produsername }}&jobsetid={{ job.jobsetid }}">{{ job.jobsetid }}</a></th>
 

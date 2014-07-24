@@ -17,8 +17,21 @@ Panglia has <a href="http://panglia.triumf.ca/world/generator.php">world</a>,
 <a href="http://panglia.triumf.ca/cloud/generator.php">cloud</a>,
 <a href="http://panglia.triumf.ca/site/generator.php">site</a>
 plot generators
-
 </div>
+
+{% comment %}
+
+Week:
+http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastWeek&granularity=Hourly&generic=3&sortBy=3&series=All&type=rmulticores
+
+Month:
+http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastMonth&granularity=Daily&generic=3&sortBy=3&series=All&type=rmulticores
+
+Day:
+http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=last24&granularity=Hourly&generic=3&sortBy=3&series=All&type=rmulticores
+
+{% endcomment %}
+
 <table border='0'>
 <tr>
 <td><a target='_blank' href='http://panglia.triumf.ca/world/graph.php?TIME=day&amp;SSTATE=running&amp;VIEW=bysstate&amp;QUEUE=production&amp;SIZE=large'>
