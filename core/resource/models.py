@@ -108,6 +108,11 @@ class Schedconfig(models.Model):
     minmemory = models.IntegerField(null=True, db_column='MINMEMORY', blank=True)  # Field name made lowercase.
     maxmemory = models.IntegerField(null=True, db_column='MAXMEMORY', blank=True)  # Field name made lowercase.
     mintime = models.IntegerField(null=True, db_column='MINTIME', blank=True)  # Field name made lowercase.
+    allowjem = models.CharField(null=True, max_length=64, db_column='ALLOWJEM', blank=True)  # Field name made lowercase.
+    catchall = models.CharField(null=True, max_length=512, db_column='CATCHALL', blank=True)  # Field name made lowercase.
+    faxdoor = models.CharField(null=True, max_length=128, db_column='FAXDOOR', blank=True)  # Field name made lowercase.
+    wansourcelimit = models.IntegerField(null=True, db_column='WANSOURCELIMIT', blank=True)  # Field name made lowercase.
+    wansinklimit = models.IntegerField(null=True, db_column='WANSINKLIMIT', blank=True)  # Field name made lowercase.
 
     def __str__(self):
         return 'Schedconfig:' + str(self.nickname)
