@@ -516,6 +516,8 @@ class JediTasks(models.Model):
     eventservice = models.IntegerField(null=True, db_column='EVENTSERVICE', blank=True) # Field name made lowercase.
     ticketid = models.CharField(max_length=50, db_column='TICKETID', blank=True)  # Field name made lowercase.
     ticketsystemtype = models.CharField(max_length=16, db_column='TICKETSYSTEMTYPE', blank=True)  # Field name made lowercase.
+    statechangetime = models.DateTimeField(null=True, db_column='STATECHANGETIME', blank=True)  # Field name made lowercase.
+    superstatus = models.CharField(max_length=64, db_column='SUPERSTATUS', blank=True)  # Field name made lowercase.
     class Meta:
         db_table = u'jedi_tasks'
 
