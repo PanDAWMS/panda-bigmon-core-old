@@ -101,8 +101,8 @@ class Schedconfig(models.Model):
     stageinretry = models.IntegerField(null=True, db_column='STAGEINRETRY', blank=True)  # Field name made lowercase.
     stageoutretry = models.IntegerField(null=True, db_column='STAGEOUTRETRY', blank=True)  # Field name made lowercase.
     fairsharepolicy = models.CharField(max_length=1536, db_column='FAIRSHAREPOLICY', blank=True)  # Field name made lowercase.
-    allowfax = models.CharField(max_length=192, db_column='ALLOWFAX', blank=True)  # Field name made lowercase.
-    faxredirector = models.CharField(max_length=768, db_column='FAXREDIRECTOR', blank=True)  # Field name made lowercase.
+    allowfax = models.CharField(null=True, max_length=64, db_column='ALLOWFAX', blank=True)  # Field name made lowercase.
+    faxredirector = models.CharField(null=True, max_length=256, db_column='FAXREDIRECTOR', blank=True)  # Field name made lowercase.
     maxwdir = models.IntegerField(null=True, db_column='MAXWDIR', blank=True)  # Field name made lowercase.
     celist = models.CharField(max_length=12000, db_column='CELIST', blank=True)  # Field name made lowercase.
     minmemory = models.IntegerField(null=True, db_column='MINMEMORY', blank=True)  # Field name made lowercase.
