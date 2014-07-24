@@ -107,6 +107,7 @@ class PandaJob(models.Model):
     jobmetrics = models.CharField(max_length=1500, db_column='JOBMETRICS', blank=True) # Field name made lowercase.
     workqueue_id = models.IntegerField(null=True, db_column='WORKQUEUE_ID', blank=True) # Field name made lowercase.
     jeditaskid = models.BigIntegerField(null=True, db_column='JEDITASKID', blank=True) # Field name made lowercase.
+    jobstatus = models.CharField(null=True, max_length=80, db_column='JOBSTATUS', blank=True)
 
     def __str__(self):
         return 'PanDA:' + str(self.pandaid)
@@ -177,15 +178,11 @@ class Jobsactive4(PandaJob):
         db_table = u'jobsactive4'
 
 class Jobsarchived(PandaJob):
-#    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID')  # Field name made lowercase.
-#    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
     class Meta:
 #        managed = False
         db_table = u'jobsarchived'
 
 class Jobsarchived4(PandaJob):
-#    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.
-#    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
     class Meta:
 #        managed = False
         db_table = u'jobsarchived4'
@@ -195,12 +192,10 @@ class Jobsdefined4(PandaJob):
 #        managed = False
         db_table = u'jobsdefined4'
 
-
     # __getitem__
     def __getitem__(self, name):
 #        return super(HTCondorJob, self).__getattr__(name)
         return self.__dict__[name]
-
 
 class Jobswaiting4(PandaJob):
     class Meta:
