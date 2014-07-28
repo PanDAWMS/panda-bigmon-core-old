@@ -768,7 +768,7 @@ def jobList(request, mode=None, param=None):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def isEventService(job):
-    if 'specialhandling' in job and ( job['specialhandling'].find('eventservice') >= 0 or job['specialhandling'].find('esmerge') >= 0 ):
+    if 'specialhandling' in job and job['specialhandling'] and ( job['specialhandling'].find('eventservice') >= 0 or job['specialhandling'].find('esmerge') >= 0 ):
         return True
     else:
         return False
