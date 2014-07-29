@@ -264,6 +264,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
                         query['%s__startswith' % param] = requestParams[param].replace('*','')
                     elif requestParams[param].startswith('*'):
                         query['%s__endswith' % param] = requestParams[param].replace('*','')
+                    else:
+                        query[param] = requestParams[param]
                 elif requestParams[param].find('|') > 0:
                     vals = requestParams[param].split('|')
                     query[param+"__in"] = vals
