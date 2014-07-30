@@ -1,5 +1,6 @@
 import logging, re, json, commands
 from datetime import datetime, timedelta
+import json
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render
@@ -765,10 +766,7 @@ def jobList(request, mode=None, param=None):
         data.update(getContextVariables(request))
         return render_to_response('jobList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = []
-        for job in jobs:
-            resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(jobs, cls=DateEncoder), mimetype='text/html')
 
 def isEventService(job):
     if 'specialhandling' in job and job['specialhandling'] and ( job['specialhandling'].find('eventservice') >= 0 or job['specialhandling'].find('esmerge') >= 0 ):
@@ -3107,3 +3105,11 @@ def getPilotCounts():
         pilotd[site]['count'] = r['getjob'] + r['updatejob']
         pilotd[site]['time'] = r['lastmod']
     return pilotd
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, 'isoformat'):
+            return obj.isoformat()
+        else:
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)

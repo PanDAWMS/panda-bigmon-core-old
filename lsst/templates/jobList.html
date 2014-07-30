@@ -146,4 +146,13 @@ Note that the number of records retrieved from each table of the database is lim
 </p>
 <p>
 Bookmarking pages of interest to you is recommended. Save that useful drill-down rather than doing all the clicking again. All monitor pages are bookmarkable (the full specification of the page is in the URL). 
+</p>
+<p>
+Job lists can be retrieved in json format with curl so that job data can be used programmatically. <b>Use this carefully</b>, do not for example put scripts in crons that do heavy retrieval of job data this way. If you have systematic needs for PanDA job data, tell us what they are. An example curl command is as follows; it takes the same url parameters as the browser version.
+<br><font size=-1><code>
+curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://bigpanda.cern.ch/jobs/?transfertype=fax&hours=1"
+</font></code>
+</p>
+
+
 {% endblock %}
