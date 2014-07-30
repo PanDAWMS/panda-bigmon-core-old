@@ -98,7 +98,7 @@ COLUMNS['PanDAjob-all'] = [\
         'specialhandling', 'jobsetid', 'corecount', 'ninputdatafiles', \
         'inputfiletype', 'inputfileproject', 'inputfilebytes', \
         'noutputdatafiles', 'outputfilebytes', 'jobmetrics', 'workqueue_id', \
-        'jeditaskid' \
+        'jeditaskid', 'jobsubstatus', 'actualcorecount' \
 ]
 ORDER_COLUMNS['PanDAjob-all'] = [\
             'pandaid', 'jobdefinitionid', 'creationtime', 'modificationtime', \
@@ -196,6 +196,8 @@ COL_TITLES['PanDAjob-all'] = [ \
     {'sort': True, 'vis': False, 'c': 'jobmetrics', 't': 'Job Metrics'}, \
     {'sort': True, 'vis': False, 'c': 'workqueue_id', 't': 'Work queue ID'}, \
     {'sort': True, 'vis': True, 'c': 'jeditaskid', 't': 'Task ID'}, \
+    {'sort': True, 'vis': True, 'c': 'jobsubstatus', 't': 'Job Substatus'}, \
+    {'sort': True, 'vis': True, 'c': 'actualcorecount', 't': 'Actual Core Count'}, \
 ]
 SMRYCOL_TITLES['PanDAjob-all'] = {}
 UPDATE_COL_TITLES['PanDAjob-all'] = {}
@@ -333,5 +335,38 @@ SUMMARY_FIELDS['api-datatables-user-list-user-activity'] = [\
 SMRYCOL_TITLES['api-datatables-user-list-user-activity'] = \
     getTitlesSmry('api-datatables-user-list-user-activity', 'PanDAjob-all', smry=True)
 
+
+
+
+
+### reverse URL: 'api-reprocessing-jobs-in-task-smry'
+COLUMNS['api-reprocessing-jobs-in-task-smry'] = [ \
+        'pandaid', 'jobstatus', 'jobname', 'attemptnr', 'workinggroup', \
+        'jeditaskid', 'modificationtime' \
+]
+ORDER_COLUMNS['api-reprocessing-jobs-in-task-smry'] = [ \
+        'pandaid', 'jobstatus', 'jobname', 'attemptnr' \
+]
+UPDATE_COL_TITLES['api-reprocessing-jobs-in-task-smry'] = { \
+    'pandaid': {'vis': True, 'sort': False}, \
+    'jobstatus': {'vis': True, 'sort': False}, \
+    'jobname': {'vis': True, 'sort': False}, \
+    'attemptnr': {'vis': True, 'sort': False}, \
+    'jobsetid': {'vis': False, 'sort': False}, \
+}
+COL_TITLES['api-reprocessing-jobs-in-task-smry'] = \
+    getTitles('api-reprocessing-jobs-in-task-smry', 'PanDAjob-all')
+FILTERS['api-reprocessing-jobs-in-task-smry'] = [\
+#    { 'name': 'taskname', 'field': 'taskname', 'filterField': 'taskname', 'type': 'string' }, \
+    { 'name': 'modificationtime_from', 'field': 'modificationtime', 'filterField': 'modificationtime__gte', 'type': 'datetime' }, \
+    { 'name': 'modificationtime_to', 'field': 'modificationtime', 'filterField': 'modificationtime__lte', 'type': 'datetime'}, \
+    { 'name': 'workinggroup', 'field': 'workinggroup', 'filterField': 'workinggroup', 'type': 'string' }, \
+    { 'name': 'jobstatus', 'field': 'jobstatus', 'filterField': 'jobstatus', 'type': 'stringMultiple' }, \
+]
+SUMMARY_FIELDS['api-reprocessing-jobs-in-task-smry'] = [\
+        'pandaid', 'jobstatus', 'jobname', 'attemptnr', 'workinggroup', 'jeditaskid' \
+]
+SMRYCOL_TITLES['api-reprocessing-jobs-in-task-smry'] = \
+    getTitlesSmry('api-reprocessing-jobs-in-task-smry', 'PanDAjob-all', smry=True)
 
 

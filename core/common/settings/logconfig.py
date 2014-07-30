@@ -12,6 +12,7 @@ from .local import LOG_ROOT
 # more details on how to customize your logging configuration.
 #LOG_ROOT = '/data/bigpandamon_virtualhosts/atlas/logs/'
 LOG_SIZE = 1000000000
+print ':15 LOG_ROOT=', LOG_ROOT
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -90,6 +91,14 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'verbose',
         },
+        'logfile-api_reprocessing': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_ROOT + "/logfile.api_reprocessing",
+            'maxBytes': LOG_SIZE,
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -139,6 +148,10 @@ LOGGING = {
             'handlers': ['logfile-user_views'],
             'level': 'DEBUG',
         },
+        'api_reprocessing':{
+            'handlers': ['logfile-api_reprocessing'],
+            'level': 'DEBUG',
+        }
     },
     'formatters': {
         'verbose': {
