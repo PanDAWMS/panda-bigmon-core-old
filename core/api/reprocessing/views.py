@@ -188,7 +188,8 @@ class PandaJobDictJsonReprocessingSmryPage(ModelJobDictJson):
         
         """
         ### limit modificationtime range
-        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
+#        startdate = datetime.utcnow() - timedelta(days=LAST_N_DAYS)
+        startdate = datetime.utcnow() - timedelta(minutes=5)
         startdate = startdate.strftime(defaultDatetimeFormat)
         enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
         ### get the initial queryset properties
