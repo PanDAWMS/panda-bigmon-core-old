@@ -10,6 +10,7 @@ from lsst import views as lsstmon_views
 #import lsst.views as lsstmon_views
 import core.pandajob.views_support as core_lsstmon_support_views
 #import core.pandajob.views as core_lsstmon_views
+#import core.api.reprocessing.views as core_lsstmon_api_reprocessing_views
 
 urlpatterns = patterns('',
     url(r'^$', lsstmon_views.mainPage, name='mainPage'),
@@ -50,6 +51,12 @@ urlpatterns = patterns('',
     url(r'^support/maxpandaid/$', core_lsstmon_support_views.maxpandaid, name='supportMaxpandaid'),
     url(r'^support/jobinfouservohrs/(?P<vo>[-A-Za-z0-9_.+ @]+)/(?P<nhours>\d+)/$', core_lsstmon_support_views.jobUserOrig, name='supportJobUserVoHrs'),
     url(r'^support/jobinfouservo/(?P<vo>[-A-Za-z0-9_.+ @]+)/(?P<ndays>\d+)/$', core_lsstmon_support_views.jobUserDaysOrig, name='supportJobUserVo'),
+
+
+    ### api
+    url(r'^api/$', core_lsstmon_support_views.maxpandaid, name='supportRoot'),
+    url(r'^api/reprocessing/$', include('core.api.reprocessing.urls')),
+
 
     ### robots.txt
     url('^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
