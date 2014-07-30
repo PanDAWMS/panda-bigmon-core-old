@@ -191,6 +191,7 @@ setup(
         'core.api.htcondorapi', 
         'core.api.jedi', 
         'core.api.jedi.jobsintask', 
+        'core.api.reprocessing', 
         'core.common',
         'core.common.settings', 
         'core.common.templatetags', 
