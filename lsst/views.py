@@ -15,6 +15,7 @@ from core.pandajob.models import PandaJob, Jobsactive4, Jobsdefined4, Jobswaitin
 from core.resource.models import Schedconfig
 from core.common.models import Filestable4 
 from core.common.models import Datasets
+from core.common.models import Sitedata
 from core.common.models import FilestableArch
 from core.common.models import Users
 from core.common.models import Jobparamstable
@@ -44,7 +45,7 @@ homeCloud = {}
 cloudList = [ 'CA', 'CERN', 'DE', 'ES', 'FR', 'IT', 'ND', 'NL', 'RU', 'TW', 'UK', 'US' ]
 
 statelist = [ 'defined', 'waiting', 'pending', 'assigned', 'throttled', 'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled', ]
-sitestatelist = [ 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
+sitestatelist = [ 'defined', 'waiting', 'assigned', 'throttled',  'activated', 'sent', 'starting', 'running', 'holding', 'transferring', 'finished', 'failed', 'cancelled' ]
 eventservicestatelist = [ 'ready', 'sent', 'running', 'finished', 'cancelled', 'discarded', 'done' ]
 taskstatelist = [ 'registered', 'defined', 'assigning', 'ready', 'pending', 'scouting', 'scouted', 'running', 'prepared', 'done', 'failed', 'finished', 'aborting', 'aborted', 'finishing', 'topreprocess', 'preprocessing', 'tobroken', 'broken', 'toretry', 'toincexec', 'rerefine' ]
 taskstatelist_short = [ 'reg', 'def', 'assgn', 'rdy', 'pend', 'scout', 'sctd', 'run', 'prep', 'done', 'fail', 'finish', 'abrtg', 'abrtd', 'finishg', 'toprep', 'preprc', 'tobrok', 'broken', 'retry', 'incexe', 'refine' ]
@@ -1639,6 +1640,7 @@ def wnInfo(request,site,wnname='all'):
 def dashboard(request, view=''):
     initRequest(request)
     hoursSinceUpdate = 36
+    pilots = getPilotCounts()
     if view == 'production':
         noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
     else:
@@ -1745,6 +1747,7 @@ def dashboard(request, view=''):
             clouds[cloud]['name'] = cloud
             if cloud in cloudinfo: clouds[cloud]['status'] = cloudinfo[cloud]
             clouds[cloud]['count'] = 0
+            clouds[cloud]['pilots'] = 0
             clouds[cloud]['sites'] = {}
             clouds[cloud]['states'] = {}
             clouds[cloud]['statelist'] = []
@@ -1759,6 +1762,11 @@ def dashboard(request, view=''):
             clouds[cloud]['sites'][site]['name'] = site
             if site in siteinfo: clouds[cloud]['sites'][site]['status'] = siteinfo[site]
             clouds[cloud]['sites'][site]['count'] = 0
+            if site in pilots:
+                clouds[cloud]['sites'][site]['pilots'] = pilots[site]['count']
+                clouds[cloud]['pilots'] += pilots[site]['count']
+            else:
+                clouds[cloud]['sites'][site]['pilots'] = 0
             clouds[cloud]['sites'][site]['states'] = {}
             for state in sitestatelist:
                 clouds[cloud]['sites'][site]['states'][state] = {}
@@ -1776,6 +1784,7 @@ def dashboard(request, view=''):
     allclouds = {}
     allclouds['name'] = 'All'
     allclouds['count'] = totjobs
+    allclouds['pilots'] = 0
     allclouds['sites'] = {}
     allclouds['states'] = totstates
     allclouds['statelist'] = []
@@ -1789,6 +1798,8 @@ def dashboard(request, view=''):
         allclouds['pctfail'] = int(100.*float(allstated['failed'])/(allstated['finished']+allstated['failed']))
     else:
         allclouds['pctfail'] = 0
+    for cloud in cloudkeys:
+        allclouds['pilots'] += clouds[cloud]['pilots']
     fullsummary.append(allclouds)
     for cloud in cloudkeys:
         for state in sitestatelist:
@@ -3082,3 +3093,17 @@ def getErrorDescription(job):
                 errname = errname.replace('ExitCode','')
                 txt += " <b>%s:</b> %s" % ( errname, desc )                                                                                                                                                                                                                               
     return txt
+
+def getPilotCounts():
+    query = {}
+    query['flag'] = 'production'
+    query['hours'] = 3
+    rows = Sitedata.objects.filter().values()
+    pilotd = {}
+    for r in rows:
+        print r['site'], r['getjob'], r['updatejob']
+        site = r['site']
+        if not site in pilotd: pilotd[site] = {}
+        pilotd[site]['count'] = r['getjob'] + r['updatejob']
+        pilotd[site]['time'] = r['lastmod']
+    return pilotd
