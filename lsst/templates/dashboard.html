@@ -91,7 +91,6 @@ Click on column titles to sort.
 <th> <a href="{{nosorturl}}">VO</a> </th>
 <th>  </th>
 <th> nJobs </th>
-<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=defined">defined</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=waiting">waiting</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=assigned">assigned</a> </td>
@@ -105,6 +104,7 @@ Click on column titles to sort.
 <td class="tablesection"> <a href="{{nosorturl}}sortby=finished">finished</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=failed">failed</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
 </tr>
 
 {% for vo in vosummary %}
@@ -113,10 +113,10 @@ Click on column titles to sort.
 <th  bgcolor=whitesmoke> {{ vo.name }} </th>
 <th bgcolor=whitesmoke> </th>
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
-<th  bgcolor=whitesmoke align='right'>  {% if vo.pctfail > errthreshold %} <font color=red>{{ vo.pctfail  }}</font> {% else %} {{ vo.pctfail  }} {% endif %}  </th>
 {% for state in vo.statelist %}
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
+<th  bgcolor=whitesmoke align='right'>  {% if vo.pctfail > errthreshold %} <font color=red>{{ vo.pctfail  }}</font> {% else %} {{ vo.pctfail  }} {% endif %}  </th>
 </tr>
 {% endfor %}
 <tr height=10 colspan=12></tr>
@@ -150,7 +150,6 @@ of all jobs
 {% if cloudview == 'region' %}
 <th> nPilots </th>
 {% endif %}
-<th> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </th>
 <th> <a href="{{nosorturl}}sortby=defined">defined</a> </th>
 <th> <a href="{{nosorturl}}sortby=waiting">waiting</a> </th>
 <th> <a href="{{nosorturl}}sortby=assigned">assigned</a> </th>
@@ -164,6 +163,7 @@ of all jobs
 <th> <a href="{{nosorturl}}sortby=finished">finished</a> </th>
 <th> <a href="{{nosorturl}}sortby=failed">failed</a> </th>
 <th> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </th>
+<th> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </th>
 </tr>
 
 {% for cloud in summary %}
@@ -175,10 +175,10 @@ of all jobs
 {% if cloudview == 'region' %}
 <th  bgcolor=whitesmoke align='right'> {{ cloud.pilots }} </th>
 {% endif %}
-<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a></th>
 {% for state in cloud.statelist %}
 <th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
 {% endfor %}
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a></th>
 </tr>
 {% endfor %}
 
@@ -195,7 +195,6 @@ of all jobs
 {% if cloudview == 'region' %}
 <td class="tablesection"> nPilots </td>
 {% endif %}
-<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=defined">defined</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=waiting">waiting</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=assigned">assigned</a> </td>
@@ -209,6 +208,7 @@ of all jobs
 <td class="tablesection"> <a href="{{nosorturl}}sortby=finished">finished</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=failed">failed</a> </td>
 <td class="tablesection"> <a href="{{nosorturl}}sortby=cancelled">cancelled</a> </td>
+<td class="tablesection"> <a href="{{nosorturl}}sortby=pctfail">% failed</a> </td>
 </tr>
 
 <tr height=10 colspan=12></tr>
@@ -219,10 +219,10 @@ of all jobs
 {% if cloudview == 'region' %}
 <th> {{ cloud.pilots }} </th>
 {% endif %}
-<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a> </th>
 {% for state in cloud.statelist %}
 <th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
 {% endfor %}
+<th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a> </th>
 </tr>
 {% for site in cloud.summary %}
 <tr>
@@ -232,10 +232,10 @@ of all jobs
 {% if cloudview == 'region' %}
 <td> {{ site.pilots }} </td>
 {% endif %}
-<td> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&computingsite={{site.name}}&hours={{hours}}"> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </a> </td>
 {% for state in site.summary %}
 <td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
 {% endfor %}
+<td> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&computingsite={{site.name}}&hours={{hours}}"> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </a> </td>
 </tr>
 {% endfor %}
 

@@ -122,7 +122,8 @@
 <table>
 <tr class='tablesection'><th colspan=20> Task error summary </th></tr>
 {% for task in errsByTask %}
-<tr><th> <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a> </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
+<tr><th colspan=10> {% if task.longname != '' %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}">{{ task.longname }}</a> {% else %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a>{% endif %} </th></tr>
+<tr><th> &nbsp; </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
 {% for errval in task.errorlist %}
 <tr><td>  </td> <td> <a href="{{xurl}}{{task.tasktype}}={{task.name}}&jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}

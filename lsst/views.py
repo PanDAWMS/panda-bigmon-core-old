@@ -1635,73 +1635,9 @@ def wnInfo(request,site,wnname='all'):
         resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-def dashboard(request, view=''):
-    initRequest(request)
-    hoursSinceUpdate = 36
+def dashSummary(request, hours, view='all', cloudview='region'):
     pilots = getPilotCounts()
-    if view == 'production':
-        noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
-    else:
-        noldtransjobs = 0
-        transclouds = []
-        transrclouds = []
-
-    errthreshold = 10
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
-        VOMODE = 'atlas'
-    else:
-        VOMODE = ''
-    if VOMODE != 'atlas':
-        hours = 24*7
-    else:
-        hours = 12
     query = setupView(request,hours=hours,limit=999999,opmode=view)
-
-    if VOMODE != 'atlas':
-        vosummarydata = voSummary(query)
-        vos = {}
-        for rec in vosummarydata:
-            vo = rec['vo']
-            #if vo == None: vo = 'Unassigned'
-            if vo == None: continue
-            jobstatus = rec['jobstatus']
-            count = rec['jobstatus__count']
-            if vo not in vos:
-                vos[vo] = {}
-                vos[vo]['name'] = vo
-                vos[vo]['count'] = 0
-                vos[vo]['states'] = {}
-                vos[vo]['statelist'] = []
-                for state in sitestatelist:
-                    vos[vo]['states'][state] = {}
-                    vos[vo]['states'][state]['name'] = state
-                    vos[vo]['states'][state]['count'] = 0
-            vos[vo]['count'] += count
-            vos[vo]['states'][jobstatus]['count'] += count
-        ## Convert dict to summary list
-        vokeys = vos.keys()
-        vokeys.sort()
-        vosummary = []
-        for vo in vokeys:
-            for state in sitestatelist:
-                vos[vo]['statelist'].append(vos[vo]['states'][state])
-                if int(vos[vo]['states']['finished']['count']) + int(vos[vo]['states']['failed']['count']) > 0:
-                    vos[vo]['pctfail'] = int(100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
-            vosummary.append(vos[vo])
-
-        if 'sortby' in requestParams:
-            if requestParams['sortby'] in statelist:
-                vosummary = sorted(vosummary, key=lambda x:x['states'][requestParams['sortby']],reverse=True)
-            elif requestParams['sortby'] == 'pctfail':
-                vosummary = sorted(vosummary, key=lambda x:x['pctfail'],reverse=True)
-
-    else:
-        if view == 'production':
-            errthreshold = 5
-        else:
-            errthreshold = 15
-        vosummary = []
-
     if VOMODE == 'atlas' and len(requestParams) == 0:
         cloudinfol = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values('name','status')
     else:
@@ -1715,10 +1651,6 @@ def dashboard(request, view=''):
     for s in siteinfol:
         siteinfo[s['siteid']] = s['status']    
 
-    cloudview = 'cloud'
-    if 'cloudview' in requestParams:
-        cloudview = requestParams['cloudview']
-    if view != 'production': cloudview = 'N/A'
     sitesummarydata = siteSummary(query)
     clouds = {}
     totstates = {}
@@ -1834,6 +1766,81 @@ def dashboard(request, view=''):
             cloudsummary = sorted(cloudsummary, key=lambda x:x['pctfail'],reverse=True)
             for cloud in clouds:
                 clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['pctfail'],reverse=True)
+    return fullsummary
+
+def dashboard(request, view=''):
+    initRequest(request)
+    hoursSinceUpdate = 36
+    if view == 'production':
+        noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
+    else:
+        noldtransjobs = 0
+        transclouds = []
+        transrclouds = []
+
+    errthreshold = 10
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+        VOMODE = 'atlas'
+    else:
+        VOMODE = ''
+    if VOMODE != 'atlas':
+        hours = 24*7
+    else:
+        hours = 12
+    query = setupView(request,hours=hours,limit=999999,opmode=view)
+
+    if VOMODE != 'atlas':
+        vosummarydata = voSummary(query)
+        vos = {}
+        for rec in vosummarydata:
+            vo = rec['vo']
+            #if vo == None: vo = 'Unassigned'
+            if vo == None: continue
+            jobstatus = rec['jobstatus']
+            count = rec['jobstatus__count']
+            if vo not in vos:
+                vos[vo] = {}
+                vos[vo]['name'] = vo
+                vos[vo]['count'] = 0
+                vos[vo]['states'] = {}
+                vos[vo]['statelist'] = []
+                for state in sitestatelist:
+                    vos[vo]['states'][state] = {}
+                    vos[vo]['states'][state]['name'] = state
+                    vos[vo]['states'][state]['count'] = 0
+            vos[vo]['count'] += count
+            vos[vo]['states'][jobstatus]['count'] += count
+        ## Convert dict to summary list
+        vokeys = vos.keys()
+        vokeys.sort()
+        vosummary = []
+        for vo in vokeys:
+            for state in sitestatelist:
+                vos[vo]['statelist'].append(vos[vo]['states'][state])
+                if int(vos[vo]['states']['finished']['count']) + int(vos[vo]['states']['failed']['count']) > 0:
+                    vos[vo]['pctfail'] = int(100.*float(vos[vo]['states']['failed']['count'])/(vos[vo]['states']['finished']['count']+vos[vo]['states']['failed']['count']))
+            vosummary.append(vos[vo])
+
+        if 'sortby' in requestParams:
+            if requestParams['sortby'] in statelist:
+                vosummary = sorted(vosummary, key=lambda x:x['states'][requestParams['sortby']],reverse=True)
+            elif requestParams['sortby'] == 'pctfail':
+                vosummary = sorted(vosummary, key=lambda x:x['pctfail'],reverse=True)
+
+    else:
+        if view == 'production':
+            errthreshold = 5
+        else:
+            errthreshold = 15
+        vosummary = []
+
+    cloudview = 'cloud'
+    if 'cloudview' in requestParams:
+        cloudview = requestParams['cloudview']
+    if view == 'analysis': cloudview = 'region'
+    elif view != 'production': cloudview = 'N/A'
+
+    fullsummary = dashSummary(request, hours, view, cloudview)
 
     cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
 
@@ -2223,7 +2230,7 @@ def jobStateSummary(jobs):
         statecount[job['jobstatus']] += 1
     return statecount
 
-def errorSummaryDict(request,jobs):
+def errorSummaryDict(request,jobs, tasknamedict):
     """ take a job list and produce error summaries from it """
     errsByCount = {}
     errsBySite = {}
@@ -2240,11 +2247,14 @@ def errorSummaryDict(request,jobs):
         if 'cloud' in requestParams:
             if site in homeCloud and homeCloud[site] != requestParams['cloud']: continue
         user = job['produsername']
+        taskname = ''
         if job['jeditaskid'] > 0:
             taskid = job['jeditaskid']
+            if taskid in tasknamedict: taskname = tasknamedict[taskid]
             tasktype = 'jeditaskid'
         else:
             taskid = job['taskid']
+            if taskid in tasknamedict: taskname = tasknamedict[taskid]
             tasktype = 'taskid'
         tm = job['modificationtime']
         tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
@@ -2318,6 +2328,7 @@ def errorSummaryDict(request,jobs):
                     if taskid not in errsByTask:
                         errsByTask[taskid] = {}
                         errsByTask[taskid]['name'] = taskid
+                        errsByTask[taskid]['longname'] = taskname
                         errsByTask[taskid]['errors'] = {}
                         errsByTask[taskid]['toterrors'] = 0
                         errsByTask[taskid]['tasktype'] = tasktype
@@ -2439,7 +2450,33 @@ def errorSummary(request):
     jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
-    errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs)
+
+    ## Translate IDs to names. Awkward because models don't provide foreign keys to task records.
+    taskids = {}
+    jeditaskids = {}
+    for job in jobs:
+        if 'taskid' in job and job['taskid'] and job['taskid'] > 0: taskids[job['taskid']] = 1
+        if 'jeditaskid' in job and job['jeditaskid'] and job['jeditaskid'] > 0: jeditaskids[job['jeditaskid']] = 1
+    taskidl = taskids.keys()
+    jeditaskidl = jeditaskids.keys()
+    tasknamedict = {}
+    if len(jeditaskidl) > 0:
+        tq = { 'jeditaskid__in' : jeditaskidl }
+        jeditasks = JediTasks.objects.filter(**tq).values('taskname', 'jeditaskid')
+        for t in jeditasks:
+            tasknamedict[t['jeditaskid']] = t['taskname']
+    if len(taskidl) > 0:
+        from atlas.prodtask.models import ProductionTask
+        tq = { 'id__in' : taskidl }
+        try:
+            oldtasks = ProductionTask.objects.filter(**tq).values('name', 'id')
+            for t in oldtasks:
+                tasknamedict[t['id']] = t['name']
+        except:
+            oldtasks = []
+
+    ## Build the error summary.
+    errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs, tasknamedict)
 
     taskname = ''
     if 'jeditaskid' in requestParams:
