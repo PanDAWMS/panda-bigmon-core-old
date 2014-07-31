@@ -11,8 +11,10 @@ import views as reprocessing_views
 
 urlpatterns = patterns('',
     ### DataTables view
-    url(r'^$', \
-        reprocessing_views.PandaJobDictJsonReprocessingSmryPage.as_view(), \
-        name='api-reprocessing-jobs-in-task-smry'),
+#    url(r'^$', \
+#        reprocessing_views.PandaJobDictJsonReprocessingSmryPage.as_view(), \
+#        name='api-reprocessing-jobs-in-task-smry'),
+   url(r'^$', reprocessing_views.reprocessing_jobs_in_task_pattern, \
+       name='api-reprocessing-jobs-in-task-smry'),
 )
 
