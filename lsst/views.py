@@ -126,9 +126,9 @@ def setupView(request, opmode='', hours=0, limit=-99):
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
         if 'hours' not in requestParams and 'days' not in requestParams:
-            JOB_LIMIT = 3000
+            JOB_LIMIT = 6000
         else:
-            JOB_LIMIT = 3000
+            JOB_LIMIT = 6000
         if 'cloud' not in fields: fields.append('cloud')
         if 'atlasrelease' not in fields: fields.append('atlasrelease')
         if 'produsername' in requestParams or 'jeditaskid' in requestParams or 'user' in requestParams:
@@ -141,7 +141,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     else:
         fields.append('vo')
         LAST_N_HOURS_MAX = 7*24
-        JOB_LIMIT = 1000
+        JOB_LIMIT = 6000
     if hours > 0:
         ## Call param overrides default hours, but not a param on the URL
         LAST_N_HOURS_MAX = hours
@@ -707,7 +707,7 @@ def jobList(request, mode=None, param=None):
         display_limit = int(requestParams['display_limit'])
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
-        display_limit = 3000
+        display_limit = 6000
         url_nolimit = request.get_full_path()
     njobsmax = display_limit
 
@@ -1117,7 +1117,7 @@ def userList(request):
             nhours = 12
         else:
             nhours = 7*24
-        query = setupView(request, hours=nhours, limit=3000)
+        query = setupView(request, hours=nhours, limit=6000)
         ## dynamically assemble user summary info
         values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'processingtype', 'workinggroup', 'currentpriority'
         jobs = QuerySetChain(\
@@ -1172,7 +1172,7 @@ def userInfo(request, user=''):
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     ntasks = len(tasks)
 
-    limit = 2000
+    limit = 6000
     query = setupView(request,hours=72,limit=limit)
     query['produsername__iexact'] = user
     jobs = []
@@ -2417,7 +2417,7 @@ def getTaskName(tasktype,taskid):
 
 def errorSummary(request):
     initRequest(request)
-    query = setupView(request, hours=12, limit=3000)
+    query = setupView(request, hours=12, limit=6000)
     if 'sortby' in requestParams:
         sortby = requestParams['sortby']
     else:
