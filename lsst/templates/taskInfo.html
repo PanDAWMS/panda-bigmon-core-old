@@ -84,6 +84,12 @@ This is an event service task<p>
 <table><tr>
 <td bgcolor='lightcyan'><b> View: </b></td>
 
+{% if jobsummary %}
+<td>
+<a href="{% url 'jobList' %}?jeditaskid={{jeditaskid}}&display_limit=100">job list (access to job details and logs)</a>
+</td>
+{% endif %}
+
 {% if task.parent_tid != task.jeditaskid and task.parent_tid != None %}
 <td>
 parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}</a>
@@ -101,11 +107,11 @@ parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}
 {% endif %}
 
 <td>
-<a href="{% url 'pandaLogger' %}?category=panda.mon.bamboo&type=taskbrokerage&taskid={{ jeditaskid }}">brokerage log</a>
+<a href="{% url 'pandaLogger' %}?category=panda.mon.bamboo&type=taskbrokerage&taskid={{ jeditaskid }}">brokerage logger</a>
 </td>
 
 <td>
-<a href="{% url 'pandaLogger' %}?category=panda.mon.jedi&jeditaskid={{ jeditaskid }}">JEDI action log</a>
+<a href="{% url 'pandaLogger' %}?category=panda.mon.jedi&jeditaskid={{ jeditaskid }}">JEDI action logger</a>
 </td>
 
 <td>
