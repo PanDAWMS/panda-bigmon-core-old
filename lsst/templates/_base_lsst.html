@@ -104,241 +104,193 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 </head>
 <body>
 
-	<!-- Header and Nav -->
-	<nav class="top-bar">
-	<ul class="title-area">
-		<!-- Title Area -->
-		<li class="name">
-			<h1>
-				<a href="{% url 'index' %}">
-					{% block title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}
-				</a>
-			</h1>
-		</li>
-		<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-	</ul>
+<nav class="tab-bar show-for-small">
+    <a class="left-off-canvas-toggle menu-icon ">
+    <span><a href="{% url 'index' %}">{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}</a></span>
+    </a>
+</nav>
 
-	<section class="top-bar-section">
-		<!-- Left Nav Section -->
-      <ul class="left">
-        <li class="divider"></li>
+<nav class="top-bar hide-for-small" data-topbar>
 
-{% if viewParams.MON_VO == 'ATLAS' %}
-        {% block top_menu_all_1 %}
-        <li class="has-dropdown">
-          {% block top_menu_1 %}
-          <a href="#">Dashboards</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'dashboard' %}">All jobs</a></li>
-            <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
-            <li><a href="{% url 'dashProduction' %}">Production - Cloud view</a></li>
-            <li><a href="{% url 'dashProduction' %}?cloudview=region">Production - Region view</a></li>
-            <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
-          </ul>
-          {% endblock %}
+    <ul class="title-area">
+        <li class="name">
+        <h1><a href="{% url 'index' %}">{% block title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}</a></h1>
         </li>
-       {% endblock %}
-{% else %}
-        {% block top_menu_all_21 %}
-        <li class="has-dropdown">
-          {% block top_menu_21 %}
-          <a href="#">Dashboard</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'dashboard' %}">VOs, sites</a></li>
-            <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
-{% endif %}
+    </ul>
 
-        {% block top_menu_all_2 %}
-        <li class="has-dropdown">
-          {% block top_menu_2 %}
-          <a href="#">Jobs</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'jobList' %}?display_limit=100">All</a></li>
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'jobList' %}?jobtype=analysis&display_limit=100">Analysis</a></li>
-            <li><a href="{% url 'jobList' %}?jobtype=production&display_limit=100">Production</a></li>
-            <li><a href="{% url 'jobList' %}?jobtype=groupproduction&display_limit=100">Group production</a></li>
-            <li><a href="{% url 'jobList' %}?jobtype=eventservice&display_limit=100">Event service</a></li>
-{% endif %}
-            <li><a href="{% url 'jobList' %}?jobtype=test&display_limit=100">Test</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+    <section class="top-bar-section">
 
-        {% block top_menu_all_6 %}
-        <li class="has-dropdown">
-          {% block top_menu_6 %}
-          <a href="#">Tasks</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'taskList' %}?display_limit=300">All</a></li>
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'taskList' %}?tasktype=anal&display_limit=300">Analysis</a></li>
-            <li><a href="{% url 'taskList' %}?tasktype=prod&display_limit=300">Production</a></li>
-            <li><a href="{% url 'taskList' %}?eventservice=1&display_limit=300">Event service</a></li>
-{% endif %}
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+        <ul class="left">
 
-        {% block top_menu_all_7 %}
-        <li class="has-dropdown">
-          {% block top_menu_7 %}
-          <a href="#">Errors</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'errorSummary' %}?sortby=count">All</a></li>
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'errorSummary' %}?jobtype=analysis&sortby=count">Analysis</a></li>
-            <li><a href="{% url 'errorSummary' %}?jobtype=production&sortby=count">Production</a></li>
-{% endif %}
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Dashboards</a>
+            <ul class="dropdown">
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'dashboard' %}">All jobs</a></li>
+                    <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
+                    <li><a href="{% url 'dashProduction' %}">Production - Cloud view</a></li>
+                    <li><a href="{% url 'dashProduction' %}?cloudview=region">Production - Region view</a></li>
+                    <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
+                {% else %}
+                    <li><a href="{% url 'dashboard' %}">VOs, sites</a></li>
+                    <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
+                {% endif %}
+            </ul>
+            </li>
 
-       {% block top_menu_all_3 %}
-        <li class="has-dropdown">
-          {% block top_menu_3 %}
-          <a href="#">Users</a>
-          <ul class="dropdown">
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'userList' %}?sortby=date&view=database">Usage stats view</a></li>
-{% endif %}
-            <li><a href="{% url 'userList' %}?sortby=date&view=dynamic">Dynamic view</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Jobs</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'jobList' %}?display_limit=100">All</a></li>
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'jobList' %}?jobtype=analysis&display_limit=100">Analysis</a></li>
+                    <li><a href="{% url 'jobList' %}?jobtype=production&display_limit=100">Production</a></li>
+                    <li><a href="{% url 'jobList' %}?jobtype=groupproduction&display_limit=100">Group production</a></li>
+                    <li><a href="{% url 'jobList' %}?jobtype=eventservice&display_limit=100">Event service</a></li>
+                {% endif %}
+                <li><a href="{% url 'jobList' %}?jobtype=test&display_limit=100">Test</a></li>
+            </ul>
+            </li>
 
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Tasks</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'taskList' %}?display_limit=300">All</a></li>
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'taskList' %}?tasktype=anal&display_limit=300">Analysis</a></li>
+                    <li><a href="{% url 'taskList' %}?tasktype=prod&display_limit=300">Production</a></li>
+                    <li><a href="{% url 'taskList' %}?eventservice=1&display_limit=300">Event service</a></li>
+                {% endif %}
+            </ul>
+            </li>
 
-       {% block top_menu_all_4 %}
-        <li class="has-dropdown">
-          {% block top_menu_4 %}
-          <a href="#">Sites</a>
-          <ul class="dropdown">
-            <li><a href="{% url 'siteList' %}">Clouds, sites</a></li>
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'siteList' %}?cloud=CA">CA</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=CERN">CERN</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=DE">DE</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=ES">ES</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=FR">FR</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=IT">IT</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=ND">ND</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=NL">NL</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=RU">RU</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=TW">TW</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=UK">UK</a></li>
-            <li><a href="{% url 'siteList' %}?cloud=US">US</a></li>
-{% endif %}
-            <li><a href="{% url 'workQueues' %}">Work queues</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Errors</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'errorSummary' %}?sortby=count">All</a></li>
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'errorSummary' %}?jobtype=analysis&sortby=count">Analysis</a></li>
+                    <li><a href="{% url 'errorSummary' %}?jobtype=production&sortby=count">Production</a></li>
+                {% endif %}
+            </ul>
+            </li>
 
-       {% block top_menu_all_8 %}
-        <li class="has-dropdown">
-          {% block top_menu_8 %}
-          <a href="#">Incidents</a>
-          <ul class="dropdown">
-{% if viewParams.MON_VO == 'ATLAS' %}
-            <li><a href="{% url 'incidentList' %}">Recent incidents</a></li>
-{% endif %}
-            <li><a href="{% url 'pandaLogger' %}">PanDA logger</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Users</a>
+            <ul class="dropdown">
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'userList' %}?sortby=date&view=database">Usage stats view</a></li>
+                {% endif %}
+                <li><a href="{% url 'userList' %}?sortby=date&view=dynamic">Dynamic view</a></li>
+            </ul>
+            </li>
 
-        {% block top_menu_all_5 %}
-        <li>
-          {% block top_menu_5 %}
-          <a href="{% url 'index' %}?mode=quicksearch">Search</a>
-          {% endblock %}
-        </li>
-        {% endblock %}
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Sites</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'siteList' %}">Clouds, sites</a></li>
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'siteList' %}?cloud=CA">CA</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=CERN">CERN</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=DE">DE</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=ES">ES</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=FR">FR</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=IT">IT</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=ND">ND</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=NL">NL</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=RU">RU</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=TW">TW</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=UK">UK</a></li>
+                    <li><a href="{% url 'siteList' %}?cloud=US">US</a></li>
+                {% endif %}
+                <li><a href="{% url 'workQueues' %}">Work queues</a></li>
+            </ul>
+            </li>
 
-      </ul>
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">Incidents</a>
+            <ul class="dropdown">
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                    <li><a href="{% url 'incidentList' %}">Recent incidents</a></li>
+                {% endif %}
+                <li><a href="{% url 'pandaLogger' %}">PanDA logger</a></li>
+            </ul>
+            </li>
 
-      <!-- Right Nav Section -->
-      <ul class="right">
-        <li class="divider"></li>
+            <li class="divider"></li>
+            <li>
+            <a href="{% url 'index' %}?mode=quicksearch">Search</a>
+            </li>
 
-{% if viewParams.MON_VO == 'ATLAS' %}
+        </ul>
 
-        {% block top_menu_all_13 %}
-        <li class="has-dropdown">
-          {% block top_menu_13 %}
-          <a href="#">Prodsys</a>
-          <ul class="dropdown">
-            <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_table/">Prodsys task list</a>
-            <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_manage/">Manage tasks</a>
-            <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_create/">Create task</a>
-            <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/request_table/">Requests</a>
-            <li><a href="http://bigpanda.cern.ch/prodsys/getdatasets/">Input dataset search</a>
-            <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/production_dataset_table/">Aborted and obsolete datasets</a>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
-        
-        {% block top_menu_all_12 %}
-        <li class="has-dropdown">
-          {% block top_menu_12 %}
-          <a href="#">Services</a>
-          <ul class="dropdown">
-            <li><a href="http://apfmon.lancs.ac.uk/">Pilot factory monitor</a>
-            <li><a href="http://dashb-atlas-job.cern.ch/dashboard/request.py/dailysummary#button=jobstatus&sites%5B%5D=All+T3210&sitesCat%5B%5D=All+Clouds&activities%5B%5D=Data+Processing&activities%5B%5D=Extra+Production&activities%5B%5D=Group+Production&activities%5B%5D=MC+Reconstruction&activities%5B%5D=MC+Simulation&activities%5B%5D=Others&activities%5B%5D=T0+Processing&resourcetype=All&sitesSort=7&sitesCatSort=1&start=null&end=null&timerange=last24&granularity=Hourly&generic=3&sortby=3&series=All">Dashboard historical views</a></li>
-            <li><a href="http://dashb-atlas-data.cern.ch/ddm2/">DDM dashboard</a>
-            <li><a href="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/siteview#currentView=Shifter+view&highlight=false">Site Status Board</a>
-            <li><a href="http://panda.cern.ch/">Classic (aka old) PanDA monitor</a>
-            <li><a href="http://adc-monitoring.cern.ch/">All ADC monitoring services</a>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+        <ul class="right">
 
-{% endif %}
+            {% if viewParams.MON_VO == 'ATLAS' %}
 
-        {% block top_menu_all_10 %}
-        <li class="has-dropdown">
-          {% block top_menu_10 %}
-          <a href="#">VO</a>
-          <ul class="dropdown">
-            <li><a href="http://bigpanda.cern.ch/dev">ATLAS</a></li>
-            <li><a href="http://bigpanda.pandawms.org/dev">BigPanDA</a></li>
-            <li><a href="http://htcondor.pandawms.org/dev">HTCondor</a></li>
-            <li><a href="http://lsst.pandawms.org/lsst">LSST</a></li>
-            <li><a href="http://test.pandawms.org/dev">Test</a></li>
-            <li><a href="http://pandawms.org/dev">All</a></li>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
+                <li class="divider"></li>
+                <li class="has-dropdown">
+                <a href="#">Prodsys</a>
+                <ul class="dropdown">
+                    <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_table/">Prodsys task list</a>
+                    <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_manage/">Manage tasks</a>
+                    <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/task_create/">Create task</a>
+                    <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/request_table/">Requests</a>
+                    <li><a href="http://bigpanda.cern.ch/prodsys/getdatasets/">Input dataset search</a>
+                    <li><a href="http://bigpanda.cern.ch/prodsys/prodtask/production_dataset_table/">Aborted and obsolete datasets</a>
+                </ul>
+                </li>
 
-        <li class="divider"></li>
-        {% block top_menu_all_11 %}
-        <li class="has-dropdown">
-          {% block top_menu_11 %}
-          <a href="#"><span class='help'>Help</span></a>
-          <ul class="dropdown">
-            <li><a href="#doc"><span class='help'>See the bottom of the page for contextual help</span></a>
-            <li><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>
-            <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a>
-            <li><a href="http://pandawms.org">Big PanDA home</a>
-          </ul>
-          {% endblock %}
-        </li>
-       {% endblock %}
-      </ul>
+                <li class="divider"></li>
+                <li class="has-dropdown">
+                <a href="#">Services</a>
+                <ul class="dropdown">
+                    <li><a href="http://apfmon.lancs.ac.uk/">Pilot factory monitor</a>
+                    <li><a href="http://dashb-atlas-job.cern.ch/dashboard/request.py/dailysummary#button=jobstatus&sites%5B%5D=All+T3210&sitesCat%5B%5D=All+Clouds&activities%5B%5D=Data+Processing&activities%5B%5D=Extra+Production&activities%5B%5D=Group+Production&activities%5B%5D=MC+Reconstruction&activities%5B%5D=MC+Simulation&activities%5B%5D=Others&activities%5B%5D=T0+Processing&resourcetype=All&sitesSort=7&sitesCatSort=1&start=null&end=null&timerange=last24&granularity=Hourly&generic=3&sortby=3&series=All">Dashboard historical views</a></li>
+                    <li><a href="http://dashb-atlas-data.cern.ch/ddm2/">DDM dashboard</a>
+                    <li><a href="http://dashb-atlas-ssb.cern.ch/dashboard/request.py/siteview#currentView=Shifter+view&highlight=false">Site Status Board</a>
+                    <li><a href="http://panda.cern.ch/">Classic (aka old) PanDA monitor</a>
+                    <li><a href="http://adc-monitoring.cern.ch/">All ADC monitoring services</a>
+                </ul>
+                </li>
+
+            {% endif %}
+
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#">VO</a>
+            <ul class="dropdown">
+                <li><a href="http://bigpanda.cern.ch/dev">ATLAS</a></li>
+                <li><a href="http://bigpanda.pandawms.org/dev">BigPanDA</a></li>
+                <li><a href="http://htcondor.pandawms.org/dev">HTCondor</a></li>
+                <li><a href="http://lsst.pandawms.org/lsst">LSST</a></li>
+                <li><a href="http://test.pandawms.org/dev">Test</a></li>
+                <li><a href="http://pandawms.org/dev">All</a></li>
+            </ul>
+            </li>
+
+            <li class="divider"></li>
+            <li class="has-dropdown">
+            <a href="#"><span class='help'>Help</span></a>
+            <ul class="dropdown">
+                <li><a href="#doc"><span class='help'>See the bottom of the page for contextual help</span></a>
+                <li><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>
+                <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a>
+                <li><a href="http://pandawms.org">Big PanDA home</a>
+            </ul>
+            </li>
+
+        </ul>
+    
     </section>
-  </nav>
+</nav>
 
   <!-- End Header and Nav -->
 
