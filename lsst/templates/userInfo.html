@@ -207,14 +207,18 @@ Documentation on JEDI for analysis, its advantages and how to use it,
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">can be found here</a>.
 Give it a try! This monitor supports analysis with JEDI. 
 </p>
+
 <p>
-The job attribute summary gives an overview of the parameters of the selected jobs and enables you to drill down to the jobs of interest.
+The job attribute summary gives an overview of the parameters of the selected jobs and enables you to drill down to the jobs of interest. If there are other parameters that it would be useful to have summarized here, let us know.
 </p>
 <p>
-The job list itself is expensive to build (for the server, network and your browser) and so is limited by the display_limit parameter that the monitor inserts by default onto URLs. You can remove the limit on jobs displayed (by removing display_limit in the URL), but be careful, you will slow down your page builds if you are listing thousands of jobs. The intent is that you drill down to a relatively small number of jobs (a few thousand at most) via the attribute summary, then you can list them if necessary. 
+The job list itself is expensive to build (for the server, network and your browser) and so is limited by the display_limit parameter that is included by default on the URL. You can remove the limit on jobs displayed (by removing display_limit in the URL), but be careful. The intent is that you drill down to a relatively small number of jobs (a few thousand at most), then you can list them if necessary. 
 </p>
 <p>
-Note that the number of records retrieved from each table of the database is limited for performance reasons. (Job data is spread across several tables depending on the state and age of the job). This means that if the search interval is 12 hours, you are probably not seeing all jobs from the last 12 hours, only the latest N from each table. As you drill down, narrowing your search to jobs of interest, the (unchanged) limit will encompass more jobs of interest to you. If you need to increase the limit, use &limit=N in the URL. Similarly you can specify &days=N on the URL, but use these carefully.
+Note that the number of records retrieved from each table of the database is limited for performance reasons. (Job data is spread across several tables depending on the state and age of the job). This means that if the search interval is 12 hours, you are probably not seeing all jobs from the last 12 hours, only the latest N from each table. As you drill down, narrowing your search to jobs of interest, the (unchanged) limit will encompass more jobs of interest to you. If you need to increase the limit, use &limit=N in the URL. Similarly you can specify &days=N on the URL, but use carefully, the load on the DB is heavy for days greater than 3. 
+</p>
+<p>
+If you know the jobsetid=N or taskid=N, jeditaskid=N of the jobs you're interested in, you can add these to the URL, and the search will not be time limited (because these IDs give the DB enough indexing info that it isn't stressful on the DB to exclude the time constraint).
 </p>
 <p>
 Bookmarking pages of interest to you is recommended. Save that useful drill-down rather than doing all the clicking again. All monitor pages are bookmarkable (the full specification of the page is in the URL). 
@@ -224,5 +228,6 @@ Job lists can be retrieved in json format with curl so that job data can be used
 <br><font size=-1><code>
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://bigpanda.cern.ch/jobs/?transfertype=fax&hours=1"
 </font></code>
+</p>
 
 {% endblock %}
