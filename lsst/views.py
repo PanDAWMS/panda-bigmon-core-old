@@ -288,7 +288,6 @@ def setupView(request, opmode='', hours=0, limit=-99):
         query['specialhandling__contains'] = 'eventservice'
     elif jobtype == 'test':
         query['prodsourcelabel__icontains'] = 'test'
-    print query
     return query
 
 def cleanJobList(jobs, mode='drop'):
@@ -2242,7 +2241,7 @@ def errorSummaryDict(request,jobs, tasknamedict):
     flist = [ 'cloud', 'computingsite', 'produsername', 'taskid', 'jeditaskid', 'processingtype', 'prodsourcelabel', 'transformation', 'workinggroup', 'specialhandling', 'jobstatus' ]
 
     for job in jobs:
-        if job['jobstatus'] not in [ 'failed', 'transferring', 'holding' ]: continue
+        if job['jobstatus'] not in [ 'failed', 'holding' ]: continue
         site = job['computingsite']
         if 'cloud' in requestParams:
             if site in homeCloud and homeCloud[site] != requestParams['cloud']: continue
@@ -2279,17 +2278,25 @@ def errorSummaryDict(request,jobs, tasknamedict):
 
         for err in errorcodelist:
             if job[err['error']] != 0 and  job[err['error']] != '' and job[err['error']] != None:
-                errcode = "%s:%s" % ( err['name'], job[err['error']] )
+                errval = job[err['error']]
+                ## error code of zero is not an error
+                if errval == 0 or errval == '0' or errval == None: continue
+                errdiag = ''
+                try:
+                    errnum = int(errval)
+                    if err['error'] in errorCodes and errnum in errorCodes[err['error']]:
+                        errdiag = errorCodes[err['error']][errnum]
+                except:
+                    errnum = errval
+                errcode = "%s:%s" % ( err['name'], errnum )
                 if err['diag']:
                     errdiag = job[err['diag']]
-                else:
-                    errdiag = ''
                     
                 if errcode not in errsByCount:
                     errsByCount[errcode] = {}
                     errsByCount[errcode]['error'] = errcode
                     errsByCount[errcode]['codename'] = err['error']
-                    errsByCount[errcode]['codeval'] = job[err['error']]
+                    errsByCount[errcode]['codeval'] = errnum
                     errsByCount[errcode]['diag'] = errdiag
                     errsByCount[errcode]['count'] = 0
                 errsByCount[errcode]['count'] += 1
@@ -2303,7 +2310,7 @@ def errorSummaryDict(request,jobs, tasknamedict):
                     errsByUser[user]['errors'][errcode] = {}
                     errsByUser[user]['errors'][errcode]['error'] = errcode
                     errsByUser[user]['errors'][errcode]['codename'] = err['error']
-                    errsByUser[user]['errors'][errcode]['codeval'] = job[err['error']]
+                    errsByUser[user]['errors'][errcode]['codeval'] = errnum
                     errsByUser[user]['errors'][errcode]['diag'] = errdiag
                     errsByUser[user]['errors'][errcode]['count'] = 0
                 errsByUser[user]['errors'][errcode]['count'] += 1
@@ -2314,11 +2321,12 @@ def errorSummaryDict(request,jobs, tasknamedict):
                     errsBySite[site]['name'] = site
                     errsBySite[site]['errors'] = {}
                     errsBySite[site]['toterrors'] = 0
+                    errsBySite[site]['toterrjobs'] = 0
                 if errcode not in errsBySite[site]['errors']:
                     errsBySite[site]['errors'][errcode] = {}
                     errsBySite[site]['errors'][errcode]['error'] = errcode
                     errsBySite[site]['errors'][errcode]['codename'] = err['error']
-                    errsBySite[site]['errors'][errcode]['codeval'] = job[err['error']]
+                    errsBySite[site]['errors'][errcode]['codeval'] = errnum
                     errsBySite[site]['errors'][errcode]['diag'] = errdiag
                     errsBySite[site]['errors'][errcode]['count'] = 0
                 errsBySite[site]['errors'][errcode]['count'] += 1
@@ -2331,16 +2339,20 @@ def errorSummaryDict(request,jobs, tasknamedict):
                         errsByTask[taskid]['longname'] = taskname
                         errsByTask[taskid]['errors'] = {}
                         errsByTask[taskid]['toterrors'] = 0
+                        errsByTask[taskid]['toterrjobs'] = 0
                         errsByTask[taskid]['tasktype'] = tasktype
                     if errcode not in errsByTask[taskid]['errors']:
                         errsByTask[taskid]['errors'][errcode] = {}
                         errsByTask[taskid]['errors'][errcode]['error'] = errcode
                         errsByTask[taskid]['errors'][errcode]['codename'] = err['error']
-                        errsByTask[taskid]['errors'][errcode]['codeval'] = job[err['error']]
+                        errsByTask[taskid]['errors'][errcode]['codeval'] = errnum
                         errsByTask[taskid]['errors'][errcode]['diag'] = errdiag
                         errsByTask[taskid]['errors'][errcode]['count'] = 0
                     errsByTask[taskid]['errors'][errcode]['count'] += 1
                     errsByTask[taskid]['toterrors'] += 1
+        if site in errsBySite: errsBySite[site]['toterrjobs'] += 1
+        if taskid in errsByTask: errsByTask[taskid]['toterrjobs'] += 1
+
                 
     ## reorganize as sorted lists
     errsByCountL = []
@@ -2428,7 +2440,8 @@ def getTaskName(tasktype,taskid):
 
 def errorSummary(request):
     initRequest(request)
-    query = setupView(request, hours=12, limit=6000)
+    hours = 12
+    query = setupView(request, hours=hours, limit=50000)
     if 'sortby' in requestParams:
         sortby = requestParams['sortby']
     else:
@@ -2477,6 +2490,25 @@ def errorSummary(request):
 
     ## Build the error summary.
     errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs, tasknamedict)
+
+    ## Build the state summary and add state info to site error summary
+    statesummary = dashSummary(request, hours, view=jobtype, cloudview='region')
+    sitestates = {}
+    savestates = [ 'finished', 'failed', 'cancelled', 'holding', ]
+    for cloud in statesummary:
+        for site in cloud['sites']:
+            sitename = cloud['sites'][site]['name']
+            sitestates[sitename] = {}
+            for s in savestates:
+                sitestates[sitename][s] = cloud['sites'][site]['states'][s]['count']
+            sitestates[sitename]['pctfail'] = cloud['sites'][site]['pctfail']
+            
+    for site in errsBySite:
+        sitename = site['name']
+        if sitename in sitestates:
+            for s in savestates:
+                if s in sitestates[sitename]: site[s] = sitestates[sitename][s]
+        site['pctfail'] = sitestates[sitename]['pctfail']
 
     taskname = ''
     if 'jeditaskid' in requestParams:
@@ -3106,16 +3138,16 @@ def getErrorDescription(job):
     txt = ''
     for errcode in errorCodes.keys():
         errval = 0
-        if job.has_key(errcode.lower()):
-            errval = job[errcode.lower()]
+        if job.has_key(errcode):
+            errval = job[errcode]
             if errval != 0 and errval != '0' and errval != None:
                 try:
                     errval = int(errval)                                                                                                                                                      
                 except:
                     errval = -1
-                errdiag = errcode.replace('ErrorCode','ErrorDiag')
-                if errcode.find('ErrorCode') > 0:
-                    diagtxt = job[errdiag.lower()]
+                errdiag = errcode.replace('errorcode','errordiag')
+                if errcode.find('errorcode') > 0:
+                    diagtxt = job[errdiag]
                 else:
                     diagtxt = ''
                 if len(diagtxt) > 0:
@@ -3124,8 +3156,8 @@ def getErrorDescription(job):
                     desc = errorCodes[errcode][errval]
                 else:
                     desc = "Unknown %s error code %s" % ( errcode, errval )
-                errname = errcode.replace('ErrorCode','')
-                errname = errname.replace('ExitCode','')
+                errname = errcode.replace('errorcode','')
+                errname = errname.replace('exitcode','')
                 txt += " <b>%s:</b> %s" % ( errname, desc )                                                                                                                                                                                                                               
     return txt
 
@@ -3136,7 +3168,6 @@ def getPilotCounts():
     rows = Sitedata.objects.filter().values()
     pilotd = {}
     for r in rows:
-        print r['site'], r['getjob'], r['updatejob']
         site = r['site']
         if not site in pilotd: pilotd[site] = {}
         pilotd[site]['count'] = r['getjob'] + r['updatejob']
