@@ -543,7 +543,7 @@ def taskSummaryDict(request, tasks, fieldlist = None):
     suml = sorted(suml, key=lambda x:x['field'])
     return suml
 
-def wgTaskSummary(request, fieldname='workinggroup', view='all'):
+def wgTaskSummary(request, fieldname='workinggroup', view='production'):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     query = {}
     hours = 24*7
@@ -729,6 +729,8 @@ def jobList(request, mode=None, param=None):
     taskname = ''
     if 'jeditaskid' in requestParams:
         taskname = getTaskName('jeditaskid',requestParams['jeditaskid'])
+    if 'taskid' in requestParams:
+        taskname = getTaskName('jeditaskid',requestParams['taskid'])
 
     if 'produsername' in requestParams:
         user = requestParams['produsername']
@@ -1446,10 +1448,23 @@ def siteInfo(request, site=''):
 
 def siteSummary(query):
     summary = []
-    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
+    summary.extend(Jobsactive4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))     
     summary.extend(Jobsdefined4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
     summary.extend(Jobswaiting4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
     summary.extend(Jobsarchived4.objects.filter(**query).values('cloud','computingsite','jobstatus').annotate(Count('jobstatus')).order_by('cloud','computingsite','jobstatus'))
+    return summary
+
+def taskSummaryData(query):
+    summary = []
+    summary.extend(Jobsactive4.objects.filter(**query).values('taskid','jobstatus').annotate(Count('jobstatus')).order_by('taskid','jobstatus'))
+    summary.extend(Jobsdefined4.objects.filter(**query).values('taskid','jobstatus').annotate(Count('jobstatus')).order_by('taskid','jobstatus'))
+    summary.extend(Jobswaiting4.objects.filter(**query).values('taskid','jobstatus').annotate(Count('jobstatus')).order_by('taskid','jobstatus'))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('taskid','jobstatus').annotate(Count('jobstatus')).order_by('taskid','jobstatus'))
+    summary.extend(Jobsactive4.objects.filter(**query).values('jeditaskid','jobstatus').annotate(Count('jobstatus')).order_by('jeditaskid','jobstatus'))
+    summary.extend(Jobsdefined4.objects.filter(**query).values('jeditaskid','jobstatus').annotate(Count('jobstatus')).order_by('jeditaskid','jobstatus'))
+    summary.extend(Jobswaiting4.objects.filter(**query).values('jeditaskid','jobstatus').annotate(Count('jobstatus')).order_by('jeditaskid','jobstatus'))
+    summary.extend(Jobsarchived4.objects.filter(**query).values('jeditaskid','jobstatus').annotate(Count('jobstatus')).order_by('jeditaskid','jobstatus'))
+
     return summary
 
 def voSummary(query):
@@ -1768,7 +1783,78 @@ def dashSummary(request, hours, view='all', cloudview='region'):
                 clouds[cloud]['summary'] = sorted(clouds[cloud]['summary'], key=lambda x:x['pctfail'],reverse=True)
     return fullsummary
 
-def dashboard(request, view=''):
+def dashTaskSummary(request, hours, view='all'):
+    print 'dashTaskSummary start'
+    query = setupView(request,hours=hours,limit=999999,opmode=view) 
+
+    tasksummarydata = taskSummaryData(query)
+    tasks = {}
+    totstates = {}
+    totjobs = 0
+    for state in sitestatelist:
+        totstates[state] = 0
+
+    taskids = []
+    for rec in tasksummarydata:
+        if 'jeditaskid' in rec and rec['jeditaskid'] and rec['jeditaskid'] > 0:
+            taskids.append( { 'jeditaskid' : rec['jeditaskid'] } )
+        elif 'taskid' in rec and rec['taskid'] and rec['taskid'] > 0 :
+            taskids.append( { 'taskid' : rec['taskid'] } )
+    tasknamedict = taskNameDict(taskids)
+
+    for rec in tasksummarydata:
+        if 'jeditaskid' in rec and rec['jeditaskid'] and rec['jeditaskid'] > 0:
+            taskid = rec['jeditaskid']
+            tasktype = 'JEDI'
+        elif 'taskid' in rec and rec['taskid'] and rec['taskid'] > 0 :
+            taskid = rec['taskid']
+            tasktype = 'old'
+        else:
+            continue
+        jobstatus = rec['jobstatus']
+        count = rec['jobstatus__count']
+        if jobstatus not in sitestatelist: continue
+        totjobs += count
+        totstates[jobstatus] += count
+        if taskid not in tasks:
+            tasks[taskid] = {}
+            tasks[taskid]['taskid'] = taskid
+            if taskid in tasknamedict:
+                tasks[taskid]['name'] = tasknamedict[taskid]
+            else:
+                tasks[taskid]['name'] = taskid
+            tasks[taskid]['count'] = 0
+            tasks[taskid]['states'] = {}
+            tasks[taskid]['statelist'] = []
+            for state in sitestatelist:
+                tasks[taskid]['states'][state] = {}
+                tasks[taskid]['states'][state]['name'] = state
+                tasks[taskid]['states'][state]['count'] = 0
+        tasks[taskid]['count'] += count
+        tasks[taskid]['states'][jobstatus]['count'] += count
+
+    ## Convert dict to summary list
+    taskkeys = tasks.keys()
+    taskkeys.sort()
+    fullsummary = []
+    for taskid in taskkeys:
+        for state in sitestatelist:
+            tasks[taskid]['statelist'].append(tasks[taskid]['states'][state])
+        if tasks[taskid]['states']['finished']['count'] + tasks[taskid]['states']['failed']['count'] > 0:
+            tasks[taskid]['pctfail'] =  int(100.*float(tasks[taskid]['states']['failed']['count'])/(tasks[taskid]['states']['finished']['count']+tasks[taskid]['states']['failed']['count']))
+
+        fullsummary.append(tasks[taskid])
+
+    if 'sortby' in requestParams:
+        if requestParams['sortby'] in sitestatelist:
+            fullsummary = sorted(fullsummary, key=lambda x:x['states'][requestParams['sortby']],reverse=True)
+        elif requestParams['sortby'] == 'pctfail':
+            fullsummary = sorted(fullsummary, key=lambda x:x['pctfail'],reverse=True)
+
+    print 'dashTaskSummary end', len(fullsummary)
+    return fullsummary
+
+def dashboard(request, view='production'):
     initRequest(request)
     hoursSinceUpdate = 36
     if view == 'production':
@@ -1788,6 +1874,9 @@ def dashboard(request, view=''):
     else:
         hours = 12
     query = setupView(request,hours=hours,limit=999999,opmode=view)
+
+    if 'mode' in requestParams and requestParams['mode'] == 'task':
+        return dashTasks(request, hours, view)
 
     if VOMODE != 'atlas':
         vosummarydata = voSummary(query)
@@ -1844,6 +1933,8 @@ def dashboard(request, view=''):
 
     cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
 
+    taskJobSummary = dashTaskSummary(request, hours, view)
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         nosorturl = removeParam(xurl, 'sortby',mode='extensible')
@@ -1857,6 +1948,7 @@ def dashboard(request, view=''):
             'summary' : fullsummary,
             'vosummary' : vosummary,
             'view' : view,
+            'mode' : 'site',
             'cloudview': cloudview,
             'hours' : LAST_N_HOURS_MAX,
             'errthreshold' : errthreshold,
@@ -1867,6 +1959,7 @@ def dashboard(request, view=''):
             'transclouds' : transclouds,
             'transrclouds' : transrclouds,
             'hoursSinceUpdate' : hoursSinceUpdate,
+            'taskJobSummary' : taskJobSummary,
         }
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -1878,6 +1971,46 @@ def dashAnalysis(request):
 
 def dashProduction(request):
     return dashboard(request,view='production')
+
+def dashTasks(request, hours, view='production'):
+    initRequest(request)
+
+    query = setupView(request,hours=hours,limit=999999,opmode=view)
+
+    if view == 'production':
+        errthreshold = 5
+    else:
+        errthreshold = 15
+
+    cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
+
+    taskJobSummary = dashTaskSummary(request, hours, view)
+
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        xurl = extensibleURL(request)
+        nosorturl = removeParam(xurl, 'sortby',mode='extensible')
+        data = {
+            'viewParams' : viewParams,
+            'requestParams' : requestParams,
+            'url' : request.path,
+            'xurl' : xurl,
+            'nosorturl' : nosorturl,
+            'user' : None,
+            'view' : view,
+            'mode' : 'task',
+            'hours' : LAST_N_HOURS_MAX,
+            'errthreshold' : errthreshold,
+            'cloudTaskSummary' : cloudTaskSummary,
+            'taskstates' : taskstatedict,
+            'taskdays' : 7,
+            'taskJobSummary' : taskJobSummary,
+        }
+        return render_to_response('dashboard.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+
+
 
 #class QuicksearchForm(forms.Form):
 #    fieldName = forms.CharField(max_length=100)
@@ -2465,29 +2598,7 @@ def errorSummary(request):
     jobs = cleanJobList(jobs)
     njobs = len(jobs)
 
-    ## Translate IDs to names. Awkward because models don't provide foreign keys to task records.
-    taskids = {}
-    jeditaskids = {}
-    for job in jobs:
-        if 'taskid' in job and job['taskid'] and job['taskid'] > 0: taskids[job['taskid']] = 1
-        if 'jeditaskid' in job and job['jeditaskid'] and job['jeditaskid'] > 0: jeditaskids[job['jeditaskid']] = 1
-    taskidl = taskids.keys()
-    jeditaskidl = jeditaskids.keys()
-    tasknamedict = {}
-    if len(jeditaskidl) > 0:
-        tq = { 'jeditaskid__in' : jeditaskidl }
-        jeditasks = JediTasks.objects.filter(**tq).values('taskname', 'jeditaskid')
-        for t in jeditasks:
-            tasknamedict[t['jeditaskid']] = t['taskname']
-    if len(taskidl) > 0:
-        from atlas.prodtask.models import ProductionTask
-        tq = { 'id__in' : taskidl }
-        try:
-            oldtasks = ProductionTask.objects.filter(**tq).values('name', 'id')
-            for t in oldtasks:
-                tasknamedict[t['id']] = t['name']
-        except:
-            oldtasks = []
+    tasknamedict = taskNameDict(jobs)
 
     ## Build the error summary.
     errsByCount, errsBySite, errsByUser, errsByTask, sumd, errHist = errorSummaryDict(request,jobs, tasknamedict)
@@ -3174,6 +3285,32 @@ def getPilotCounts(view):
         pilotd[site]['count'] = r['getjob'] + r['updatejob']
         pilotd[site]['time'] = r['lastmod']
     return pilotd
+
+def taskNameDict(jobs):
+    ## Translate IDs to names. Awkward because models don't provide foreign keys to task records.
+    taskids = {}
+    jeditaskids = {}
+    for job in jobs:
+        if 'taskid' in job and job['taskid'] and job['taskid'] > 0: taskids[job['taskid']] = 1
+        if 'jeditaskid' in job and job['jeditaskid'] and job['jeditaskid'] > 0: jeditaskids[job['jeditaskid']] = 1
+    taskidl = taskids.keys()
+    jeditaskidl = jeditaskids.keys()
+    tasknamedict = {}
+    if len(jeditaskidl) > 0:
+        tq = { 'jeditaskid__in' : jeditaskidl }
+        jeditasks = JediTasks.objects.filter(**tq).values('taskname', 'jeditaskid')
+        for t in jeditasks:
+            tasknamedict[t['jeditaskid']] = t['taskname']
+    if len(taskidl) > 0:
+        from atlas.prodtask.models import ProductionTask
+        tq = { 'id__in' : taskidl }
+        try:
+            oldtasks = ProductionTask.objects.filter(**tq).values('name', 'id')
+            for t in oldtasks:
+                tasknamedict[t['id']] = t['name']
+        except:
+            oldtasks = []
+    return tasknamedict
 
 class DateEncoder(json.JSONEncoder):
     def default(self, obj):
