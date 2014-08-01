@@ -125,7 +125,13 @@
 <tr class='tablesection'><th colspan=20> Task error summary </th></tr>
 {% for task in errsByTask %}
 <tr><th colspan=10> {% if task.longname != '' %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}">{{ task.longname }}</a> {% else %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a>{% endif %} </th></tr>
-<tr><th> &nbsp; </th> <th> {{ task.toterrors }} </th> <th> Total errors </th>  </tr>
+<tr>
+<th> &nbsp; </th>
+<th> {{ task.toterrors }} </th>
+
+<th> Total errors in {{ task.toterrjobs }} jobs with errors. &nbsp; <a href="{% url 'jobList' %}?taskid={{ task.name }}&jobstatus=finished&hours={{ hours }}"><span class='finished'> Finished: {{ task.finished }} </span></a> &nbsp; <a href="{% url 'jobList' %}?taskid={{ task.name }}&jobstatus=failed&hours={{ hours }}"><span class='failed'> Failed: {{ task.failed }} </span></a> &nbsp; % failed: {{ task.pctfail }} &nbsp; <a href="{% url 'jobList' %}?taskid={{ task.name }}&jobstatus=holding&hours={{ hours }}"><span class='holding'> Holding: {{ task.holding }} </span></a> &nbsp;  <a href="{% url 'jobList' %}?taskid={{ task.name }}&jobstatus=cancelled&hours={{ hours }}"><span class='cancelled'> Cancelled: {{ task.cancelled }} </span></a> </th>
+
+</tr>
 {% for errval in task.errorlist %}
 <tr><td>  </td> <td> <a href="{{xurl}}{{task.tasktype}}={{task.name}}&jobstatus=failed|holding&{{errval.codename}}={{errval.codeval}}&hours={{hours}}&display_limit=100">{{ errval.count }}</a> </td> <td> <b>{{ errval.error }}</b> &nbsp; <font size=-1> {{ errval.diag }} </font></td>  </tr>
 {% endfor %}

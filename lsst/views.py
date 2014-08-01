@@ -2622,6 +2622,23 @@ def errorSummary(request):
                 if s in sitestates[sitename]: site[s] = sitestates[sitename][s]
         site['pctfail'] = sitestates[sitename]['pctfail']
 
+    ## Build the task state summary and add task state info to task error summary
+    taskstatesummary = dashTaskSummary(request, hours, view=jobtype)
+    taskstates = {}
+    for task in taskstatesummary:
+        taskid = task['taskid']
+        taskstates[taskid] = {}
+        for s in savestates:
+            taskstates[taskid][s] = task['states'][s]['count']
+        if 'pctfail' in task: taskstates[taskid]['pctfail'] = task['pctfail']
+            
+    for task in errsByTask:
+        taskid = task['name']
+        if taskid in taskstates:
+            for s in savestates:
+                if s in taskstates[taskid]: task[s] = taskstates[taskid][s]
+        if 'pctfail' in taskstates[taskid]: task['pctfail'] = taskstates[taskid]['pctfail']
+
     taskname = ''
     if 'jeditaskid' in requestParams:
         taskname = getTaskName('jeditaskid',requestParams['jeditaskid'])
