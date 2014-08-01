@@ -2566,7 +2566,7 @@ def getTaskName(tasktype,taskid):
     taskname = ''
     if tasktype == 'taskid':
         taskname = ''
-    elif tasktype == 'jeditaskid':
+    elif tasktype == 'jeditaskid' and taskid and taskid != 'None' :
         tasks = JediTasks.objects.filter(jeditaskid=taskid).values('taskname')
         if len(tasks) > 0:
             taskname = tasks[0]['taskname']
