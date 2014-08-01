@@ -665,7 +665,8 @@ def jobList(request, mode=None, param=None):
         jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
         jobs.extend(Jobswaiting4.objects.filter(**query)[:JOB_LIMIT].values(*values))
         jobs.extend(Jobsarchived4.objects.filter(**query)[:JOB_LIMIT].values(*values))
-        jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
+        if 'jobstatus' not in requestParams or requestParams['jobstatus'] in ( 'finished', 'failed', 'cancelled' ):
+            jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
 
     ## If the list is for a particular JEDI task, filter out the jobs superseded by retries
     taskids = {}
@@ -1635,7 +1636,7 @@ def wnInfo(request,site,wnname='all'):
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def dashSummary(request, hours, view='all', cloudview='region'):
-    pilots = getPilotCounts()
+    pilots = getPilotCounts(view)
     query = setupView(request,hours=hours,limit=999999,opmode=view)
     if VOMODE == 'atlas' and len(requestParams) == 0:
         cloudinfol = Cloudconfig.objects.filter().exclude(name='CMS').exclude(name='OSG').values('name','status')
@@ -3161,11 +3162,11 @@ def getErrorDescription(job):
                 txt += " <b>%s:</b> %s" % ( errname, desc )                                                                                                                                                                                                                               
     return txt
 
-def getPilotCounts():
+def getPilotCounts(view):
     query = {}
-    query['flag'] = 'production'
+    query['flag'] = view
     query['hours'] = 3
-    rows = Sitedata.objects.filter().values()
+    rows = Sitedata.objects.filter(**query).values()
     pilotd = {}
     for r in rows:
         site = r['site']
