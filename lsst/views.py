@@ -492,6 +492,8 @@ def userSummaryDict(jobs):
         if job['pandaid'] > sumd[user]['pandaid']: sumd[user]['pandaid'] = job['pandaid']
         sumd[user]['cputime'] += cpu
         sumd[user]['njobs'] += 1
+        if 'n%s' % (state) not in sumd[user]:
+            sumd[user]['n' + state] = 0
         sumd[user]['n'+state] += 1
         if not site in sumd[user]['sites']: sumd[user]['sites'][site] = 0
         sumd[user]['sites'][site] += 1
