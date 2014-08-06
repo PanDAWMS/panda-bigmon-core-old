@@ -252,7 +252,16 @@ But if you want, you can check.
 <td> {{ file.fsize }} </td>
 <td class='{{file.status}}'> {{ file.status }} </td>
 <td> {% if file.attemptnr %} {{ file.attemptnr }} ({{ file.maxattempt }}){% endif %} </td>
-<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.datasetname}}"> {{ file.datasetname }}</a></font></td>
+<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{file.datasetname}}"> {{ file.datasetname }}</a>
+{% if file.dispatchdblock %}
+<br />(dispatch block: <a href="http://panda.cern.ch/server/pandamon/query?dataset={{ file.dispatchdblock }}">{{ file.dispatchdblock }}</a>)
+{% endif %}
+{% if file.destinationdblock %}
+<br />(destination block: <a href="http://panda.cern.ch/server/pandamon/query?dataset={{ file.destinationdblock }}">
+{% if file.destinationdblock_vis %}{{ file.destinationdblock_vis }}{% else %}{{ file.destinationdblock }}{% endif %}</a>)
+{% endif %}
+</font>
+</td>
 </tr>
 {% endfor %}
 </table>

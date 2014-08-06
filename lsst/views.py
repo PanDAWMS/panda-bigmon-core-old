@@ -104,8 +104,8 @@ def initRequest(request):
         requestParams[p.lower()] = pval
     setupHomeCloud()
     if len(errorFields) == 0:
-    	codes = ErrorCodes.ErrorCodes()
-    	errorFields, errorCodes, errorStages = codes.getErrorCodes()
+        codes = ErrorCodes.ErrorCodes()
+        errorFields, errorCodes, errorStages = codes.getErrorCodes()
 
 def setupView(request, opmode='', hours=0, limit=-99):
     global VOMODE
@@ -205,8 +205,8 @@ def setupView(request, opmode='', hours=0, limit=-99):
         startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = None
     if 'time_to' in requestParams:
-    	time_to = requestParams.get('time_to', 0)
-    	if time_to:
+        time_to = requestParams.get('time_to', 0)
+        if time_to:
             time_to = float(time_to)/1000.
             enddate = datetime.utcfromtimestamp(time_to).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
     if 'earlierthan' in requestParams:
@@ -865,11 +865,13 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         if len(files) == 0:
             files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
         if len(files) > 0:
-                for f in files:
-                    if 'creationdate' not in f: f['creationdate'] = f['modificationtime']
-                    if 'fileid' not in f: f['fileid'] = f['row_id']
-                    if 'datasetname' not in f: f['datasetname'] = f['dataset']
-                    if 'modificationtime' in f: f['oldfiletable'] = 1
+            for f in files:
+                if 'creationdate' not in f: f['creationdate'] = f['modificationtime']
+                if 'fileid' not in f: f['fileid'] = f['row_id']
+                if 'datasetname' not in f: f['datasetname'] = f['dataset']
+                if 'modificationtime' in f: f['oldfiletable'] = 1
+                if 'destinationdblock' in f and f['destinationdblock'] is not None:
+                    f['destinationdblock_vis'] = f['destinationdblock'].split('_')[-1]
     files = sorted(files, key=lambda x:x['type'])
     nfiles = len(files) 
     logfile = {} 
