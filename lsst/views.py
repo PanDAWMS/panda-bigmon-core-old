@@ -1552,6 +1552,8 @@ def wnInfo(request,site,wnname='all'):
         if slot not in wns[wn]['slotd']: wns[wn]['slotd'][slot] = 0
         wns[wn]['slotd'][slot] += 1
         wns[wn]['count'] += count
+        if jobstatus not in wns[wn]['states']:
+            wns[wn]['states'][jobstatus]=0
         wns[wn]['states'][jobstatus]['count'] += count
 
     ## Convert dict to summary list
