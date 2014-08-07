@@ -2637,13 +2637,13 @@ def errorSummary(request):
         for s in savestates:
             taskstates[taskid][s] = task['states'][s]['count']
         if 'pctfail' in task: taskstates[taskid]['pctfail'] = task['pctfail']
-            
+
     for task in errsByTask:
         taskid = task['name']
         if taskid in taskstates:
             for s in savestates:
                 if s in taskstates[taskid]: task[s] = taskstates[taskid][s]
-        if 'pctfail' in taskstates[taskid]: task['pctfail'] = taskstates[taskid]['pctfail']
+            if 'pctfail' in taskstates[taskid]: task['pctfail'] = taskstates[taskid]['pctfail']
 
     taskname = ''
     if 'jeditaskid' in requestParams:
