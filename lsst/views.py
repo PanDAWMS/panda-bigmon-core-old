@@ -1535,6 +1535,8 @@ def wnInfo(request,site,wnname='all'):
             if not wn in wnPlotFinished: wnPlotFinished[wn] = 0
             wnPlotFinished[wn] += count
         totjobs += count
+        if jobstatus not in totstates:
+            totstates[jobstatus] = 0
         totstates[jobstatus] += count
         if wn not in wns:
             wns[wn] = {}
