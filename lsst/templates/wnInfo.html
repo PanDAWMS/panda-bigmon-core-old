@@ -92,14 +92,14 @@
 {% for wn in summary %}
 <tr {% if wn.outlier != '' %} class='warning' {% endif %}>
 <th> <a href="{% url 'wnInfo' site wn.name %}">{{ wn.name }} </th>
-<td>{{ wn.slotcount  }} </th>
+<td>{{ wn.slotcount  }} </td>
 <td><a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&display_limit=100"> {{ wn.count }} </a></td>
 {% for state in wn.statelist %}
 {% if state.name != 'assigned' and state.name != 'activated' %}
 <td>{% if state.count > 0 %}<a href="{% url 'jobList' %}?computingsite={{ site }}&modificationhost={{ wn.name }}&hours={{hours}}&jobstatus={{ state.name }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> {% endif %} </td>
 {% endif %}
 {% endfor %}
-<td> {% if wn.pctfail > errthreshold %} <font color=red>{{ wn.pctfail  }}</font> {% else %} {{ wn.pctfail  }} {% endif %} </th>
+<td> {% if wn.pctfail > errthreshold %} <font color=red>{{ wn.pctfail  }}</font> {% else %} {{ wn.pctfail  }} {% endif %} </td>
 <td> {% if wn.outlier != '' %} <span class='warning'> {{ wn.outlier }} </span> {% endif %} </td>
 </tr>
 {% endfor %}
