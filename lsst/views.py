@@ -83,7 +83,7 @@ PHIGH = -1000000
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'computingelement', 'specialhandling', 'priorityrange' ]
 standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor' ]
-standard_taskfields = [ 'tasktype', 'superstatus', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', ]
+standard_taskfields = [ 'tasktype', 'superstatus', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', 'campaign', ]
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -530,7 +530,7 @@ def taskSummaryDict(request, tasks, fieldlist = None):
         flist = standard_taskfields
     for task in tasks:
         for f in flist:
-            if task[f]:
+            if f in task and task[f]:
                 if not f in sumd: sumd[f] = {}
                 if not task[f] in sumd[f]: sumd[f][task[f]] = 0
                 sumd[f][task[f]] += 1
@@ -2214,6 +2214,7 @@ def taskInfo(request, jeditaskid=0):
             jobparamstxt.append(ptxt)
         jobparamstxt = sorted(jobparamstxt, key=lambda x:x.lower())
 
+    print taskrec
     if taskrec and 'ticketsystemtype' in taskrec and taskrec['ticketsystemtype'] == '' and taskparams != None:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']

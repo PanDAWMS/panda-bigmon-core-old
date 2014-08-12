@@ -49,7 +49,7 @@
 </th></tr>
 <tr class='tablesection'>
 	<th><a href="{{nosorturl}}">ID</a><br>Parent</th>
-	<th><a href="{{nosorturl}}sortby=taskname">Task name</a><br>TaskType/ProcessingType &nbsp; Group &nbsp; User {% if requestParams.tasktype == 'prod' %} &nbsp; TrackerLink {% endif %}<br><font color='brown'>Logged status</font></th>
+	<th><a href="{{nosorturl}}sortby=taskname">Task name</a><br>TaskType/ProcessingType &nbsp; Campaign &nbsp; Group &nbsp; User {% if requestParams.tasktype == 'prod' %} &nbsp; TrackerLink {% endif %}<br><font color='brown'>Logged status</font></th>
 	<th>Task status<br><a href="{{nosorturl}}sortby=nfiles">Nfiles</a></th>
 	<th>Input files <br><a href="{{nosorturl}}sortby=pctfinished"><span class='finished'>finish%</span></a> <a href="{{nosorturl}}sortby=pctfailed"><span class='failed'>fail%</span></a>
 <br>	<a href="{{nosorturl}}sortby=pctfinished"><span class='finished'>Nfinish</span></a> <a href="{{nosorturl}}sortby=pctfailed"><span class='failed'>Nfail</span></a>
@@ -62,7 +62,7 @@
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a>
 		{% if task.parent_tid and task.parent_tid != task.jeditaskid %}<br><a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
-		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.tasktype }}{% if task.processingtype %}/{{ task.processingtype }} {% endif %} &nbsp; {% if task.workinggroup %} <a href="{% url 'taskList' %}?workinggroup={{ task.workinggroup }}">{{ task.workinggroup }}</a> &nbsp; {% endif %}  <a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font> {% if task.ticketid %} &nbsp; <a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}"> {% if task.ticketsystemtype %}{{ task.ticketsystemtype }} {% else %} JIRA {% endif %}</a> {% endif %} <br><font color='brown'>{{ task.errordialog|safe }}</font></td>
+		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.tasktype }}{% if task.processingtype %}/{{ task.processingtype }} {% endif %} {% if task.campaign %} &nbsp; <a href='/tasks/?campaign={{ task.campaign }}'>{{ task.campaign }}</a> {% endif %} &nbsp; {% if task.workinggroup %} <a href="{% url 'taskList' %}?workinggroup={{ task.workinggroup }}">{{ task.workinggroup }}</a> &nbsp; {% endif %}  <a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font> {% if task.ticketid %} &nbsp; <a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}"> {% if task.ticketsystemtype %}{{ task.ticketsystemtype }} {% else %} JIRA {% endif %}</a> {% endif %} <br><font color='brown'>{{ task.errordialog|safe }}</font></td>
 		<td><span  class='{{task.status}}'>{% if task.superstatus %} {{ task.superstatus }} {% else %} {{ task.status }} {% endif %}</span>
         {% if task.dsinfo.nfiles > 0 %} <br>{{task.dsinfo.nfiles}} {% endif %} </td>
         <td>{% if task.dsinfo.nfilesfinished > 0 %}<span  class='finished'>{{task.dsinfo.pctfinished}}%</span>{% endif %} {% if task.dsinfo.nfilesfailed > 0 %}<a href="{% url 'errorSummary' %}?jeditaskid={{task.jeditaskid}}"><span class='failed'> {{task.dsinfo.pctfailed}}%</span>{% endif %}</a>
