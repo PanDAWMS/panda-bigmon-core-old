@@ -203,7 +203,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
             time_from = float(time_from)/1000.
             startdate = datetime.utcfromtimestamp(time_from).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
     if not startdate:
-        startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
+        startdate = timezone.now() - timedelta(hours=LAST_N_HOURS_MAX)
         startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = None
     if 'time_to' in requestParams:
@@ -212,10 +212,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
             time_to = float(time_to)/1000.
             enddate = datetime.utcfromtimestamp(time_to).replace(tzinfo=utc).strftime(defaultDatetimeFormat)
     if 'earlierthan' in requestParams:
-        enddate = datetime.utcnow() - timedelta(hours=int(requestParams['earlierthan']))
+        enddate = timezone.now() - timedelta(hours=int(requestParams['earlierthan']))
         enddate = enddate.strftime(defaultDatetimeFormat)
     if enddate == None:
-        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        enddate = timezone.now().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
     ### Add any extensions to the query determined from the URL
     for vo in [ 'atlas', 'lsst' ]:
@@ -551,9 +551,9 @@ def wgTaskSummary(request, fieldname='workinggroup', view='production'):
     """ Return a dictionary summarizing the field values for the chosen most interesting fields """
     query = {}
     hours = 24*7
-    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = timezone.now() - timedelta(hours=hours)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = timezone.now().strftime(defaultDatetimeFormat)
     query['modificationtime__range'] = [startdate, enddate]
     query['workinggroup__isnull'] = False
     if view == 'production':
@@ -807,7 +807,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     elif 'jobname' in requestParams:
         jobid = requestParams['jobname']
 
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
+    startdate = timezone.now() - timedelta(hours=LAST_N_HOURS_MAX)
     jobs = []
     jobs.extend(Jobsdefined4.objects.filter(**query).values())
     jobs.extend(Jobsactive4.objects.filter(**query).values())
@@ -1060,9 +1060,9 @@ def userList(request):
     userdbl = []
     userstats = {}
     if view == 'database':
-        startdate = datetime.utcnow() - timedelta(hours=nhours)
+        startdate = timezone.now() - timedelta(hours=nhours)
         startdate = startdate.strftime(defaultDatetimeFormat)
-        enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+        enddate = timezone.now().strftime(defaultDatetimeFormat)
         query = { 'latestjob__range' : [startdate, enddate] }
         #viewParams['selection'] = ", last %d days" % (float(nhours)/24.)
         ## Use the users table
@@ -1111,7 +1111,7 @@ def userList(request):
             if u.njobsa >= 1000: n1000 += 1
             if u.njobsa >= 10000: n10k += 1
             if u.latestjob != None:
-                latest = datetime.utcnow() - u.latestjob.replace(tzinfo=None)
+                latest = timezone.now() - u.latestjob.replace(tzinfo=None)
                 if latest.days < 4: nrecent3 += 1
                 if latest.days < 8: nrecent7 += 1
                 if latest.days < 31: nrecent30 += 1
@@ -1173,9 +1173,9 @@ def userInfo(request, user=''):
         if 'produsername' in requestParams: user = requestParams['produsername']
 
     ## Tasks owned by the user
-    startdate = datetime.utcnow() - timedelta(hours=90*24)
+    startdate = timezone.now() - timedelta(hours=90*24)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = timezone.now().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
     query['username'] = user
     tasks = JediTasks.objects.filter(**query).values()
@@ -1197,9 +1197,9 @@ def userInfo(request, user=''):
         jobs.extend(Jobsarchived.objects.filter(**query)[:JOB_LIMIT].values(*values))
 #         if len(jobs) < limit and ntasks == 0:
 #             ## try at least to find some old jobsets
-#             startdate = datetime.utcnow() - timedelta(hours=30*24)
+#             startdate = timezone.now() - timedelta(hours=30*24)
 #             startdate = startdate.strftime(defaultDatetimeFormat)
-#             enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+#             enddate = timezone.now().strftime(defaultDatetimeFormat)
 #             query = { 'modificationtime__range' : [startdate, enddate] }
 #             query['produsername'] = user
 #             jobsetids = Jobsarchived.objects.filter(**query).values('jobsetid').distinct()
@@ -1400,9 +1400,9 @@ def siteInfo(request, site=''):
     initRequest(request)
     if site == '' and 'site' in requestParams: site = requestParams['site']
     setupView(request)
-    startdate = datetime.utcnow() - timedelta(hours=LAST_N_HOURS_MAX)
+    startdate = timezone.now() - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = timezone.now().strftime(defaultDatetimeFormat)
     query = {'siteid__iexact' : site}
     sites = Schedconfig.objects.filter(**query)
     colnames = []
@@ -1430,9 +1430,9 @@ def siteInfo(request, site=''):
             attrs.append({'name' : 'Space', 'value' : "%d TB as of %s" % ((float(siterec.space)/1000.), siterec.tspace.strftime('%m-%d %H:%M')) })
 
             iquery = {}
-            startdate = datetime.utcnow() - timedelta(hours=24*30)
+            startdate = timezone.now() - timedelta(hours=24*30)
             startdate = startdate.strftime(defaultDatetimeFormat)
-            enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+            enddate = timezone.now().strftime(defaultDatetimeFormat)
             iquery['at_time__range'] = [startdate, enddate]
             iquery['description__contains'] = 'queue=%s' % siterec.nickname
             incidents = Incidents.objects.filter(**iquery).order_by('at_time').reverse().values()
@@ -2715,9 +2715,9 @@ def incidentList(request):
         hours = int(requestParams['hours'])
     setupView(request, hours=hours, limit=9999999)
     iquery = {}
-    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = timezone.now() - timedelta(hours=hours)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = timezone.now().strftime(defaultDatetimeFormat)
     iquery['at_time__range'] = [startdate, enddate]
     if 'site' in requestParams:
         iquery['description__contains'] = 'queue=%s' % requestParams['site']
@@ -2835,9 +2835,9 @@ def pandaLogger(request):
     else:
         hours = int(requestParams['hours'])
     setupView(request, hours=hours, limit=9999999)
-    startdate = datetime.utcnow() - timedelta(hours=hours)
+    startdate = timezone.now() - timedelta(hours=hours)
     startdate = startdate.strftime(defaultDatetimeFormat)
-    enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+    enddate = timezone.now().strftime(defaultDatetimeFormat)
     iquery['bintime__range'] = [startdate, enddate]
     counts = Pandalog.objects.filter(**iquery).values('name','type','levelname').annotate(Count('levelname')).order_by('name','type','levelname')
     if getrecs:
@@ -3014,9 +3014,9 @@ def datasetInfo(request):
     if dataset:
         dsets = JediDatasets.objects.filter(**query).values()
         if len(dsets) == 0:
-            startdate = datetime.utcnow() - timedelta(hours=30*24)
+            startdate = timezone.now() - timedelta(hours=30*24)
             startdate = startdate.strftime(defaultDatetimeFormat)
-            enddate = datetime.utcnow().strftime(defaultDatetimeFormat)
+            enddate = timezone.now().strftime(defaultDatetimeFormat)
             query = { 'modificationdate__range' : [startdate, enddate] }
             if 'datasetname' in requestParams:
                 query['name'] = requestParams['datasetname']
@@ -3229,9 +3229,9 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
     if 'jobstatus' in requestParams: state = requestParams['jobstatus']
     if 'transferringnotupdated' in requestParams: hoursSinceUpdate = int(requestParams['transferringnotupdated'])
     if 'statenotupdated' in requestParams: hoursSinceUpdate = int(requestParams['statenotupdated'])
-    moddate = datetime.utcnow() - timedelta(hours=hoursSinceUpdate)
+    moddate = timezone.now() - timedelta(hours=hoursSinceUpdate)
     moddate = moddate.strftime(defaultDatetimeFormat)
-    mindate = datetime.utcnow() - timedelta(hours=24*30)
+    mindate = timezone.now() - timedelta(hours=24*30)
     mindate = mindate.strftime(defaultDatetimeFormat)
     query['statechangetime__lte'] = moddate
     #query['statechangetime__gte'] = mindate
