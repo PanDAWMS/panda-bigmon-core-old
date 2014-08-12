@@ -1111,7 +1111,7 @@ def userList(request):
             if u.njobsa >= 1000: n1000 += 1
             if u.njobsa >= 10000: n10k += 1
             if u.latestjob != None:
-                latest = timezone.now() - u.latestjob.replace(tzinfo=None)
+                latest = timezone.now() - u.latestjob
                 if latest.days < 4: nrecent3 += 1
                 if latest.days < 8: nrecent7 += 1
                 if latest.days < 31: nrecent30 += 1
