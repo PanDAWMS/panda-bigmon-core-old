@@ -2178,6 +2178,7 @@ def taskInfo(request, jeditaskid=0):
     jobparams = None
     taskparams = None
     taskparaml = None
+    jobparamstxt = []
     if len(taskpars) > 0:
         taskparams = taskpars[0]['taskparams']
         taskparams = json.loads(taskparams)
@@ -2189,7 +2190,6 @@ def taskInfo(request, jeditaskid=0):
             taskparaml.append(rec)
         jobparams = taskparams['jobParameters']
         jobparams.append(taskparams['log'])
-        jobparamstxt = []
         for p in jobparams:
             if p['type'] == 'constant':
                 ptxt = p['value']
@@ -2206,7 +2206,8 @@ def taskInfo(request, jeditaskid=0):
             jobparamstxt.append(ptxt)
         jobparamstxt = sorted(jobparamstxt, key=lambda x:x.lower())
 
-    if (taskrec['ticketsystemtype'] == '') and taskparams:
+    print 'taskrec', taskrec, 'taskparams', taskparams
+    if taskrec and taskrec['ticketsystemtype'] == '' and taskparams != None:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']
 
@@ -2218,7 +2219,7 @@ def taskInfo(request, jeditaskid=0):
         taskname = ''        
 
     logtxt = None
-    if taskrec['errordialog']:
+    if taskrec and taskrec['errordialog']:
         mat = re.match('^.*"([^"]+)"',taskrec['errordialog'])
         if mat:
             errurl = mat.group(1)
@@ -2250,7 +2251,7 @@ def taskInfo(request, jeditaskid=0):
             dsinfo['nfilesfailed'] = nfailed
             dsinfo['pctfinished'] = int(100.*nfinished/nfiles)
             dsinfo['pctfailed'] = int(100.*nfailed/nfiles)
-    taskrec['dsinfo'] = dsinfo
+    if taskrec: taskrec['dsinfo'] = dsinfo
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
