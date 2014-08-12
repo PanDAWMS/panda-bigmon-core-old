@@ -195,7 +195,7 @@ Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit
 		<td width=250>{% if job.jobinfo != '' %}<font size=-1>{{job.jobinfo|safe}}</font><br>{% endif %}
 		{% if job.errorinfo != '' %}<font size=-1 class='alarm'>{{job.errorinfo|safe}}</font>{% endif %}
 		</td>
-	<tr><td colspan=11> <font size=-1>Job name: <a href="{% url 'jobList' %}?jobname={{ job.jobname }}&taskid={{ job.taskid }}&jeditaskid={{ job.jeditaskid }}&sortby=attemptnr">{{ job.jobname }}</a></font> &nbsp; #{{ job.attemptnr }} </td></tr>
+	<tr><td colspan=11> <font size=-1>Job name: <a href="{% url 'jobList' %}?jobname={{ job.jobname }}{% if job.taskid > 0 %}&taskid={{ job.taskid }}{% endif %}{% if job.jeditaskid > 0 %}&jeditaskid={{ job.jeditaskid }}{% endif %}&produsername={{ job.produsername }}&sortby=attemptnr">{{ job.jobname }}</a></font> &nbsp; #{{ job.attemptnr }} </td></tr>
 	</tr>
     {% endfor %}
 </table>
