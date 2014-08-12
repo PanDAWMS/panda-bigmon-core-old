@@ -239,7 +239,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
                 query['jobsetid__gte'] = plo
                 query['jobsetid__lte'] = phi 
         elif param == 'user' or param == 'username':
-                query['produsername'] = requestParams[param]
+                query['produsername__icontains'] = requestParams[param].strip()
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'specialhandling':
@@ -1177,7 +1177,7 @@ def userInfo(request, user=''):
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = timezone.now().strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
-    query['username'] = user
+    query['username__icontains'] = user.strip()
     tasks = JediTasks.objects.filter(**query).values()
     tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
@@ -1185,8 +1185,9 @@ def userInfo(request, user=''):
 
     limit = 6000
     query = setupView(request,hours=72,limit=limit)
-    query['produsername__iexact'] = user
+    query['produsername__icontains'] = user.strip()
     jobs = []
+    print 'query', query
     values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname'
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -1204,7 +1205,7 @@ def userInfo(request, user=''):
 #             query['produsername'] = user
 #             jobsetids = Jobsarchived.objects.filter(**query).values('jobsetid').distinct()
     jobs = cleanJobList(jobs)
-    query = { 'name__iexact' : user }
+    query = { 'name__icontains' : user.strip() }
     userdb = Users.objects.filter(**query).values()
     if len(userdb) > 0:
         userstats = userdb[0]
