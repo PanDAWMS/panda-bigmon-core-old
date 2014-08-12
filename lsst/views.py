@@ -368,6 +368,8 @@ def cleanJobList(jobs, mode='drop'):
 def cleanTaskList(tasks):
     for task in tasks:
         if task['transpath']: task['transpath'] = task['transpath'].split('/')[-1]
+        print task['statechangetime']
+        if task['statechangetime'] == None: task['statechangetime'] = task['modificationtime']
     return tasks
 
 def jobSummaryDict(request, jobs, fieldlist = None):
@@ -724,6 +726,8 @@ def jobList(request, mode=None, param=None):
             jobs = sorted(jobs, key=lambda x:x['modificationtime'])
         if sortby == 'time-descending':
             jobs = sorted(jobs, key=lambda x:x['modificationtime'], reverse=True)
+        if sortby == 'statetime-descending':
+            jobs = sorted(jobs, key=lambda x:x['statechangetime'], reverse=True)
         elif sortby == 'priority':
             jobs = sorted(jobs, key=lambda x:x['currentpriority'], reverse=True)
         elif sortby == 'attemptnr':
@@ -2025,8 +2029,6 @@ def dashTasks(request, hours, view='production'):
         resp = []
         return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
-
-
 #class QuicksearchForm(forms.Form):
 #    fieldName = forms.CharField(max_length=100)
 
@@ -2043,12 +2045,16 @@ def taskList(request):
                     query[param] = requestParams[param]
         if param == 'eventservice':
             query['eventservice'] = 1
-    tasks = JediTasks.objects.filter(**query).values()
+    
+    if 'statenotupdated' in requestParams:
+        tasks = taskNotUpdated(request, query)
+    else:
+        tasks = JediTasks.objects.filter(**query).values()
+
     tasks = cleanTaskList(tasks)
-
     ntasks = len(tasks)
-
     nmax = ntasks
+
     if 'display_limit' in requestParams and int(requestParams['display_limit']) < nmax:
         display_limit = int(requestParams['display_limit'])
         nmax = display_limit
@@ -2104,6 +2110,8 @@ def taskList(request):
             tasks = sorted(tasks, key=lambda x:x['modificationtime'])
         if sortby == 'time-descending':
             tasks = sorted(tasks, key=lambda x:x['modificationtime'], reverse=True)
+        if sortby == 'statetime-descending':
+            tasks = sorted(tasks, key=lambda x:x['statechangetime'], reverse=True)
         elif sortby == 'priority':
             tasks = sorted(tasks, key=lambda x:x['taskpriority'], reverse=True)
         elif sortby == 'nfiles':
@@ -2206,8 +2214,7 @@ def taskInfo(request, jeditaskid=0):
             jobparamstxt.append(ptxt)
         jobparamstxt = sorted(jobparamstxt, key=lambda x:x.lower())
 
-    print 'taskrec', taskrec, 'taskparams', taskparams
-    if taskrec and taskrec['ticketsystemtype'] == '' and taskparams != None:
+    if taskrec and 'ticketsystemtype' in taskrec and taskrec['ticketsystemtype'] == '' and taskparams != None:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']
 
@@ -3278,6 +3285,36 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
         jobs.extend(Jobsdefined4.objects.filter(**query).values(*values))
         jobs.extend(Jobswaiting4.objects.filter(**query).values(*values))
         return jobs
+
+def taskNotUpdated(request, query, state='submitted', hoursSinceUpdate=36, values = [], count = False):
+    initRequest(request)
+    #query = setupView(request, opmode='notime', limit=99999999)
+    if 'status' in requestParams: state = requestParams['status']
+    if 'statenotupdated' in requestParams: hoursSinceUpdate = int(requestParams['statenotupdated'])
+    moddate = timezone.now() - timedelta(hours=hoursSinceUpdate)
+    moddate = moddate.strftime(defaultDatetimeFormat)
+    mindate = timezone.now() - timedelta(hours=24*30)
+    mindate = mindate.strftime(defaultDatetimeFormat)
+    query['statechangetime__lte'] = moddate
+    #query['statechangetime__gte'] = mindate
+    query['status'] = state
+
+    if count:
+        tasks = JediTasks.objects.filter(**query).values('name','status').annotate(Count('status'))
+        statecounts = {}
+        for s in taskstatelist:
+            statecounts[s] = {}
+            statecounts[s]['count'] = 0
+            statecounts[s]['name'] = s
+        ncount = 0
+        for task in tasks:
+            state = task['status']
+            statecounts[state]['count'] += task['status__count']
+            ncount += job['status__count']
+        return ncount, statecounts
+    else:
+        tasks = JediTasks.objects.filter(**query).values()
+        return tasks
 
 def getErrorDescription(job):
     txt = ''

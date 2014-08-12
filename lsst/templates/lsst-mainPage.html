@@ -115,6 +115,18 @@ Stalled jobs </td><td> in
 </select>
 for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='submit' value='Submit' /></form></font></td></tr>
 
+<tr><td><form action="{% url 'taskList' %}" method='get'>
+Stalled tasks </td><td> in 
+<select name="status" class="input8">
+    <option value="defined"><span class="defined">defined</span></option>
+    <option value="waiting"><span class="waiting">waiting</span></option>
+    <option value="assigning"><span class="assigning">assigning</span></option>
+    <option value="submitting"><span class="submitting">submitting</span></option>
+    <option value="pending"><span class="pending">pending</span></option>
+    <option value="running"><span class="running">running</span></option>
+    <option value="scouting"><span class="scouting">scouting</span></option>
+</select>
+for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=300 /><input type='submit' value='Submit' /></form></font></td></tr>
 
 </table>
 
@@ -126,6 +138,7 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <td>
 <div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"><font size=-1>
 <!-- most recent at the top -->
+<li class="news">20140812: Stalled task search added
 <li class="news">20140812: Improved job listings on user pages (matching job lists)
 <li class="news">20140801: Job name links in job lists
 <li class="news">20140801: Finished/failed job counts and %failed added to task error summary
