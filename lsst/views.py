@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import json
 
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, redirect
 from django.template import RequestContext, loader
 from django.db.models import Count
 from django import forms
@@ -2266,6 +2266,14 @@ def taskInfo(request, jeditaskid=0):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         attrs = []
+        do_redirect = False
+        try:
+            if int(jeditaskid) < 4000000:
+                do_redirect = True
+        except:
+            pass
+        if do_redirect: 
+            return redirect('http://panda.cern.ch/?taskname=%s&overview=taskinfo' % jeditaskid)
         if taskrec:
             attrs.append({'name' : 'Status', 'value' : taskrec['status'] })
         data = {
