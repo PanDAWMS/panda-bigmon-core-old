@@ -2310,7 +2310,7 @@ def taskInfo(request, jeditaskid=0):
         attrs = []
         do_redirect = False
         try:
-            if int(jeditaskid) < 4000000:
+            if int(jeditaskid) > 0 and int(jeditaskid) < 4000000:
                 do_redirect = True
         except:
             pass
