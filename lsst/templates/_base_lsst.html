@@ -167,18 +167,22 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 </head>
 <body>
 
+{% comment %}
 <nav class="tab-bar show-for-small">
     <a class="left-off-canvas-toggle menu-icon ">
     <span><a href="{% url 'index' %}">{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}</a></span>
     </a>
 </nav>
+{% endcomment %}
 
-<nav class="top-bar hide-for-small" data-topbar>
+<nav class="top-bar" data-topbar>
 
     <ul class="title-area">
         <li class="name">
         <h1><a href="{% url 'index' %}">{% block title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}{% endblock %}</a></h1>
         </li>
+        <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
     </ul>
 
     <section class="top-bar-section">
