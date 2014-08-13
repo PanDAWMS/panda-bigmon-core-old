@@ -159,6 +159,8 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 .whitecell { background-color:white }
 .whitesmokecell { background-color:whitesmoke }
 
+.invisibletable{ border-width:0px; border-color:white; vertical-align: top;}
+
 .inputW{width:10em}
 .input8{width:8em}
 .inputN{width:2em}
@@ -166,14 +168,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
 </head>
 <body>
-
-{% comment %}
-<nav class="tab-bar show-for-small">
-    <a class="left-off-canvas-toggle menu-icon ">
-    <span><a href="{% url 'index' %}">{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %} {{ APP_NAME }}</a></span>
-    </a>
-</nav>
-{% endcomment %}
 
 <nav class="top-bar" data-topbar>
 
@@ -370,47 +364,10 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
   </div>
   <!-- End sub-title and bread-crumbs -->
 
-  {% block left_menu %}
-{% comment %}
-  <div class="left-menu">
-    {% block left_menu_content %}
-      <span class="left-menu-title">Menu</span>
-       <br> <a class="left-menu-item" href="{{ prefix }}/#">Home</a>
-    {% endblock %}
-  </div>
-{% endcomment %}
-  {% endblock %}
+{% block left_menu %}{% endblock %}
 
+{% block extra_js_bottombody %}{% endblock %}
 
-	<div class="large-12 columns">
-		<div class="large-12 columns">
-			<!-- Desktop Slider -->
-			<div class="hide-for-small">
-				{% block body %}
-{% comment %}
-					<img src="http://placehold.it/1000x400&text=Place for tabular data or summary plot/graphics" alt="slide image">
-{% endcomment %}
-				{% endblock %}
-			</div>
-			{% block extra_js_bottombody %}{% endblock %}
-			<!-- End Desktop Slider -->
-
-
-			<!-- Mobile Header -->
-			<div class="row">
-				<div class="small-12 show-for-small"><br>
-					{% block body_mobile %}
-{% comment %}
-						<img src="http://placehold.it/1000x600&text=For Small Screens" />
-{% endcomment %}
-					{% endblock %}
-				</div>
-			</div>
-			<!-- End Mobile Header -->
-		</div>
-{% comment %}
-	</div>
-{% endcomment %}
 	<br>
 
 
@@ -431,7 +388,7 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 <table width=1000>
 <a name="doc"></a>
 <tr class="docsection"><th> Help </th></tr>
-<tr><td class="doctext"  class="hide-for-small-only">
+<tr><td class="doctext"  class="hide-for-small">
 
 {% block helptext %}
 Contextual help for this page is not yet available.

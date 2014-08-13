@@ -13,7 +13,7 @@
 <table border='0'>
 <tr>
 
-<td width='30%' height='365' class="hide-for-small-only">
+<td width='30%' height='365' class="hide-for-small">
 <!-- Day: -->
 <a target='_blank' href='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=last24&granularity=Hourly&generic=3&sortBy=3&series=All&type=rmulticores'>
 <img width='447' height='363' src='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=last24&granularity=Hourly&generic=3&sortBy=3&series=All&type=rmulticores' alt='Daily World Production Queues'></a>
@@ -23,7 +23,7 @@
 <a target='_blank' href='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastWeek&granularity=Daily&generic=3&sortBy=3&series=All&type=rmulticores'>
 <img width='447' height='363' src='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastWeek&granularity=Daily&generic=3&sortBy=3&series=All&type=rmulticores' alt='Weekly World Production Queues'></a>
 </td>
-<td width='30%' height='365'  class="hide-for-small-only">
+<td width='30%' height='365'  class="hide-for-small">
 <!-- Month -->
 <a target='_blank' href='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastMonth&granularity=Daily&generic=3&sortBy=3&series=All&type=rmulticores'>
 <img width='447' height='363' src='http://dashb-atlas-job.cern.ch/dashboard/request.py/jobnumbers_individual?sites=All+Sites&sitesCat=All+Countries&resourcetype=All&activities=Data+Processing&activities=Extra+Production&activities=Group+Production&activities=MC+Reconstruction&activities=MC+Simulation&activities=Others&sitesSort=0&sitesCatSort=0&start=null&end=null&timeRange=lastMonth&granularity=Daily&generic=3&sortBy=3&series=All&type=rmulticores' alt='Monthly World Production Queues'></a>
@@ -72,12 +72,11 @@ Select what you'd like to have a look at in the top menu bar: dashboard overview
 {% endif %}
 <p>
 
-<table height="30px">
-<tr><td> <div class='section'>Search</div></td>
-<td>
-
-<table>
-<tr><td><form action="{% url 'jobInfo' %}" method='get'>
+<div style="float: left; padding: 3px; ">
+<table  class='invisibletable'>
+<tr  class='invisibletable'><th colspan=10  class='highlightcell'> Search </th></tr>
+<tr>
+<td><form action="{% url 'jobInfo' %}" method='get'>
 PanDA job ID or name</td><td><font size=-1> <input id="pandaid" name="pandaid" size="25" maxlength="200" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'jobInfo' %}" method='get'>
@@ -146,14 +145,16 @@ Stalled tasks </td><td> in
 for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=300 /><input type='submit' value='Submit' /></form></font></td></tr>
 
 </table>
-
-</td>
+</div>
 
 {% if requestParams|length == 0 %}
 
-<td> <div class='section'>News </td>
+<div style="float: left;  padding: 3px; ">
+<table><tr><th class='highlightcell'> News </th></tr>
 <td>
-<div style="width:500px;height:100%;overflow:auto;word-wrap: break-word;"  class="hide-for-small-only"><font size=-1>
+<div style="width:600px;height:100%;overflow:auto;word-wrap: break-word;">
+<font size=-1>
+<ul>
 <!-- most recent at the top -->
 <li class="news">20140813: Add task searches for campaign, project, stream, tag
 <li class="news">20140813: Add project, stream and tag summary info to task lists
@@ -208,12 +209,12 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <li class="news">20140611: Throttled state supported
 <li class="news">20140610: Working group dashboard added, summarizing job status by WG
 </ul>
-</font></div>
-</td>
+</font>
+</div>
+</td></tr></table>
+</div>
 
 {% endif %}
-
-</tr></table>
 
 {% endblock %}
 
