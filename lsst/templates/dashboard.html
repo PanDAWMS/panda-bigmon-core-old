@@ -70,7 +70,7 @@ Click on column titles to sort.
 <tr><td> <b>{{ fdict.field }}</b> </td>
 <td> <a href="{% url 'taskList' %}?cloud={{fdict.field}}&jobtype={{view}}&days={{taskdays}}">{{ fdict.count }}</a></td>
 {% for item in fdict.list %}
-<td> <a href="{% url 'taskList' %}?cloud={{fdict.field}}&status={{item.kname}}&jobtype={{view}}&days={{taskdays}}"><span class='{{item.kname}}'>{{ item.kvalue }}</span></a></td>
+<td {% if item.kvalue > 0 %} class='{{item.kname}}_fill' {% endif %}> <a href="{% url 'taskList' %}?cloud={{fdict.field}}&status={{item.kname}}&jobtype={{view}}&days={{taskdays}}"><span {% if item.kvalue == 0 %}class='{{item.kname}}'{% else %}class='{{item.kname}}_fill'{% endif %}>{{ item.kvalue }}</span></a></td>
 {% endfor %}
 </tr>
 {% endfor %}
@@ -114,7 +114,7 @@ Click on column titles to sort.
 <th bgcolor=whitesmoke> </th>
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100">{{ vo.count }}</a> </th>
 {% for state in vo.statelist %}
-<th  bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </th>
+<th {% if state.count > 0 %} class='{{ state.name }}_fill' {% else %} bgcolor=whitesmoke {% endif %} align='right'> <a href="{% url 'jobList' %}?vo={{ vo.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}{% if state.count > 0 %}_fill{% endif %}">{{ state.count }}</span></a> </th>
 {% endfor %}
 <th  bgcolor=whitesmoke align='right'>  {% if vo.pctfail > errthreshold %} <font color=red>{{ vo.pctfail  }}</font> {% else %} {{ vo.pctfail  }} {% endif %}  </th>
 </tr>
@@ -178,7 +178,7 @@ of all jobs
 <th  bgcolor=whitesmoke align='right'> {{ cloud.pilots }} </th>
 {% endif %}
 {% for state in cloud.statelist %}
-<th  bgcolor=whitesmoke align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
+<th  {% if state.count > 0 %} class='{{ state.name }}_fill' {% else %} bgcolor=whitesmoke {% endif %} align='right'><a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}{% if state.count > 0 %}_fill{% endif %}"> {{ state.count }}</span></a> </td>
 {% endfor %}
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a></th>
 </tr>
@@ -222,7 +222,7 @@ of all jobs
 <th> {{ cloud.pilots }} </th>
 {% endif %}
 {% for state in cloud.statelist %}
-<th bgcolor=whitesmoke align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}">{{ state.count }}</span></a> </th>
+<th {% if state.count > 0 %} class='{{ state.name }}_fill' {% else %} bgcolor=whitesmoke {% endif %} align='right'> <a href="{% url 'jobList' %}?cloud={{ cloud.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"><span class="{{ state.name }}{% if state.count > 0 %}_fill{% endif %}">{{ state.count }}</span></a> </th>
 {% endfor %}
 <th  bgcolor=whitesmoke align='right'> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&cloud={{cloud.name}}&hours={{hours}}"> {% if cloud.pctfail > errthreshold %} <font color=red>{{ cloud.pctfail  }}</font> {% else %} {{ cloud.pctfail  }} {% endif %} </a> </th>
 </tr>
@@ -235,7 +235,7 @@ of all jobs
 <td> {{ site.pilots }} </td>
 {% endif %}
 {% for state in site.summary %}
-<td class='{{state.name}}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }} </span></a> </td>
+<td class='{{state.name}}{% if state.count > 0 %}_fill{% endif %}' align='right'><a href="{% url 'jobList' %}?computingsite={{ site.name }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}{% if state.count > 0 %}_fill{% endif %}"> {{ state.count }} </span></a> </td>
 {% endfor %}
 <td> <a href="{% url 'errorSummary' %}?jobtype={{view}}&sortby=count&computingsite={{site.name}}&hours={{hours}}"> {% if site.pctfail > errthreshold %} <font color=red>{{ site.pctfail  }}</font> {% else %} {{ site.pctfail  }} {% endif %} </a> </td>
 </tr>
@@ -272,10 +272,10 @@ of all jobs
 {% for task in taskJobSummary %}
 <tr>
 <td> <a href="{% url 'taskInfo' task.taskid %}"><span class="{{task.status}}">{{ task.name }}</span></a></td>
-<td> <span class="{{task.status}}">{{ task.status }}</span> </td>
+<td> <span class="{{task.status}}{% if task.count > 0 %}_fill{% endif %}">{{ task.status }}</span> </td>
 <td><a href="{% url 'jobList' %}?taskid={{ task.taskid }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> {{ task.count }} </a></td>
 {% for state in task.statelist %}
-<td><a href="{% url 'jobList' %}?taskid={{ task.taskid }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}"> {{ state.count }}</span></a> </td>
+<td {% if state.count > 0 %} class='{{ state.name }}_fill' {% endif %}><a href="{% url 'jobList' %}?taskid={{ task.taskid }}&jobstatus={{ state.name }}&hours={{hours}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}{% if state.count > 0 %}_fill{% endif %}"> {{ state.count }}</span></a> </td>
 {% endfor %}
 <td> <a href="{% url 'errorSummary' %}?taskid={{ task.taskid }}&sortby=count&hours={{hours}}"> {% if task.pctfail > errthreshold %} <font color=red>{{ task.pctfail  }}</font> {% else %} {{ task.pctfail  }} {% endif %} </a></td>
 </tr>
