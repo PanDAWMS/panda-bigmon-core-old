@@ -33,7 +33,7 @@
 		<td><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></td>
 		{% if task.campaign %} <td><a href='/tasks/?campaign={{ task.campaign }}'>{{ task.campaign }}</a></td> {% endif %}
 {% if viewParams.MON_VO == 'ATLAS' %}
-		<td class='{{task.status}}'>{% if task.superstatus %}<b>{{ task.superstatus }}</b>{% else %}{{ task.status }}{% endif %}</td>
+		<td class='{{task.status}}_fill'>{% if task.superstatus %}<b>{{ task.superstatus }}</b>{% else %}{{ task.status }}{% endif %}</td>
 {% endif %}
 		<td class='{{task.status}}'>{{ task.status }}</td>
 
@@ -64,7 +64,7 @@
 {% endfor %}
 </tr><tr>
 {% for state in jobsummary %}
-<td> {% if state.count > 0 %} <b> <a href="{% url 'jobList' %}?jeditaskid={{task.jeditaskid}}&jobstatus={{state.name}}&display_limit=100"><span class="{{ state.name}}">{{ state.count }}</span></a> </b> {% endif %} </td>
+<td {% if state.count > 0 %} class='{{state.name}}_fill' {% endif %}> {% if state.count > 0 %} <b> <a href="{% url 'jobList' %}?jeditaskid={{task.jeditaskid}}&jobstatus={{state.name}}&display_limit=100"><span class='{{state.name}}_fill'>{{ state.count }}</span></a> </b> {% endif %} </td>
 {% endfor %}
 </table>
 {% endif %}

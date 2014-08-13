@@ -98,7 +98,7 @@
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
 		<td><font size=-1>{{ task.taskname }}<br>{{ task.username }}</font></td>
-		<td class='{{task.status}}'>{{ task.status }}</td>
+		<td class='{{task.status}}_fill'>{{ task.status }}</td>
 		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
 		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
 		<td>{{ task.corecount }}</td>
@@ -139,18 +139,18 @@
 <td> {{ jobset.njobs }} </td>
 <td> {{ jobset.tfirst|date:"Y-m-d H:i" }} to {{ jobset.tlast|date:"m-d H:i" }} </td>
 <td> {{ jobset.plow }} to {{ jobset.phigh }} </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=defined&display_limit=100"><span class="defined">{{ jobset.sum.defined }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=waiting&display_limit=100"><span class="waiting">{{ jobset.sum.waiting }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=assigned&display_limit=100"><span class="assigned">{{ jobset.sum.assigned }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=activated&display_limit=100"><span class="activated">{{ jobset.sum.activated }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=sent&display_limit=100"><span class="sent">{{ jobset.sum.sent }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=starting&display_limit=100"><span class="starting">{{ jobset.sum.starting }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=running&display_limit=100"><span class="running">{{ jobset.sum.running }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=holding&display_limit=100"><span class="holding">{{ jobset.sum.holding }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=transferring&display_limit=100"><span class="transferring">{{ jobset.sum.transferring }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=finished&display_limit=100"><span class="finished">{{ jobset.sum.finished }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=failed&display_limit=100"><span class="failed">{{ jobset.sum.failed }}</span></a> </td>
-<td> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=cancelled&display_limit=100"><span class="cancelled">{{ jobset.sum.cancelled }}</span></a> </td>
+<td {% if jobset.sum.defined > 0 %} class='defined_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=defined&display_limit=100">{% if jobset.sum.defined > 0 %}<span class="defined_fill">{% else %}<span class="defined">{% endif %}{{ jobset.sum.defined }}</span></a> </td>
+<td {% if jobset.sum.waiting > 0 %} class='waiting_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=waiting&display_limit=100">{% if jobset.sum.waiting > 0 %}<span class="waiting_fill">{% else %}<span class="waiting">{% endif %}{{ jobset.sum.waiting }}</span></a> </td>
+<td {% if jobset.sum.assigned > 0 %} class='assigned_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=assigned&display_limit=100">{% if jobset.sum.assigned > 0 %}<span class="assigned_fill">{% else %}<span class="assigned">{% endif %}{{ jobset.sum.assigned }}</span></a> </td>
+<td {% if jobset.sum.activated > 0 %} class='activated_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=activated&display_limit=100">{% if jobset.sum.activated > 0 %}<span class="activated_fill">{% else %}<span class="activated">{% endif %}{{ jobset.sum.activated }}</span></a> </td>
+<td {% if jobset.sum.sent > 0 %} class='sent_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=sent&display_limit=100">{% if jobset.sum.sent > 0 %}<span class="sent_fill">{% else %}<span class="sent">{% endif %}{{ jobset.sum.sent }}</span></a> </td>
+<td {% if jobset.sum.starting > 0 %} class='starting_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=starting&display_limit=100">{% if jobset.sum.starting > 0 %}<span class="starting_fill">{% else %}<span class="starting">{% endif %}{{ jobset.sum.starting }}</span></a> </td>
+<td {% if jobset.sum.running > 0 %} class='running_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=running&display_limit=100">{% if jobset.sum.running > 0 %}<span class="running_fill">{% else %}<span class="running">{% endif %}{{ jobset.sum.running }}</span></a> </td>
+<td {% if jobset.sum.holding > 0 %} class='holding_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=holding&display_limit=100">{% if jobset.sum.holding > 0 %}<span class="holding_fill">{% else %}<span class="holding">{% endif %}{{ jobset.sum.holding }}</span></a> </td>
+<td {% if jobset.sum.transferring > 0 %} class='transferring_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=transferring&display_limit=100">{% if jobset.sum.transferring > 0 %}<span class="transferring_fill">{% else %}<span class="transferring">{% endif %}{{ jobset.sum.transferring }}</span></a> </td>
+<td {% if jobset.sum.finished > 0 %} class='finished_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=finished&display_limit=100">{% if jobset.sum.finished > 0 %}<span class="finished_fill">{% else %}<span class="finished">{% endif %}{{ jobset.sum.finished }}</span></a> </td>
+<td {% if jobset.sum.failed > 0 %} class='failed_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=failed&display_limit=100">{% if jobset.sum.failed > 0 %}<span class="failed_fill">{% else %}<span class="failed">{% endif %}{{ jobset.sum.failed }}</span></a> </td>
+<td {% if jobset.sum.cancelled > 0 %} class='cancelled_fill' {% endif %}> <a href="{% url 'jobList' %}?produsername={{ user }}&jobsetid={{ jobset.jobsetid }}&jobstatus=cancelled&display_limit=100">{% if jobset.sum.cancelled > 0 %}<span class="cancelled_fill">{% else %}<span class="cancelled">{% endif %}{{ jobset.sum.cancelled }}</span></a> </td>
 </tr>
 {% endfor %}
 </table>
@@ -185,7 +185,7 @@ Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit
 		<td>{% if job.jeditaskid  and job.jeditaskid != 'None' %}<a href="{{xurl}}jeditaskid={{job.jeditaskid}}">{{ job.jeditaskid }}</a> {% elif job.taskid and job.taskid != 'None' %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 		<td><font size=-1><a href="{{xurl}}transformation={{job.transformation}}">{{ job.transformation }}</a></font></td>
 
-		<td class='{{job.jobstatus}}'>{{ job.jobstatus }}</td>
+		<td class='{{job.jobstatus}}_fill'>{{ job.jobstatus }}</td>
 		<td><font size=-1>{{ job.creationtime|date:"Y-m-d H:i" }}</font></td>
 		<td><font size=-1>{{ job.waittime }}</font></td>
 		<td><font size=-1>{{ job.duration }}</font></td>
