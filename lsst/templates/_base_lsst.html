@@ -3,12 +3,10 @@
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head profile="http://www.w3.org/2005/10/profile">
-<link rel="icon" 
-	type="image/png" 
-	href="{% static "images/favicon.png" %}" />
+<link rel="icon" type="image/png" href='{% static "images/favicon.png" %}' />
 
 	<!-- Set the viewport width to device width for mobile -->
-	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 	<title>{% block page_title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %}{{ PAGE_TITLE }}{% endblock %}</title>
 
@@ -388,7 +386,7 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 <table width=1000>
 <a name="doc"></a>
 <tr class="docsection"><th> Help </th></tr>
-<tr><td class="doctext"  class="hide-for-small">
+<tr><td class="doctext hide-for-small">
 
 {% block helptext %}
 Contextual help for this page is not yet available.
