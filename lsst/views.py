@@ -109,7 +109,7 @@ def initRequest(request):
         codes = ErrorCodes.ErrorCodes()
         errorFields, errorCodes, errorStages = codes.getErrorCodes()
 
-def setupView(request, opmode='', hours=0, limit=-99):
+def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
     global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
@@ -220,7 +220,7 @@ def setupView(request, opmode='', hours=0, limit=-99):
     ### Add any extensions to the query determined from the URL
     for vo in [ 'atlas', 'lsst' ]:
         if request.META['HTTP_HOST'].startswith(vo):
-            query['vo'] = vo   
+            query['vo'] = vo
     for param in requestParams:
         if param in ('hours', 'days'): continue
         if param == 'cloud' and requestParams[param] == 'All': continue
@@ -239,7 +239,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
                 query['jobsetid__gte'] = plo
                 query['jobsetid__lte'] = phi 
         elif param == 'user' or param == 'username':
-                query['produsername__icontains'] = requestParams[param].strip()
+                if querytype == 'task':
+                    query['username__icontains'] = requestParams[param].strip()
+                else:
+                    query['produsername__icontains'] = requestParams[param].strip()
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'specialhandling':
@@ -1804,7 +1807,7 @@ def dashSummary(request, hours, view='all', cloudview='region'):
 
 def dashTaskSummary(request, hours, view='all'):
     print 'dashTaskSummary start'
-    query = setupView(request,hours=hours,limit=999999,opmode=view) 
+    query = setupView(request,hours=hours,limit=999999,opmode=view, querytype='task') 
 
     tasksummarydata = taskSummaryData(query)
     tasks = {}
@@ -1994,7 +1997,7 @@ def dashProduction(request):
 def dashTasks(request, hours, view='production'):
     initRequest(request)
 
-    query = setupView(request,hours=hours,limit=999999,opmode=view)
+    query = setupView(request,hours=hours,limit=999999,opmode=view, querytype='task')
 
     if view == 'production':
         errthreshold = 5
@@ -2034,7 +2037,7 @@ def dashTasks(request, hours, view='production'):
 
 def taskList(request):
     initRequest(request)
-    query = setupView(request, hours=30*24, limit=9999999)
+    query = setupView(request, hours=30*24, limit=9999999, querytype='task')
 
     for param in requestParams:
         for field in JediTasks._meta.get_all_field_names():
@@ -2150,7 +2153,7 @@ def taskList(request):
 
 def taskInfo(request, jeditaskid=0):
     initRequest(request)
-    setupView(request, hours=365*24, limit=999999999)
+    setupView(request, hours=365*24, limit=999999999, querytype='task')
     query = {}
     tasks = []
     taskrec = None
