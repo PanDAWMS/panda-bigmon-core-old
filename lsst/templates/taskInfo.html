@@ -15,7 +15,7 @@
 	<th>Type</th>
 	<th>WorkingGroup</th><th>User</th>
 	{% if task.campaign %} <th> Campaign </th> {% endif %}
-	<th>{% if viewParams.MON_VO == 'ATLAS' %}Task status </th><th> Detailed JEDI status </th> {% else %} Status {% endif %}</th>
+	<th>Task status </th>{% if task.superstatus %} {% if task.superstatus != task.status %}<th> Detailed JEDI status </th>{% endif %} {% endif %}
 {% if task.dsinfo %}
     <th> Ninputfiles | <span class='finished'>finished</span> | <span class='failed'>failed</span> </th>
 {% endif %}
@@ -32,10 +32,7 @@
 		<td>{% if task.workinggroup %} {{ task.workinggroup }} {% endif %} </td>
 		<td><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></td>
 		{% if task.campaign %} <td><a href='/tasks/?campaign={{ task.campaign }}'>{{ task.campaign }}</a></td> {% endif %}
-{% if viewParams.MON_VO == 'ATLAS' %}
-		<td class='{{task.status}}_fill'>{% if task.superstatus %}<b>{{ task.superstatus }}</b>{% else %}{{ task.status }}{% endif %}</td>
-{% endif %}
-		<td class='{{task.status}}'>{{ task.status }}</td>
+		<td class='{{task.status}}_fill'>{% if task.superstatus %}<b>{{ task.superstatus }}</b> {% if task.superstatus != task.status %}<td class='{{task.status}}'>{{ task.status }}</td>{% endif %} {% else %}{{ task.status }}{% endif %}</td>
 
 {% if task.dsinfo %}
         <td> {{task.dsinfo.nfiles}} |
