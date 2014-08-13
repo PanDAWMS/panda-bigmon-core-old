@@ -100,10 +100,18 @@ def initRequest(request):
     global requestParams
     global errorFields, errorCodes, errorStages
     requestParams = {}
-    for p in request.GET:
-        pval = request.GET[p]
-        pval = pval.replace('+',' ')
-        requestParams[p.lower()] = pval
+
+    if request.method == 'POST':
+        for p in request.POST:
+            if p in ( 'csrfmiddlewaretoken', ): continue
+            pval = request.POST[p]
+            pval = pval.replace('+',' ')
+            requestParams[p.lower()] = pval
+    else:
+        for p in request.GET:
+            pval = request.GET[p]
+            pval = pval.replace('+',' ')
+            requestParams[p.lower()] = pval
     setupHomeCloud()
     if len(errorFields) == 0:
         codes = ErrorCodes.ErrorCodes()
@@ -2164,7 +2172,10 @@ def taskList(request):
 
     xurl = extensibleURL(request)
     nosorturl = removeParam(xurl, 'sortby',mode='extensible')
-    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = sites
+        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+    else:
         sumd = taskSummaryDict(request,tasks)
         data = {
             'viewParams' : viewParams,
@@ -2178,9 +2189,6 @@ def taskList(request):
             'display_limit' : display_limit,
         }
         return render_to_response('taskList.html', data, RequestContext(request))
-    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = sites
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
 
 def taskInfo(request, jeditaskid=0):
     initRequest(request)
@@ -2295,7 +2303,10 @@ def taskInfo(request, jeditaskid=0):
             dsinfo['pctfailed'] = int(100.*nfailed/nfiles)
     if taskrec: taskrec['dsinfo'] = dsinfo
 
-    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        resp = []
+        return  HttpResponse(json_dumps(resp), mimetype='text/html') 
+    else:
         attrs = []
         do_redirect = False
         try:
@@ -2323,10 +2334,7 @@ def taskInfo(request, jeditaskid=0):
             'datasets' : dsets,
         }
         data.update(getContextVariables(request))
-        return render_to_response('taskInfo.html', data, RequestContext(request))
-    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')        
+        return render_to_response('taskInfo.html', data, RequestContext(request))       
 
 def jobSummaryForTasks(request):
     initRequest(request)

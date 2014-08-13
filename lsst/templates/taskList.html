@@ -13,6 +13,12 @@
 {% if requestParams.workinggroup %}<br><b>Working group: {{ requestParams.workinggroup }}</b> {% endif %}
 {% if requestParams.username %}<br><b>User: <a href="{% url 'userInfo' requestParams.username %}?display_limit=300">{{ requestParams.username }}</a> &nbsp; <a href="{% url 'userInfo' requestParams.username %}?display_limit=300">Show user page</a></b> {% endif %}
 {% if requestParams.tasktype %}<br><b>Task type: {{ requestParams.tasktype }}</b> {% endif %}
+
+{% if requestParams.campaign %}<br><b>Campaign: {{ requestParams.campaign }}</b> {% endif %}
+{% if requestParams.project %}<br><b>Project: {{ requestParams.project }}</b> {% endif %}
+{% if requestParams.stream %}<br><b>Stream: {{ requestParams.stream }}</b> {% endif %}
+{% if requestParams.tag %}<br><b>Tag: {{ requestParams.tag }}</b> {% endif %}
+
 {% if requestParams.transpath %}<br><b>Transformation: {{ requestParams.transpath }}</b> {% endif %}
 {% if requestParams.transuses %}<br><b>Release: {{ requestParams.transuses }}</b> {% endif %}
 {% if requestParams.processingtype %}<br><b>Processing type: {{ requestParams.processingtype }}</b> {% endif %}
