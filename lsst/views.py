@@ -83,7 +83,7 @@ PHIGH = -1000000
 
 standard_fields = [ 'processingtype', 'computingsite', 'destinationse', 'jobstatus', 'prodsourcelabel', 'produsername', 'jeditaskid', 'taskid', 'workinggroup', 'transformation', 'cloud', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'computingelement', 'specialhandling', 'priorityrange' ]
 standard_sitefields = [ 'region', 'gocname', 'nickname', 'status', 'tier', 'comment_field', 'cloud', 'allowdirectaccess', 'allowfax', 'copytool', 'faxredirector', 'retry', 'timefloor' ]
-standard_taskfields = [ 'tasktype', 'superstatus', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', 'campaign', ]
+standard_taskfields = [ 'tasktype', 'superstatus', 'corecount', 'taskpriority', 'username', 'transuses', 'transpath', 'workinggroup', 'processingtype', 'cloud', 'campaign', 'project', 'stream', 'tag']
 
 VOLIST = [ 'atlas', 'bigpanda', 'htcondor', 'lsst', ]
 VONAME = { 'atlas' : 'ATLAS', 'bigpanda' : 'BigPanDA', 'htcondor' : 'HTCondor', 'lsst' : 'LSST', '' : '' }
@@ -243,6 +243,9 @@ def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
                     query['username__icontains'] = requestParams[param].strip()
                 else:
                     query['produsername__icontains'] = requestParams[param].strip()
+        elif param in ( 'project', 'stream', 'tag') and querytype == 'task':
+                val = requestParams[param]
+                query['taskname__icontains'] = requestParams[param]
         for field in Jobsactive4._meta.get_all_field_names():
             if param == field:
                 if param == 'specialhandling':
@@ -533,10 +536,37 @@ def taskSummaryDict(request, tasks, fieldlist = None):
         flist = standard_taskfields
     for task in tasks:
         for f in flist:
-            if f in task and task[f]:
-                if not f in sumd: sumd[f] = {}
-                if not task[f] in sumd[f]: sumd[f][task[f]] = 0
-                sumd[f][task[f]] += 1
+            if len(task['taskname'].split('.')) == 5:
+                if f == 'project':
+                    try:
+                        if not f in sumd: sumd[f] = {}
+                        project = task['taskname'].split('.')[0]
+                        if not project in sumd[f]: sumd[f][project] = 0
+                        sumd[f][project] += 1
+                    except:
+                        pass
+                if f == 'stream':
+                    try:
+                        if not f in sumd: sumd[f] = {}
+                        stream = task['taskname'].split('.')[2]
+                        if not re.match('[0-9]+',stream):
+                            if not stream in sumd[f]: sumd[f][stream] = 0
+                            sumd[f][stream] += 1
+                    except:
+                        pass
+                if f == 'tag':
+                    try:
+                        if not f in sumd: sumd[f] = {}
+                        tag = task['taskname'].split('.')[4]
+                        if not tag.startswith('job_'):
+                            if not tag in sumd[f]: sumd[f][tag] = 0
+                            sumd[f][tag] += 1
+                    except:
+                        pass
+                if f in task and task[f]:
+                    if not f in sumd: sumd[f] = {}
+                    if not task[f] in sumd[f]: sumd[f][task[f]] = 0
+                    sumd[f][task[f]] += 1
     ## convert to ordered lists
     suml = []
     for f in sumd:
@@ -547,6 +577,7 @@ def taskSummaryDict(request, tasks, fieldlist = None):
         kys.sort()
         for ky in kys:
             iteml.append({ 'kname' : ky, 'kvalue' : sumd[f][ky] })
+        iteml = sorted(iteml, key=lambda x:str(x['kname']).lower())
         itemd['list'] = iteml
         suml.append(itemd)
     suml = sorted(suml, key=lambda x:x['field'])
