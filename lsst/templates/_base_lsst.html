@@ -189,7 +189,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
         <ul class="left">
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Dashboards</a>
             <ul class="dropdown">
@@ -208,7 +207,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Jobs</a>
             <ul class="dropdown">
@@ -223,7 +221,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Tasks</a>
             <ul class="dropdown">
@@ -236,7 +233,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Errors</a>
             <ul class="dropdown">
@@ -248,7 +244,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Users</a>
             <ul class="dropdown">
@@ -259,7 +254,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Sites</a>
             <ul class="dropdown">
@@ -282,7 +276,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">Incidents</a>
             <ul class="dropdown">
@@ -293,7 +286,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li>
             <a href="{% url 'index' %}?mode=quicksearch">Search</a>
             </li>
@@ -304,7 +296,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
             {% if viewParams.MON_VO == 'ATLAS' %}
 
-                <li class="divider"></li>
                 <li class="has-dropdown">
                 <a href="#">Prodsys</a>
                 <ul class="dropdown">
@@ -317,7 +308,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
                 </ul>
                 </li>
 
-                <li class="divider"></li>
                 <li class="has-dropdown">
                 <a href="#">Services</a>
                 <ul class="dropdown">
@@ -332,7 +322,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
             {% endif %}
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#">VO</a>
             <ul class="dropdown">
@@ -345,7 +334,6 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
             </ul>
             </li>
 
-            <li class="divider"></li>
             <li class="has-dropdown">
             <a href="#"><span class='help'>Help</span></a>
             <ul class="dropdown">
@@ -443,7 +431,7 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 <table width=1000>
 <a name="doc"></a>
 <tr class="docsection"><th> Help </th></tr>
-<tr><td class="doctext">
+<tr><td class="doctext"  class="hide-for-small-only">
 
 {% block helptext %}
 Contextual help for this page is not yet available.
