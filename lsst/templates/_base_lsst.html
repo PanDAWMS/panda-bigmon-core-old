@@ -13,10 +13,16 @@
 	<!-- Included CSS Files -->
 {% comment %}
   <link rel="stylesheet" href="{{ STATIC_URL }}/css/normalize.css">
-{% endcomment %}
+
 	<link rel="stylesheet" href="{% static "css/normalize.css" %}">
 	<link rel="stylesheet" href="{% static "css/foundation.css" %}">
 	<link rel="stylesheet" href="{% static "css/bigpandamon.css" %}">
+
+{% endcomment %}
+
+	<link rel="stylesheet" href="http://hepsoftware.org/static/css/normalize.css" %}">
+	<link rel="stylesheet" href="http://hepsoftware.org/static/css/foundation.css" %}">
+
 	{% block base_css %}{% endblock %}
 	{% block extra_css %}{% endblock %}
 
