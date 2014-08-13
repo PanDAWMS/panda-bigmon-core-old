@@ -371,6 +371,12 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
 {% block left_menu %}{% endblock %}
 
+<table><tr><td>
+{% block body %}
+
+{% endblock %}
+</td></tr></table>
+
 {% block extra_js_bottombody %}{% endblock %}
 
 	<br>
@@ -419,15 +425,17 @@ PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch
   </footer>
 
 
-{% comment %}
+
   <script src="{% static 'js/foundation/foundation.js' %}"></script>
   <script src="{% static 'js/foundation/foundation.topbar.js' %}"></script>
-{% endcomment %}
 
+
+{% comment %}
   <script src="http://hepsoftware.org/static/js/vendor/modernizr.js"></script>
   <script src="http://hepsoftware.org/static/js/vendor/jquery.js"></script>
   <script src="http://hepsoftware.org/static/js/foundation/foundation.js"></script>
   <script src="http://hepsoftware.org/static/js/foundation/foundation.topbar.js"></script>
+{% endcomment %}
 
   <script>
     $(document).foundation();
