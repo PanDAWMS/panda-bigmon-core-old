@@ -118,35 +118,6 @@
     {% endfor %}
 </table>
 
-{% comment %}
-<table>
-<tr class='tablesection'><th colspan=20> <a name="tasks"></a>JEDI tasks owned by {{ user }} </th></tr>
-<tr class='tablesection'>
-	<th>ID<br>Type</th>
-	<th>Name<br>User</th>
-	<th>Status</th>
-	<th>Created</th>
-	<th>Modified</th>
-	<th>Cores</th>
-	<th>Priority</th>
-	<th>Parent</th>
-</tr>
-    {% for task in tasks %}
-	<tr>
-		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a><br>{{ task.tasktype }}</td>
-		<td><font size=-1>{{ task.taskname }}<br>{{ task.username }}</font></td>
-		<td class='{{task.status}}_fill'>{{ task.status }}</td>
-		<td>{{ task.creationdate|date:"Y-m-d H:i" }}</td>
-		<td>{{ task.modificationtime|date:"m-d H:i" }}</td>
-		<td>{{ task.corecount }}</td>
-		<td>{{ task.taskpriority }}</td>
-		<td>{% if task.parent_tid != task.jeditaskid %}<a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
-
-	</tr>
-    {% endfor %}
-</table>
-{% endcomment %}
-
 {% endif %}
 
 {% if njobsets > 0 %}

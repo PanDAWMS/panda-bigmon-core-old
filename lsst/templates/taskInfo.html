@@ -32,7 +32,7 @@
 		<td>{% if task.workinggroup %} {{ task.workinggroup }} {% endif %} </td>
 		<td><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></td>
 		{% if task.campaign %} <td><a href='/tasks/?campaign={{ task.campaign }}'>{{ task.campaign }}</a></td> {% endif %}
-		<td class='{{task.status}}_fill'>{% if task.superstatus %}<b>{{ task.superstatus }}</b> {% if task.superstatus != task.status %}<td class='{{task.status}}'>{{ task.status }}</td>{% endif %} {% else %}{{ task.status }}{% endif %}</td>
+		<td class='{{task.status}}_fill'>{% if task.superstatus %}<b><a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">{{ task.superstatus }}</a></b> {% if task.superstatus != task.status %}<td class='{{task.status}}'><a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">{{ task.status }}</a></td>{% endif %} {% else %}<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">{{ task.status }}</a>{% endif %}</td>
 
 {% if task.dsinfo %}
         <td> {{task.dsinfo.nfiles}} |
@@ -234,7 +234,7 @@ Click on the failed file percentage or count to see a summary of the errors.
 <p>
 The JEDI twiki has information on JEDI task
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>. Task state names above are links to this documentation.
 </p>
 
 {% if viewParams.MON_VO == 'ATLAS' %}
