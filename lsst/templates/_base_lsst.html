@@ -11,18 +11,15 @@
 	<title>{% block page_title %}{% if viewParams.MON_VO %} {{ viewParams.MON_VO }} {% endif %}{{ PAGE_TITLE }}{% endblock %}</title>
 
 	<!-- Included CSS Files -->
-{% comment %}
-  <link rel="stylesheet" href="{{ STATIC_URL }}/css/normalize.css">
 
 	<link rel="stylesheet" href="http://hepsoftware.org/static/css/normalize.css" %}">
 	<link rel="stylesheet" href="http://hepsoftware.org/static/css/foundation.css" %}">
 
-{% endcomment %}
-
+{% comment %}
 	<link rel="stylesheet" href="{% static "css/normalize.css" %}">
 	<link rel="stylesheet" href="{% static "css/foundation.css" %}">
 	<link rel="stylesheet" href="{% static "css/bigpandamon.css" %}">
-
+{% endcomment %}
 
 	{% block base_css %}{% endblock %}
 	{% block extra_css %}{% endblock %}
@@ -41,6 +38,46 @@
 	</script>
 
 <STYLE type="text/css">
+
+.top-subbar {
+  background-color: #DDDDDD;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 1em;
+  padding-right: 1em;
+  height: 1.8em;
+  margin-bottom: 8px;
+}
+
+.showentries {
+  background-color : transparent;
+  font-size: 1em;
+  color: #FFFFFF;
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.1875em; 
+}
+.showentries.label {
+  background-color : transparent;
+  font-size: 1em;
+  color: #FFFFFF;
+}
+
+.tableFilter{
+vertical-align: top;
+}
+.tableFilter.td{
+vertical-align: top;
+}
+
+.tdF{
+vertical-align: top;
+}
+
+.inputW{
+width:10em;
+}
+
 a:hover, a:visited, a:link, a:active
 {
     text-decoration: none;
@@ -371,11 +408,11 @@ li.news{padding:0px; margin-left: 1.3em; text-indent: -.4em;}
 
 {% block left_menu %}{% endblock %}
 
-<table><tr><td>
+<div class="large-12 columns">
 {% block body %}
 
 {% endblock %}
-</td></tr></table>
+</div>
 
 {% block extra_js_bottombody %}{% endblock %}
 
@@ -425,17 +462,15 @@ PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch
   </footer>
 
 
-
+{% comment %}
   <script src="{% static 'js/foundation/foundation.js' %}"></script>
   <script src="{% static 'js/foundation/foundation.topbar.js' %}"></script>
+{% endcomment %}
 
-
-{% comment %}
   <script src="http://hepsoftware.org/static/js/vendor/modernizr.js"></script>
   <script src="http://hepsoftware.org/static/js/vendor/jquery.js"></script>
   <script src="http://hepsoftware.org/static/js/foundation/foundation.js"></script>
   <script src="http://hepsoftware.org/static/js/foundation/foundation.topbar.js"></script>
-{% endcomment %}
 
   <script>
     $(document).foundation();
