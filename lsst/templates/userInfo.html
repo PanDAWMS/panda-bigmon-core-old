@@ -7,7 +7,10 @@
 {% block body %}
 
 <p>
-<div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a></div>
+<div class='section'>User page for <a href="{% url 'userInfo' user %}?display_limit=100">{{user}}</a>
+&nbsp; &nbsp; &nbsp;  Please read (and keep an eye on) the <a href="#doc"><span class='helpdark'>help section below</a> to familiarize yourself with using the monitor in JEDI based analysis.
+</div>
+
 
 {% if requestParams.priorityrange %}<br><b>Current priority range: {{ requestParams.priorityrange }}</b> {% endif %}
 {% if requestParams.jobsetrange %}<br><b>Jobset ID range: {{ requestParams.jobsetrange }}</b> {% endif %}
@@ -123,7 +126,10 @@
 {% if njobsets > 0 %}
 
 <table>
-<tr class='tablesection'><th colspan=20> <a name="jobsets"></a> Recent jobsets {% if njobsetmax <= njobsets %} (listing limited to {{ njobsetmax }}. Use the jobset ranges in the attribute summary to see more jobsets) {% endif %} </th></tr>
+<tr class='tablesection'><th colspan=20> <a name="jobsets"></a> Recent jobsets {% if njobsetmax <= njobsets %} (listing limited to {{ njobsetmax }}. Use the jobset ranges in the attribute summary to see more jobsets) {% endif %} 
+&nbsp; &nbsp; &nbsp; Note that with JEDI you should pay more attention to tasks than jobsets! <a href="#doc"><span class='helpdark'>See the help section below.</span></a>
+
+</th></tr>
 <tr class='tablesection'>
 <th> Jobset ID </th>
 <th> nJobs </th>
@@ -171,7 +177,9 @@
 <table>
 <tr class='tablesection'><th colspan=20> <a name="jobs"></a>Recent jobs {% if display_limit < jobList|length %} &nbsp; &nbsp; 
 Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
-{% endif %}</th></tr>
+{% endif %}
+&nbsp; &nbsp; &nbsp; Note that with JEDI, tasks are the best tool to monitor the progress of your submissions! <a href="#doc"><span class='helpdark'>See the help section below.</span></a>
+</th></tr>
 <tr class='tablesection'>
 	<th>PanDA ID<br>Attempt#</th>
 	<th>Owner {% if viewParams.MON_VO != 'ATLAS' %} / VO{% endif %}<br>Group  </th>
