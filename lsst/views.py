@@ -254,56 +254,79 @@ def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
         elif param in ( 'project', 'stream', 'tag') and querytype == 'task':
                 val = requestParams[param]
                 query['taskname__icontains'] = requestParams[param]
-        for field in Jobsactive4._meta.get_all_field_names():
-            if param == field:
-                if param == 'specialhandling':
-                    query['specialhandling__contains'] = requestParams[param]
-                elif param == 'transformation' or param == 'transpath':
-                    query['%s__endswith' % param] = requestParams[param]
-                elif param == 'modificationhost' and requestParams[param].find('@') < 0:
-                    query['%s__contains' % param] = requestParams[param]
-                elif param == 'jeditaskid':
-                    if requestParams['jeditaskid'] != 'None':
-                        if int(requestParams['jeditaskid']) < 4000000:
-                            query['taskid'] = requestParams[param]
+
+        if querytype == 'task':
+            for param in requestParams:
+                for field in JediTasks._meta.get_all_field_names():
+                    if param == field:
+                        if param == 'transpath':
+                            query['%s__endswith' % param] = requestParams[param]
+                        elif param in ( 'taskname', ):
+                            ## support wildcarding
+                            if requestParams[param].startswith('*') and requestParams[param].endswith('*'):
+                                query['%s__icontains' % param] = requestParams[param].replace('*','')
+                            elif requestParams[param].endswith('*'):
+                                query['%s__istartswith' % param] = requestParams[param].replace('*','')
+                            elif requestParams[param].startswith('*'):
+                                query['%s__iendswith' % param] = requestParams[param].replace('*','')
+                            else:
+                                query[param] = requestParams[param]
                         else:
                             query[param] = requestParams[param]
-                elif param == 'taskid':
-                    if requestParams['taskid'] != 'None': query[param] = requestParams[param]
-                elif param == 'pandaid':
-                    try:
-                        query['pandaid'] = int(requestParams['pandaid'])
-                    except:
-                        query['jobname'] = requestParams['pandaid']
-                elif param == 'computingsite':
-                    if requestParams[param].startswith('*') and requestParams[param].endswith('*'):
-                        query['%s__contains' % param] = requestParams[param].replace('*','')
-                    elif requestParams[param].endswith('*'):
-                        query['%s__startswith' % param] = requestParams[param].replace('*','')
-                    elif requestParams[param].startswith('*'):
-                        query['%s__endswith' % param] = requestParams[param].replace('*','')
+                if param == 'eventservice':
+                    query['eventservice'] = 1
+        else:
+            for field in Jobsactive4._meta.get_all_field_names():
+                if param == field:
+                    if param == 'specialhandling':
+                        query['specialhandling__contains'] = requestParams[param]
+                    elif param == 'transformation' or param == 'transpath':
+                        query['%s__endswith' % param] = requestParams[param]
+                    elif param == 'modificationhost' and requestParams[param].find('@') < 0:
+                        query['%s__contains' % param] = requestParams[param]
+                    elif param == 'jeditaskid':
+                        if requestParams['jeditaskid'] != 'None':
+                            if int(requestParams['jeditaskid']) < 4000000:
+                                query['taskid'] = requestParams[param]
+                            else:
+                                query[param] = requestParams[param]
+                    elif param == 'taskid':
+                        if requestParams['taskid'] != 'None': query[param] = requestParams[param]
+                    elif param == 'pandaid':
+                        try:
+                            query['pandaid'] = int(requestParams['pandaid'])
+                        except:
+                            query['jobname'] = requestParams['pandaid']
+                    elif param in ( 'computingsite', ):
+                        ## support wildcarding
+                        if requestParams[param].startswith('*') and requestParams[param].endswith('*'):
+                            query['%s__icontains' % param] = requestParams[param].replace('*','')
+                        elif requestParams[param].endswith('*'):
+                            query['%s__istartswith' % param] = requestParams[param].replace('*','')
+                        elif requestParams[param].startswith('*'):
+                            query['%s__iendswith' % param] = requestParams[param].replace('*','')
+                        else:
+                            query[param] = requestParams[param]
+                    elif requestParams[param].find('|') > 0:
+                        vals = requestParams[param].split('|')
+                        query[param+"__in"] = vals
                     else:
                         query[param] = requestParams[param]
-                elif requestParams[param].find('|') > 0:
-                    vals = requestParams[param].split('|')
-                    query[param+"__in"] = vals
-                else:
-                    query[param] = requestParams[param]
-    if 'jobtype' in requestParams:
-        jobtype = requestParams['jobtype']
-    else:
-        jobtype = opmode
-    if jobtype in ( 'analysis', 'anal' ):
-        query['prodsourcelabel__in'] = ['panda', 'user']
-    elif jobtype in ( 'production', 'prod' ):
-        query['prodsourcelabel'] = 'managed'
-    elif jobtype == 'groupproduction':
-        query['prodsourcelabel'] = 'managed'
-        query['workinggroup__isnull'] = False
-    elif jobtype == 'eventservice':
-        query['specialhandling__contains'] = 'eventservice'
-    elif jobtype == 'test':
-        query['prodsourcelabel__icontains'] = 'test'
+        if 'jobtype' in requestParams:
+            jobtype = requestParams['jobtype']
+        else:
+            jobtype = opmode
+        if jobtype in ( 'analysis', 'anal' ):
+            query['prodsourcelabel__in'] = ['panda', 'user']
+        elif jobtype in ( 'production', 'prod' ):
+            query['prodsourcelabel'] = 'managed'
+        elif jobtype == 'groupproduction':
+            query['prodsourcelabel'] = 'managed'
+            query['workinggroup__isnull'] = False
+        elif jobtype == 'eventservice':
+            query['specialhandling__contains'] = 'eventservice'
+        elif jobtype == 'test':
+            query['prodsourcelabel__icontains'] = 'test'
     return query
 
 def cleanJobList(jobs, mode='drop'):
@@ -2077,17 +2100,7 @@ def dashTasks(request, hours, view='production'):
 def taskList(request):
     initRequest(request)
     query = setupView(request, hours=30*24, limit=9999999, querytype='task')
-
-    for param in requestParams:
-        for field in JediTasks._meta.get_all_field_names():
-            if param == field:
-                if param == 'transpath':
-                    query['%s__endswith' % param] = requestParams[param]
-                else:
-                    query[param] = requestParams[param]
-        if param == 'eventservice':
-            query['eventservice'] = 1
-    
+    print query
     if 'statenotupdated' in requestParams:
         tasks = taskNotUpdated(request, query)
     else:
