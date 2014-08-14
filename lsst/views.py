@@ -405,8 +405,72 @@ def cleanJobList(jobs, mode='drop'):
 def cleanTaskList(tasks):
     for task in tasks:
         if task['transpath']: task['transpath'] = task['transpath'].split('/')[-1]
-        print task['statechangetime']
         if task['statechangetime'] == None: task['statechangetime'] = task['modificationtime']
+
+    ## Get status of input processing as indicator of task progress
+    dsquery = {}
+    dsquery['type__in'] = ['input', 'pseudo_input' ]
+    dsquery['masterid__isnull'] = True
+    dsets = JediDatasets.objects.filter(**dsquery).values('jeditaskid','nfiles','nfilesfinished','nfilesfailed')
+    dsinfo = {}
+    if len(dsets) > 0:
+        for ds in dsets:        
+            taskid = ds['jeditaskid']
+            if taskid not in dsinfo:
+                dsinfo[taskid] = []
+            dsinfo[taskid].append(ds)
+    for task in tasks:
+        if len(task['errordialog']) > 100: task['errordialog'] = task['errordialog'][:90]+'...'
+        #if task['status'] == 'running' and task['jeditaskid'] in dsinfo:
+        dstotals = {}
+        dstotals['nfiles'] = 0
+        dstotals['nfilesfinished'] = 0
+        dstotals['nfilesfailed'] = 0
+        dstotals['pctfinished'] = 0
+        dstotals['pctfailed'] = 0
+        if (task['jeditaskid'] in dsinfo):
+            nfiles = 0
+            nfinished = 0
+            nfailed = 0
+            for ds in dsinfo[task['jeditaskid']]:
+                if int(ds['nfiles']) > 0:
+                    nfiles += int(ds['nfiles'])
+                    nfinished += int(ds['nfilesfinished'])
+                    nfailed += int(ds['nfilesfailed'])
+            if nfiles > 0:
+                dstotals = {}
+                dstotals['nfiles'] = nfiles
+                dstotals['nfilesfinished'] = nfinished
+                dstotals['nfilesfailed'] = nfailed
+                dstotals['pctfinished'] = int(100.*nfinished/nfiles)
+                dstotals['pctfailed'] = int(100.*nfailed/nfiles)
+
+        task['dsinfo'] = dstotals
+
+    if 'sortby' in requestParams:
+        sortby = requestParams['sortby']
+        if sortby == 'time-ascending':
+            tasks = sorted(tasks, key=lambda x:x['modificationtime'])
+        if sortby == 'time-descending':
+            tasks = sorted(tasks, key=lambda x:x['modificationtime'], reverse=True)
+        if sortby == 'statetime-descending':
+            tasks = sorted(tasks, key=lambda x:x['statechangetime'], reverse=True)
+        elif sortby == 'priority':
+            tasks = sorted(tasks, key=lambda x:x['taskpriority'], reverse=True)
+        elif sortby == 'nfiles':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['nfiles'], reverse=True)
+        elif sortby == 'pctfinished':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfinished'], reverse=True)
+        elif sortby == 'pctfailed':
+            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfailed'], reverse=True)
+        elif sortby == 'taskname':
+            tasks = sorted(tasks, key=lambda x:x['taskname'])
+        elif sortby == 'jeditaskid' or sortby == 'taskid':
+            tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    else:
+        sortby = "jeditaskid"
+        tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+
     return tasks
 
 def jobSummaryDict(request, jobs, fieldlist = None):
@@ -1248,15 +1312,14 @@ def userInfo(request, user=''):
     query = { 'modificationtime__range' : [startdate, enddate] }
     query['username__icontains'] = user.strip()
     tasks = JediTasks.objects.filter(**query).values()
-    tasks = cleanTaskList(tasks)
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
+    tasks = cleanTaskList(tasks)
     ntasks = len(tasks)
 
     limit = 6000
     query = setupView(request,hours=72,limit=limit)
     query['produsername__icontains'] = user.strip()
     jobs = []
-    print 'query', query
     values = 'produsername','cloud','computingsite','cpuconsumptiontime','jobstatus','transformation','prodsourcelabel','specialhandling','vo','modificationtime','pandaid', 'atlasrelease', 'jobsetid', 'processingtype', 'workinggroup', 'jeditaskid', 'taskid', 'currentpriority', 'creationtime', 'starttime', 'endtime', 'brokerageerrorcode', 'brokerageerrordiag', 'ddmerrorcode', 'ddmerrordiag', 'exeerrorcode', 'exeerrordiag', 'jobdispatchererrorcode', 'jobdispatchererrordiag', 'piloterrorcode', 'piloterrordiag', 'superrorcode', 'superrordiag', 'taskbuffererrorcode', 'taskbuffererrordiag', 'transexitcode', 'homepackage', 'inputfileproject', 'inputfiletype', 'attemptnr', 'jobname', 'proddblock', 'destinationdblock',
     jobs.extend(Jobsdefined4.objects.filter(**query)[:JOB_LIMIT].values(*values))
     jobs.extend(Jobsactive4.objects.filter(**query)[:JOB_LIMIT].values(*values))
@@ -1336,11 +1399,14 @@ def userInfo(request, user=''):
         else:
             flist.append('atlasrelease')
         jobsumd = jobSummaryDict(request, jobs, flist)
-        njobsetmax = 100
+        njobsetmax = 200
+        xurl = extensibleURL(request)
+        nosorturl = removeParam(xurl, 'sortby',mode='extensible')
         data = {
             'viewParams' : viewParams,
             'requestParams' : requestParams,
-            'xurl' : extensibleURL(request),
+            'xurl' : xurl,
+            'nosorturl' : nosorturl,
             'user' : user,
             'sumd' : sumd,
             'jobsumd' : jobsumd,
@@ -1868,7 +1934,6 @@ def dashSummary(request, hours, view='all', cloudview='region'):
     return fullsummary
 
 def dashTaskSummary(request, hours, view='all'):
-    print 'dashTaskSummary start'
     query = setupView(request,hours=hours,limit=999999,opmode=view, querytype='task') 
 
     tasksummarydata = taskSummaryData(query)
@@ -1935,7 +2000,6 @@ def dashTaskSummary(request, hours, view='all'):
         elif requestParams['sortby'] == 'pctfail':
             fullsummary = sorted(fullsummary, key=lambda x:x['pctfail'],reverse=True)
 
-    print 'dashTaskSummary end', len(fullsummary)
     return fullsummary
 
 def dashboard(request, view='production'):
@@ -2100,7 +2164,6 @@ def dashTasks(request, hours, view='production'):
 def taskList(request):
     initRequest(request)
     query = setupView(request, hours=30*24, limit=9999999, querytype='task')
-    print query
     if 'statenotupdated' in requestParams:
         tasks = taskNotUpdated(request, query)
     else:
@@ -2118,70 +2181,6 @@ def taskList(request):
         display_limit = 3000
         nmax = display_limit
         url_nolimit = request.get_full_path()
-       
-    ## Get status of input processing as indicator of task progress
-    dsquery = {}
-    dsquery['type__in'] = ['input', 'pseudo_input' ]
-    dsquery['masterid__isnull'] = True
-    dsets = JediDatasets.objects.filter(**dsquery).values('jeditaskid','nfiles','nfilesfinished','nfilesfailed')
-    dsinfo = {}
-    if len(dsets) > 0:
-        for ds in dsets:        
-            taskid = ds['jeditaskid']
-            if taskid not in dsinfo:
-                dsinfo[taskid] = []
-            dsinfo[taskid].append(ds)
-    for task in tasks:
-        if len(task['errordialog']) > 100: task['errordialog'] = task['errordialog'][:90]+'...'
-        #if task['status'] == 'running' and task['jeditaskid'] in dsinfo:
-        dstotals = {}
-        dstotals['nfiles'] = 0
-        dstotals['nfilesfinished'] = 0
-        dstotals['nfilesfailed'] = 0
-        dstotals['pctfinished'] = 0
-        dstotals['pctfailed'] = 0
-        if (task['jeditaskid'] in dsinfo):
-            nfiles = 0
-            nfinished = 0
-            nfailed = 0
-            for ds in dsinfo[task['jeditaskid']]:
-                if int(ds['nfiles']) > 0:
-                    nfiles += int(ds['nfiles'])
-                    nfinished += int(ds['nfilesfinished'])
-                    nfailed += int(ds['nfilesfailed'])
-            if nfiles > 0:
-                dstotals = {}
-                dstotals['nfiles'] = nfiles
-                dstotals['nfilesfinished'] = nfinished
-                dstotals['nfilesfailed'] = nfailed
-                dstotals['pctfinished'] = int(100.*nfinished/nfiles)
-                dstotals['pctfailed'] = int(100.*nfailed/nfiles)
-
-        task['dsinfo'] = dstotals
-
-    if 'sortby' in requestParams:
-        sortby = requestParams['sortby']
-        if sortby == 'time-ascending':
-            tasks = sorted(tasks, key=lambda x:x['modificationtime'])
-        if sortby == 'time-descending':
-            tasks = sorted(tasks, key=lambda x:x['modificationtime'], reverse=True)
-        if sortby == 'statetime-descending':
-            tasks = sorted(tasks, key=lambda x:x['statechangetime'], reverse=True)
-        elif sortby == 'priority':
-            tasks = sorted(tasks, key=lambda x:x['taskpriority'], reverse=True)
-        elif sortby == 'nfiles':
-            tasks = sorted(tasks, key=lambda x:x['dsinfo']['nfiles'], reverse=True)
-        elif sortby == 'pctfinished':
-            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfinished'], reverse=True)
-        elif sortby == 'pctfailed':
-            tasks = sorted(tasks, key=lambda x:x['dsinfo']['pctfailed'], reverse=True)
-        elif sortby == 'taskname':
-            tasks = sorted(tasks, key=lambda x:x['taskname'])
-        elif sortby == 'jeditaskid' or sortby == 'taskid':
-            tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
-    else:
-        sortby = "jeditaskid"
-        tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
 
     xurl = extensibleURL(request)
     nosorturl = removeParam(xurl, 'sortby',mode='extensible')
@@ -2269,7 +2268,6 @@ def taskInfo(request, jeditaskid=0):
             jobparamstxt.append(ptxt)
         jobparamstxt = sorted(jobparamstxt, key=lambda x:x.lower())
 
-    print taskrec
     if taskrec and 'ticketsystemtype' in taskrec and taskrec['ticketsystemtype'] == '' and taskparams != None:
         if 'ticketID' in taskparams: taskrec['ticketid'] = taskparams['ticketID']
         if 'ticketSystemType' in taskparams: taskrec['ticketsystemtype'] = taskparams['ticketSystemType']

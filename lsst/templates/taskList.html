@@ -101,12 +101,19 @@ Finished/failed progress of the task is indicated by the percentage and counts o
 Click on the failed file percentage or count to see a summary of the errors.
 </p>
 <p>
-(In the new JEDI system, task progress cannot be monitored in terms of jobs completed/failed because jobs are defined dynamically. The input files associated with a task are an invariant of the task, so measuring their progress is a valid metric of task progress.)
+In the new JEDI system, task progress cannot be monitored in terms of jobs completed/failed because jobs are defined dynamically. The input files associated with a task are an invariant of the task, so measuring their progress is a valid metric of task progress.
+JEDI centers around tasks, no longer around jobs as in the old system.
+</p><p>
+In the old system, the front end clients -- analysis and prodsys1 -- predefined the jobs for panda, and panda's mission was to process those jobs. The metric for progress and success was the processing of those jobs.
+</p><p>
+In the new system, the front end clients -- JEDI based analysis and prodsys2 -- define only the task: a transformation to be applied to a set of inputs. Panda's mission in this system is to process those inputs, and the metric is progress and success in processing those input files. Jobs are dynamically created and re-created at panda's discretion to process and as necessary retry those inputs, shaping the jobs optimally for the resources available at a given time. So jobs are shapeshifting and fluid, it is the inputs that really define the task and are the measure of its completion.
+</p><p>
+For JEDI based analysis and production, the task list is the principal tool for quickly assessing processing status.
 </p>
 
 <p>
 The JEDI twiki has information on JEDI task
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a> and
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">states</a> and
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.
 </p>
 

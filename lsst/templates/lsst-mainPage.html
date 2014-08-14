@@ -83,36 +83,36 @@ PanDA job ID or name</td><td><font size=-1> <input id="pandaid" name="pandaid" s
 Batch ID</td><td><font size=-1> <input id="batchid" name="batchid" size="25" maxlength="200" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskInfo' %}?" method='get'>
-Task ID </td><td><font size=-1><input id="jeditaskid" name="jeditaskid" size="25" maxlength="15" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Task ID </td><td><font size=-1><input id="jeditaskid" name="jeditaskid" size="25" maxlength="15" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskInfo' %}" method='get'>
-Task name </td><td><font size=-1><input id="taskname" name="taskname" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Task name </td><td><font size=-1><input id="taskname" name="taskname" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskList' %}" method='post'>
 {% csrf_token %}
-Tasks for campaign </td><td><font size=-1><input id="campaign" name="campaign" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Tasks for campaign </td><td><font size=-1><input id="campaign" name="campaign" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskList' %}" method='post'>
 {% csrf_token %}
-Tasks for project </td><td><font size=-1><input id="project" name="project" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Tasks for project </td><td><font size=-1><input id="project" name="project" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskList' %}" method='post'>
 {% csrf_token %}
-Tasks for tag </td><td><font size=-1><input id="tag" name="tag" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Tasks for tag </td><td><font size=-1><input id="tag" name="tag" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskList' %}" method='post'>
 {% csrf_token %}
-Tasks for stream </td><td><font size=-1><input id="stream" name="stream" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Tasks for stream </td><td><font size=-1><input id="stream" name="stream" size="25" maxlength="400" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 /><input type='hidden' name="tasktype" readonly="readonly" value="prod" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 
 <tr><td><form action="{% url 'siteInfo' %}" method='get'>
 Site </td><td><font size=-1><input id="site" name="site" size="25" maxlength="50" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'userInfo' %}" method='get'>
-User </td><td><font size=-1><input id="user" name="user" size="25" maxlength="50" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+User </td><td><font size=-1><input id="user" name="user" size="25" maxlength="50" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'datasetInfo' %}" method='get'>
-Dataset </td><td><font size=-1><input id="datasetname" name="datasetname" size="25" maxlength="300" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=100 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
+Dataset </td><td><font size=-1><input id="datasetname" name="datasetname" size="25" maxlength="300" class="inputW" /><input type='hidden' name="display_limit" readonly="readonly" value=200 />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'fileInfo' %}" method='get'>
 File </td><td><font size=-1><input id="filename" name="filename" size="25" maxlength="300" class="inputW" />&nbsp;<input type='submit' value='Submit' /></form></font></td></tr>
@@ -129,7 +129,7 @@ Stalled jobs </td><td> in
     <option value="holding"><span class="holding">holding</span></option>
     <option value="transferring"><span class="transferring">transferring</span></option>
 </select>
-for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=100 /><input type='submit' value='Submit' /></form></font></td></tr>
+for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=200 /><input type='submit' value='Submit' /></form></font></td></tr>
 
 <tr><td><form action="{% url 'taskList' %}" method='get'>
 Stalled tasks </td><td> in 
@@ -152,10 +152,10 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <div style="float: left;  padding: 3px; ">
 <table><tr><th class='highlightcell'> News </th></tr>
 <td>
-<div style="width:600px;height:100%;overflow:auto;word-wrap: break-word;">
-<font size=-1>
-<ul>
+<div style="width:500px;height:100%;overflow:auto;word-wrap: break-word">
+<ul style="font-size:small">
 <!-- most recent at the top -->
+<li class="news">20140814: Task list in user pages brought up to date, with input completion
 <li class="news">20140814: Wildcarding implemented for taskname in task lists
 <li class="news">20140813: Works on mobile. Still tuning to do. Report bad issues please.
 <li class="news">20140813: Add task searches for campaign, project, stream, tag
@@ -211,7 +211,6 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <li class="news">20140611: Throttled state supported
 <li class="news">20140610: Working group dashboard added, summarizing job status by WG
 </ul>
-</font>
 </div>
 </td></tr></table>
 </div>

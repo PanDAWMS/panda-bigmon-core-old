@@ -46,14 +46,14 @@
 
 {% for userd in sumd %}
 <tr>
-<th> <a href="{% url 'userInfo' userd.dict.name %}?display_limit=100">{{userd.dict.name}}</a> </th>
+<th> <a href="{% url 'userInfo' userd.dict.name %}?display_limit=200">{{userd.dict.name}}</a> </th>
 <td> <a href="{% url 'jobInfo' userd.dict.pandaid %}">{{ userd.dict.pandaid }}</a> </td>
 <td> {{ userd.dict.latest|date:"Y-m-d H:i" }} </td>
 <td> {{ userd.dict.njobs }} </td>
-<td class='finished'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=finished&display_limit=100"><span class='finished'>{{ userd.dict.nfinished }}</span></a> </td>
-<td class='failed'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=failed&display_limit=100"><span class='failed'>{{ userd.dict.nfailed }}</span></a> </td>
-<td class='holding'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=holding&display_limit=100"><span class='holding'>{{ userd.dict.nholding }}</span></a> </td>
-<td class='cancelled'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=cancelled&display_limit=100"><span class='cancelled'>{{ userd.dict.ncancelled }}</span></a> </td>
+<td class='finished'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=finished&display_limit=200"><span class='finished'>{{ userd.dict.nfinished }}</span></a> </td>
+<td class='failed'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=failed&display_limit=200"><span class='failed'>{{ userd.dict.nfailed }}</span></a> </td>
+<td class='holding'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=holding&display_limit=200"><span class='holding'>{{ userd.dict.nholding }}</span></a> </td>
+<td class='cancelled'> <a href="{% url 'jobList' %}?produsername={{userd.dict.name}}&jobstatus=cancelled&display_limit=200"><span class='cancelled'>{{ userd.dict.ncancelled }}</span></a> </td>
 <td class='defined'> {{ userd.dict.nqueued }} </td>
 <td> {{ userd.dict.nsites }} </td>
 <td> {{ userd.dict.nclouds }} </td>
@@ -104,7 +104,7 @@ No dynamic usage information found.
 
 {% for user in userdb %}
 <tr>
-<td> <a href="{% url 'userInfo' user.name %}?display_limit=100">{{user.name}}</a> </td>
+<td> <a href="{% url 'userInfo' user.name %}?display_limit=200">{{user.name}}</a> </td>
 <td> {% if user.njobsa %}{{ user.njobsa }} {% endif %}</td>
 <td>{{ user.latestjob|date:"Y-m-d H:i" }}</td>
 
