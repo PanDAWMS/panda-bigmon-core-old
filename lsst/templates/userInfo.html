@@ -106,7 +106,7 @@
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a>
 		{% if task.parent_tid and task.parent_tid != task.jeditaskid %}<br><a href="{% url 'taskInfo' task.parent_tid %}">{{ task.parent_tid }}</a>{% endif %}</td>
 		<td><font size=-1><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.taskname }}</a><br>{{ task.tasktype }}{% if task.processingtype %}/{{ task.processingtype }} {% endif %} {% if task.campaign %} &nbsp; <a href='/tasks/?campaign={{ task.campaign }}'>{{ task.campaign }}</a> {% endif %} &nbsp; {% if task.workinggroup %} <a href="{% url 'taskList' %}?workinggroup={{ task.workinggroup }}">{{ task.workinggroup }}</a> &nbsp; {% endif %}  <a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></font> {% if task.ticketid %} &nbsp; <a href="https://its.cern.ch/jira/browse/{{ task.ticketid }}"> {% if task.ticketsystemtype %}{{ task.ticketsystemtype }} {% else %} JIRA {% endif %}</a> {% endif %} <br><font color='brown'>{{ task.errordialog|safe }}</font></td>
-		<td  class='{{task.status}}_fill'>{% if task.superstatus %} {{ task.superstatus }} {% else %} {{ task.status }} {% endif %}
+		<td  class='{{task.status}}_fill'>{% if task.superstatus %} <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">{{ task.superstatus }}</a> {% else %} <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">{{ task.status }}</a> {% endif %}
         {% if task.dsinfo.nfiles > 0 %} <br>{{task.dsinfo.nfiles}} {% endif %} </td>
         <td>{% if task.dsinfo.nfilesfinished > 0 %}<span  class='finished'>{{task.dsinfo.pctfinished}}%</span>{% endif %} {% if task.dsinfo.nfilesfailed > 0 %}<a href="{% url 'errorSummary' %}?jeditaskid={{task.jeditaskid}}"><span class='failed'> {{task.dsinfo.pctfailed}}%</span>{% endif %}</a>
         <br> {% if task.dsinfo.nfilesfinished > 0 %} <span  class='finished'>{{ task.dsinfo.nfilesfinished }}</span> {% endif %} &nbsp; {% if task.dsinfo.nfilesfailed > 0 %} <a href="{% url 'errorSummary' %}?jeditaskid={{task.jeditaskid}}"><span  class='failed'>{{ task.dsinfo.nfilesfailed }}</span></a> {% endif %}
@@ -238,7 +238,7 @@ For JEDI based analysis, the task list in this page is the principal tool for qu
 <p>
 The JEDI twiki has information on JEDI task
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">states</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>.
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>. Task state names in the page above are links to this documentation.
 </p>
 
 <p>
