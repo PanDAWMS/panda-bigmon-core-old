@@ -29,6 +29,7 @@ from core.common.models import Incidents
 from core.common.models import Pandalog
 from core.common.models import JediJobRetryHistory
 from core.common.models import JediTasks
+from core.common.models import Etask
 from core.common.models import JediTaskparams
 from core.common.models import JediEvents
 from core.common.models import JediDatasets
@@ -2081,8 +2082,6 @@ def dashboard(request, view='production'):
 
     cloudTaskSummary = wgTaskSummary(request,fieldname='cloud', view=view)
 
-    taskJobSummary = dashTaskSummary(request, hours, view)
-
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         xurl = extensibleURL(request)
         nosorturl = removeParam(xurl, 'sortby',mode='extensible')
@@ -2107,7 +2106,6 @@ def dashboard(request, view='production'):
             'transclouds' : transclouds,
             'transrclouds' : transrclouds,
             'hoursSinceUpdate' : hoursSinceUpdate,
-            'taskJobSummary' : taskJobSummary,
         }
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':

@@ -248,6 +248,7 @@ of all jobs
 
 {% endif %}
 
+{% if taskJobSummary %}
 <p>
 <table>
 <tr class='tablesection'>
@@ -282,6 +283,7 @@ of all jobs
 {% endfor %}
 </table>
 </p>
+{% endif %}
 
 <script language="javascript"> var newWin;function PopUp(ref, site, type) {
 var strFeatures="toolbar=no,status=no,menubar=no,location=no"
