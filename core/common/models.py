@@ -482,6 +482,7 @@ class JediJobRetryHistory(models.Model):
     oldpandaid = models.BigIntegerField(primary_key=True, db_column='OLDPANDAID')  # Field name made lowercase.
     newpandaid = models.BigIntegerField(primary_key=True, db_column='NEWPANDAID')  # Field name made lowercase.
     ins_utc_tstamp = models.BigIntegerField(db_column='INS_UTC_TSTAMP', blank=True)  # Field name made lowercase.
+    relationtype = models.CharField(max_length=48, db_column='RELATIONTYPE')
     class Meta:
         db_table = u'jedi_job_retry_history'
 
