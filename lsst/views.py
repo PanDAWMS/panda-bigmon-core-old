@@ -2466,11 +2466,15 @@ def errorSummaryDict(request,jobs, tasknamedict):
         taskname = ''
         if job['jeditaskid'] > 0:
             taskid = job['jeditaskid']
-            if taskid in tasknamedict: taskname = tasknamedict[taskid]
+            if taskid in tasknamedict:
+                taskname = tasknamedict[taskid]
+                print 'from tasknamedict', taskid, taskname
             tasktype = 'jeditaskid'
         else:
             taskid = job['taskid']
-            if taskid in tasknamedict: taskname = tasknamedict[taskid]
+            if taskid in tasknamedict:
+                taskname = tasknamedict[taskid]
+                print 'from tasknamedict', taskid, taskname
             tasktype = 'taskid'
         tm = job['modificationtime']
         tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
@@ -3421,25 +3425,24 @@ def taskNameDict(jobs):
     taskids = {}
     jeditaskids = {}
     for job in jobs:
-        if 'taskid' in job and job['taskid'] and job['taskid'] > 0: taskids[job['taskid']] = 1
+        if 'taskid' in job and job['taskid'] and job['taskid'] > 0:
+            taskids[job['taskid']] = 1
         if 'jeditaskid' in job and job['jeditaskid'] and job['jeditaskid'] > 0: jeditaskids[job['jeditaskid']] = 1
     taskidl = taskids.keys()
     jeditaskidl = jeditaskids.keys()
     tasknamedict = {}
     if len(jeditaskidl) > 0:
         tq = { 'jeditaskid__in' : jeditaskidl }
+        print 'tasknamedict translate new ', len(jeditaskidl)
         jeditasks = JediTasks.objects.filter(**tq).values('taskname', 'jeditaskid')
         for t in jeditasks:
             tasknamedict[t['jeditaskid']] = t['taskname']
     if len(taskidl) > 0:
-        from atlas.prodtask.models import ProductionTask
-        tq = { 'id__in' : taskidl }
-        try:
-            oldtasks = ProductionTask.objects.filter(**tq).values('name', 'id')
-            for t in oldtasks:
-                tasknamedict[t['id']] = t['name']
-        except:
-            oldtasks = []
+        tq = { 'taskid__in' : taskidl }
+        print 'tasknamedict translate old ', len(taskidl)
+        oldtasks = Etask.objects.filter(**tq).values('taskname', 'taskid')
+        for t in oldtasks:
+            tasknamedict[t['taskid']] = t['taskname']
     return tasknamedict
 
 class DateEncoder(json.JSONEncoder):

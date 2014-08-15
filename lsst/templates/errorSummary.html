@@ -124,7 +124,7 @@
 <table>
 <tr class='tablesection'><th colspan=20> Task error summary </th></tr>
 {% for task in errsByTask %}
-<tr><th colspan=10> {% if task.longname != '' %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}">{{ task.longname }}</a> {% else %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} {{ task.name }} </a>{% endif %} </th></tr>
+<tr><th colspan=10> <a href="{{xurl}}{{task.tasktype}}={{ task.name }}"> {{ task.tasktype }} &nbsp; {{ task.name }} </a> &nbsp; &nbsp; {% if task.longname != '' %} <a href="{{xurl}}{{task.tasktype}}={{ task.name }}">{{ task.longname }}</a>{% endif %} </th></tr>
 <tr>
 <th> &nbsp; </th>
 <th> {{ task.toterrors }} </th>
