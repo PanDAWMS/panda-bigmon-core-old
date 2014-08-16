@@ -15,6 +15,7 @@ import core.pandajob.views_support as core_lsstmon_support_views
 urlpatterns = patterns('',
     url(r'^$', lsstmon_views.mainPage, name='mainPage'),
     url(r'^$', lsstmon_views.mainPage, name='index'),
+    url(r'^help/$', lsstmon_views.helpPage, name='helpPage'),
     url(r'^jobs/$', lsstmon_views.jobList, name='jobList'),
     url(r'^jobs/(.*)/$', lsstmon_views.jobList, name='jobList'),
     url(r'^jobs/(.*)/(.*)/$', lsstmon_views.jobList, name='jobList'),
@@ -43,7 +44,7 @@ urlpatterns = patterns('',
     url(r'^fileInfo/$', lsstmon_views.fileInfo, name='fileInfo'),
     url(r'^fileList/$', lsstmon_views.fileList, name='fileList'),
     url(r'^datasetInfo/$', lsstmon_views.datasetInfo, name='datasetInfo'),
-   url(r'^datasetList/$', lsstmon_views.datasetList, name='datasetList'),
+    url(r'^datasetList/$', lsstmon_views.datasetList, name='datasetList'),
     url(r'^workQueues/$', lsstmon_views.workQueues, name='workQueues'),
 
     ### support views for LSST
