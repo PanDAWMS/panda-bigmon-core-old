@@ -233,12 +233,12 @@ li.news{padding:0px; margin-left: 0em; text-indent: -.4em;}
             <ul class="dropdown">
                 {% if viewParams.MON_VO == 'ATLAS' %}
                     <li><a href="{% url 'dashboard' %}">All jobs</a></li>
-                    <li><a href="{% url 'dashAnalysis' %}">Analysis</a></li>
-                    <li><a href="{% url 'dashProduction' %}">Production - Cloud view</a></li>
-                    <li><a href="{% url 'dashProduction' %}?cloudview=region">Production - Region view</a></li>
-                    <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
-                    <li><a href="{% url 'dashAnalysis' %}?mode=task">Analysis by task</a></li>
-                    <li><a href="{% url 'dashProduction' %}?mode=task">Production by task</a></li>
+                    <li><a href="{% url 'dashAnalysis' %}">Analysis jobs</a></li>
+                    <li><a href="{% url 'dashProduction' %}">Production jobs - Cloud view</a></li>
+                    <li><a href="{% url 'dashProduction' %}?cloudview=region">Production jobs - Region view</a></li>
+                    <li><a href="{% url 'workingGroups' %}">Working group jobs</a></li>
+                    <li><a href="{% url 'dashAnalysis' %}?mode=task">Analysis tasks</a></li>
+                    <li><a href="{% url 'dashProduction' %}?mode=task">Production tasks</a></li>
                 {% else %}
                     <li><a href="{% url 'dashboard' %}">VOs, sites</a></li>
                     <li><a href="{% url 'workingGroups' %}">Working groups</a></li>
@@ -450,7 +450,7 @@ li.news{padding:0px; margin-left: 0em; text-indent: -.4em;}
             <table borderwidth=0>
             <tr><td valign="bottom">
           <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td>
-          <td valign="bottom"><font size=-1>Brought to you by the PanDA team. <br> All times are in UTC. Most pages are cached with a lifetime of 3 minutes.
+          <td valign="bottom"><font size=-1>Brought to you by the PanDA team. <br> All times are in UTC. Most pages are cached with a 3 min lifetime.
           <br><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a> &nbsp; &nbsp; &nbsp; 
           <a href="https://github.com/PanDAWMS"> PanDA repository </a>
           <br><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; &nbsp; &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td>
