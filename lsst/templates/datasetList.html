@@ -50,11 +50,5 @@ No datasets matching search were found.
 {% endblock %}
 
 {% block helptext %}
-
-<p>
-See the JEDI twiki for documentation on PanDA JEDI dataset
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_dataset_status">status transitions</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Datasets_table">schema</a>.
-</p>
-
+{% include "datasetListHelp.html" with helptitle="Dataset list help" %}
 {% endblock %}

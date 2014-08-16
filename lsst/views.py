@@ -112,6 +112,7 @@ def initRequest(request):
         for p in request.GET:
             pval = request.GET[p]
             pval = pval.replace('+',' ')
+            pval = pval.replace('#','')
             requestParams[p.lower()] = pval
     setupHomeCloud()
     if len(errorFields) == 0:
@@ -862,7 +863,7 @@ def jobList(request, mode=None, param=None):
         display_limit = int(requestParams['display_limit'])
         url_nolimit = removeParam(request.get_full_path(), 'display_limit')
     else:
-        display_limit = 6000
+        display_limit = 3000
         url_nolimit = request.get_full_path()
     njobsmax = display_limit
 

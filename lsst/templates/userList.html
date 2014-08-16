@@ -134,17 +134,5 @@ Summary usage statistics not yet available.
 {% endblock %}
 
 {% block helptext %}
-
-{% if sumd %}
-
-<p>This page shows dynamic usage info from the latest jobs.
-{% if viewParams.MON_VO == 'ATLAS' %}
-Alternate view: <a href="{% url 'userList' %}?view=database&sortby=date">Summary usage information updated every few hours</a><p>
-{% endif %}
-{% endif %}
-
-{% if userdb %}
-<p>This page shows summary usage information updated every few hours. Alternate view: <a href="{% url 'userList' %}?view=dynamic&sortby=date">Dynamic usage info from the latest jobs</a><p>
-{% endif %}
-
+{% include "userListHelp.html" with helptitle="User listings" %}
 {% endblock %}

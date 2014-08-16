@@ -117,49 +117,8 @@ No site specified.
 
 {% endblock %}
 
+
 {% block helptext %}
-
-<p>
-This page provides information and links to other services for the PanDA site (resource) {{ site.siteid }}.
-<br>
-Click on 'worker nodes' to get a breakdown of jobs handled by different worker nodes at the site, useful for spotting problematic WNs.
-<br>
-Links to job listings for the site and a job error breakdown for the site are also provided.
-<br>
-Click 'brokerage actions' to see any recent PanDA brokerage actions involving the site.
-<br>
-Click 'pilots' for the pilot factory monitor's view of factories and pilots serving the site.
-{% if viewParams.MON_VO == 'ATLAS' %}
-<br>
-The ATLAS Site Status Board (SSB) page for the site is linked.
-<br>
-ATLAS shift e-logs mentioning the site's GOC name in the title are linked.
-<br>
-Distributed data management (DDM) monitors for the site serving as source and destination are linked.
-{% endif %}
-</p>
-
-<p>
-The site parameters listed are those recorded in PanDA's internal site configuration database (schedconfig).
-</p>
-
-<p>
-<b>Sites, queues, resources, GOC names, oh my</b><br>
-PanDA submits jobs to 'PanDA sites' otherwise known as 'PanDA resources' in ATLAS lingo. It submits jobs via pilots running on queues defined in a PanDA site database; there is typically but not necessarily a 1:1 correspondence between resource and associated queue. These are the queues shown above. PanDA resources are hosted at facilities that (generally) are part of the WLCG computing infrastructure, and have a name (GOC name) within that infrastructure. 
-</p>
-
-<p>
-<b>Tier levels and multicloud</b><br>
-Sites are categorized by the familiar Tier 1, Tier 2, Tier 3 levels. A further subcategorization is T2D; these are Tier 2s validated for heavy duty workloads. T2Ds can be 'shared' across clouds via multicloud production (MCP) -- they can be dynamically assigned to accept work from Tier 1s other than their 'home' Tier 1. These multicloud assignments are indicated for clouds and sites. 
-</p>
-
-<p>
-<b>Online, offline, brokeroff, test</b><br>
-Online sites are up and running, able to accept jobs via automatic brokerage or direct assignment. Brokeroff sites accept jobs only by direct assignment. Test sites accept only test jobs. Offline sites accept no jobs at all. The comment field often gives an indication of how the site wound up with the status it presently has. Very often this comment indicates that the Hammercloud (HC) automated testing and blacklisting system has taken action. 
-</p>
-
-<p>
-Where sites are served by queues that have meximum allowed memory allocations and/or job execution times, they are so indicated.
-</p>
-
+{% include "siteInfoHelp.html" with helptitle="Site information page" %}
 {% endblock %}
+

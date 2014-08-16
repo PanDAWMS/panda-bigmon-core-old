@@ -77,11 +77,5 @@ No jobs with working group set were found.
 {% endblock %}
 
 {% block helptext %}
-
-This page summarizes recent task and job status for working groups.
-Failure rates above {{ errthreshold }}% are shown in red.
-Click the job counts to go to job listings.
-Click on the failure percentage to go to an error summary.
-For task state documentation <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status'>see this twiki</a>.
-
+{% include "workingGroupsHelp.html" with helptitle="Working groups job dashboard" %}
 {% endblock %}

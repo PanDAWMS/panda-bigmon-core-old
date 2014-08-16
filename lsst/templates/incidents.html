@@ -73,8 +73,7 @@
 {% endblock %}
 
 {% block helptext %}
-
-The PanDA logger service, based on the <a href="https://docs.python.org/2/library/logging.html">python logging module</a>, is used by PanDA services to log alarms, incidents, errors etc. Recorded incidents in site and cloud control (such as auto blacklisting/whitelisting of sites) are shown here.  
-
+{% include "incidentsHelp.html" with helptitle="Incidents page help" %}
 {% endblock %}
+
 

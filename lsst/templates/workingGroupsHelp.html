@@ -1,87 +1,12 @@
-{% extends "_base_lsst.html" %}
-{% load url from future %}
-
-{% block page_title %} {{ viewParams.MON_VO }} PanDA working groups{% endblock %}
-{% block title %} <a href="{% url 'index' %}">{{ viewParams.MON_VO }} PanDA monitor</a>{% endblock %}
-{% block subtitle %}PanDA working group dashboard{{ viewParams.selection|safe }}
-{% endblock %}
-{% block body %}
-
-{{ viewParams.header }}
-
-{% if wgsummary %}
-
-<table>
-<tr class='tablesection'><th colspan=30> Working group task summary</span> &nbsp; &nbsp; <font size=-1>Hover over state name to see full name. <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">Task state documentation</a></font> </th></tr>
-<tr class='tablesection'>
-<th>Working group</th>
-<th><font size=-1>nTask</font></th>
-{% for state in taskstates %}
-<th><div title="{{state.state}}"><font size=-1><span class="{{ state.state }}"> {{ state.short }} </span></font></div></th>
-{% endfor %}
-</tr>
-
-{% for fdict in tasksummary %}
-<tr><td> {{ fdict.field }} </td>
-<td> <a href="{% url 'taskList' %}?workinggroup={{fdict.field}}&days={{days}}">{{ fdict.count }}</a></td>
-{% for item in fdict.list %}
-<td> <a href="{% url 'taskList' %}?workinggroup={{fdict.field}}&status={{item.kname}}&days={{days}}"><span class='{{item.kname}}'>{{ item.kvalue }}</span></a></td>
-{% endfor %}
-</tr>
-{% endfor %}
-
-</table>
+<tr class="docsection"><th><a name="workingGroupsHelp"></a> {{ helptitle }} </th></tr>
+<tr><td class="doctextlight">
 
 <p>
-
-<table>
-<tr class='tablesection'><th colspan=30> Working group job summary </th></tr>
-<tr class='tablesection'>
-<th> Working group</th>
-<th> nJobs </th>
-<th> %failed </th>
-<th class='defined'> defined </th>
-<th class='waiting'> waiting </th>
-<th class='pending'> pending </th>
-<th class='assigned'> assigned </th>
-<th class='throttled'> throttled </th>
-<th class='activated'> activated </th>
-<th class='sent'> sent </th>
-<th class='starting'> starting </th>
-<th class='running'> running </th>
-<th class='holding'> holding </th>
-<th class='transferring'> transferring </th>
-<th class='finished'> finished </th>
-<th class='failed'> failed </th>
-<th class='cancelled'> cancelled </th>
-</tr>
-
-{% for wg in wgsummary %}
-<tr>
-<td> {{ wg.name }} </td>
-<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&days={{days}}&display_limit=100">{{ wg.count }}</a> </td>
-<td><a href="{% url 'errorSummary' %}?workinggroup={{wg.name}}&days={{days}}">{% if wg.pctfail > errthreshold %} <font color=red>{{ wg.pctfail  }}</font> {% else %} {{ wg.pctfail  }} {% endif %}</a> </td>
-{% for state in wg.statelist %}
-<td align='right'> <a href="{% url 'jobList' %}?workinggroup={{ wg.name }}&jobstatus={{ state.name }}&days={{days}}&jobtype={{ view }}&display_limit=100"> <span class="{{ state.name }}">{{ state.count }}</span></a> </td>
-{% endfor %}
-</tr>
-{% endfor %}
-</table>
-
-{% else %}
-
-No jobs with working group set were found.
-
-{% endif %}
-
-{% endblock %}
-
-{% block helptext %}
-
 This page summarizes recent task and job status for working groups.
 Failure rates above {{ errthreshold }}% are shown in red.
 Click the job counts to go to job listings.
 Click on the failure percentage to go to an error summary.
 For task state documentation <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status'>see this twiki</a>.
+</p>
 
-{% endblock %}
+</td>

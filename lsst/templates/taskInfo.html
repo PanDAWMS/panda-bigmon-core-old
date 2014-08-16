@@ -218,30 +218,5 @@ You can see the old monitor's task page for this task <a href="http://panda.cern
 {% endblock %}
 
 {% block helptext %}
-
-<p>
-The task status shown is the simple 'macro' state the task is in -- the 'superstatus' field in the task record. In ATLAS, these are in sync with DEFT states. JEDI uses internally a more complex set of states, the 'status' field, shown here as 'Detailed JEDI status'.
-</p>
-
-<p>
-Finished/failed progress of the task is indicated by the percentage and counts of input files that are finished/failed.
-Click on the failed file percentage or count to see a summary of the errors.
-</p>
-<p>
-(In the new JEDI system, task progress cannot be monitored in terms of jobs completed/failed because jobs are defined dynamically. The input files associated with a task are an invariant of the task, so measuring their progress is a valid metric of task progress.)
-</p>
-
-<p>
-The JEDI twiki has information on JEDI task
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>. Task state names above are links to this documentation.
-</p>
-
-{% if viewParams.MON_VO == 'ATLAS' %}
-<p>
-Prodsys, DEFT, and JEDI task states, transitions and relationships are
-<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ProdSys#Transition_of_Request_and_Task_s">described here on the Prodsys twiki</a>.
-</p>
-{% endif %}
-
+{% include "taskInfoHelp.html" with helptitle="Task detail page help" %}
 {% endblock %}

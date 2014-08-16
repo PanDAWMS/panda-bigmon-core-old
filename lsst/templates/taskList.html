@@ -87,41 +87,5 @@
 {% endblock %}
 
 {% block helptext %}
-
-<p>
-The task status shown is the simple 'macro' state the task is in -- the 'superstatus' field in the task record. In ATLAS, these are in sync with DEFT states. JEDI uses internally a more complex set of states, the 'status' field. These are shown on the task detail page as 'Detailed JEDI status'.
-</p>
-
-<p>
-Tasks can be listed based on a substring of the taskname using the Search page. It supports searches by project, tag, stream. All of these are simply taskname substring searches. You can also use &amp;taskname=*substring* in the URL.
-</p>
-
-<p>
-Finished/failed progress of the task is indicated by the percentage and counts of input files that are finished/failed.
-Click on the failed file percentage or count to see a summary of the errors.
-</p>
-<p>
-In the new JEDI system, task progress cannot be monitored in terms of jobs completed/failed because jobs are defined dynamically. The input files associated with a task are an invariant of the task, so measuring their progress is a valid metric of task progress.
-JEDI centers around tasks, no longer around jobs as in the old system.
-</p><p>
-In the old system, the front end clients -- analysis and prodsys1 -- predefined the jobs for panda, and panda's mission was to process those jobs. The metric for progress and success was the processing of those jobs.
-</p><p>
-In the new system, the front end clients -- JEDI based analysis and prodsys2 -- define only the task: a transformation to be applied to a set of inputs. Panda's mission in this system is to process those inputs, and the metric is progress and success in processing those input files. Jobs are dynamically created and re-created at panda's discretion to process and as necessary retry those inputs, shaping the jobs optimally for the resources available at a given time. So jobs are shapeshifting and fluid, it is the inputs that really define the task and are the measure of its completion.
-</p><p>
-For JEDI based analysis and production, the task list is the principal tool for quickly assessing processing status.
-</p>
-
-<p>
-The JEDI twiki has information on JEDI task
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">states</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>. Task state names above are links to this documentation.
-</p>
-
-{% if viewParams.MON_VO == 'ATLAS' %}
-<p>
-Prodsys, DEFT, and JEDI task states, transitions and relationships are
-<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ProdSys#Transition_of_Request_and_Task_s">described here on the Prodsys twiki</a>.
-</p>
-{% endif %}
-
+{% include "taskListHelp.html" with helptitle="Task list help" %}
 {% endblock %}

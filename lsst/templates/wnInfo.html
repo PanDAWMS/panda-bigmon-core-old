@@ -197,18 +197,5 @@
 {% endblock %}
 
 {% block helptext %}
-
-{% if wnname != 'all' %}
-
-This shows job activity for the batch slots active on a particular worker node.
-
-{% else %}
-
-Slot count shown is the number of uniquely named slots (from the slot@WN convention of slot/WN naming) that have picked up jobs in the interval, which may be less than the actual number of batch slots on the WN. Statistics shown are aggregated over all slots on the WN. For a breakdown by slot for a particular WN, click the WN name.
-Failure rates above 20% are shown in red.
-Click the cloud name in the overall summary to go to the cloud's site summary.
-Click the job counts to go to job listings.
-
-{% endif %}
-
+{% include "wnInfoHelp.html" with helptitle="Worker node information" %}
 {% endblock %}

@@ -82,7 +82,8 @@ PanDA file <b>{{ filename }}</b> not found.
 
 {% endblock %}
 
-{% block helptext %}
+<tr class="docsection"><th> File query </th></tr>
+<tr><td class="doctextlight">
 
 {% if files.0.oldfiletable %}
 
@@ -94,15 +95,10 @@ This is a 'pre-JEDI' PanDA file record.
 
 <p>
 This is a PanDA JEDI file.
-PanDA's JEDI file information records the processing status and history of a file (as well as its static parameters). 'Occurrences' of a file are usages of the file in processing. A file may be used many times, if different jobs are assigned different event ranges in the file to process (in which case firstevent and endevent record the assigned range), and/or if a job fails and is retried.
-</p>
-
-<p>
-Documentation on PanDA JEDI files:
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_file_status">status transitions</a>,
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Dataset_Contents_table">schema</a>.<p>
 </p>
 
 {% endif %}
 
+{% block helptext %}
+{% include "fileInfoHelp.html" with helptitle="File detail page help" %}
 {% endblock %}
