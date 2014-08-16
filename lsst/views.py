@@ -761,6 +761,22 @@ def mainPage(request):
     else:
         return  HttpResponse('not understood', mimetype='text/html')
 
+def helpPage(request):
+    initRequest(request)
+    setupView(request)
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
+        data = {
+            'prefix': getPrefix(request),
+            'viewParams' : viewParams,
+            'requestParams' : requestParams,
+        }
+        data.update(getContextVariables(request))
+        return render_to_response('completeHelp.html', data, RequestContext(request))
+    elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return  HttpResponse('json', mimetype='text/html')
+    else:
+        return  HttpResponse('not understood', mimetype='text/html')
+
 def errorInfo(job, nchars=300):
     errtxt = ''
     if int(job['brokerageerrorcode']) != 0:

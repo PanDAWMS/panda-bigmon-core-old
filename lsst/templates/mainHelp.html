@@ -1,0 +1,40 @@
+<tr class="docsection"><th><a name="mainHelp"></a> {{ helptitle }} </th></tr>
+<tr><td class="doctextlight">
+
+{% if requestParams|length == 0 %}
+
+<p>
+Contextual help for monitor pages can be found at the bottom of each page.
+Use the help menu in the upper right corner to navigate directly.
+</p>
+
+<p>
+Send your suggestions and requests for the PanDA monitor (or PanDA in general) to <a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>.
+</p>
+
+<p>
+PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA twiki</a>.
+</p>
+
+{% if viewParams.MON_VO == 'ATLAS' %}
+
+<p>
+For ATLAS users there is documentation on <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/DAonPanda'>distributed analysis on PanDA</a> describing how to use pathena, prun etc.
+<br><b>New documentation on JEDI for analysis</b>, its advantages and how to use it, 
+<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">can be found here</a>.
+Give it a try! This monitor supports analysis with JEDI. 
+
+</p>
+
+<p>
+Use the <a href="https://groups.cern.ch/group/hn-atlas-dist-analysis-help">hn-atlas-dist-analysis-help e-group</a> to learn about distributed analysis problems and their reported solutions and to report problems of your own.
+A <a href='https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasDAST'>distributed analysis shift team (DAST)</a> provides user support for distributed analysis. The <a href='https://atlas-logbook.cern.ch/elog/ATLAS+Computer+Operations+Logbook/'>ATLAS Computer Operations Logbook</a> logs service issues with PanDA and much else.
+Issues with ATLAS PanDA itself are tracked in the <a href="https://its.cern.ch/jira/browse/ATLASPANDA">JIRA ATLASPANDA project</a>.
+Other ATLAS PanDA specifics can be found on the <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PanDA">ATLAS-internal PanDA twiki</a>.
+</p>
+
+{% endif %}
+
+{% endif %}
+
+</td>

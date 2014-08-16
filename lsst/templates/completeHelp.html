@@ -1,0 +1,35 @@
+{% extends "_base_lsst.html" %}{% load url from future %}
+
+{% block page_title %} PanDA Monitor Help{% endblock %}
+{% block title %} PanDA Monitor Help{% endblock %}
+{% block subtitle %} Consolidated help information {% endblock %}
+{% block bottom_info %}
+
+<table style="margin:10px; width:80%" >
+<tr class="docsection"><th> PanDA Monitor Help </th></tr>
+<tr><td class="doctextlight">
+
+<p>
+This page consolidates the help information in the PanDA monitor pages.
+
+<ul>
+    <li> <a href="#mainHelp"> PanDA monitor overview </a>
+    <li> <a href="#dash"> Dashboards </a>
+    <li> <a href="#job"> Jobs </a>
+    <li> <a href="#task"> Tasks </a>
+    <li> <a href="#err"> Errors </a>
+    <li> <a href="#userInfoHelp"> Users </a>
+    <li> <a href="#user"> Sites </a>
+    <li> <a href="#user"> Incidents </a>
+    <li> <a href="#searchHelp"> Search </a>
+</ul>
+</p>
+</tr></td>
+
+{% include "mainHelp.html" with helptitle="PanDA monitor overview" %}
+
+{% include "userInfoHelp.html" with helptitle="User information page" %}
+
+{% include "searchHelp.html" with helptitle="Search" %}
+
+{% endblock %}

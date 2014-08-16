@@ -155,6 +155,7 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <div style="width:500px;height:100%;overflow:auto;word-wrap: break-word">
 <ul style="font-size:small">
 <!-- most recent at the top -->
+<li class="news">20140816: <span class="helpdark">Restructured help with <a href="/e/help">consolidated help page</a></span>
 <li class="news">20140815: Show prodsys1 tasknames in error summary
 <li class="news">20140814: Task summaries (huge and slow) removed from non-task dashboards
 <li class="news">20140814: Task state names in task list, detail pages link to state doc
@@ -225,54 +226,10 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 {% block helptext %}
 
 {% if requestParams|length == 0 %}
-
-<p>
-This contextual help section is found at the bottom of each monitor page.
-Use the help menu in the upper right corner to navigate directly here.
-</p>
-
-<p>
-Send your suggestions and requests for the PanDA monitor (or PanDA in general) to <a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a>.
-</p>
-
-<p>
-PanDA is described and (kind of) documented on the <a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA twiki</a>.
-</p>
-
-{% if viewParams.MON_VO == 'ATLAS' %}
-
-<p>
-For ATLAS users there is documentation on <a href='https://twiki.cern.ch/twiki/bin/view/PanDA/DAonPanda'>distributed analysis on PanDA</a> describing how to use pathena, prun etc.
-<br><b>New documentation on JEDI for analysis</b>, its advantages and how to use it, 
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJediAnalysis">can be found here</a>.
-Give it a try! This monitor supports analysis with JEDI. 
-
-</p>
-
-<p>
-Use the <a href="https://groups.cern.ch/group/hn-atlas-dist-analysis-help">hn-atlas-dist-analysis-help e-group</a> to learn about distributed analysis problems and their reported solutions and to report problems of your own.
-A <a href='https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasDAST'>distributed analysis shift team (DAST)</a> provides user support for distributed analysis. The <a href='https://atlas-logbook.cern.ch/elog/ATLAS+Computer+Operations+Logbook/'>ATLAS Computer Operations Logbook</a> logs service issues with PanDA and much else.
-Issues with ATLAS PanDA itself are tracked in the <a href="https://its.cern.ch/jira/browse/ATLASPANDA">JIRA ATLASPANDA project</a>.
-Other ATLAS PanDA specifics can be found on the <a href="https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PanDA">ATLAS-internal PanDA twiki</a>.
-</p>
-
+{% include "mainHelp.html" with helptitle="PanDA Monitor Overview" %}
 {% endif %}
 
-{% endif %}
-
-<p><ul>
-<b>Notes on available searches:</b>
-<li class="news"> PanDA ID or name: numeric ID or full job name, displays job detail page
-<li class="news"> Batch ID: the batch system ID for the batch job running the pilot. Used e.g. by site people to find what PanDA job a local batch job corresponds to.
-<li class="news"> Task ID: the numeric ID for a JEDI task, displays the task's detail page. Detail pages for old (non-JEDI) tasks are not available. For old type tasks, the search brings up a listing of jobs in the task.
-<li class="news"> Task name: as above, using task name rather than numeric ID.
-<li class="news"> Tasks for campaign, project, tag, stream: lists tasks for the specified campaign etc. Case insensitive. The project, tag, stream are obtained from the task name by substring match (ie they are all simply task substring searches at present).
-<li class="news"> Site: the name of a PanDA site (PanDA resource), displays a detail page for the site. From there you can click through to details on worker node performance etc.
-<li class="news"> User: the user name exactly as known to PanDA, case insensitive. See the user list pages for the names as known to PanDA.
-<li class="news"> Dataset: the JEDI dataset name, displays a detail page for the dataset. JEDI datasets record information necessary for processing datasets, they are not part of the data management system. 
-<li class="news"> File: as for datasets; these are the files contained in JEDI datasets. The file information records e.g. processing attempts on a file (full file or range of events in a file).
-<li class="news"> Stalled jobs: shows jobs that have been in the selected state for more than N hours (determined from the statechangetime job parameter)
-<li class="news"> Stalled tasks: shows tasks that have been in the selected state for more than N hours (determined from the statechangetime JEDI task parameter)
-</ul></p>
+{% include "searchHelp.html" with helptitle="Searches" %}
 
 {% endblock %}
+

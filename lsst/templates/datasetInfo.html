@@ -57,10 +57,14 @@ No PanDA dataset <b>{{ datasetname }}</b> found.
 
 {% endblock %}
 
+
+
 {% block helptext %}
 
-{% if columns %}
+<tr class="docsection"><th> Dataset query help </th></tr>
+<tr><td class="doctextlight">
 
+{% if columns %}
 
 {% if dsrec.vuid %}
 
@@ -72,17 +76,18 @@ This is a 'pre-JEDI' old format dataset.
 
 <p>
 This is a PanDA JEDI dataset. 
-See the JEDI twiki for documentation on dataset
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_dataset_status">status transitions</a> and
-<a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Datasets_table">schema</a>.
 </p>
 
 {% endif %}
 
 {% else %}
 
-You can try looking up the dataset <a href="http://panda.cern.ch/server/pandamon/query?dataset={{ datasetname }}">in the old monitor</a> which will try to find it in DQ2
+You can try looking up the dataset <a href="http://panda.cern.ch/server/pandamon/query?dataset={{ datasetname }}">in the old monitor</a> which will try to find it in DQ2.
 
 {% endif %}
+
+</td>
+
+{% include "datasetInfoHelp.html" with helptitle="PanDA/JEDI Dataset information" %}
 
 {% endblock %}
