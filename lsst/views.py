@@ -314,21 +314,22 @@ def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
                         query[param+"__in"] = vals
                     else:
                         query[param] = requestParams[param]
-        if 'jobtype' in requestParams:
-            jobtype = requestParams['jobtype']
-        else:
-            jobtype = opmode
-        if jobtype in ( 'analysis', 'anal' ):
-            query['prodsourcelabel__in'] = ['panda', 'user']
-        elif jobtype in ( 'production', 'prod' ):
-            query['prodsourcelabel'] = 'managed'
-        elif jobtype == 'groupproduction':
-            query['prodsourcelabel'] = 'managed'
-            query['workinggroup__isnull'] = False
-        elif jobtype == 'eventservice':
-            query['specialhandling__contains'] = 'eventservice'
-        elif jobtype == 'test':
-            query['prodsourcelabel__icontains'] = 'test'
+    if 'jobtype' in requestParams:
+        jobtype = requestParams['jobtype']
+    else:
+        jobtype = opmode
+    if jobtype in ( 'analysis', 'anal' ):
+        query['prodsourcelabel__in'] = ['panda', 'user']
+    elif jobtype in ( 'production', 'prod' ):
+        query['prodsourcelabel'] = 'managed'
+    elif jobtype == 'groupproduction':
+        query['prodsourcelabel'] = 'managed'
+        query['workinggroup__isnull'] = False
+    elif jobtype == 'eventservice':
+        query['specialhandling__contains'] = 'eventservice'
+    elif jobtype == 'test':
+        query['prodsourcelabel__icontains'] = 'test'
+    print 'query from setupView', opmode, query
     return query
 
 def cleanJobList(jobs, mode='drop'):
