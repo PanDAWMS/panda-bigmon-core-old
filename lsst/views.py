@@ -98,6 +98,18 @@ def setupHomeCloud():
         homeCloud[site['siteid']] = site['cloud']
 
 def initRequest(request):
+    global VOMODE, ENV, viewParams
+    ENV['MON_VO'] = ''
+    viewParams['MON_VO'] = ''
+    VOMODE = ''
+    for vo in VOLIST:
+        if request.META['HTTP_HOST'].startswith(vo):
+            VOMODE = vo
+    ## If DB is Oracle, set vomode to atlas
+    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+        VOMODE = 'atlas'
+    ENV['MON_VO'] = VONAME[VOMODE]
+    viewParams['MON_VO'] = ENV['MON_VO']
     global requestParams
     global errorFields, errorCodes, errorStages
     requestParams = {}
@@ -113,27 +125,28 @@ def initRequest(request):
             pval = request.GET[p]
             pval = pval.replace('+',' ')
             pval = pval.replace('#','')
+            ## is it int, if it's supposed to be?
+            if p.lower() in ( 'taskid', 'jeditaskid', 'jobsetid', 'corecount', 'taskpriority', 'priority', 'attemptnr', ):
+                try:
+                    i = int(request.GET[p])
+                except:
+                    data = {
+                        'viewParams' : viewParams,
+                        'requestParams' : requestParams,
+                        "errormessage" : "Illegal value '%s' for %s" % ( pval, p ),
+                        }
+                    return False, render_to_response('errorPage.html', data, RequestContext(request))
             requestParams[p.lower()] = pval
     setupHomeCloud()
     if len(errorFields) == 0:
         codes = ErrorCodes.ErrorCodes()
         errorFields, errorCodes, errorStages = codes.getErrorCodes()
+    return True, None
 
 def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
-    global VOMODE
     global viewParams
     global LAST_N_HOURS_MAX, JOB_LIMIT
     deepquery = False
-    ENV['MON_VO'] = ''
-    viewParams['MON_VO'] = ''
-    VOMODE = ''
-    for vo in VOLIST:
-        if request.META['HTTP_HOST'].startswith(vo):
-            VOMODE = vo
-    ## If DB is Oracle, set vomode to atlas
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0: VOMODE = 'atlas'
-    ENV['MON_VO'] = VONAME[VOMODE]
-    viewParams['MON_VO'] = ENV['MON_VO']
     fields = standard_fields
     if VOMODE == 'atlas':
         LAST_N_HOURS_MAX = 12
@@ -748,7 +761,8 @@ def extensibleURL(request, xurl = ''):
     return xurl
 
 def mainPage(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
@@ -764,7 +778,8 @@ def mainPage(request):
         return  HttpResponse('not understood', mimetype='text/html')
 
 def helpPage(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request)
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'text/plain':
         data = {
@@ -806,7 +821,8 @@ def errorInfo(job, nchars=300):
     return ret
 
 def jobList(request, mode=None, param=None):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     query = setupView(request)
     jobs = []
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
@@ -937,7 +953,8 @@ def isEventService(job):
 
 @csrf_exempt
 def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     query = setupView(request, hours=365*24)
     jobid = '?'
     if pandaid:
@@ -1196,7 +1213,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         return  HttpResponse('not understood', mimetype='text/html')
 
 def userList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     nhours = 90*24
     query = setupView(request, hours=nhours, limit=-99)
     if VOMODE == 'atlas':
@@ -1318,7 +1336,8 @@ def userList(request):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def userInfo(request, user=''):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     if user == '':
         if 'user' in requestParams: user = requestParams['user']
         if 'produsername' in requestParams: user = requestParams['produsername']
@@ -1451,7 +1470,8 @@ def userInfo(request, user=''):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def siteList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, opmode='notime')
     query = {}
     ### Add any extensions to the query determined from the URL  
@@ -1551,7 +1571,8 @@ def siteList(request):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def siteInfo(request, site=''):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     if site == '' and 'site' in requestParams: site = requestParams['site']
     setupView(request)
     startdate = timezone.now() - timedelta(hours=LAST_N_HOURS_MAX)
@@ -1654,7 +1675,8 @@ def wnSummary(query):
 
 def wnInfo(request,site,wnname='all'):
     """ Give worker node level breakdown of site activity. Spot hot nodes, error prone nodes. """
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     errthreshold = 15
     if wnname != 'all':
         query = setupView(request,hours=12,limit=999999)
@@ -2021,7 +2043,8 @@ def dashTaskSummary(request, hours, view='all'):
     return fullsummary
 
 def dashboard(request, view='production'):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     hoursSinceUpdate = 36
     if view == 'production':
         noldtransjobs, transclouds, transrclouds = stateNotUpdated(request, state='transferring', hoursSinceUpdate=hoursSinceUpdate, count=True)
@@ -2136,7 +2159,8 @@ def dashProduction(request):
     return dashboard(request,view='production')
 
 def dashTasks(request, hours, view='production'):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
 
     query = setupView(request,hours=hours,limit=999999,opmode=view, querytype='task')
 
@@ -2177,7 +2201,8 @@ def dashTasks(request, hours, view='production'):
 #    fieldName = forms.CharField(max_length=100)
 
 def taskList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     query = setupView(request, hours=30*24, limit=9999999, querytype='task')
     if 'statenotupdated' in requestParams:
         tasks = taskNotUpdated(request, query)
@@ -2217,7 +2242,8 @@ def taskList(request):
         return render_to_response('taskList.html', data, RequestContext(request))
 
 def taskInfo(request, jeditaskid=0):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=365*24, limit=999999999, querytype='task')
     query = {}
     tasks = []
@@ -2362,7 +2388,8 @@ def taskInfo(request, jeditaskid=0):
         return render_to_response('taskInfo.html', data, RequestContext(request))       
 
 def jobSummaryForTasks(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     tquery = {}
     tquery['status'] = 'running'
     tquery['tasktype'] = 'prod'
@@ -2674,7 +2701,8 @@ def getTaskName(tasktype,taskid):
     return taskname
 
 def errorSummary(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     hours = 12
     query = setupView(request, hours=hours, limit=50000)
     if 'sortby' in requestParams:
@@ -2795,7 +2823,8 @@ def removeParam(urlquery, parname, mode='complete'):
     return urlquery
 
 def incidentList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     if 'hours' not in requestParams:
         hours = 24*3
     else:
@@ -2890,7 +2919,8 @@ def incidentList(request):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def pandaLogger(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     getrecs = False
     iquery = {}
     if 'category' in requestParams:
@@ -3010,7 +3040,8 @@ def pandaLogger(request):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def workingGroups(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     if dbaccess['default']['ENGINE'].find('oracle') >= 0:
         VOMODE = 'atlas'
     else:
@@ -3082,7 +3113,8 @@ def workingGroups(request):
         return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def datasetInfo(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=365*24, limit=999999999)
     query = {}
     dsets = []
@@ -3145,7 +3177,8 @@ def datasetInfo(request):
         return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def datasetList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=365*24, limit=999999999)
     query = {}
     dsets = []
@@ -3168,7 +3201,8 @@ def datasetList(request):
         return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def fileInfo(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=365*24, limit=999999999)
     query = {}
     files = []
@@ -3243,7 +3277,8 @@ def fileInfo(request):
         return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def fileList(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=365*24, limit=999999999)
     query = {}
     files = []
@@ -3289,7 +3324,8 @@ def fileList(request):
         return  HttpResponse(json.dumps(files), mimetype='text/html')
 
 def workQueues(request):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     setupView(request, hours=180*24, limit=9999999)
     query = {}
     for param in requestParams:
@@ -3311,7 +3347,8 @@ def workQueues(request):
         return  HttpResponse(json.dumps(queues), mimetype='text/html')
 
 def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values = standard_fields, count = False):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     query = setupView(request, opmode='notime', limit=99999999)
     if 'jobstatus' in requestParams: state = requestParams['jobstatus']
     if 'transferringnotupdated' in requestParams: hoursSinceUpdate = int(requestParams['transferringnotupdated'])
@@ -3365,7 +3402,8 @@ def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values =
         return jobs
 
 def taskNotUpdated(request, query, state='submitted', hoursSinceUpdate=36, values = [], count = False):
-    initRequest(request)
+    valid, response = initRequest(request)
+    if not valid: return response
     #query = setupView(request, opmode='notime', limit=99999999)
     if 'status' in requestParams: state = requestParams['status']
     if 'statenotupdated' in requestParams: hoursSinceUpdate = int(requestParams['statenotupdated'])
