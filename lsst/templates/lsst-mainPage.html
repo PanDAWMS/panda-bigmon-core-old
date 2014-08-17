@@ -134,13 +134,9 @@ for over <font size=-1><input id="statenotupdated" name="statenotupdated" class=
 <tr><td><form action="{% url 'taskList' %}" method='get'>
 Stalled tasks </td><td> in 
 <select name="status" class="input8">
-    <option value="defined"><span class="defined">defined</span></option>
-    <option value="waiting"><span class="waiting">waiting</span></option>
-    <option value="assigning"><span class="assigning">assigning</span></option>
+    <option value="registered"><span class="registered">registered</span></option>
     <option value="submitting"><span class="submitting">submitting</span></option>
-    <option value="pending"><span class="pending">pending</span></option>
     <option value="running"><span class="running">running</span></option>
-    <option value="scouting"><span class="scouting">scouting</span></option>
 </select>
 for over <font size=-1><input id="statenotupdated" name="statenotupdated" class="inputN" /> hours &nbsp; <input type='hidden' name="display_limit" readonly="readonly" value=300 /><input type='submit' value='Submit' /></form></font></td></tr>
 
