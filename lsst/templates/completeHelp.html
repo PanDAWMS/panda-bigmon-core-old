@@ -1,9 +1,10 @@
 {% extends "_base_lsst.html" %}{% load url from future %}
 
 {% block page_title %} PanDA Monitor Help{% endblock %}
-{% block title %} PanDA Monitor Help{% endblock %}
+{% block title %} {{ viewParams.MON_VO }} PanDA monitor{% endblock %}
 {% block subtitle %} Consolidated help information {% endblock %}
-{% block bottom_info %}
+
+{% block body %}
 
 <table style="margin:10px; width:80%" >
 <tr class="docsection"><th> PanDA Monitor Help </th></tr>
