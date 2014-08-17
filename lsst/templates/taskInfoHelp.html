@@ -16,7 +16,6 @@ The task status shown is the 'superstatus' the task is in. In ATLAS, these are i
 {% if show == 'all' or task.superstatus == 'broken' %} <li>  Status <b class='broken'>broken</b> indicates the task has failed in a way that makes retry impossible. The circumstances under which a task is declared as broken are bring tuned with the objective of declaring tasks as broken only in very limited circumstances. {% endif %}
 </ul>
 
-
 <p>
 Finished/failed progress of the task is indicated by the percentage and counts of input files that are finished/failed.
 Click on the failed file percentage or count to see a summary of the errors.
@@ -37,6 +36,18 @@ In the new system, the front end clients -- JEDI based analysis and prodsys2 -- 
 </p>
 
 <p>
+Further information that can be viewed via the task detail page:
+<ul>
+<li> Job list: lists the task's jobs. Jobs that have been retried are excluded from the list (they are obsolete and would clutter the list with misleading information). 
+<li> Child tasks: tasks can have parent/child relationships. This lists child tasks of the present task
+<li> Prodsys task page: the prodsys2 page for the task with access to DEFT information and functionality
+<li> Brokerage logger: superseded by JEDI action logger
+<li> JEDI action logger: look here to see the detailed history of JEDI actions in processing the task
+<li> Error summary: job error summary page for the jobs in this task
+</ul>
+</p>
+
+<p>
 The JEDI twiki has information on JEDI task
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Transition_of_task_status">state transitions</a> and
 <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#The_JEDI_Tasks_table">schema</a>. Task state names above are links to this documentation.
@@ -53,6 +64,16 @@ Prodsys, DEFT, and JEDI task states, transitions and relationships are
 Tasks can be listed based on a substring of the taskname using the Search page. It supports searches by project, tag, stream. All of these are simply taskname substring searches. You can also use &amp;taskname=*substring* in the URL.
 </p>
 
+<h3> Q&amp;A </h3>
+
+<dl>
+<dt> The status of the task is failed but all input/output have the status running?
+<dd> Failed jobs remain in the active table while other jobs are still running. The idea is to allow users to retry
+failed jobs while the task is still running. They finally go to the archived table and file status is updated
+at the same time.
+<dt> The status of the task is running but the % of finished or failed jobs is 0 even though one job finished and one failed?
+<dd> The finished job was a build job, so there was no successful jobs. The failed job was going to be retried and thus it was not counted as a failure at that time. 
+</dl>
 
 </td>
 
