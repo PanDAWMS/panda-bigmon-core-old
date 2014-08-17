@@ -7,6 +7,8 @@
 {% block body %}
 
 {% if requestParams.jeditaskid and requestParams.jeditaskid != 'None' %}<br><b>Task ID: <a href="{% url 'taskInfo' requestParams.jeditaskid  %}">{{ requestParams.jeditaskid }}</a></b> {% endif %}
+{% if requestParams.containername %}<br><b>Container: {{ requestParams.containername }}</b> {% endif %}
+
 
 {% if datasets %}
 <p>
@@ -26,6 +28,7 @@
 	<th>Modified</th>
 </tr>
 {% for dsrec in datasets %}
+    {% if requestParams.containername != dsrec.datasetname %}
 	<tr>
 		<td><font size=-1><a href="{% url 'datasetInfo' %}?datasetname={{ dsrec.datasetname }}">{{ dsrec.datasetname }}</a></font></td>
 		<td>{{ dsrec.datasetid }}</td>
@@ -38,6 +41,7 @@
 		<td>{{ dsrec.creationtime|date:"Y-m-d H:i" }}</td>
 		<td>{{ dsrec.modificationtime|date:"m-d H:i" }}</td>
 	</tr>
+    {% endif %}
 {% endfor %}
 </table>
 

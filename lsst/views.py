@@ -2354,6 +2354,12 @@ def taskInfo(request, jeditaskid=0):
             dsinfo['pctfailed'] = int(100.*nfailed/nfiles)
     if taskrec: taskrec['dsinfo'] = dsinfo
 
+    ## get output containers
+    cquery = {}
+    cquery['jeditaskid'] = jeditaskid
+    cquery['type__in'] = ( 'output', 'log' )
+    outctrs = JediDatasets.objects.filter(**cquery).values_list('containername',flat=True).distinct()
+
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
         return  HttpResponse(json.dumps(resp), mimetype='text/html') 
@@ -2383,6 +2389,7 @@ def taskInfo(request, jeditaskid=0):
             'jeditaskid' : jeditaskid,
             'logtxt' : logtxt,
             'datasets' : dsets,
+            'outctrs' : outctrs,
         }
         data.update(getContextVariables(request))
         return render_to_response('taskInfo.html', data, RequestContext(request))       
@@ -3182,8 +3189,9 @@ def datasetList(request):
     setupView(request, hours=365*24, limit=999999999)
     query = {}
     dsets = []
-    if 'jeditaskid' in requestParams:
-        query['jeditaskid'] = requestParams['jeditaskid']
+    for par in ( 'jeditaskid', 'containername' ):
+        if par in requestParams:
+            query[par] = requestParams[par]
     
     if len(query) > 0:
         dsets = JediDatasets.objects.filter(**query).values()

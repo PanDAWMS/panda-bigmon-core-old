@@ -123,10 +123,24 @@ parent task<a href="{% url 'taskInfo' task.parent_tid %}"> {{ task.parent_tid }}
 
 </tr></table>
 
+
+{% if outctrs %}
+<table>
+<tr bgcolor='lightcyan' >
+	<th>Output containers</th>
+</tr>
+{% for dsrec in outctrs %}
+	<tr>
+		<td><font size=-1><a href="{% url 'datasetList' %}?containername={{ dsrec }}">{{ dsrec }}</a></font></td>
+	</tr>
+{% endfor %}
+</table>
+{% endif %}
+
 {% if datasets %}
 <table>
 <tr bgcolor='lightcyan' >
-	<th>Datasets</th>
+	<th>All datasets, containers</th>
 	<th>Type</th>
 	<th>Stream</th>
 	<th>State</th>
