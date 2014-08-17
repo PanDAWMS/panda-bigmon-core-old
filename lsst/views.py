@@ -383,7 +383,7 @@ def cleanJobList(jobs, mode='drop'):
             dropJob = 0
             pandaid = job['pandaid']
             for retry in retries:
-                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid and (retry['relationtype'] == '' or retry['relationtype'] == 'retry'):
                     ## there is a retry for this job. Drop it.
                     dropJob = retry['newpandaid']
             if (dropJob == 0) or isEventService(job):
@@ -1081,7 +1081,6 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
         retryquery['jeditaskid'] = job['jeditaskid']
         retryquery['oldpandaid'] = job['pandaid']
         retries = JediJobRetryHistory.objects.filter(**retryquery).order_by('newpandaid').reverse().values()
-        ## Look for jobs for which this job is a retry
         pretryquery = {}
         pretryquery['jeditaskid'] = job['jeditaskid']
         pretryquery['newpandaid'] = job['pandaid']
@@ -2486,13 +2485,11 @@ def errorSummaryDict(request,jobs, tasknamedict):
             taskid = job['jeditaskid']
             if taskid in tasknamedict:
                 taskname = tasknamedict[taskid]
-                print 'from tasknamedict', taskid, taskname
             tasktype = 'jeditaskid'
         else:
             taskid = job['taskid']
             if taskid in tasknamedict:
                 taskname = tasknamedict[taskid]
-                print 'from tasknamedict', taskid, taskname
             tasktype = 'taskid'
         tm = job['modificationtime']
         tm = tm - timedelta(minutes=tm.minute % 30, seconds=tm.second, microseconds=tm.microsecond)
@@ -3451,13 +3448,11 @@ def taskNameDict(jobs):
     tasknamedict = {}
     if len(jeditaskidl) > 0:
         tq = { 'jeditaskid__in' : jeditaskidl }
-        print 'tasknamedict translate new ', len(jeditaskidl)
         jeditasks = JediTasks.objects.filter(**tq).values('taskname', 'jeditaskid')
         for t in jeditasks:
             tasknamedict[t['jeditaskid']] = t['taskname']
     if len(taskidl) > 0:
         tq = { 'taskid__in' : taskidl }
-        print 'tasknamedict translate old ', len(taskidl)
         oldtasks = Etask.objects.filter(**tq).values('taskname', 'taskid')
         for t in oldtasks:
             tasknamedict[t['taskid']] = t['taskname']

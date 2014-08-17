@@ -12,7 +12,7 @@ The task status shown is the 'superstatus' the task is in. In ATLAS, these are i
 {% if show == 'all' or task.superstatus == 'finished' %} <li>  Status <b class='finished'>finished</b> indicates that some inputs of the task were successfully processed but others were failed or not processed because the task was terminated. {% endif %}
 {% if show == 'all' or task.superstatus == 'done' %} <li>  Status <b class='done'>done</b> indicates that all inputs of the task were successfully processed. {% endif %}
 {% if show == 'all' or task.superstatus == 'failed' %} <li>  Status <b class='failed'>failed</b> indicates the task has failed, all inputs have failed, in a way that retry is possible (if retry is impossible the task goes to status 'broken'). If some inputs succeeded while others failed and the class is terminated, the task goes to 'finished' status. {% endif %}
-{% if show == 'all' or task.superstatus == 'aborted' %} <li>  Status <b class='aborted'>aborted</b> indicates the task has been killed. {% endif %}
+{% if show == 'all' or task.superstatus == 'aborted' %} <li>  Status <b class='aborted'>aborted</b> indicates the task has been killed. Aborted tasks can be re-executed. {% endif %}
 {% if show == 'all' or task.superstatus == 'broken' %} <li>  Status <b class='broken'>broken</b> indicates the task has failed in a way that makes retry impossible. The circumstances under which a task is declared as broken are bring tuned with the objective of declaring tasks as broken only in very limited circumstances. {% endif %}
 </ul>
 
