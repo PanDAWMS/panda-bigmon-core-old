@@ -12,6 +12,7 @@
 <tr bgcolor='lightcyan'><th colspan=20> Task {{ jeditaskid }}: {{ taskname }} </th></tr>
 <tr bgcolor='lightcyan'>
 	<th>ID</th>
+	{% if task.reqid != task.jeditaskid %}<th>JobsetID</th>{% endif %}
 	<th>Type</th>
 	<th>WorkingGroup</th><th>User</th>
 	{% if task.campaign %} <th> Campaign </th> {% endif %}
@@ -28,6 +29,7 @@
 </tr>
 	<tr>
 		<td><a href="{% url 'taskInfo' task.jeditaskid %}">{{ task.jeditaskid }}</a></td>
+		{% if task.reqid != task.jeditaskid %}<td>{{ task.reqid }}</td>{% endif %}
 		<td>{{ task.tasktype }}</td>
 		<td>{% if task.workinggroup %} {{ task.workinggroup }} {% endif %} </td>
 		<td><a href="{% url 'taskList' %}?username={{ task.username }}">{{ task.username }}</a></td>
