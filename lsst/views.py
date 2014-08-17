@@ -126,7 +126,7 @@ def initRequest(request):
             pval = pval.replace('+',' ')
             pval = pval.replace('#','')
             ## is it int, if it's supposed to be?
-            if p.lower() in ( 'taskid', 'jeditaskid', 'jobsetid', 'corecount', 'taskpriority', 'priority', 'attemptnr', ):
+            if p.lower() in ( 'days', 'hours', 'limit', 'display_limit', 'taskid', 'jeditaskid', 'jobsetid', 'corecount', 'taskpriority', 'priority', 'attemptnr', 'statenotupdated', 'tasknotupdated', ):
                 try:
                     i = int(request.GET[p])
                 except:
