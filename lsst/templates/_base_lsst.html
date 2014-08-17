@@ -378,6 +378,9 @@ li.news{padding:0px; margin-left: 0em; text-indent: -.4em;}
             <ul class="dropdown">
                 <li><a href="#doc"><span class='help'>See the bottom of the page for contextual help on current page</span></a>
                 <li><a href="/help/"><span class='help'>Complete PanDA monitor help page</span></a>
+                {% if viewParams.MON_VO == 'ATLAS' %}
+                <li><a href="mailto:hn-atlas-dist-analysis-help@cern.ch">Dist analysis problems, support, help</a>
+                {% endif %}
                 <li><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support -- give feedback!</a>
                 <li><a href="https://github.com/PanDAWMS"> PanDA repository </a>
                 <li><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a>
@@ -451,6 +454,7 @@ li.news{padding:0px; margin-left: 0em; text-indent: -.4em;}
             <tr><td valign="bottom">
           <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PanDA"><img src="{% static "images/panda-verysmall-notext.png" %}"></a></td>
           <td valign="bottom"><font size=-1>Brought to you by the PanDA team. <br> All times are in UTC. Most pages are cached with a 3 min lifetime.
+          <br><a href="mailto:hn-atlas-dist-analysis-help@cern.ch">Distributed analysis problems, support, help</a>
           <br><a href="mailto:atlas-adc-pandamon-support@cern.ch">PanDA monitor support</a> &nbsp; &nbsp; &nbsp; 
           <a href="https://github.com/PanDAWMS"> PanDA repository </a>
           <br><a href="http://twiki.cern.ch/twiki/bin/view/PanDA/PanDA">PanDA home</a> &nbsp; &nbsp; &nbsp; <a href="http://pandawms.org">BigPanDA home</a></font></td>
