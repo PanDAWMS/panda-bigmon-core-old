@@ -2,7 +2,11 @@
 <tr><td class="doctextlight">
 
 <p>
-The task status shown is the 'superstatus' the task is in. In ATLAS, these are in sync with DEFT states. JEDI uses internally a more complex set of states, shown here as 'Detailed JEDI status' (when it differs from the superstatus).
+Details on JEDI's task based workload management can be found in the <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PandaJEDI#Introduction">JEDI twiki</a>.
+</p>
+
+<p>
+The task status shown in the monitor is in JEDI terms the simplified 'superstatus' the task is in. In ATLAS, these are in sync with DEFT states. JEDI uses internally a more complex set of states, shown on task detail pages as 'Detailed JEDI status' (when it differs from the superstatus); this is the 'status' field in the JEDI task.
 </p>
 
 <ul>
@@ -54,7 +58,7 @@ Further information that can be viewed via the task detail page:
 <li> Job list: lists the task's jobs. Jobs that have been retried are excluded from the list (they are obsolete and would clutter the list with misleading information). 
 <li> Child tasks: tasks can have parent/child relationships. This lists child tasks of the present task
 <li> Prodsys task page: the prodsys2 page for the task with access to DEFT information and functionality
-<li> Brokerage logger: superseded by JEDI action logger
+<li> Brokerage logger: shows the history of brokerage actions for the task
 <li> JEDI action logger: look here to see the detailed history of JEDI actions in processing the task
 <li> Error summary: job error summary page for the jobs in this task
 </ul>
