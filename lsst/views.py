@@ -1315,7 +1315,7 @@ def userList(request):
         return render_to_response('userList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = sumd
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def userInfo(request, user=''):
     initRequest(request)
@@ -1448,7 +1448,7 @@ def userInfo(request, user=''):
         return render_to_response('userInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = sumd
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def siteList(request):
     initRequest(request)
@@ -1548,7 +1548,7 @@ def siteList(request):
         return render_to_response('siteList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = sites
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def siteInfo(request, site=''):
     initRequest(request)
@@ -1607,7 +1607,7 @@ def siteInfo(request, site=''):
         resp = []
         for job in jobList:
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def siteSummary(query):
     summary = []
@@ -1816,7 +1816,7 @@ def wnInfo(request,site,wnname='all'):
         return render_to_response('wnInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def dashSummary(request, hours, view='all', cloudview='region'):
     pilots = getPilotCounts(view)
@@ -2127,7 +2127,7 @@ def dashboard(request, view='production'):
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def dashAnalysis(request):
     return dashboard(request,view='analysis')
@@ -2171,7 +2171,7 @@ def dashTasks(request, hours, view='production'):
         return render_to_response('dashboard.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 #class QuicksearchForm(forms.Form):
 #    fieldName = forms.CharField(max_length=100)
@@ -2200,8 +2200,7 @@ def taskList(request):
     xurl = extensibleURL(request)
     nosorturl = removeParam(xurl, 'sortby',mode='extensible')
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        resp = sites
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(tasks, cls=DateEncoder), mimetype='text/html')
     else:
         sumd = taskSummaryDict(request,tasks)
         data = {
@@ -2331,7 +2330,7 @@ def taskInfo(request, jeditaskid=0):
 
     if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html') 
+        return  HttpResponse(json.dumps(resp), mimetype='text/html') 
     else:
         attrs = []
         do_redirect = False
@@ -2777,7 +2776,7 @@ def errorSummary(request):
         resp = []
         for job in jobs:
             resp.append({ 'pandaid': job.pandaid, 'status': job.jobstatus, 'prodsourcelabel': job.prodsourcelabel, 'produserid' : job.produserid})
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def removeParam(urlquery, parname, mode='complete'):
     """Remove a parameter from current query"""
@@ -2888,7 +2887,7 @@ def incidentList(request):
         return render_to_response('incidents.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = incidents
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def pandaLogger(request):
     initRequest(request)
@@ -3008,7 +3007,7 @@ def pandaLogger(request):
         return render_to_response('pandaLogger.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = incidents
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def workingGroups(request):
     initRequest(request)
@@ -3080,7 +3079,7 @@ def workingGroups(request):
         return render_to_response('workingGroups.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
         resp = []
-        return  HttpResponse(json_dumps(resp), mimetype='text/html')
+        return  HttpResponse(json.dumps(resp), mimetype='text/html')
 
 def datasetInfo(request):
     initRequest(request)
@@ -3143,7 +3142,7 @@ def datasetInfo(request):
         data.update(getContextVariables(request))
         return render_to_response('datasetInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+        return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def datasetList(request):
     initRequest(request)
@@ -3166,7 +3165,7 @@ def datasetList(request):
         data.update(getContextVariables(request))
         return render_to_response('datasetList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+        return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def fileInfo(request):
     initRequest(request)
@@ -3241,7 +3240,7 @@ def fileInfo(request):
         data.update(getContextVariables(request))
         return render_to_response('fileInfo.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        return  HttpResponse(json_dumps(dsrec), mimetype='text/html')
+        return  HttpResponse(json.dumps(dsrec), mimetype='text/html')
 
 def fileList(request):
     initRequest(request)
@@ -3287,7 +3286,7 @@ def fileList(request):
         data.update(getContextVariables(request))
         return render_to_response('fileList.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        return  HttpResponse(json_dumps(files), mimetype='text/html')
+        return  HttpResponse(json.dumps(files), mimetype='text/html')
 
 def workQueues(request):
     initRequest(request)
@@ -3309,7 +3308,7 @@ def workQueues(request):
         }
         return render_to_response('workQueues.html', data, RequestContext(request))
     elif request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
-        return  HttpResponse(json_dumps(queues), mimetype='text/html')
+        return  HttpResponse(json.dumps(queues), mimetype='text/html')
 
 def stateNotUpdated(request, state='transferring', hoursSinceUpdate=36, values = standard_fields, count = False):
     initRequest(request)

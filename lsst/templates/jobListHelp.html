@@ -18,10 +18,10 @@ If you know the jobsetid=N or taskid=N, jeditaskid=N of the jobs you're interest
 </p>
 
 <p>
-Job lists can be retrieved in json format with curl so that job data can be used programmatically. <b>Use this carefully</b>, do not for example put scripts in crons that do heavy retrieval of job data this way. If you have systematic needs for PanDA job data, tell us what they are. An example curl command is as follows; it takes the same url parameters as the browser version.
+Job data can be retrieved in json format with curl so that it can be used programmatically. <b>Use this carefully</b>, do not for example put scripts in crons that do heavy retrieval of job data this way. If you have systematic needs for PanDA job data, tell us what they are. Do not use web page scraping. An example curl command is as follows; it takes the same url parameters as the browser version.
 <br><font size=-1><code>
 curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://bigpanda.cern.ch/jobs/?transfertype=fax&hours=1"
-</font></code>
+</code></font>
 </p>
 
 </td>
