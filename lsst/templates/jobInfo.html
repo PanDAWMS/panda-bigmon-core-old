@@ -9,7 +9,7 @@
 {% if job %}
 <table width="100%">
 <tr bgcolor='lightcyan'>
-	<th>PandaID<br>Attempt#</th>
+	<th>PandaID {% if not job.jeditaskid %} <br>Attempt# {% endif %}</th>
 	<th>Owner{% if job.workinggroup %} &nbsp;  WG{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / VO{% endif %}{% endif %}</th>
 	<th>TaskID</th>
 {% if job.parentid %}
@@ -24,7 +24,7 @@
 	<th>Priority</th>
 </tr>
 <tr>
-	<td>{{ job.pandaid }}<br>Attempt {{ job.attemptnr }}</td>
+	<td>{{ job.pandaid }}  {% if not job.jeditaskid %} <br>Attempt {{ job.attemptnr }} {% endif %}</td>
 	<td><a href="{% url 'userInfo' job.produsername|safe %}?display_limit=100">{{ job.produsername }}</a>{% if job.workinggroup %} / <a href="{{xurl}}workinggroup={{ job.workinggroup }}">{{ job.workinggroup }}</a>{% endif %}{% if viewParams.MON_VO != 'ATLAS' %}{% if job.vo %} / {{ job.vo }} {% endif %}{% endif %}</td>
 	<td>{% if job.jeditaskid %}<a href="{% url 'taskInfo' job.jeditaskid %}">{{ job.jeditaskid }}</a> {% else %} <a href="{% url 'jobList' %}?taskid={{job.taskid}}{% if job.taskid < 1000000 %}&produsername={{job.produsername}}{% endif %}&display_limit=100">{{ job.taskid }}</a> {% endif %}</td>
 {% if job.parentid %}
@@ -51,8 +51,10 @@
 </table>
 <font size=-1>
 <p>
+{% if not job.jeditaskid %}
 {% if job.attemptnr > 1 %}
 This is attempt number {{ job.attemptnr }} for this job. To see a history of job attempts click on the job name above.
+{% endif %}
 {% endif %}
 </font>
 
