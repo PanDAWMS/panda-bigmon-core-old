@@ -676,10 +676,10 @@ def taskSummaryDict(request, tasks, fieldlist = None):
                             sumd[f][tag] += 1
                     except:
                         pass
-                if f in task and task[f]:
-                    if not f in sumd: sumd[f] = {}
-                    if not task[f] in sumd[f]: sumd[f][task[f]] = 0
-                    sumd[f][task[f]] += 1
+            if f in task and task[f]:
+                if not f in sumd: sumd[f] = {}
+                if not task[f] in sumd[f]: sumd[f][task[f]] = 0
+                sumd[f][task[f]] += 1
     ## convert to ordered lists
     suml = []
     for f in sumd:
@@ -1354,7 +1354,9 @@ def userInfo(request, user=''):
     tasks = sorted(tasks, key=lambda x:-x['jeditaskid'])
     tasks = cleanTaskList(tasks)
     ntasks = len(tasks)
+    tasksumd = taskSummaryDict(request,tasks)
 
+    ## Jobs
     limit = 6000
     query = setupView(request,hours=72,limit=limit)
     query['produsername__icontains'] = user.strip()
@@ -1464,6 +1466,7 @@ def userInfo(request, user=''):
             'display_limit' : display_limit,
             'tasks': tasks,
             'ntasks' : ntasks,
+            'tasksumd' : tasksumd,
         }
         data.update(getContextVariables(request))
         return render_to_response('userInfo.html', data, RequestContext(request))

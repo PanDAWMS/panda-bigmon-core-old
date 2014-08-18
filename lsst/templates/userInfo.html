@@ -58,37 +58,25 @@
 </b>
 <p>
 
-{% if njobs > 0 %}
+{% if ntasks > 0 %}
 
-<p><b>{{ njobs }} jobs</b>
-<br>Job <b>modification times</b> in this listing range from <b>{{ tfirst|date:"Y-m-d H:i" }}</b> to <b>{{ tlast|date:"Y-m-d H:i" }}</b>.
-<br>Job <b>current priorities</b> in this listing range from <b>{{ plow }}</b> to <b>{{ phigh }}</b>. See priorityrange in the job attribute summary to see how priorities are distributed.
-
-<div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Show recent job errors</a></div><p>
+{% if tasksumd %}
 
 <table>
-<tr class='tablesection'><th colspan=20> Recent job attributes </th></tr>
-{% for fdict in jobsumd %}
-<tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
-
-{% if fdict.list|length > 300 %}
-{{ fdict.list|length }} {{ fdict.field }} values is too many to show
-{% else %}
+<tr class='tablesection'><th colspan=20><a name="tasks"></a> Task attribute summary, {{ ntasks }} tasks </th></tr>
+{% for fdict in tasksumd %}
+<tr><th> {% if fdict.field == 'superstatus' %} status {% else %} {{ fdict.field }} {% endif %} ({{ fdict.list|length }}) </th><td>
 {% for item in fdict.list %}
-{% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<span {% if fdict.field == 'status' or fdict.field == 'superstatus' %} class='{{item.kname}}' {% endif %}> {{ item.kname }} </span>
 <a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
 {% endfor %}
-{% endif %}
 </td></tr>
 {% endfor %}
 </table>
-
 {% endif %}
 
-{% if ntasks > 0 %}
-
 <table>
-<tr class='tablesection'><th colspan=20><a name="tasks"></a> {{ ntasks }} tasks{% if 'sortby' in requestParams %}, sorted by {{ requestParams.sortby }} {% else %}, sorted by jeditaskid {% endif %}
+<tr class='tablesection'><th colspan=20> {{ ntasks }} tasks{% if 'sortby' in requestParams %}, sorted by {{ requestParams.sortby }} {% else %}, sorted by jeditaskid {% endif %}
 {% if display_limit %} {% if tasks|length >= display_limit %}
 &nbsp; &nbsp; <font size=-1>Only the most recent {{ display_limit }} tasks are shown. <a href="{{ url_nolimit }}">Remove the limit</a></font>
 {% endif %} {% endif %}
@@ -171,13 +159,41 @@
 </tr>
 {% endfor %}
 </table>
-<p>
+
 {% endif %}
 
+
 {% if njobs > 0 %}
+<a name="jobs"></a>
+<p>
+<b>{{ njobs }} jobs</b>
+<br>Job <b>modification times</b> in this listing range from <b>{{ tfirst|date:"Y-m-d H:i" }}</b> to <b>{{ tlast|date:"Y-m-d H:i" }}</b>.
+<br>Job <b>current priorities</b> in this listing range from <b>{{ plow }}</b> to <b>{{ phigh }}</b>. See priorityrange in the job attribute summary to see how priorities are distributed.
+</p>
+
+<div class='section'><a href="{% url 'errorSummary' %}?produsername={{ user }}">Show recent job errors</a></div><p>
+
 
 <table>
-<tr class='tablesection'><th colspan=20> <a name="jobs"></a>Recent jobs {% if display_limit < jobList|length %} &nbsp; &nbsp; 
+<tr class='tablesection'><th colspan=20> Recent job attributes </th></tr>
+{% for fdict in jobsumd %}
+<tr><th> {{ fdict.field }} ({{ fdict.list|length }}) </th><td>
+
+{% if fdict.list|length > 300 %}
+{{ fdict.list|length }} {{ fdict.field }} values is too many to show
+{% else %}
+{% for item in fdict.list %}
+{% if fdict.field == 'jobstatus' %} <span class='{{item.kname}}'> {% else %} <span> {% endif %}  {{ item.kname }} </span>
+<a href="{{xurl}}{{fdict.field}}={{item.kname}}">({{ item.kvalue }})</a> &nbsp; 
+{% endfor %}
+{% endif %}
+</td></tr>
+{% endfor %}
+</table>
+
+
+<table>
+<tr class='tablesection'><th colspan=20> Recent jobs {% if display_limit < jobList|length %} &nbsp; &nbsp; 
 Only the most recent {{ display_limit }} jobs are shown. <a href="{{ url_nolimit }}">Remove the limit</a>
 {% endif %}
 &nbsp; &nbsp; &nbsp; Note that with JEDI, tasks are the best tool to monitor the progress of your submissions! <a href="#doc"><span class='helpdark'>See the help section below.</span></a>
