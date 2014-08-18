@@ -320,6 +320,8 @@ def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
                             query['%s__istartswith' % param] = requestParams[param].replace('*','')
                         elif requestParams[param].startswith('*'):
                             query['%s__iendswith' % param] = requestParams[param].replace('*','')
+                        elif requestParams[param] == 'None':
+                            query[param] = None
                         else:
                             query[param] = requestParams[param]
                     elif requestParams[param].find('|') > 0:
