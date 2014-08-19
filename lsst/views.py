@@ -344,7 +344,6 @@ def setupView(request, opmode='', hours=0, limit=-99, querytype='job'):
         query['specialhandling__contains'] = 'eventservice'
     elif jobtype == 'test':
         query['prodsourcelabel__icontains'] = 'test'
-    print 'query from setupView', opmode, query
     return query
 
 def cleanJobList(jobs, mode='drop'):
