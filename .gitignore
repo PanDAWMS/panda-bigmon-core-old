@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# Local settings
+core/common/settings/local.py
+
 # C extensions
 *.so
 

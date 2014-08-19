@@ -613,12 +613,10 @@ def setupView(request, opmode='', hours=0, limit=-99):
         viewParams['selection'] = ""
     for param in request.GET:
         viewParams['selection'] += ", %s=%s " % (param, request.GET[param])
-    print ':127 LAST_N_HOURS_MAX=', LAST_N_HOURS_MAX
     startdate = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(hours=LAST_N_HOURS_MAX)
     startdate = startdate.strftime(defaultDatetimeFormat)
     enddate = datetime.utcnow().replace(tzinfo=pytz.utc).strftime(defaultDatetimeFormat)
     query = { 'modificationtime__range' : [startdate, enddate] }
-    print ':134 query=', query
     ### Add any extensions to the query determined from the URL
     for vo in [ 'atlas', 'lsst' ]:
         if request.META['HTTP_HOST'].startswith(vo):
