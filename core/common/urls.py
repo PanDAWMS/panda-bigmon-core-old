@@ -14,6 +14,7 @@ from ..htcondor import views as htcondor_views
 #from ..graphics import views as graphics_views
 #from ..task import views as task_views
 
+from ..pandajob import views_support as pandajob_support_views
 
 common_patterns = patterns('',
     ### robots.txt
@@ -37,7 +38,8 @@ common_patterns = patterns('',
 
 
     ### support views for LSST
-    url(r'^support/', include('core.pandajob.urls_pandajob_support')),
+    url(r'^support/$', pandajob_support_views.maxpandaid, name='pandajobSupportRoot'),
+    url(r'^support/maxpandaid/$', pandajob_support_views.maxpandaid, name='pandajobSupportMaxpandaid'),
 
 
 #    ### TEST/Playground

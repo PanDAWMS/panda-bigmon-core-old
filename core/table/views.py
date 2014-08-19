@@ -108,13 +108,20 @@ class ModelJobDictJson(BaseDatatableView):
         """
             getQueryValueDatetime
         """
+        print '::111 fValue=', fValue
         try:
-            fValue = re.sub(' ', 'T', fValue) + ':00Z'
             fValue = datetime.strptime(fValue, currentDateFormatPost).replace(tzinfo=pytz.UTC)
-        except ValueError:
-            ### unknown datetime format
+            return fValue
+        except:
             _logger.error('Unknown datetime format for filter ' + \
-                                'field [%s] with value [%s].' % (fName, fValue))
+                                    'field [%s] with value [%s].' % (fName, fValue))
+            try:
+                fValue = re.sub(' ', 'T', fValue) + ':00Z'
+                fValue = datetime.strptime(fValue, currentDateFormatPost).replace(tzinfo=pytz.UTC)
+            except ValueError:
+                ### unknown datetime format
+                _logger.error('Unknown datetime format for filter ' + \
+                                    'field [%s] with value [%s].' % (fName, fValue))
         return fValue
 
 

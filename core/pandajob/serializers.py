@@ -5,7 +5,7 @@ core.serializers
 
 from rest_framework import serializers
 from .models import PandaJob
-
+from .columns_config import COLUMNS
 
 class SerializerPandaJob1(serializers.Serializer):
 #    class Meta:
@@ -46,4 +46,20 @@ class SerializerPandaJob(serializers.ModelSerializer):
             except KeyError:
                 raise serializers.ValidationError("%s must be filled!" % field)
             return attrs
+
+
+class SerializerPandaJobReprocessing(serializers.Serializer):
+#    class Meta:
+#        model = PandaJob
+##        fields = tuple(COLUMNS['api-reprocessing-jobs-in-task-smry'])
+#        fields = ('pandaid', 'jobstatus', 'jobname', 'attemptnr', 'workinggroup', \
+#        'jeditaskid', 'modificationtime',)
+    pandaid = serializers.IntegerField()
+    jobstatus = serializers.CharField()
+    jobname = serializers.CharField()
+    attemptnr = serializers.IntegerField()
+    workinggroup = serializers.CharField()
+    jeditaskid = serializers.IntegerField()
+    modificationtime = serializers.DateTimeField()
+
 
