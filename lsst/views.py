@@ -857,7 +857,7 @@ def jobList(request, mode=None, param=None):
             dropJob = 0
             pandaid = job['pandaid']
             for retry in retries:
-                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid and (retry['relationtype'] == '' or retry['relationtype'] == 'retry'):
                     ## there is a retry for this job. Drop it.
                     dropJob = retry['newpandaid']
             if dropJob == 0 or isEventService(job):
@@ -2424,7 +2424,7 @@ def jobSummaryForTasks(request):
         dropJob = 0
         pandaid = job['pandaid']
         for retry in retries:
-            if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+            if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid and (retry['relationtype'] == '' or retry['relationtype'] == 'retry'):
                 ## there is a retry for this job. Drop it.
                 dropJob = retry['newpandaid']
         if dropJob == 0:
@@ -2468,7 +2468,7 @@ def jobSummary2(query):
             dropJob = 0
             pandaid = job['pandaid']
             for retry in retries:
-                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid:
+                if retry['oldpandaid'] == pandaid and retry['newpandaid'] != pandaid and (retry['relationtype'] == '' or retry['relationtype'] == 'retry'):
                     ## there is a retry for this job. Drop it.
                     dropJob = retry['newpandaid']
             if dropJob == 0:
