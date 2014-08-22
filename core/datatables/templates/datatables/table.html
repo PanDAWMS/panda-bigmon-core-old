@@ -24,6 +24,13 @@
 {% if table.var %}var {{ table.var }};{% endif %}
 $(document).ready(function() {
     {% if table.var %}{{ table.var }} = {% endif %}$('#{{ table.id }}').dataTable({{ table.js_options }});
+
+    $("div.dataTables_length label").replaceWith( $("div.dataTables_length label select") );
+
+    $(".dataTables_filter input").css("display","inline-block");
+    $(".dataTables_filter input").css("width","auto");
+    $(".top-toolbar").addClass("ui-widget ui-widget-header ui-corner-top").children().css("height", "2.0em");
+    $(".bot-toolbar").addClass("ui-widget ui-widget-header ui-corner-bottom");
 });
 
 {% if table.extra_js %}
