@@ -43,6 +43,21 @@ class DataTableOptions(object):
             except NameError:
                 pass
 
+        if self.options.has_key('fnClientTransformData') and not self.options.has_key('fnServerData'):
+            self.options['fnServerData'] = u'''
+            function( sSource, aoData, fnCallback, oSettings )
+            {
+                oSettings.jqXHR = $.ajax(
+                    {
+                        "dataType": 'json',
+                        "type": "GET",
+                        "url": sSource,
+                        "data": aoData,
+                        "success": function( data, textStatus, jqXHR ) { %s(data, textStatus, jqXHR); fnCallback( data, textStatus, jqXHR ); },
+                    });
+            }''' % self.options['fnClientTransformData']
+
+
 class DataTableDeclarativeMeta(type):
     """Metaclass for capturing declarative attributes on a DataTable class."""
 
