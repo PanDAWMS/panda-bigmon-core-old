@@ -1035,7 +1035,8 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
             dsets = JediDatasets.objects.filter(datasetid=f['datasetid']).values()
             if len(dsets) > 0:
                 f['datasetname'] = dsets[0]['datasetname']
-    if ninput == 0:
+    if True:
+    #if ninput == 0:
         files.extend(Filestable4.objects.filter(pandaid=pandaid).order_by('type').values())
         if len(files) == 0:
             files.extend(FilestableArch.objects.filter(pandaid=pandaid).order_by('type').values())
@@ -1051,6 +1052,7 @@ def jobInfo(request, pandaid=None, batchid=None, p2=None, p3=None, p4=None):
     nfiles = len(files) 
     logfile = {} 
     for file in files:
+        print file['lfn'], file['type']
         if file['type'] == 'log': 
             logfile['lfn'] = file['lfn'] 
             logfile['guid'] = file['guid'] 
