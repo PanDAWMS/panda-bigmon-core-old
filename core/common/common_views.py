@@ -106,9 +106,10 @@ def initRequest(request):
         if request.META['HTTP_HOST'].startswith(vo):
             VOMODE = vo
     ## If DB is Oracle, set vomode to atlas
-    if dbaccess['default']['ENGINE'].find('oracle') >= 0:
-        VOMODE = 'atlas'
-    ENV['MON_VO'] = VONAME[VOMODE]
+    # if dbaccess['default']['ENGINE'].find('oracle') >= 0:
+    #     VOMODE = 'atlas'
+    from django.conf import settings as djsettings
+    ENV['MON_VO'] = getattr(djsettings, 'VOMODE', '')
     viewParams['MON_VO'] = ENV['MON_VO']
     global requestParams
     global errorFields, errorCodes, errorStages

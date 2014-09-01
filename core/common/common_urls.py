@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 #import lsst.settings
 from django.conf import settings
 
-from lsst import views as lsstmon_views
+import common_views as lsstmon_views
 #import lsst.views as lsstmon_views
 import core.pandajob.views_support as core_lsstmon_support_views
 #import core.pandajob.views as core_lsstmon_views
