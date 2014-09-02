@@ -108,6 +108,7 @@ class PandaJob(models.Model):
     workqueue_id = models.IntegerField(null=True, db_column='WORKQUEUE_ID', blank=True) # Field name made lowercase.
     jeditaskid = models.BigIntegerField(null=True, db_column='JEDITASKID', blank=True) # Field name made lowercase.
     jobstatus = models.CharField(null=True, max_length=80, db_column='JOBSTATUS', blank=True)
+    actualcorecount = models.IntegerField(null=True, db_column='ACTUALCORECOUNT', blank=True)
 
     def __str__(self):
         return 'PanDA:' + str(self.pandaid)
