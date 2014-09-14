@@ -1502,42 +1502,6 @@ class Sitedata(models.Model):
     class Meta:
         db_table = u'sitedata'
 
-class SitedataOld(models.Model):
-    site = models.CharField(max_length=90, primary_key=True, db_column='SITE') # Field name made lowercase.
-    flag = models.CharField(max_length=60, primary_key=True, db_column='FLAG') # Field name made lowercase.
-    hours = models.IntegerField(primary_key=True, db_column='HOURS') # Field name made lowercase.
-    nwn = models.IntegerField(null=True, db_column='NWN', blank=True) # Field name made lowercase.
-    memmin = models.IntegerField(null=True, db_column='MEMMIN', blank=True) # Field name made lowercase.
-    memmax = models.IntegerField(null=True, db_column='MEMMAX', blank=True) # Field name made lowercase.
-    si2000min = models.IntegerField(null=True, db_column='SI2000MIN', blank=True) # Field name made lowercase.
-    si2000max = models.IntegerField(null=True, db_column='SI2000MAX', blank=True) # Field name made lowercase.
-    os = models.CharField(max_length=90, db_column='OS', blank=True) # Field name made lowercase.
-    space = models.CharField(max_length=90, db_column='SPACE', blank=True) # Field name made lowercase.
-    minjobs = models.IntegerField(null=True, db_column='MINJOBS', blank=True) # Field name made lowercase.
-    maxjobs = models.IntegerField(null=True, db_column='MAXJOBS', blank=True) # Field name made lowercase.
-    laststart = models.DateTimeField(null=True, db_column='LASTSTART', blank=True) # Field name made lowercase.
-    lastend = models.DateTimeField(null=True, db_column='LASTEND', blank=True) # Field name made lowercase.
-    lastfail = models.DateTimeField(null=True, db_column='LASTFAIL', blank=True) # Field name made lowercase.
-    lastpilot = models.DateTimeField(null=True, db_column='LASTPILOT', blank=True) # Field name made lowercase.
-    lastpid = models.IntegerField(null=True, db_column='LASTPID', blank=True) # Field name made lowercase.
-    nstart = models.IntegerField(db_column='NSTART') # Field name made lowercase.
-    finished = models.IntegerField(db_column='FINISHED') # Field name made lowercase.
-    failed = models.IntegerField(db_column='FAILED') # Field name made lowercase.
-    defined = models.IntegerField(db_column='DEFINED') # Field name made lowercase.
-    assigned = models.IntegerField(db_column='ASSIGNED') # Field name made lowercase.
-    waiting = models.IntegerField(db_column='WAITING') # Field name made lowercase.
-    activated = models.IntegerField(db_column='ACTIVATED') # Field name made lowercase.
-    holding = models.IntegerField(db_column='HOLDING') # Field name made lowercase.
-    running = models.IntegerField(db_column='RUNNING') # Field name made lowercase.
-    transferring = models.IntegerField(db_column='TRANSFERRING') # Field name made lowercase.
-    getjob = models.IntegerField(db_column='GETJOB') # Field name made lowercase.
-    updatejob = models.IntegerField(db_column='UPDATEJOB') # Field name made lowercase.
-    lastmod = models.DateTimeField(db_column='LASTMOD') # Field name made lowercase.
-    ncpu = models.IntegerField(null=True, db_column='NCPU', blank=True) # Field name made lowercase.
-    nslot = models.IntegerField(null=True, db_column='NSLOT', blank=True) # Field name made lowercase.
-    class Meta:
-        db_table = u'sitedata_old'
-
 class Siteddm(models.Model):
     name = models.CharField(max_length=180, primary_key=True, db_column='NAME') # Field name made lowercase.
     incmd = models.CharField(max_length=180, db_column='INCMD') # Field name made lowercase.
