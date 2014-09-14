@@ -358,15 +358,6 @@ class Installedsw(models.Model):
     class Meta:
         db_table = u'installedsw'
 
-class InstalledswOld(models.Model):
-    siteid = models.CharField(max_length=180, primary_key=True, db_column='SITEID') # Field name made lowercase.
-    cloud = models.CharField(max_length=30, db_column='CLOUD', blank=True) # Field name made lowercase.
-    release = models.CharField(max_length=30, db_column='RELEASE', blank=True) # Field name made lowercase.
-    cache = models.CharField(max_length=120, db_column='CACHE', blank=True) # Field name made lowercase.
-    validation = models.CharField(max_length=30, db_column='VALIDATION', blank=True) # Field name made lowercase.
-    class Meta:
-        db_table = u'installedsw_old'
-
 class Jdllist(models.Model):
     name = models.CharField(max_length=180, primary_key=True, db_column='NAME') # Field name made lowercase.
     host = models.CharField(max_length=180, db_column='HOST', blank=True) # Field name made lowercase.
