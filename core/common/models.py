@@ -578,16 +578,6 @@ class JobparamstableArch(models.Model):
     class Meta:
         db_table = u'jobparamstable_arch'
 
-class JobsProgressTrackingOld(models.Model):
-    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.
-    fileid = models.BigIntegerField(primary_key=True, db_column='FILEID') # Field name made lowercase.
-    job_processid = models.IntegerField(primary_key=True, db_column='JOB_PROCESSID') # Field name made lowercase.
-    def_min_eventid = models.IntegerField(null=True, db_column='DEF_MIN_EVENTID', blank=True) # Field name made lowercase.
-    def_max_eventid = models.IntegerField(null=True, db_column='DEF_MAX_EVENTID', blank=True) # Field name made lowercase.
-    processed_upto_eventid = models.IntegerField(null=True, db_column='PROCESSED_UPTO_EVENTID', blank=True) # Field name made lowercase.
-    class Meta:
-        db_table = u'jobs_progress_tracking_old'
-
 class JobsStatuslog(models.Model):
     pandaid = models.BigIntegerField(db_column='PANDAID') # Field name made lowercase.
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME') # Field name made lowercase.
