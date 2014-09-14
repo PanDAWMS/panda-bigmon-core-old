@@ -19,9 +19,6 @@ models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
                                  'columnTitles', 'filterFields',)
 
 class Cache(models.Model):
-#    type = models.CharField(max_length=750, primary_key=True, db_column='TYPE') # Field name made lowercase.
-#    value = models.CharField(max_length=750, primary_key=True, db_column='VALUE') # Field name made lowercase.
-#    qurl = models.CharField(max_length=750, db_column='QURL') # Field name made lowercase.
     type = models.CharField(db_column='TYPE', max_length=250)  # Field name made lowercase.
     value = models.CharField(db_column='VALUE', max_length=250)  # Field name made lowercase.
     qurl = models.CharField(db_column='QURL', max_length=250)  # Field name made lowercase.
@@ -61,7 +58,6 @@ class Cloudconfig(models.Model):
     transtimelo = models.IntegerField(db_column='TRANSTIMELO') # Field name made lowercase.
     transtimehi = models.IntegerField(db_column='TRANSTIMEHI') # Field name made lowercase.
     waittime = models.IntegerField(db_column='WAITTIME') # Field name made lowercase.
-#    comment_ = models.CharField(max_length=600, db_column='COMMENT_', blank=True) # Field name made lowercase.
     comment_field = models.CharField(max_length=600, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     space = models.IntegerField(db_column='SPACE') # Field name made lowercase.
     moduser = models.CharField(max_length=90, db_column='MODUSER', blank=True) # Field name made lowercase.
@@ -115,16 +111,6 @@ class Datasets(models.Model):
     class Meta:
         db_table = u'datasets'
 
-#class DeftDataset(models.Model):
-#    dataset_id = models.CharField(max_length=768, primary_key=True, db_column='DATASET_ID') # Field name made lowercase.
-#    dataset_meta = models.BigIntegerField(null=True, db_column='DATASET_META', blank=True) # Field name made lowercase.
-#    dataset_state = models.CharField(max_length=48, db_column='DATASET_STATE', blank=True) # Field name made lowercase.
-#    dataset_source = models.BigIntegerField(null=True, db_column='DATASET_SOURCE', blank=True) # Field name made lowercase.
-#    dataset_target = models.BigIntegerField(null=True, db_column='DATASET_TARGET', blank=True) # Field name made lowercase.
-#    dataset_comment = models.CharField(max_length=384, db_column='DATASET_COMMENT', blank=True) # Field name made lowercase.
-#    class Meta:
-#        db_table = u'deft_dataset'
-#
 class DeftDataset(models.Model):
     dataset_id = models.CharField(db_column='DATASET_ID', primary_key=True, max_length=255)  # Field name made lowercase.
     dataset_meta = models.BigIntegerField(db_column='DATASET_META', blank=True, null=True)  # Field name made lowercase.
@@ -751,13 +737,11 @@ class Passwords(models.Model):
         db_table = u'passwords'
 
 class Pilotqueue(models.Model):
-#    jobid = models.CharField(max_length=300, primary_key=True, db_column='JOBID') # Field name made lowercase.
     jobid = models.CharField(db_column='JOBID', max_length=100, primary_key=True)  # Field name made lowercase.
     tpid = models.CharField(max_length=180, db_column='TPID') # Field name made lowercase.
     url = models.CharField(max_length=600, db_column='URL', blank=True) # Field name made lowercase.
     nickname = models.CharField(max_length=180, primary_key=True, db_column='NICKNAME') # Field name made lowercase.
     system = models.CharField(max_length=60, db_column='SYSTEM') # Field name made lowercase.
-#    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
     user_field = models.CharField(max_length=180, db_column='USER_')  # Field name made lowercase.
     host = models.CharField(max_length=180, db_column='HOST') # Field name made lowercase.
     submithost = models.CharField(max_length=180, db_column='SUBMITHOST') # Field name made lowercase.
@@ -790,7 +774,6 @@ class PilotqueueBnl(models.Model):
     url = models.CharField(max_length=600, db_column='URL') # Field name made lowercase.
     nickname = models.CharField(max_length=180, db_column='NICKNAME') # Field name made lowercase.
     system = models.CharField(max_length=60, db_column='SYSTEM') # Field name made lowercase.
-#    user_ = models.CharField(max_length=180, db_column='USER_') # Field name made lowercase.
     user_field = models.CharField(max_length=180, db_column='USER_')  # Field name made lowercase.
     host = models.CharField(max_length=180, db_column='HOST') # Field name made lowercase.
     submithost = models.CharField(max_length=180, db_column='SUBMITHOST') # Field name made lowercase.
@@ -1390,7 +1373,6 @@ class PoolCollectionData1(models.Model):
         db_table = u'pool_collection_data_1'
 
 class PoolCollections(models.Model):
-#    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
     collection_name = models.CharField(db_column='COLLECTION_NAME', primary_key=True, max_length=255)  # Field name made lowercase.
     data_table_name = models.CharField(max_length=1200, db_column='DATA_TABLE_NAME', blank=True) # Field name made lowercase.
     links_table_name = models.CharField(max_length=1200, db_column='LINKS_TABLE_NAME', blank=True) # Field name made lowercase.
@@ -1402,7 +1384,6 @@ class PoolCollections(models.Model):
         db_table = u'pool_collections'
 
 class PoolCollectionsDesc(models.Model):
-#    collection_name = models.CharField(max_length=1200, primary_key=True, db_column='COLLECTION_NAME') # Field name made lowercase.
     collection_name = models.CharField(max_length=255, primary_key=True, db_column='COLLECTION_NAME')  # Field name made lowercase.
     variable_name = models.CharField(max_length=1200, db_column='VARIABLE_NAME', blank=True) # Field name made lowercase.
     variable_type = models.CharField(max_length=1200, db_column='VARIABLE_TYPE', blank=True) # Field name made lowercase.
@@ -1423,7 +1404,6 @@ class ProdsysComm(models.Model):
         db_table = u'prodsys_comm'
 
 class Productiondatasets(models.Model):
-#    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
     name = models.CharField(max_length=255, primary_key=True, db_column='NAME')  # Field name made lowercase.
     version = models.IntegerField(null=True, db_column='VERSION', blank=True) # Field name made lowercase.
     vuid = models.CharField(max_length=120, db_column='VUID') # Field name made lowercase.
@@ -1452,21 +1432,6 @@ class Proxykey(models.Model):
         db_table = u'proxykey'
 
 class Redirect(models.Model):
-#    service = models.CharField(max_length=90, db_column='SERVICE') # Field name made lowercase.
-#    type = models.CharField(max_length=90, db_column='TYPE') # Field name made lowercase.
-#    site = models.CharField(max_length=90, db_column='SITE') # Field name made lowercase.
-#    description = models.CharField(max_length=360, db_column='DESCRIPTION') # Field name made lowercase.
-#    url = models.CharField(max_length=750, primary_key=True, db_column='URL') # Field name made lowercase.
-#    testurl = models.CharField(max_length=750, db_column='TESTURL', blank=True) # Field name made lowercase.
-#    response = models.CharField(max_length=90, db_column='RESPONSE') # Field name made lowercase.
-#    aliveresponse = models.CharField(max_length=90, db_column='ALIVERESPONSE') # Field name made lowercase.
-#    responsetime = models.IntegerField(null=True, db_column='RESPONSETIME', blank=True) # Field name made lowercase.
-#    rank = models.IntegerField(null=True, db_column='RANK', blank=True) # Field name made lowercase.
-#    performance = models.IntegerField(null=True, db_column='PERFORMANCE', blank=True) # Field name made lowercase.
-#    status = models.CharField(max_length=90, db_column='STATUS') # Field name made lowercase.
-#    log = models.CharField(max_length=750, db_column='LOG', blank=True) # Field name made lowercase.
-#    statustime = models.DateTimeField(db_column='STATUSTIME') # Field name made lowercase.
-#    usetime = models.DateTimeField(db_column='USETIME') # Field name made lowercase.
     service = models.CharField(db_column='SERVICE', max_length=30)  # Field name made lowercase.
     type = models.CharField(db_column='TYPE', max_length=30)  # Field name made lowercase.
     site = models.CharField(db_column='SITE', max_length=30)  # Field name made lowercase.
@@ -1521,7 +1486,6 @@ class SchedconfigOld(models.Model):
     lastmod = models.DateTimeField(db_column='LASTMOD') # Field name made lowercase.
     errinfo = models.CharField(max_length=240, db_column='ERRINFO', blank=True) # Field name made lowercase.
     nqueue = models.IntegerField(db_column='NQUEUE') # Field name made lowercase.
-#    comment_ = models.CharField(max_length=1500, db_column='COMMENT_', blank=True) # Field name made lowercase.
     comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field name made lowercase.
     appdir = models.CharField(max_length=300, db_column='APPDIR', blank=True) # Field name made lowercase.
     datadir = models.CharField(max_length=240, db_column='DATADIR', blank=True) # Field name made lowercase.
@@ -1752,27 +1716,6 @@ class Sitehistory(models.Model):
         db_table = u'sitehistory'
 
 class Sitesinfo(models.Model):
-#    name = models.CharField(max_length=360, primary_key=True, db_column='NAME') # Field name made lowercase.
-#    nick = models.CharField(max_length=60, db_column='NICK') # Field name made lowercase.
-#    contact = models.CharField(max_length=90, db_column='CONTACT', blank=True) # Field name made lowercase.
-#    email = models.CharField(max_length=90, db_column='EMAIL', blank=True) # Field name made lowercase.
-#    status = models.CharField(max_length=36, db_column='STATUS', blank=True) # Field name made lowercase.
-#    lrc = models.CharField(max_length=360, db_column='LRC', blank=True) # Field name made lowercase.
-#    gridcat = models.IntegerField(null=True, db_column='GRIDCAT', blank=True) # Field name made lowercase.
-#    monalisa = models.CharField(max_length=60, db_column='MONALISA', blank=True) # Field name made lowercase.
-#    computingsite = models.CharField(max_length=60, db_column='COMPUTINGSITE', blank=True) # Field name made lowercase.
-#    mainsite = models.CharField(max_length=60, db_column='MAINSITE', blank=True) # Field name made lowercase.
-#    home = models.CharField(max_length=360, db_column='HOME', blank=True) # Field name made lowercase.
-#    ganglia = models.CharField(max_length=360, db_column='GANGLIA', blank=True) # Field name made lowercase.
-#    goc = models.CharField(max_length=60, db_column='GOC', blank=True) # Field name made lowercase.
-#    gocconfig = models.IntegerField(null=True, db_column='GOCCONFIG', blank=True) # Field name made lowercase.
-#    prodsys = models.CharField(max_length=60, db_column='PRODSYS', blank=True) # Field name made lowercase.
-#    dq2svc = models.CharField(max_length=60, db_column='DQ2SVC', blank=True) # Field name made lowercase.
-#    usage = models.CharField(max_length=120, db_column='USAGE', blank=True) # Field name made lowercase.
-#    updtime = models.IntegerField(null=True, db_column='UPDTIME', blank=True) # Field name made lowercase.
-#    ndatasets = models.IntegerField(null=True, db_column='NDATASETS', blank=True) # Field name made lowercase.
-#    nfiles = models.IntegerField(null=True, db_column='NFILES', blank=True) # Field name made lowercase.
-#    timestamp = models.IntegerField(null=True, db_column='TIMESTAMP', blank=True) # Field name made lowercase.
     name = models.CharField(db_column='NAME', primary_key=True, max_length=120)  # Field name made lowercase.
     nick = models.CharField(db_column='NICK', max_length=20)  # Field name made lowercase.
     contact = models.CharField(db_column='CONTACT', max_length=30, blank=True)  # Field name made lowercase.
@@ -1913,14 +1856,6 @@ class Tags(models.Model):
         db_table = u'tags'
 
 class Transfercosts(models.Model):
-#    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
-#    destsite = models.CharField(max_length=768, primary_key=True, db_column='DESTSITE') # Field name made lowercase.
-#    type = models.CharField(max_length=768, primary_key=True, db_column='TYPE') # Field name made lowercase.
-#    status = models.CharField(max_length=192, db_column='STATUS', blank=True) # Field name made lowercase.
-#    last_update = models.DateTimeField(null=True, db_column='LAST_UPDATE', blank=True) # Field name made lowercase.
-#    cost = models.BigIntegerField(db_column='COST') # Field name made lowercase.
-#    max_cost = models.BigIntegerField(null=True, db_column='MAX_COST', blank=True) # Field name made lowercase.
-#    min_cost = models.BigIntegerField(null=True, db_column='MIN_COST', blank=True) # Field name made lowercase.
     sourcesite = models.CharField(db_column='SOURCESITE', max_length=256)  # Field name made lowercase.
     destsite = models.CharField(db_column='DESTSITE', max_length=256)  # Field name made lowercase.
     type = models.CharField(db_column='TYPE', max_length=256)  # Field name made lowercase.
@@ -1933,7 +1868,6 @@ class Transfercosts(models.Model):
         db_table = u'transfercosts'
 
 class TransfercostsHistory(models.Model):
-#    sourcesite = models.CharField(max_length=768, primary_key=True, db_column='SOURCESITE') # Field name made lowercase.
     sourcesite = models.CharField(db_column='SOURCESITE', primary_key=True, max_length=255)  # Field name made lowercase.
     destsite = models.CharField(max_length=768, db_column='DESTSITE') # Field name made lowercase.
     type = models.CharField(max_length=768, db_column='TYPE', blank=True) # Field name made lowercase.
@@ -1966,7 +1900,6 @@ class Usagereport(models.Model):
 
 class Usercacheusage(models.Model):
     username = models.CharField(max_length=384, db_column='USERNAME') # Field name made lowercase.
-#    filename = models.CharField(max_length=768, primary_key=True, db_column='FILENAME') # Field name made lowercase.
     filename = models.CharField(db_column='FILENAME', max_length=255, primary_key=True)  # Field name made lowercase.
     hostname = models.CharField(max_length=192, primary_key=True, db_column='HOSTNAME') # Field name made lowercase.
     creationtime = models.DateTimeField(primary_key=True, db_column='CREATIONTIME') # Field name made lowercase.
