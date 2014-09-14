@@ -1818,60 +1818,6 @@ class Users(models.Model):
 
 
 
-class UsersOld(models.Model):
-    id = models.IntegerField(primary_key=True, db_column='ID') # Field name made lowercase.
-    name = models.CharField(max_length=180, db_column='NAME') # Field name made lowercase.
-    dn = models.CharField(max_length=300, db_column='DN', blank=True) # Field name made lowercase.
-    email = models.CharField(max_length=180, db_column='EMAIL', blank=True) # Field name made lowercase.
-    url = models.CharField(max_length=300, db_column='URL', blank=True) # Field name made lowercase.
-    location = models.CharField(max_length=180, db_column='LOCATION', blank=True) # Field name made lowercase.
-    classa = models.CharField(max_length=90, db_column='CLASSA', blank=True) # Field name made lowercase.
-    classp = models.CharField(max_length=90, db_column='CLASSP', blank=True) # Field name made lowercase.
-    classxp = models.CharField(max_length=90, db_column='CLASSXP', blank=True) # Field name made lowercase.
-    sitepref = models.CharField(max_length=180, db_column='SITEPREF', blank=True) # Field name made lowercase.
-    gridpref = models.CharField(max_length=60, db_column='GRIDPREF', blank=True) # Field name made lowercase.
-    queuepref = models.CharField(max_length=180, db_column='QUEUEPREF', blank=True) # Field name made lowercase.
-    scriptcache = models.CharField(max_length=300, db_column='SCRIPTCACHE', blank=True) # Field name made lowercase.
-    types = models.CharField(max_length=180, db_column='TYPES', blank=True) # Field name made lowercase.
-    sites = models.CharField(max_length=750, db_column='SITES', blank=True) # Field name made lowercase.
-    njobsa = models.IntegerField(null=True, db_column='NJOBSA', blank=True) # Field name made lowercase.
-    njobsp = models.IntegerField(null=True, db_column='NJOBSP', blank=True) # Field name made lowercase.
-    njobs1 = models.IntegerField(null=True, db_column='NJOBS1', blank=True) # Field name made lowercase.
-    njobs7 = models.IntegerField(null=True, db_column='NJOBS7', blank=True) # Field name made lowercase.
-    njobs30 = models.IntegerField(null=True, db_column='NJOBS30', blank=True) # Field name made lowercase.
-    cpua1 = models.BigIntegerField(null=True, db_column='CPUA1', blank=True) # Field name made lowercase.
-    cpua7 = models.BigIntegerField(null=True, db_column='CPUA7', blank=True) # Field name made lowercase.
-    cpua30 = models.BigIntegerField(null=True, db_column='CPUA30', blank=True) # Field name made lowercase.
-    cpup1 = models.BigIntegerField(null=True, db_column='CPUP1', blank=True) # Field name made lowercase.
-    cpup7 = models.BigIntegerField(null=True, db_column='CPUP7', blank=True) # Field name made lowercase.
-    cpup30 = models.BigIntegerField(null=True, db_column='CPUP30', blank=True) # Field name made lowercase.
-    cpuxp1 = models.BigIntegerField(null=True, db_column='CPUXP1', blank=True) # Field name made lowercase.
-    cpuxp7 = models.BigIntegerField(null=True, db_column='CPUXP7', blank=True) # Field name made lowercase.
-    cpuxp30 = models.BigIntegerField(null=True, db_column='CPUXP30', blank=True) # Field name made lowercase.
-    quotaa1 = models.BigIntegerField(null=True, db_column='QUOTAA1', blank=True) # Field name made lowercase.
-    quotaa7 = models.BigIntegerField(null=True, db_column='QUOTAA7', blank=True) # Field name made lowercase.
-    quotaa30 = models.BigIntegerField(null=True, db_column='QUOTAA30', blank=True) # Field name made lowercase.
-    quotap1 = models.BigIntegerField(null=True, db_column='QUOTAP1', blank=True) # Field name made lowercase.
-    quotap7 = models.BigIntegerField(null=True, db_column='QUOTAP7', blank=True) # Field name made lowercase.
-    quotap30 = models.BigIntegerField(null=True, db_column='QUOTAP30', blank=True) # Field name made lowercase.
-    quotaxp1 = models.BigIntegerField(null=True, db_column='QUOTAXP1', blank=True) # Field name made lowercase.
-    quotaxp7 = models.BigIntegerField(null=True, db_column='QUOTAXP7', blank=True) # Field name made lowercase.
-    quotaxp30 = models.BigIntegerField(null=True, db_column='QUOTAXP30', blank=True) # Field name made lowercase.
-    space1 = models.IntegerField(null=True, db_column='SPACE1', blank=True) # Field name made lowercase.
-    space7 = models.IntegerField(null=True, db_column='SPACE7', blank=True) # Field name made lowercase.
-    space30 = models.IntegerField(null=True, db_column='SPACE30', blank=True) # Field name made lowercase.
-    lastmod = models.DateTimeField(db_column='LASTMOD') # Field name made lowercase.
-    firstjob = models.DateTimeField(db_column='FIRSTJOB') # Field name made lowercase.
-    latestjob = models.DateTimeField(db_column='LATESTJOB') # Field name made lowercase.
-    pagecache = models.TextField(db_column='PAGECACHE', blank=True) # Field name made lowercase.
-    cachetime = models.DateTimeField(db_column='CACHETIME') # Field name made lowercase.
-    ncurrent = models.IntegerField(db_column='NCURRENT') # Field name made lowercase.
-    jobid = models.IntegerField(db_column='JOBID') # Field name made lowercase.
-    status = models.CharField(max_length=60, db_column='STATUS', blank=True) # Field name made lowercase.
-    vo = models.CharField(max_length=60, db_column='VO', blank=True) # Field name made lowercase.
-    class Meta:
-        db_table = u'users_old'
-
 class Userstats(models.Model):
     name = models.CharField(max_length=180, primary_key=True, db_column='NAME') # Field name made lowercase.
     label = models.CharField(max_length=60, db_column='LABEL', blank=True) # Field name made lowercase.
