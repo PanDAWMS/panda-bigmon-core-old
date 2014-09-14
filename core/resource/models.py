@@ -113,6 +113,11 @@ class Schedconfig(models.Model):
     faxdoor = models.CharField(null=True, max_length=128, db_column='FAXDOOR', blank=True)
     wansourcelimit = models.IntegerField(null=True, db_column='WANSOURCELIMIT', blank=True)
     wansinklimit = models.IntegerField(null=True, db_column='WANSINKLIMIT', blank=True)
+    auto_mcu = models.SmallIntegerField(null=True, db_column='AUTO_MCU', blank=True)
+    objectstore = models.CharField(null=True, max_length=512, db_column='OBJECTSTORE', blank=True)
+    allowhttp = models.CharField(null=True, max_length=64, db_column='ALLOWHTTP', blank=True)
+    httpredirector = models.CharField(null=True, max_length=256, db_column='HTTPREDIRECTOR', blank=True)
+    multicloud_append = models.CharField(null=True, max_length=64, db_column='MULTICLOUD_APPEND', blank=True)
 
     def __str__(self):
         return 'Schedconfig:' + str(self.nickname)
@@ -138,7 +143,10 @@ class Schedconfig(models.Model):
                  "pledgedstorage", "statusoverride", "allowdirectaccess", \
                  "gocname", "tier", "multicloud", "lfcregister", "stageinretry", \
                  "stageoutretry", "fairsharepolicy", "allowfax", "faxredirector", \
-                 "maxwdir", "celist", "minmemory", "maxmemory", "mintime"]
+                 "maxwdir", "celist", "minmemory", "maxmemory", "mintime", \
+                 "allowjem", "catchall", "faxdoor", "wansourcelimit", \
+                 "wansinklimit", "auto_mcu", "objectstore", "allowhttp", \
+                 "httpredirector", "multicloud_append" ]
 
     def getValuesList(self):
         repre = []
