@@ -590,19 +590,6 @@ class JobsStatuslog(models.Model):
         db_table = u'jobs_statuslog'
 
 
-class Jobsarch4Taskinfo59StatsOld(models.Model):
-    modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
-    cloud = models.CharField(max_length=150, db_column='CLOUD', blank=True) # Field name made lowercase.
-    taskid = models.IntegerField(null=True, db_column='TASKID', blank=True) # Field name made lowercase.
-    jobstatus = models.CharField(max_length=45, db_column='JOBSTATUS')  # Field name made lowercase.
-    processingtype = models.CharField(max_length=192, db_column='PROCESSINGTYPE', blank=True) # Field name made lowercase.
-    prodsourcelabel = models.CharField(max_length=60, db_column='PRODSOURCELABEL', blank=True)  # Field name made lowercase.
-    num_of_jobs = models.IntegerField(null=True, db_column='NUM_OF_JOBS', blank=True)  # Field name made lowercase.
-    cur_date = models.DateTimeField(null=True, db_column='CUR_DATE', blank=True)  # Field name made lowercase.
-    class Meta:
-#        managed = False
-        db_table = u'jobsarch4_taskinfo59_stats_old'
-
 class Jobsarchived4WnlistStats(models.Model):
     modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') # Field name made lowercase.
     computingsite = models.CharField(max_length=384, db_column='COMPUTINGSITE', blank=True) # Field name made lowercase.
