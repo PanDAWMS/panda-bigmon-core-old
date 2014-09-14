@@ -4,7 +4,7 @@
 #
 #
 from version import __version__, __provides__
-prefix = '/data/atlpan/bigpandamon'
+prefix = '/data/atlpan/bigpandamon-twdev'
 lib_prefix = 'lib/python2.6/site-packages/'
 expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example'] #FIXME
 src_ext = [ '.py' ]
