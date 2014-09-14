@@ -143,11 +143,9 @@ class Schedconfig(models.Model):
     def getValuesList(self):
         repre = []
         for field in self._meta.fields:
-#            print field.name
-#        for field in self.getFields():
-#            repre.append((field, self.__dict__[field]))
             repre.append((field.name, field))
         return repre
+
 
     def get_all_fields(self):
         """Returns a list of all field names on the instance."""
@@ -159,7 +157,7 @@ class Schedconfig(models.Model):
         kys1.sort()
         for k in kys1:
             f = kys[k]
-            fname = f.name        
+            fname = f.name
             # resolve picklists/choices, with get_xyz_display() function
             get_choice = 'get_'+fname+'_display'
             if hasattr( self, get_choice):
@@ -184,6 +182,7 @@ class Schedconfig(models.Model):
 
     class Meta:
         db_table = u'schedconfig'
+
 
 class Schedinstance(models.Model):
     name = models.CharField(max_length=180, db_column='NAME')  # Field name made lowercase.
