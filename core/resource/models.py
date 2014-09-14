@@ -30,7 +30,7 @@ class Schedconfig(models.Model):
     lastmod = models.DateTimeField(db_column='LASTMOD')
     errinfo = models.CharField(max_length=240, db_column='ERRINFO', blank=True)
     nqueue = models.IntegerField(db_column='NQUEUE')
-    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)
+    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field renamed because it was a Python reserved word.
     appdir = models.CharField(max_length=1500, db_column='APPDIR', blank=True)
     datadir = models.CharField(max_length=240, db_column='DATADIR', blank=True)
     tmpdir = models.CharField(max_length=240, db_column='TMPDIR', blank=True)
@@ -200,7 +200,7 @@ class Schedinstance(models.Model):
     errinfo = models.CharField(max_length=450, db_column='ERRINFO', blank=True)
     ndone = models.IntegerField(db_column='NDONE')
     totrunt = models.IntegerField(db_column='TOTRUNT')
-    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)
+    comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field renamed because it was a Python reserved word.
     class Meta:
         db_table = u'schedinstance'
 
