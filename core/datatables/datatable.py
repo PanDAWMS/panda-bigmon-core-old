@@ -43,6 +43,21 @@ class DataTableOptions(object):
             except NameError:
                 pass
 
+        if self.options.has_key('fnClientTransformData') and not self.options.has_key('fnServerData'):
+            self.options['fnServerData'] = u'''
+            function( sSource, aoData, fnCallback, oSettings )
+            {
+                oSettings.jqXHR = $.ajax(
+                    {
+                        "dataType": 'json',
+                        "type": "GET",
+                        "url": sSource,
+                        "data": aoData,
+                        "success": function( data, textStatus, jqXHR ) { %s(data, textStatus, jqXHR); fnCallback( data, textStatus, jqXHR ); },
+                    });
+            }''' % self.options['fnClientTransformData']
+
+
 class DataTableDeclarativeMeta(type):
     """Metaclass for capturing declarative attributes on a DataTable class."""
 
@@ -280,17 +295,26 @@ class DataTable(object):
                 pass
         return params
         
-    def apply_sort_search(self, qs, params):
+    def apply_sort(self, qs, params):
         qs = self._handle_ajax_sorting(qs, params)
+        return qs
+
+    def apply_search(self, qs, params):
         qs = self._handle_ajax_global_search(qs, params)
         qs = self._handle_ajax_column_specific_search(qs, params)
         return qs
-        
+
     def prepare_ajax_data(self, request):
         params = self.parse_params(request)        
         qs = self.get_queryset()
         iTotalRecords = qs.count()
-        qs = self.apply_sort_search(qs, params)
+        qs = self.apply_search(qs, params)
+
+        qs = self.apply_additional_filters(request, qs)
+        additional_data = self.additional_data(request, qs)
+
+        qs = self.apply_sort(qs, params)
+
         iTotalDisplayRecords = qs.count()
         iDisplayStart = params.get('iDisplayStart', 0)
         iDisplayLength = params.get('iDisplayLength', -1)
@@ -309,9 +333,16 @@ class DataTable(object):
             'sEcho': params.get('sEcho', ''),
             #'sColumns': ,
             'aaData': aaData,
+            'additional' : additional_data,
         }
-        return data
-        
+        return data 
+
+    def apply_additional_filters(self, request, qs):
+        return  qs
+
+    def additional_data(self, request, qs):
+        return {}
+
     def handle_ajax(self, request):
         data = self.prepare_ajax_data(request)
         #print qs.query

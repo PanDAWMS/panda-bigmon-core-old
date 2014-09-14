@@ -5,16 +5,20 @@
 {% block gacode %}UA-44940804-1{% endblock %}
 {% block gaweb %}pandawms.org{% endblock %}
 {% block title %}{{ APP_NAME }} Monitoring{% endblock %}
+{% comment %}  
+{% block top_menu_1 %}{% endblock %}
+{% block top_menu_all_2 %}{% endblock %}{% block top_menu_all_3 %}{% endblock %}
+{% block top_menu_all_4 %}{% endblock %}{% block top_menu_all_5 %}{% endblock %}
+{% block top_menu_6 %}{% endblock %}
+{% endcomment %}
+
+{% comment %}
 {% block subtitle %}{% endblock %}
 {% block top_menu_1 %}
           <a href="#">PanDA</a>
           <ul class="dropdown">
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="{% url 'jobList' %}">List jobs</a></li>
-{% comment %}
-            <li><a href="{% url 'listSchedconfigQueues' %}">List queues</a></li>
-            <li><a href="{% url 'listHTCondorJobs' %}">HTCondor jobs</a></li>
-{% endcomment %}
             <li class="divider"></li>
             <li><a href="#">See all &rarr;</a></li>
           </ul>
@@ -43,5 +47,5 @@
 {% block bottom_link_all_2 %}{% endblock %}
 {% block bottom_link_all_3 %}{% endblock %}
 {% block bottom_link_4 %}<a href="{% url 'index' %}">{{ APP_NAME }}</a>{% endblock %}
-
+{% endcomment %}
 

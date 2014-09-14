@@ -28,7 +28,7 @@ common_patterns = patterns('',
     url(r'^job', include('core.pandajob.urls')),
     url(r'^resource', include('core.resource.urls')),
     url(r'^api-auth', include('core.api.urls')),
-    url(r'^lsst', include('lsst.urls')),
+#    url(r'^lsst', include('lsst.urls')),
 
 
     ### UI elements

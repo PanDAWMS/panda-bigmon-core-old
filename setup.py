@@ -4,8 +4,7 @@
 #
 #
 from version import __version__, __provides__
-#prefix = '/data/atlpan/bigpandamon'
-prefix = '/data/wenaus/bigpandamon'
+prefix = '/data/atlpan/bigpandamon'
 lib_prefix = 'lib/python2.6/site-packages/'
 expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example'] #FIXME
 src_ext = [ '.py' ]
@@ -126,7 +125,7 @@ class install_data_panda (install_data_org):
                 # dest filename
                 destFile = re.sub('(\.exe)*\-template$','',srcFile)
                 destFile = destFile.split('/')[-1]
-                destFile = '%s/%s' % (tmpDir,destFile)
+                destFile = '%s/%s/%s' % (tmpDir,srcFile,destFile)
                 # open src
                 inFile = open(srcFile)
                 # read
@@ -147,6 +146,8 @@ class install_data_panda (install_data_org):
                         # replace
                         filedata = filedata.replace('@@%s@@' % item, patt)
                 # write to dest
+                if not os.path.exists(os.path.dirname(destFile)):
+                    os.makedirs(os.path.dirname(destFile))
                 oFile = open(destFile,'w')
                 oFile.write(filedata)
                 oFile.close()
@@ -191,7 +192,6 @@ setup(
         'core.api.htcondorapi', 
         'core.api.jedi', 
         'core.api.jedi.jobsintask', 
-        'core.api.reprocessing', 
         'core.common',
         'core.common.settings', 
         'core.common.templatetags', 
