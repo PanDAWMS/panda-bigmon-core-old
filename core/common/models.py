@@ -246,7 +246,7 @@ class FilestableArch(models.Model):
     row_id = models.BigIntegerField(primary_key=True, db_column='ROW_ID') 
     pandaid = models.BigIntegerField(db_column='PANDAID') 
     modificationtime = models.DateTimeField(primary_key=True, db_column='MODIFICATIONTIME') 
-    creationtime = models.DateTimeField(db_column='MODIFICATIONTIME') 
+    creationtime = models.DateTimeField(db_column='CREATIONTIME') 
     guid = models.CharField(max_length=64, db_column='GUID', blank=True) 
     lfn = models.CharField(max_length=256, db_column='LFN', blank=True) 
     type = models.CharField(max_length=20, db_column='TYPE', blank=True) 
