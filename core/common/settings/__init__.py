@@ -20,3 +20,7 @@ except ImportError:
     pass
 
 
+import os
+os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.WE8ISO8859P1'
+
+
