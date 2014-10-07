@@ -194,8 +194,8 @@ class Schedconfig(models.Model):
 
 class Schedinstance(models.Model):
     name = models.CharField(max_length=180, db_column='NAME')
-    nickname = models.CharField(max_length=180, db_column='NICKNAME')
-    pandasite = models.CharField(max_length=180, db_column='PANDASITE')
+    nickname = models.CharField(max_length=180, db_column='NICKNAME', primary_key=True)
+    pandasite = models.CharField(max_length=180, db_column='PANDASITE', primary_key=True)
     nqueue = models.IntegerField(db_column='NQUEUE')
     nqueued = models.IntegerField(db_column='NQUEUED')
     nrunning = models.IntegerField(db_column='NRUNNING')
