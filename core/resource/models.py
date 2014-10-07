@@ -194,8 +194,8 @@ class Schedconfig(models.Model):
 
 class Schedinstance(models.Model):
     name = models.CharField(max_length=180, db_column='NAME')
-    nickname = models.CharField(max_length=180, primary_key=True, db_column='NICKNAME')
-    pandasite = models.CharField(max_length=180, primary_key=True, db_column='PANDASITE')
+    nickname = models.CharField(max_length=180, db_column='NICKNAME')
+    pandasite = models.CharField(max_length=180, db_column='PANDASITE')
     nqueue = models.IntegerField(db_column='NQUEUE')
     nqueued = models.IntegerField(db_column='NQUEUED')
     nrunning = models.IntegerField(db_column='NRUNNING')
@@ -211,4 +211,5 @@ class Schedinstance(models.Model):
     comment_field = models.CharField(max_length=1500, db_column='COMMENT_', blank=True)  # Field renamed because it was a Python reserved word.
     class Meta:
         db_table = u'schedinstance'
+        unique_together = ('nickname', 'pandasite')
 
