@@ -4,20 +4,49 @@
 #
 #
 from version import __version__, __provides__
-prefix = '/data/wenaus/bigpandamon/'
-lib_prefix = 'lib/python2.6/site-packages/'
-expected_extensions = ['.html', '.js', '.css', '.png', '.gif', '.ico', '-example'] #FIXME
-src_ext = [ '.py' ]
-ignore_dir = [ '/.svn', '/.settings' ]
 
 import os
 import re
 import sys
 import socket
 import commands
+import ConfigParser
 from distutils.core import setup
 from distutils.command.install import install as install_org
 from distutils.command.install_data import install_data as install_data_org
+
+# read config file setup.cfg
+config = ConfigParser.ConfigParser()
+config.read(os.path.dirname(os.path.realpath(__file__)) + '/setup.cfg')
+
+# get prefix, lib_prefix, expected_extensions, src_ext, ignore_dir
+prefix = config.get("config", "prefix")
+lib_prefix = config.get("config", "lib_prefix")
+expected_extensions = re.sub(' ', '', config.get("config", "expected_extensions")).split(',')
+src_ext = re.sub(' ', '', config.get("config", "src_ext")).split(',')
+ignore_dir = re.sub(' ', '', config.get("config", "ignore_dir")).split(',')
+
+# get description, long_description, license, author, author_email, url
+description = config.get("config", "description")
+long_description = config.get("config", "long_description")
+license = config.get("config", "license")
+author = config.get("config", "author")
+author_email = config.get("config", "author_email")
+url = config.get("config", "url")
+
+# get packages
+packages = re.sub(' ', '', config.get("config", "packages")).split(',')
+
+# get data_files
+data_files_configs = re.sub(' ', '', config.get("config", "data_files_configs")).split(',')
+data_files = []
+try:
+    data_files = [ ('%s%s' % (lib_prefix, x.split(':')[0]), [x.split(':')[1]]) \
+                  for x in data_files_configs ]
+except:
+    data_files = []
+data_files_templates = re.sub(' ', '', config.get("config", "data_files_templates")).split(',')
+
 
 # get panda specific params
 optPanda = {}
@@ -174,56 +203,20 @@ def gen_data_files(*dirs):
             results.append((lib_prefix + root, map(lambda f:root + "/" + f, files)))
     return results
 
+data_files += gen_data_files(*data_files_templates)
 
 # setup for distutils
 setup(
     name=__provides__,
     version=__version__,
-    description='BigPanDA Monitoring Package - Core',
-    long_description='''This package contains BigPanDA Monitoring Components - Core''',
-    license='GPL',
-    author='Panda Team',
-    author_email='hn-atlas-panda-pathena@cern.ch',
-    url='https://twiki.cern.ch/twiki/bin/view/PanDA/BigPanDAmonitoring',
-    packages=[ #FIXME
-        'core',
-        'core.api',
-        'core.api.user',
-        'core.api.htcondorapi', 
-        'core.api.jedi', 
-        'core.api.jedi.jobsintask', 
-        'core.api.reprocessing', 
-        'core.common',
-        'core.common.settings', 
-        'core.common.templatetags', 
-        'core.htcondor', 
-        'core.pandajob', 
-        'core.pandajob.templatetags', 
-        'core.resource', 
-        'core.table', 
-        'core.task',
-        'core.datatables',
-        'core.datatables.templatetags',
-        'core.gspread',
-    ],
-    data_files=[ #FIXME
-                # config files 
-                ('%score/common/settings' % (lib_prefix), [
-                            'core/common/settings/local.py-example-template', ]
-                 ),
-                # HTML templates and static files
-                ]
-                 + gen_data_files(
-                    "core/common/templates",
-                    "core/common/static",
-                    "core/common/media",
-                    "core/htcondor/templates",
-                    "core/pandajob/templates",
-                    "core/resource/templates",
-                    "core/datatables/templates",
-                    "core/datatables/static",
-                )
-    ,         
+    description=description,
+    long_description=long_description,
+    license=license,
+    author=author,
+    author_email=author_email,
+    url=url,
+    packages=packages,
+    data_files=data_files,
     cmdclass={'install': install_panda,
               'install_data': install_data_panda}
 )
