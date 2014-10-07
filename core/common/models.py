@@ -1487,9 +1487,9 @@ class Siteaccess(models.Model):
         db_table = u'siteaccess'
 
 class Sitedata(models.Model):
-    site = models.CharField(max_length=90, db_column='SITE')
-    flag = models.CharField(max_length=60, db_column='FLAG')
-    hours = models.IntegerField(db_column='HOURS')
+    site = models.CharField(max_length=90, db_column='SITE', primary_key=True)
+    flag = models.CharField(max_length=60, db_column='FLAG', primary_key=True)
+    hours = models.IntegerField(db_column='HOURS', primary_key=True)
     nwn = models.IntegerField(null=True, db_column='NWN', blank=True)
     memmin = models.IntegerField(null=True, db_column='MEMMIN', blank=True)
     memmax = models.IntegerField(null=True, db_column='MEMMAX', blank=True)
