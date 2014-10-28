@@ -586,7 +586,7 @@ class Jobparamstable(models.Model):
         unique_together = ('pandaid', 'modificationtime')
 
 class JobparamstableArch(models.Model):
-    pandaid = models.BigIntegerField(db_column='PANDAID')
+    pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.  
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME')
     jobparameters = models.TextField(db_column='JOBPARAMETERS', blank=True)
     class Meta:
