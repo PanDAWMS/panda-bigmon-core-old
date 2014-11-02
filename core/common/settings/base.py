@@ -125,6 +125,7 @@ INSTALLED_APPS_BIGPANDAMON_CORE = (
     'core.datatables',
 #    'core.graphic', #NOT-IMPLEMENTED
     'core.gspread',
+    'core.status_summary',
 )
 COMMON_INSTALLED_APPS = \
     INSTALLED_APPS_DJANGO_FRAMEWORK + \
