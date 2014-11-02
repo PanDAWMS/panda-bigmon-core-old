@@ -15,12 +15,11 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.core.serializers.json import DjangoJSONEncoder
 
-#from .models import DailyLog
-from .utils import configure
+from .utils import configure, summarize_data
 
-from ..pandajob.models import Jobsactive4
+from ..pandajob.models import Jobsactive4, Jobsdefined4, Jobswaiting4, \
+    Jobsarchived4
 
-#from ..common.models import Pandalog
 
 collectorDatetimeFormat = "%Y-%m-%dT%H:%M:%S"
 #collectorDateFormat = "%Y-%m-%d"
@@ -48,12 +47,29 @@ def index(request):
     query['modificationtime__range'] = [startdate, enddate]
 
     ### query jobs for the summary
-    qs = Jobsactive4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+    qs = []
+    qs.extend( 
+        Jobsactive4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
+    )
+    qs.extend(
+        Jobsdefined4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+    )
+    qs.extend(
+        Jobswaiting4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+    )
+    qs.extend(
+        Jobsarchived4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+    )
 
-
-
+    qs_tidy = summarize_data(qs)
 
     ### set request response data
     data = { \
@@ -62,7 +78,7 @@ def index(request):
         'enddate': enddate,
         'nhours': nhours,
         'viewParams': {'MON_VO': 'ATLAS'},
-        'data': qs,
+        'data': qs_tidy,
     }
     return render_to_response('status_summary/index.html', data, RequestContext(request))
 

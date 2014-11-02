@@ -8,6 +8,9 @@ from datetime import datetime, timedelta
 
 from django.db.models import Count, Sum
 
+from lsst.views import statelist as STATELIST
+
+
 _logger = logging.getLogger('bigpandamon')
 
 
@@ -64,5 +67,65 @@ def configure(request_GET):
                 (startdate, enddate)
 
     return startdate, enddate, nhours, errors_GET
+
+
+def sort_data_by_cloud(data):
+    """
+        sort_data_by_cloud
+        
+        data: list of dictionaries
+                    one dictionary per PanDA resource (computingsite)
+                    keys: 
+                        cloud
+                        computingsite
+                        and a bunch of other keys by job status, see STATELIST
+        
+        returns: input data sorted by cloud, computingsite
+    """
+    res = sorted(data, key=lambda x: (str(x['cloud']).lower(), \
+                                      str(x['computingsite']).lower()))
+    print res
+    return res
+
+def summarize_data(data):
+    """
+        summarize_data
+        
+        data: queryset, list of dictionaries, e.g. 
+            [{'njobs': 1, 'computingsite': u'CERN-PROD', 'jobstatus': u'holding'}]
+        
+        returns: list of dictionaries
+                    one dictionary per PanDA resource (computingsite)
+                    keys: 
+                        cloud
+                        computingsite
+                        and a bunch of other keys by job status, see STATELIST
+    """
+    result = []
+    ### get list of computing sites
+    computingsites = list(set([x['computingsite'] for x in data]))
+    ### loop through computing sites, sum njobs for each job status
+    for computingsite in computingsites:
+        item={'computingsite': computingsite}
+        # TODO: add topology info
+        ### get records for this computingsite
+        rec = [x for x in data \
+               if x['computingsite'] == computingsite]
+        ### get cloud for this computingsite
+        cloud = ','.join(list(set([x['cloud'] for x in data \
+                 if x['computingsite'] == computingsite])))
+        item['cloud'] = cloud
+        ### get njobs per jobstatus for this computingsite
+        for jobstatus in STATELIST:
+            jobstatus_rec = [x['njobs'] for x in rec \
+                             if x['jobstatus'] == jobstatus]
+            item[jobstatus] = sum(jobstatus_rec)
+        ### store info for this computingsite
+        result.append(item)
+    ### sort result
+    result = sort_data_by_cloud(result)
+    return result
+
+
 
 

@@ -50,22 +50,47 @@
 <table>
 <theader>
 <tr>
-<th>Cloud</th>
+<th>MCP Cloud</th>
 <th>PanDA Resource</th>
-<th>Job status</th>
-<th>Count</th>
+<th>defined</th>
+<th>waiting</th>
+<th>pending</th>
+<th>assigned</th>
+<th>throttled</th>
+<th>activated</th>
+<th>sent</th>
+<th>starting</th>
+<th>running</th>
+<th>holding</th>
+<th>transferring</th>
+<th>finished</th>
+<th>failed</th>
+<th>cancelled</th>
+<th>merging</th>
 </tr>
 </theader>
 {% for item in data %}
 <tr>
 <td>{{item.cloud}}</td>
 <td>{{item.computingsite}}</td>
-<td>{{item.jobstatus}}</td>
-<td>{{item.njobs}}</td>
+<td>{{item.defined}}</td>
+<td>{{item.waiting}}</td>
+<td>{{item.pending}}</td>
+<td>{{item.assigned}}</td>
+<td>{{item.throttled}}</td>
+<td>{{item.activated}}</td>
+<td>{{item.sent}}</td>
+<td>{{item.starting}}</td>
+<td>{{item.running}}</td>
+<td>{{item.holding}}</td>
+<td>{{item.transferring}}</td>
+<td>{{item.finished}}</td>
+<td>{{item.failed}}</td>
+<td>{{item.cancelled}}</td>
+<td>{{item.merging}}</td>
 </tr>
 {% endfor %}
 </table>
-
 {% endblock %}
 
 
