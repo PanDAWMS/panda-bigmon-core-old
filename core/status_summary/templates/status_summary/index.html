@@ -46,6 +46,7 @@
 {% if errors_GET.ndays %}<div><span style="color: orange; font-weight: bold;">Query error.</span> {{errors_GET.ndays}}</div>{% endif %}
 {% endif %}
 {% endif %}
+{% if data %}
 <br/><br/>
 <table>
 <theader>
@@ -91,6 +92,9 @@
 </tr>
 {% endfor %}
 </table>
+{% else %}
+<div><span style="color: orange; font-weight: bold;">Result warning.</span> No entry satisfied your query parameters.</div>
+{% endif %}
 {% endblock %}
 
 

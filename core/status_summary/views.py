@@ -49,22 +49,22 @@ def index(request):
     ### query jobs for the summary
     qs = []
     qs.extend( 
-        Jobsactive4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        Jobsactive4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
     qs.extend(
-        Jobsdefined4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        Jobsdefined4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
     qs.extend(
-        Jobswaiting4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        Jobswaiting4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
     qs.extend(
-        Jobsarchived4.objects.all().values('jobstatus', 'cloud', 'computingsite' \
+        Jobsarchived4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
