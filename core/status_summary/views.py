@@ -80,7 +80,7 @@ def index(request):
         'viewParams': {'MON_VO': 'ATLAS'},
         'data': qs_tidy,
     }
-    return render_to_response('status_summary/index.html', data, RequestContext(request))
+    return render_to_response('status_summary/index-status_summary.html', data, RequestContext(request))
 
 
 
