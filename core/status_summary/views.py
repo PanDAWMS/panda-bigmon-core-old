@@ -30,21 +30,74 @@ collectorTimeFormat = "%Y-%m-%d %H:%M:%S"
 _logger = logging.getLogger('bigpandamon')
 
 
-def index(request):
+def index_data(request):
     """
         index -- status_summary's default page
         
         :param request: Django's HTTP request 
         :type request: django.http.HttpRequest
         
+        
+        filtering options for specified GET parameters:
+            ?nhours ... date range of how many hours in past
+            ?starttime ... datetime from, format %Y-%m-%dT%H:%M:%S
+            ?endtime ... datetime to, format %Y-%m-%dT%H:%M:%S
+            ?mcp_cloud ... cloud field of the jobs tables
+            ?computingsite ... computingsite field of the jobs tables
+            ?jobstatus ... PanDA job status, list delimited by comma
+        
+            nhours has higher priority than starttime, endtime
+                if nhours is specified, starttime&endtime are not taken into account.
+        
     """
+    errors = {}
+    warnings = {}
+
+    ### GET parameters
+    GET_parameters = {}
+    for p in request.GET:
+        GET_parameters[p] = str(request.GET[p])
+
+    ### time range from request.GET
+    optionalFields = ['nhours', 'starttime', 'endtime', \
+                      'mcp_cloud', 'computingsite', 'jobstatus']
+    for optionalField in optionalFields:
+        try:
+            if len(request.GET[optionalField]) < 1:
+                msg = 'Missing optional GET parameter %s. ' % optionalField
+                if 'missingoptionalparameter' not in warnings.keys():
+                    warnings['missingoptionalparameter'] = ''
+                warnings['missingoptionalparameter'] += msg
+        except:
+            msg = 'Missing optional GET parameter %s. ' % optionalField
+            _logger.warning(msg)
+            if 'missingoptionalparameter' not in warnings.keys():
+                warnings['missingoptionalparameter'] = ''
+            warnings['missingoptionalparameter'] += msg
+
+    ### if all expected GET parameters are present, execute log lookup
+
     ### configure time interval for queries
-    startdate, enddate, nhours, errors_GET = configure(request.GET)
+    starttime, endtime, nhours, errors_GET, \
+        f_computingsite, f_mcp_cloud, f_jobstatus = configure(GET_parameters)
 
     ### start the query parameters
     query = {}
     ### filter logdate__range
-    query['modificationtime__range'] = [startdate, enddate]
+    query['modificationtime__range'] = [starttime, endtime]
+    ### filter mcp_cloud
+    fval_mcp_cloud = f_mcp_cloud.split(',')
+    print 'fval_mcp_cloud', fval_mcp_cloud
+    if len(fval_mcp_cloud) and len(fval_mcp_cloud[0]):
+        query['cloud__in'] = fval_mcp_cloud
+    ### filter computingsite
+    fval_computingsite = f_computingsite.split(',')
+    if len(fval_computingsite) and len(fval_computingsite[0]):
+        query['computingsite__in'] = fval_computingsite
+    ### filter jobstatus
+    fval_jobstatus = f_jobstatus.split(',')
+    if len(fval_jobstatus) and len(fval_jobstatus[0]):
+        query['jobstatus__in'] = fval_jobstatus
 
     ### query jobs for the summary
     qs = []
@@ -69,20 +122,67 @@ def index(request):
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
 
-    qs_tidy = summarize_data(qs)
+    qs_tidy = summarize_data(qs, query)
 
     ### set request response data
     data = { \
         'errors_GET': errors_GET,
-        'startdate': startdate,
-        'enddate': enddate,
+        'starttime': starttime,
+        'endtime': endtime,
         'nhours': nhours,
-        'viewParams': {'MON_VO': 'ATLAS'},
+        'query': query,
+        'GETparams': GET_parameters,
         'data': qs_tidy,
     }
+    return data, errors, warnings, query, GET_parameters
+
+
+def api_status_summary(request):
+    """
+        api_status_summary -- api for status_summary's default page
+        
+        :param request: Django's HTTP request 
+        :type request: django.http.HttpRequest
+        
+        for filtering options see index_data
+    """
+    raw_data_dict, errors, warnings, query, GET_parameters = index_data(request)
+    raw_data = raw_data_dict['data']
+    data = { \
+        'timestamp': datetime.utcnow().isoformat(), \
+        'errors': errors, \
+        'warnings': warnings, \
+        'query': query, \
+        'GET_parameters': GET_parameters, \
+        'nrecords': len(raw_data), \
+        'data': raw_data \
+    }
+
+    if not len(errors) and len(raw_data):
+        ### set request response data
+        return  HttpResponse(json.dumps(data), mimetype='application/json')
+    elif not len(raw_data):
+        return  HttpResponse(json.dumps(data), mimetype='application/json', status=404)
+    else:
+        return  HttpResponse(json.dumps(data), mimetype='application/json', status=400)
+
+
+def index(request):
+    """
+        index -- status_summary's default page
+        
+        :param request: Django's HTTP request 
+        :type request: django.http.HttpRequest
+        
+        for filtering options see index_data
+    """
+    ### if curling for json, return API response
+    if request.META.get('CONTENT_TYPE', 'text/plain') == 'application/json':
+        return api_status_summary(request)
+
+    data, errors, warnings, query, GET_parameters = index_data(request)
+    data['viewParams'] = {'MON_VO': 'ATLAS'},
     return render_to_response('status_summary/index-status_summary.html', data, RequestContext(request))
-
-
 
 
 #def api_pbm_collector(request):
@@ -143,8 +243,8 @@ def index(request):
 #    nhours = 6
 #    starttime = None
 #    endtime = None
-#    startdate = None
-#    enddate = None
+#    starttime = None
+#    endtime = None
 #    if 'nhours' in request.GET:
 #        try:
 #            nhours = int(request.GET['nhours'])
@@ -152,30 +252,30 @@ def index(request):
 #            nhours = 6
 #        starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
 #        endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#        startdate = starttime
-#        enddate = endtime
+#        starttime = starttime
+#        endtime = endtime
 #    else:
 #        if 'starttime' in request.GET:
 #            try:
 #                starttime = datetime.strptime(request.GET['starttime'], collectorDatetimeFormat).strftime(collectorTimeFormat)
-#                startdate = starttime
+#                starttime = starttime
 #            except:
 #                starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
-#                startdate = starttime
+#                starttime = starttime
 #        else:
 #            starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
-#            startdate = starttime
+#            starttime = starttime
 #
 #        if 'endtime' in request.GET:
 #            try:
 #                endtime = datetime.strptime(request.GET['endtime'], collectorDatetimeFormat).strftime(collectorTimeFormat)
-#                enddate = endtime
+#                endtime = endtime
 #            except:
 #                endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#                enddate = endtime
+#                endtime = endtime
 #        else:
 #            endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#            enddate = endtime
+#            endtime = endtime
 #
 #    ### if all expected GET parameters are present, execute log lookup
 #    query = {}
@@ -186,7 +286,7 @@ def index(request):
 #    except:
 #        logtype = None
 #    query['type'] = logtype
-#    query['bintime__range'] = [startdate, enddate]
+#    query['bintime__range'] = [starttime, endtime]
 #    query['time__range'] = [starttime, endtime]
 #
 #    log_records = []
@@ -228,22 +328,12 @@ def index(request):
 #    }
 #    if not len(errors):
 #        ### set request response data
-##        return render_to_response('pbm/api_pbm_collector.html', {'data': data}, RequestContext(request))
 #        return  HttpResponse(json.dumps(data), mimetype='application/json')
 #    elif 'type' not in request.GET.keys() or logtype == None:
-##        t = get_template('pbm/api_pbm_collector.html')
-##        context = RequestContext(request, {'data':data})
-##        return HttpResponse(t.render(context), status=400)
 #        return  HttpResponse(json.dumps(data), mimetype='application/json', status=400)
 #    elif not len(log_records):
-##        t = get_template('pbm/api_pbm_collector.html')
-##        context = RequestContext(request, {'data':data})
-##        return HttpResponse(t.render(context), status=404)
 #        return  HttpResponse(json.dumps(data), mimetype='application/json', status=404)
 #    else:
-##        t = get_template('pbm/api_pbm_collector.html')
-##        context = RequestContext(request, {'data':data})
-##        return HttpResponse(t.render(context), status=400)
 #        return  HttpResponse(json.dumps(data), mimetype='application/json', status=400)
 #
 #

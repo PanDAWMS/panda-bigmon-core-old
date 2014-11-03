@@ -8,6 +8,7 @@ import views as smry_views
 
 urlpatterns = patterns('',
     url(r'^$', smry_views.index, name='status_summary-index'),
+    url(r'^api/$', smry_views.api_status_summary, name='status_summary-api'),
 )
 
 
