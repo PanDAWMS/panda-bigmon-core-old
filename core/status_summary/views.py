@@ -45,7 +45,7 @@ def index_data(request):
             ?mcp_cloud ... cloud field of the jobs tables
             ?computingsite ... computingsite field of the jobs tables
             ?jobstatus ... PanDA job status, list delimited by comma
-        
+            ?corecount .. corecount field of the schedconfig table
             nhours has higher priority than starttime, endtime
                 if nhours is specified, starttime&endtime are not taken into account.
         
@@ -60,7 +60,7 @@ def index_data(request):
 
     ### time range from request.GET
     optionalFields = ['nhours', 'starttime', 'endtime', \
-                      'mcp_cloud', 'computingsite', 'jobstatus']
+                      'mcp_cloud', 'computingsite', 'jobstatus', 'corecount']
     for optionalField in optionalFields:
         try:
             if len(request.GET[optionalField]) < 1:
@@ -79,7 +79,8 @@ def index_data(request):
 
     ### configure time interval for queries
     starttime, endtime, nhours, errors_GET, \
-        f_computingsite, f_mcp_cloud, f_jobstatus = configure(GET_parameters)
+        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount \
+ = configure(GET_parameters)
 
     ### start the query parameters
     query = {}
@@ -98,6 +99,10 @@ def index_data(request):
     fval_jobstatus = f_jobstatus.split(',')
     if len(fval_jobstatus) and len(fval_jobstatus[0]):
         query['jobstatus__in'] = fval_jobstatus
+    ### filter corecount
+    fval_corecount = f_corecount.split(',')
+    if len(fval_corecount) and len(fval_corecount[0]):
+        query['corecount__in'] = fval_corecount
 
     ### query jobs for the summary
     qs = []
@@ -183,159 +188,5 @@ def index(request):
     data, errors, warnings, query, GET_parameters = index_data(request)
     data['viewParams'] = {'MON_VO': 'ATLAS'},
     return render_to_response('status_summary/index-status_summary.html', data, RequestContext(request))
-
-
-#def api_pbm_collector(request):
-#    """
-#        api_pbm_collector -- return json with Pandalog data for specified GET parameters
-#            ?type ... Pandalog flavour, e.g. 'pd2p', 'brokerage', 'analy_brokerage'
-#            ?nhours ... date range of how many hours in past
-#            ?starttime ... datetime from, format %Y-%m-%dT%H:%M:%S
-#            ?endtime ... datetime to, format %Y-%m-%dT%H:%M:%S
-#
-#            nhours has higher priority than starttime, endtime
-#                if nhours is specified, starttime&endtime are not taken into account.
-#
-#        :param request: Django's HTTP request
-#        :type request: django.http.HttpRequest
-#
-#    """
-#    errors = {}
-#    warnings = {}
-#
-#    ### GET parameters
-#    GET_parameters = {}
-#    for p in request.GET:
-#        GET_parameters[p] = str(request.GET[p])
-#
-#    ### check that all expected parameters are in URL
-#    expectedFields = ['type']
-#    for expectedField in expectedFields:
-#        try:
-#            if len(request.GET[expectedField]) < 1:
-#                msg = 'Missing expected GET parameter %s. ' % expectedField
-#                if 'missingparameter' not in errors.keys():
-#                    errors['missingparameter'] = ''
-#                errors['missingparameter'] += msg
-#        except:
-#            msg = 'Missing expected GET parameter %s. ' % expectedField
-#            _logger.error(msg)
-#            if 'missingparameter' not in errors.keys():
-#                errors['missingparameter'] = ''
-#            errors['missingparameter'] += msg
-#
-#    ### time range from request.GET
-#    optionalFields = ['starttime', 'endtime', 'nhours']
-#    for optionalField in optionalFields:
-#        try:
-#            if len(request.GET[optionalField]) < 1:
-#                msg = 'Missing optional GET parameter %s. ' % optionalField
-#                if 'missingoptionalparameter' not in warnings.keys():
-#                    warnings['missingoptionalparameter'] = ''
-#                warnings['missingoptionalparameter'] += msg
-#        except:
-#            msg = 'Missing optional GET parameter %s. ' % optionalField
-#            _logger.warning(msg)
-#            if 'missingoptionalparameter' not in warnings.keys():
-#                warnings['missingoptionalparameter'] = ''
-#            warnings['missingoptionalparameter'] += msg
-#    ### get values for optional timerange parameters
-#    nhours = 6
-#    starttime = None
-#    endtime = None
-#    starttime = None
-#    endtime = None
-#    if 'nhours' in request.GET:
-#        try:
-#            nhours = int(request.GET['nhours'])
-#        except:
-#            nhours = 6
-#        starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
-#        endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#        starttime = starttime
-#        endtime = endtime
-#    else:
-#        if 'starttime' in request.GET:
-#            try:
-#                starttime = datetime.strptime(request.GET['starttime'], collectorDatetimeFormat).strftime(collectorTimeFormat)
-#                starttime = starttime
-#            except:
-#                starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
-#                starttime = starttime
-#        else:
-#            starttime = (datetime.utcnow() - timedelta(hours=nhours)).strftime(collectorTimeFormat)
-#            starttime = starttime
-#
-#        if 'endtime' in request.GET:
-#            try:
-#                endtime = datetime.strptime(request.GET['endtime'], collectorDatetimeFormat).strftime(collectorTimeFormat)
-#                endtime = endtime
-#            except:
-#                endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#                endtime = endtime
-#        else:
-#            endtime = datetime.utcnow().strftime(collectorTimeFormat)
-#            endtime = endtime
-#
-#    ### if all expected GET parameters are present, execute log lookup
-#    query = {}
-#    logtype = None
-#    try:
-#        if 'type' in request.GET and len(request.GET['type']):
-#            logtype = request.GET['type']
-#    except:
-#        logtype = None
-#    query['type'] = logtype
-#    query['bintime__range'] = [starttime, endtime]
-#    query['time__range'] = [starttime, endtime]
-#
-#    log_records = []
-#    try:
-#        log_records = Pandalog.objects.filter(**query).values()
-#    except:
-#        pass
-#
-#    frm_log_records = []
-#    if not len(log_records):
-#        if 'lookup' not in errors:
-#            errors['lookup'] = ''
-#        errors['lookup'] += 'Log record for parameters has not been found. query=%s' % query
-#    ### return the json data
-#    else:
-#        frm_log_records = [ {'name': x['name'], \
-#                             'bintime': x['bintime'].isoformat(), \
-#                             'module': x['module'], \
-#                             'loguser': x['loguser'], \
-#                             'type': x['type'], \
-#                             'pid': x['pid'], \
-#                             'loglevel': x['loglevel'], \
-#                             'levelname': x['levelname'], \
-#                             'filename': x['filename'], \
-#                             'line': x['line'], \
-#                             'time': x['time'], \
-#                             'message': x['message'] \
-#                             } \
-#                           for x in log_records ]
-#
-#    data = { \
-#        'timestamp': datetime.utcnow().isoformat(), \
-#        'errors': errors, \
-#        'warnings': warnings, \
-#        'query': query, \
-#        'GET_parameters': GET_parameters, \
-#        'nrecords': len(log_records), \
-#        'data': frm_log_records \
-#    }
-#    if not len(errors):
-#        ### set request response data
-#        return  HttpResponse(json.dumps(data), mimetype='application/json')
-#    elif 'type' not in request.GET.keys() or logtype == None:
-#        return  HttpResponse(json.dumps(data), mimetype='application/json', status=400)
-#    elif not len(log_records):
-#        return  HttpResponse(json.dumps(data), mimetype='application/json', status=404)
-#    else:
-#        return  HttpResponse(json.dumps(data), mimetype='application/json', status=400)
-#
-#
 
 

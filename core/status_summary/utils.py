@@ -81,13 +81,18 @@ def configure(request_GET):
     if 'jobstatus' in request_GET:
         f_jobstatus = request_GET['jobstatus']
 
+    ### if jobstatus is provided, use it. comma delimited strings
+    f_corecount = ''
+    if 'corecount' in request_GET:
+        f_corecount = request_GET['corecount']
+
     return starttime, endtime, nhours, errors_GET, \
-        f_computingsite, f_mcp_cloud, f_jobstatus
+        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount
 
 
 def get_topo_info():
     res = {}
-    schedinfo = Schedconfig.objects.all().values('cloud', 'siteid', 'gstat', 'site')
+    schedinfo = Schedconfig.objects.all().values('cloud', 'siteid', 'gstat', 'site', 'corecount')
     res = dict([(x['siteid'], x) for x in schedinfo])
     return res
 
@@ -135,12 +140,15 @@ def summarize_data(data, query):
         ### add topology info
         cloud = None
         atlas_site = None
+        corecount = None
         if computingsite in schedinfo:
             cs_schedinfo = schedinfo[computingsite]
             cloud = cs_schedinfo['cloud']
             atlas_site = cs_schedinfo['gstat']
+            corecount = cs_schedinfo['corecount']
         item['cloud'] = cloud
         item['atlas_site'] = atlas_site
+        item['corecount'] = corecount
         ### get records for this computingsite
         rec = [x for x in data \
                if x['computingsite'] == computingsite]

@@ -81,6 +81,7 @@
 <th>ATLAS site</th>
 <th>MCP Cloud</th>
 <th>PanDA Resource</th>
+<th>Core count</th>
 <th>defined</th>
 <th>waiting</th>
 <th>pending</th>
@@ -104,6 +105,7 @@
 <td>{{item.atlas_site}}</td>
 <td>{{item.mcp_cloud}}</td>
 <td>{{item.computingsite}}</td>
+<td>{{item.corecount|default_if_none:"n/a"}}</td>
 <td>{{item.defined|default_if_none:"&mdash;"}}</td>
 <td>{{item.waiting|default_if_none:"&mdash;"}}</td>
 <td>{{item.pending|default_if_none:"&mdash;"}}</td>
