@@ -127,6 +127,9 @@ def index_data(request):
         ).order_by('cloud', 'computingsite', 'jobstatus')
     )
 
+    if not len(qs):
+        errors['lookup'] = "Job for this query has not been found. "
+
     qs_tidy = summarize_data(qs, query)
 
     ### set request response data
