@@ -394,7 +394,7 @@ def summarize_data(data, query, exclude_query, schedconfig_query, \
                 if str(item[schedconfig_key_base]).upper() != 'NULL':
                         store = False
             if '%s__exact' % (schedconfig_key_base) in \
-            schedconfig_exclude_query.keys():
+            schedconfig_query.keys():
                 if str(schedconfig_query['%s__exact' % (schedconfig_key_base)]) != \
                     str(item[schedconfig_key_base]):
                     store = False
