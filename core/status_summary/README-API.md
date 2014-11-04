@@ -25,7 +25,7 @@ Filters 'mcp_cloud', 'computingsite', 'jobstatus', 'cloud', 'atlas_site', 'statu
 
 Operator != can be expressed with '-', e.g. 'field != value' translates into 'field=-value'. 
 
-'NULL' values from DB can also be filtered, e.g. 'field == NULL' translates into 'field=NULL', 'field != NULL' translates into 'field=-NULL'.
+'NULL' values from DB can also be filtered, e.g. 'field == NULL' translates into '?field=NULL', 'field != NULL' translates into '?field=-NULL'.
 
 Filters are described in more details in the following sections. 
 
