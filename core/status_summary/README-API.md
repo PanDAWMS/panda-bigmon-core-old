@@ -92,7 +92,7 @@ Successful pass:
   Missing optional GET parameter computingsite. Missing optional GET parameter
   jobstatus. Missing optional GET parameter corecount. "}, 
 "timestamp": "2014-11-03T16:35:49.675015", 
-"query": {"modificationtime__range": ["2014-11-03T14:35:48", "2014-11-03T16:35:48"]}, 
+"query": {"JOBS INCLUDE: modificationtime__range": ["2014-11-03T14:35:48", "2014-11-03T16:35:48"]}, 
 "data": [{"corecount": null, "merging": 0, "defined": 256, "throttled": 0, 
   "atlas_site": "Australia-ATLAS", "activated": 3, "running": 8, "assigned": 0, "failed": 5,
   "waiting": 0, "finished": 16, "computingsite": "ANALY_AUSTRALIA", "holding": 0, "sent": 1,
