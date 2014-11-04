@@ -1,18 +1,4 @@
 {% extends "_base_bigpandamon.html" %}{% load url from future %}
-{% comment %}
-{% block title %}PanDA Brokerage Monitor{% endblock %}
-{% block page_title %}PanDA Brokerage Monitor{% endblock %}
-{% block bl_page_title %}PanDA Brokerage Monitor{% endblock %}
-{% block gacode %}UA-44940804-1{% endblock %}
-{% block gaweb %}pandawms.org{% endblock %}
-{% block subtitle %}PanDA Brokerage{% endblock %}
-{% block header-nav-chain-1 %}<a href="#">PanDA Brokerage</a>{% endblock %}{% block header-nav-chain-1-separator %}{{ SEPARATOR_NAVIGATION_ITEM|safe }}{% endblock %}
-{% block header-nav-chain-2 %}{% endblock %}{% block header-nav-chain-2-separator %}{% endblock %}
-{% block header-nav-chain-3 %}{% endblock %}{% block header-nav-chain-3-separator %}{% endblock %}
-{% block header-nav-chain-4 %}{% endblock %}{% block header-nav-chain-4-separator %}{% endblock %}
-{% block header-nav-chain-5 %}{% endblock %}{% block header-nav-chain-5-separator %}{% endblock %}
-{% block header-nav-chain-6 %}{% endblock %}
-{% endcomment %}
 
 {% block title %}PanDA Activity Summary{% endblock %}
 {% block page_title %}PanDA Activity Summary{% endblock %}
@@ -72,6 +58,10 @@
 		</table>
 	</div>
 {% endif %}
+	<div><span style="color: navy; font-weight: bold;">
+	Filters and API documentation:</span> available in 
+	<a href="https://github.com/PanDAWMS/panda-bigmon-core/blob/wenaus/core/status_summary/README-API.md">README-API</a>.
+	</div>
 {% if data %}
 <br/><br/>
 <table>
@@ -129,6 +119,10 @@
 {% else %}
 <div><span style="color: orange; font-weight: bold;">Result warning.</span> No entry satisfied your query parameters.</div>
 {% endif %}
+	<div><span style="color: navy; font-weight: bold;">
+	Filters and API documentation:</span> available in 
+	<a href="https://github.com/PanDAWMS/panda-bigmon-core/blob/wenaus/core/status_summary/README-API.md">README-API</a>.
+	</div>
 {% endblock %}
 
 
