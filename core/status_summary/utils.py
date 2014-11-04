@@ -142,6 +142,8 @@ def summarize_data(data, query):
         cloud = None
         atlas_site = None
         corecount = None
+        status = None
+        comment = None
         if computingsite in schedinfo:
             cs_schedinfo = schedinfo[computingsite]
             cloud = cs_schedinfo['cloud']
