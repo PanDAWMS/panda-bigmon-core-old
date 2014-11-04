@@ -337,15 +337,15 @@ The API has 3 HTTP return states: 200, 404, 400.
 
 **Example usage**:
 
-A single atlas_site:
+A single states:
   ```
-# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD"
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?status=online"
 
   ```
 
-Multiple atlas_sites:
+Multiple states:
   ```
-# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD,ANALY_CERN_SLC6"
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?status=online,brokeroff"
 
   ```
 
