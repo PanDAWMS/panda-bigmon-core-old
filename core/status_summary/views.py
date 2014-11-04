@@ -171,7 +171,7 @@ def index_data(request):
         'GETparams': GET_parameters,
         'data': qs_tidy,
     }
-    return data, errors, warnings, query, GET_parameters
+    return data, errors, warnings, query_merge, GET_parameters
 
 
 def api_status_summary(request):
