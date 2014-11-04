@@ -8,14 +8,14 @@ import json
 import pytz
 from datetime import datetime, timedelta
 
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.core.serializers.json import DjangoJSONEncoder
 
-from .utils import configure, summarize_data
+from .utils import configure, build_query, summarize_data
 
 from ..pandajob.models import Jobsactive4, Jobsdefined4, Jobswaiting4, \
     Jobsarchived4
@@ -77,60 +77,63 @@ def index_data(request):
 
     ### if all expected GET parameters are present, execute log lookup
 
-    ### configure time interval for queries
-    starttime, endtime, nhours, errors_GET, \
-        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount \
- = configure(GET_parameters)
-
-    ### start the query parameters
-    query = {}
-    ### filter logdate__range
-    query['modificationtime__range'] = [starttime, endtime]
-    ### filter mcp_cloud
-    fval_mcp_cloud = f_mcp_cloud.split(',')
-    print 'fval_mcp_cloud', fval_mcp_cloud
-    if len(fval_mcp_cloud) and len(fval_mcp_cloud[0]):
-        query['cloud__in'] = fval_mcp_cloud
-    ### filter computingsite
-    fval_computingsite = f_computingsite.split(',')
-    if len(fval_computingsite) and len(fval_computingsite[0]):
-        query['computingsite__in'] = fval_computingsite
-    ### filter jobstatus
-    fval_jobstatus = f_jobstatus.split(',')
-    if len(fval_jobstatus) and len(fval_jobstatus[0]):
-        query['jobstatus__in'] = fval_jobstatus
-    ### filter corecount
-    fval_corecount = f_corecount.split(',')
-    if len(fval_corecount) and len(fval_corecount[0]):
-        query['corecount__in'] = fval_corecount
+    ### get queries
+    query, exclude_query, starttime, endtime, nhours, errors_GET, \
+        schedconfig_query, schedconfig_exclude_query = \
+        build_query(GET_parameters)
 
     ### query jobs for the summary
     qs = []
-    qs.extend( 
-        Jobsactive4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+    if len(exclude_query.keys()):
+        qs_tmp = Jobsactive4.objects.filter(**query).filter(~Q(**exclude_query)
+        ).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
-    )
-    qs.extend(
-        Jobsdefined4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        qs.extend(qs_tmp)
+
+        qs_tmp = Jobsdefined4.objects.filter(**query).filter(~Q(**exclude_query)
+        ).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
-    )
-    qs.extend(
-        Jobswaiting4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        qs.extend(qs_tmp)
+
+        qs_tmp = Jobswaiting4.objects.filter(**query).filter(~Q(**exclude_query)
+        ).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
-    )
-    qs.extend(
-        Jobsarchived4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        qs.extend(qs_tmp)
+
+        qs_tmp = Jobsarchived4.objects.filter(**query).filter(~Q(**exclude_query)
+        ).values('jobstatus', 'cloud', 'computingsite' \
         ).annotate(njobs=Count('jobstatus') \
         ).order_by('cloud', 'computingsite', 'jobstatus')
-    )
+        qs.extend(qs_tmp)
+    else:
+        qs_tmp = Jobsactive4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+        qs.extend(qs_tmp)
+    
+        qs_tmp = Jobsdefined4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+        qs.extend(qs_tmp)
+
+        qs_tmp = Jobswaiting4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+        qs.extend(qs_tmp)
+
+        qs_tmp = Jobsarchived4.objects.filter(**query).values('jobstatus', 'cloud', 'computingsite' \
+        ).annotate(njobs=Count('jobstatus') \
+        ).order_by('cloud', 'computingsite', 'jobstatus')
+        qs.extend(qs_tmp)
 
     if not len(qs):
         errors['lookup'] = "Job for this query has not been found. "
 
-    qs_tidy = summarize_data(qs, query)
+    qs_tidy = summarize_data(qs, query, exclude_query, schedconfig_query, \
+                             schedconfig_exclude_query)
 
     ### set request response data
     data = { \

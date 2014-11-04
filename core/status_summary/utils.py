@@ -7,6 +7,7 @@ import pytz
 from datetime import datetime, timedelta
 
 from django.db.models import Count, Sum
+
 from ..resource.models import Schedconfig
 from lsst.views import statelist as STATELIST
 
@@ -90,6 +91,148 @@ def configure(request_GET):
         f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount
 
 
+def process_wildcards_str(value_list, key_base, include_flag=True):
+    query = {}
+    for val in value_list:
+        ### NULL
+        if val.upper() == 'NULL':
+            key = '%s__isnull' % (key_base)
+            query[key] = include_flag
+        ### no wildcard, use __in
+        elif val.find('*') == -1 and len(val):
+            key='%s__in' % (key_base)
+            if key not in query:
+                query[key] = []
+            query[key].append(val)
+        else:
+            items = val.split('*')
+            if len(items) > 0:
+                ### startswith
+                first = items.pop(0)
+                if len(first):
+                    key = '%s__istartswith' % (key_base)
+                    query[key] = first
+                ### endswith
+                if len(items) > 1:
+                    last = items.pop(-1)
+                    if len(last):
+                        key = '%s__iendswith' % (key_base)
+                        query[key] = last
+                ### contains
+                items_not_empty = [x for x in items if len(x)]
+                if len(items_not_empty):
+                    key = '%s__icontains' % (key_base)
+                    query[key] = items_not_empty[0]
+    return query
+
+
+def parse_param_values_str(GET_param_field, key_base):
+    query = {}
+    exclude_query = {}
+
+    ### filter mcp_cloud
+    fval = GET_param_field.split(',')
+    if len(fval) and len(fval[0]):
+        ### get exclude values
+        exclude_values = [x[1:] for x in fval \
+                          if x.startswith('-')]
+        ### get include values
+        include_values = [x for x in fval \
+                          if not x.startswith('-')]
+        ### process wildcards
+        exclude_query.update(process_wildcards_str(exclude_values, \
+                                                key_base, include_flag=False))
+        query.update(process_wildcards_str(include_values, key_base))
+    return query, exclude_query
+
+
+def process_wildcards_int(value_list, key_base, include_flag=True):
+    query = {}
+    for val in value_list:
+        ### NULL
+        if val.upper() == 'NULL':
+            key = '%s__isnull' % (key_base)
+            query[key] = include_flag
+        else:
+            key = '%s__exact' % (key_base)
+            query[key] = val[0]
+    return query
+
+
+def parse_param_values_int(GET_param_field, key_base):
+    query = {}
+    exclude_query = {}
+
+    ### filter mcp_cloud
+    fval = GET_param_field.split(',')
+    if len(fval) and len(fval[0]):
+        ### get exclude values
+        exclude_values = [x[1:] for x in fval \
+                          if x.startswith('-')]
+        ### get include values
+        include_values = [x for x in fval \
+                          if not x.startswith('-')]
+        ### process wildcards
+        exclude_query.update(process_wildcards_int(exclude_values, \
+                                                key_base, include_flag=False))
+        query.update(process_wildcards_int(include_values, key_base))
+    return query, exclude_query
+
+
+def build_query(GET_parameters):
+    ### start the query parameters
+    query = {}
+    ### query for exclude
+    exclude_query = {}
+    ### start the schedconfig query parameters
+    schedconfig_query = {}
+    ### query for exclude in schedconfig
+    schedconfig_exclude_query = {}
+
+    ### configure time interval for queries
+    starttime, endtime, nhours, errors_GET, \
+        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount = \
+        configure(GET_parameters)
+
+    ### filter logdate__range
+    query['modificationtime__range'] = [starttime, endtime]
+
+    ### filter mcp_cloud
+    mcp_cloud_query, mcp_cloud_exclude_query = \
+        parse_param_values_str(f_mcp_cloud, 'cloud')
+    if len(mcp_cloud_query.keys()):
+        query.update(mcp_cloud_query)
+    if len(mcp_cloud_exclude_query.keys()):
+        exclude_query.update(mcp_cloud_exclude_query)
+
+    ### filter computingsite
+    computingsite_query, computingsite_exclude_query = \
+        parse_param_values_str(f_computingsite, 'computingsite')
+    if len(computingsite_query.keys()):
+        query.update(computingsite_query)
+    if len(computingsite_exclude_query.keys()):
+        exclude_query.update(computingsite_exclude_query)
+
+    ### filter jobstatus
+    jobstatus_query, jobstatus_exclude_query = \
+        parse_param_values_str(f_jobstatus, 'jobstatus')
+    if len(jobstatus_query.keys()):
+        query.update(jobstatus_query)
+    if len(jobstatus_exclude_query.keys()):
+        exclude_query.update(jobstatus_exclude_query)
+
+    ### filter corecount
+    corecount_query, corecount_exclude_query = \
+        parse_param_values_int(f_corecount, 'corecount')
+    if len(corecount_query.keys()):
+        schedconfig_query.update(corecount_query)
+    if len(corecount_exclude_query.keys()):
+        schedconfig_exclude_query.update(corecount_exclude_query)
+
+    return query, exclude_query, starttime, endtime, nhours, errors_GET, \
+        schedconfig_query, schedconfig_exclude_query
+
+
 def get_topo_info():
     res = {}
     schedinfo = Schedconfig.objects.all().values('cloud', 'siteid', 'gstat', \
@@ -116,7 +259,8 @@ def sort_data_by_cloud(data):
     return res
 
 
-def summarize_data(data, query):
+def summarize_data(data, query, exclude_query, schedconfig_query, \
+                             schedconfig_exclude_query):
     """
         summarize_data
         
@@ -137,6 +281,7 @@ def summarize_data(data, query):
     computingsites = list(set([x['computingsite'] for x in data]))
     ### loop through computing sites, sum njobs for each job status
     for computingsite in computingsites:
+        store = True
         item={'computingsite': computingsite}
         ### add topology info
         cloud = None
@@ -156,28 +301,39 @@ def summarize_data(data, query):
         item['corecount'] = corecount
         item['status'] = status
         item['comment'] = comment
-        ### get records for this computingsite
-        rec = [x for x in data \
-               if x['computingsite'] == computingsite]
-        ### get cloud for this computingsite
-        mcp_cloud = ', '.join(sorted(list(set([x['cloud'] for x in data \
-                 if x['computingsite'] == computingsite and len(x['cloud']) > 1]))))
-        item['mcp_cloud'] = mcp_cloud
-        ### get njobs per jobstatus for this computingsite
-        for jobstatus in STATELIST:
-            process_jobstatus = False
-            if 'jobstatus__in' in query.keys() and jobstatus in query['jobstatus__in']:
-                process_jobstatus = True
-            elif 'jobstatus__in' not in query.keys():
-                process_jobstatus = True
-            if process_jobstatus:
-                jobstatus_rec = [x['njobs'] for x in rec \
-                             if x['jobstatus'] == jobstatus]
-                item[jobstatus] = sum(jobstatus_rec)
-            else:
-                item[jobstatus] = None
-        ### store info for this computingsite
-        result.append(item)
+        for schedconfig_key_base in ['corecount', 'status', 'comment']:
+            if '%s__isnull' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if item[schedconfig_key_base] == 'NULL':
+                    store = False
+            if '%s__exact' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if str(schedconfig_exclude_query['%s__exact' % (schedconfig_key_base)]) == \
+                    str(item[schedconfig_key_base]):
+                    store = False
+        if store:
+            ### get records for this computingsite
+            rec = [x for x in data \
+                   if x['computingsite'] == computingsite]
+            ### get cloud for this computingsite
+            mcp_cloud = ', '.join(sorted(list(set([x['cloud'] for x in data \
+                     if x['computingsite'] == computingsite and len(x['cloud']) > 1]))))
+            item['mcp_cloud'] = mcp_cloud
+            ### get njobs per jobstatus for this computingsite
+            for jobstatus in STATELIST:
+                process_jobstatus = False
+                if 'jobstatus__in' in query.keys() and jobstatus in query['jobstatus__in']:
+                    process_jobstatus = True
+                elif 'jobstatus__in' not in query.keys():
+                    process_jobstatus = True
+                if process_jobstatus:
+                    jobstatus_rec = [x['njobs'] for x in rec \
+                                 if x['jobstatus'] == jobstatus]
+                    item[jobstatus] = sum(jobstatus_rec)
+                else:
+                    item[jobstatus] = None
+            ### store info for this computingsite
+            result.append(item)
     ### sort result
     result = sort_data_by_cloud(result)
     return result
