@@ -76,7 +76,7 @@ Successful pass:
 
 API: ?mcp_cloud=XYZ
 -----------
-The 'mcp_cloud' parameter is the 'cloud' field of the jobs tables (cloud to which a task was submitted), as oppose to the topology cloud to which the PanDA resource belongs. 
+The 'mcp_cloud' parameter is the 'cloud' field of the jobs tables (cloud to which a task was submitted), as oppose to the topology cloud to which the PanDA resource belongs. Wildcard is '*', e.g. '?mcp_cloud=C*N'.
 
 Multiple 'mcp_cloud's can be filtered, comma is the delimiter. 
 
@@ -160,7 +160,7 @@ Non-existant MCP cloud:
 
 API: ?computingsite=XYZ
 -----------
-The 'computingsite' parameter is the 'computingsite' field of the jobs tables (PanDA resource where the job ran). Multiple 'computingsite's can be filtered, comma is the delimiter. 
+The 'computingsite' parameter is the 'computingsite' field of the jobs tables (PanDA resource where the job ran). Multiple 'computingsite's can be filtered, comma is the delimiter. Wildcard is '*', e.g. '?computingsite=ANALY*'.
 
 The API has 3 HTTP return states: 200, 404, 400.
 
@@ -242,7 +242,7 @@ Multiple PanDA jobstates:
 
 API: ?corecount=N
 -----------
-The 'corecount' parameter is the 'corecount' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'corecount's can be filtered, comma is the delimiter. 
+The 'corecount' parameter is the 'corecount' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'corecount's can be filtered, comma is the delimiter. To filter corecount != N, please use '?corecount=-N'.
 
 The API has 3 HTTP return states: 200, 404, 400.
 
@@ -262,6 +262,8 @@ Multiple corecounts:
 
 API: defaults and GET parameter combinations
 -----------
-Default job 'modificationtime' range is nhours=12 (last 12 hours). Listed API filters can be combined. Default URL /status_summary/ shows all active jobs from the past 12 hours, there is no distinction between analysis, production, test etc. jobs.
+Default job 'modificationtime' range is nhours=12 (last 12 hours). Listed API filters can be combined. Default URL /status_summary/ shows all active jobs from the past 12 hours, there is no distinction between analysis, production, test etc. jobs. 
+
+When using wildcard '*' or != operator filter, it is better to avoid using multiple values (delimited by comma) for that GET parameter.
 
 
