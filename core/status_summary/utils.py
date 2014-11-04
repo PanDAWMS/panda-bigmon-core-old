@@ -92,7 +92,8 @@ def configure(request_GET):
 
 def get_topo_info():
     res = {}
-    schedinfo = Schedconfig.objects.all().values('cloud', 'siteid', 'gstat', 'site', 'corecount')
+    schedinfo = Schedconfig.objects.all().values('cloud', 'siteid', 'gstat', \
+                            'site', 'corecount', 'status', 'comment_field')
     res = dict([(x['siteid'], x) for x in schedinfo])
     return res
 
@@ -146,14 +147,18 @@ def summarize_data(data, query):
             cloud = cs_schedinfo['cloud']
             atlas_site = cs_schedinfo['gstat']
             corecount = cs_schedinfo['corecount']
+            status = cs_schedinfo['status']
+            comment = cs_schedinfo['comment_field']
         item['cloud'] = cloud
         item['atlas_site'] = atlas_site
         item['corecount'] = corecount
+        item['status'] = status
+        item['comment'] = comment
         ### get records for this computingsite
         rec = [x for x in data \
                if x['computingsite'] == computingsite]
         ### get cloud for this computingsite
-        mcp_cloud = ','.join(sorted(list(set([x['cloud'] for x in data \
+        mcp_cloud = ', '.join(sorted(list(set([x['cloud'] for x in data \
                  if x['computingsite'] == computingsite and len(x['cloud']) > 1]))))
         item['mcp_cloud'] = mcp_cloud
         ### get njobs per jobstatus for this computingsite
