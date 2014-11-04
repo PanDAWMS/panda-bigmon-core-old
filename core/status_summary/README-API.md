@@ -4,6 +4,32 @@ PanDA status summary API
 PanDA status summary is a simple Django app to show summary of number jobs per job status for each active PanDA resource. Active PanDA resource is every resource which ran jobs in the past N hours (default is N=12 hours).
 
 
+API: defaults, available filters and their combinations
+-----------
+
+The API listens to following GET parameters as job properties (from jobs tables):
+* ?nhours=N or ?starttime=XYZ&endtime=UVW
+* ?mcp_cloud=XYZ
+* ?computingsite=XYZ
+* ?jobstatus=XYZ
+
+The API listens to following GET parameters as PanDA resource properties (from schedconfig table):
+* ?corecount=N
+* ?cloud=XYZ
+* ?atlas_site=XYZ
+* ?status=XYZ
+
+Default job 'modificationtime' range is nhours=12 (last 12 hours). API filters listed earlier can be combined. Default URL /status_summary/ shows all active jobs from the past 12 hours, there is no distinction between analysis, production, test etc. jobs. 
+
+Filters 'mcp_cloud', 'computingsite', 'jobstatus', 'cloud', 'atlas_site', 'status' listen to wildcard '*'. 
+
+Operator != can be expressed with '-', e.g. 'field != value' translates into 'field=-value'. 
+
+'NULL' values from DB can also be filtered, e.g. 'field == NULL' translates into 'field=NULL', 'field != NULL' translates into 'field=-NULL'.
+
+Filters are described in more details in the following sections. 
+
+
 API: ?nhours=N or ?starttime=XYZ&endtime=UVW
 -----------
 The 'nhours' parameter defines activity interval of "last N hours", format: an integer. It can be alternated by pair of 'starttime' and 'endtime' parameters, format: %Y-%m-%dT%H:%M:%S.
@@ -244,6 +270,8 @@ API: ?corecount=N
 -----------
 The 'corecount' parameter is the 'corecount' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'corecount's can be filtered, comma is the delimiter. To filter corecount != N, please use '?corecount=-N'.
 
+The webpage presents DB value corecount=NULL as 1. The JSON API presents value DB corecount=NULL as null.
+
 The API has 3 HTTP return states: 200, 404, 400.
 
 **Example usage**:
@@ -260,10 +288,65 @@ Multiple corecounts:
 
   ```
 
-API: defaults and GET parameter combinations
+API: ?cloud=XYZ
 -----------
-Default job 'modificationtime' range is nhours=12 (last 12 hours). Listed API filters can be combined. Default URL /status_summary/ shows all active jobs from the past 12 hours, there is no distinction between analysis, production, test etc. jobs. 
+The 'cloud' parameter is the 'cloud' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'clouds's can be filtered, comma is the delimiter. To filter cloud != XYZ, please use '?cloud=-XYZ'. You can use wildcard '*', e.g. '?cloud=CE*N'.
 
-When using wildcard '*' or != operator filter, it is better to avoid using multiple values (delimited by comma) for that GET parameter.
+The API has 3 HTTP return states: 200, 404, 400.
+
+**Example usage**:
+
+A single cloud:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?cloud=CERN"
+
+  ```
+
+Multiple clouds:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?cloud=CERN,DE"
+
+  ```
+
+API: ?atlas_site=XYZ
+-----------
+The 'atlas_site' parameter is the 'gstat' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'atlas_site's can be filtered, comma is the delimiter. To filter atlas_site != XYZ, please use '?atlas_site=-XYZ'. You can use wildcard '*', e.g. '?atlas_site=CERN*'.
+
+The API has 3 HTTP return states: 200, 404, 400.
+
+**Example usage**:
+
+A single atlas_site:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD"
+
+  ```
+
+Multiple atlas_sites:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD,ANALY_CERN_SLC6"
+
+  ```
+
+
+API: ?status=XYZ
+-----------
+The 'status' parameter is the 'status' field of the schedconfig table, it is a property of the PanDA resource. Multiple 'status's can be filtered, comma is the delimiter. To filter status != XYZ, please use '?status=-XYZ'. 
+
+The API has 3 HTTP return states: 200, 404, 400.
+
+**Example usage**:
+
+A single atlas_site:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD"
+
+  ```
+
+Multiple atlas_sites:
+  ```
+# curl -H 'Accept: application/json' -H 'Content-Type: application/json' "http://HOSTNAME/status_summary/?atlas_site=CERN-PROD,ANALY_CERN_SLC6"
+
+  ```
 
 

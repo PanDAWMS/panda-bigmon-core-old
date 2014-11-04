@@ -39,16 +39,23 @@ def index_data(request):
         
         
         filtering options for specified GET parameters:
-            ?nhours ... date range of how many hours in past
-            ?starttime ... datetime from, format %Y-%m-%dT%H:%M:%S
-            ?endtime ... datetime to, format %Y-%m-%dT%H:%M:%S
-            ?mcp_cloud ... cloud field of the jobs tables
-            ?computingsite ... computingsite field of the jobs tables
-            ?jobstatus ... PanDA job status, list delimited by comma
-            ?corecount .. corecount field of the schedconfig table
-            nhours has higher priority than starttime, endtime
-                if nhours is specified, starttime&endtime are not taken into account.
-        
+            * filtering on jobs properties
+                ?nhours ... date range of how many hours in past
+                ?starttime ... datetime from, format %Y-%m-%dT%H:%M:%S
+                ?endtime ... datetime to, format %Y-%m-%dT%H:%M:%S
+            
+                nhours has higher priority than starttime, endtime
+                    if nhours is specified, starttime&endtime are not taken into account.
+            
+                ?mcp_cloud ... cloud field of the jobs tables
+                ?computingsite ... computingsite field of the jobs tables
+                ?jobstatus ... PanDA job status, list delimited by comma
+            
+            * filtering on PanDA resource properties
+                ?corecount .. corecount field of the schedconfig table
+                ?cloud .. cloud field of the schedconfig table
+                ?atlas_site .. gstat field of the schedconfig table
+                ?status .. status field of the schedconfig table
     """
     errors = {}
     warnings = {}
@@ -60,7 +67,8 @@ def index_data(request):
 
     ### time range from request.GET
     optionalFields = ['nhours', 'starttime', 'endtime', \
-                      'mcp_cloud', 'computingsite', 'jobstatus', 'corecount']
+                      'mcp_cloud', 'computingsite', 'jobstatus', 'corecount', \
+                      'cloud', 'atlas_site', 'status']
     for optionalField in optionalFields:
         try:
             if len(request.GET[optionalField]) < 1:
@@ -134,6 +142,24 @@ def index_data(request):
 
     qs_tidy = summarize_data(qs, query, exclude_query, schedconfig_query, \
                              schedconfig_exclude_query)
+    ### merge queries
+    query_merge = {}
+    if len(query.keys()):
+        for key in query.keys():
+            new_key = 'JOBS INCLUDE: %s' % (key)
+            query_merge[new_key] = query[key]
+    if len(exclude_query.keys()):
+        for key in exclude_query.keys():
+            new_key = 'JOBS EXCLUDE: %s' % (key)
+            query_merge[new_key] = exclude_query[key]
+    if len(schedconfig_query.keys()):
+        for key in schedconfig_query.keys():
+            new_key = 'TOPO INCLUDE: %s' % (key)
+            query_merge[new_key] = schedconfig_query[key]
+    if len(schedconfig_exclude_query.keys()):
+        for key in schedconfig_exclude_query.keys():
+            new_key = 'TOPO EXCLUDE: %s' % (key)
+            query_merge[new_key] = schedconfig_exclude_query[key]
 
     ### set request response data
     data = { \
@@ -141,7 +167,7 @@ def index_data(request):
         'starttime': starttime,
         'endtime': endtime,
         'nhours': nhours,
-        'query': query,
+        'query': query_merge,
         'GETparams': GET_parameters,
         'data': qs_tidy,
     }

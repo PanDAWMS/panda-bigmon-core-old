@@ -82,13 +82,29 @@ def configure(request_GET):
     if 'jobstatus' in request_GET:
         f_jobstatus = request_GET['jobstatus']
 
-    ### if jobstatus is provided, use it. comma delimited strings
+    ### if corecount is provided, use it. comma delimited strings, exclude with -N
     f_corecount = ''
     if 'corecount' in request_GET:
         f_corecount = request_GET['corecount']
 
+    ### if cloud is provided, use it. comma delimited strings
+    f_cloud = ''
+    if 'cloud' in request_GET:
+        f_cloud = request_GET['cloud']
+
+    ### if atlas_site is provided, use it. comma delimited strings
+    f_atlas_site = ''
+    if 'atlas_site' in request_GET:
+        f_atlas_site = request_GET['atlas_site']
+
+    ### if status is provided, use it. comma delimited strings
+    f_status = ''
+    if 'status' in request_GET:
+        f_status = request_GET['status']
+
     return starttime, endtime, nhours, errors_GET, \
-        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount
+        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount, f_cloud, \
+        f_atlas_site, f_status
 
 
 def process_wildcards_str(value_list, key_base, include_flag=True):
@@ -191,8 +207,8 @@ def build_query(GET_parameters):
 
     ### configure time interval for queries
     starttime, endtime, nhours, errors_GET, \
-        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount = \
-        configure(GET_parameters)
+        f_computingsite, f_mcp_cloud, f_jobstatus, f_corecount, f_cloud, \
+        f_atlas_site, f_status = configure(GET_parameters)
 
     ### filter logdate__range
     query['modificationtime__range'] = [starttime, endtime]
@@ -228,6 +244,30 @@ def build_query(GET_parameters):
         schedconfig_query.update(corecount_query)
     if len(corecount_exclude_query.keys()):
         schedconfig_exclude_query.update(corecount_exclude_query)
+
+    ### filter cloud
+    cloud_query, cloud_exclude_query = \
+        parse_param_values_str(f_cloud, 'cloud')
+    if len(cloud_query.keys()):
+        schedconfig_query.update(cloud_query)
+    if len(cloud_exclude_query.keys()):
+        schedconfig_exclude_query.update(cloud_exclude_query)
+
+    ### filter atlas_site
+    atlas_site_query, atlas_site_exclude_query = \
+        parse_param_values_str(f_atlas_site, 'atlas_site')
+    if len(atlas_site_query.keys()):
+        schedconfig_query.update(atlas_site_query)
+    if len(atlas_site_exclude_query.keys()):
+        schedconfig_exclude_query.update(atlas_site_exclude_query)
+
+    ### filter status
+    status_query, status_exclude_query = \
+        parse_param_values_str(f_status, 'status')
+    if len(status_query.keys()):
+        schedconfig_query.update(status_query)
+    if len(status_exclude_query.keys()):
+        schedconfig_exclude_query.update(status_exclude_query)
 
     return query, exclude_query, starttime, endtime, nhours, errors_GET, \
         schedconfig_query, schedconfig_exclude_query
@@ -281,6 +321,10 @@ def summarize_data(data, query, exclude_query, schedconfig_query, \
     computingsites = list(set([x['computingsite'] for x in data]))
     ### loop through computing sites, sum njobs for each job status
     for computingsite in computingsites:
+        ### data comes from jobs tables, does not take into account
+        ###   schedconfig related filters. Therefore let's use flag store
+        ###   and set flag store=False when schedconfig filter excludes this
+        ###   computingsite record.
         store = True
         item={'computingsite': computingsite}
         ### add topology info
@@ -301,15 +345,85 @@ def summarize_data(data, query, exclude_query, schedconfig_query, \
         item['corecount'] = corecount
         item['status'] = status
         item['comment'] = comment
-        for schedconfig_key_base in ['corecount', 'status', 'comment']:
+        print
+        print '348 query', query
+        print '348 exclude_query', exclude_query
+        print '348 schedconfig_query', schedconfig_query
+        print '348 schedconfig_exclude_query', schedconfig_exclude_query
+        for schedconfig_key_base in ['corecount', 'status', 'comment', \
+                                     'cloud', 'atlas_site', 'status']:
+            ### handle excludes
             if '%s__isnull' % (schedconfig_key_base) in \
             schedconfig_exclude_query.keys():
-                if item[schedconfig_key_base] == 'NULL':
+                if str(item[schedconfig_key_base]).upper() != 'NULL':
                     store = False
             if '%s__exact' % (schedconfig_key_base) in \
             schedconfig_exclude_query.keys():
                 if str(schedconfig_exclude_query['%s__exact' % (schedconfig_key_base)]) == \
                     str(item[schedconfig_key_base]):
+                    store = False
+            if '%s__in' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                for sch_it in schedconfig_exclude_query['%s__in' % (schedconfig_key_base)]:
+                    if str(sch_it).upper() == str(item[schedconfig_key_base]).upper():
+                        store = False
+            if '%s__istartswith' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if str(item[schedconfig_key_base]).upper().find(\
+                        str(schedconfig_exclude_query['%s__istartswith' % \
+                                (schedconfig_key_base)]).upper()) == 0:
+                    store = False
+            if '%s__iendswith' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if str(item[schedconfig_key_base]).upper().find(\
+                        str(schedconfig_exclude_query['%s__iendswith' % \
+                                (schedconfig_key_base)]).upper()) == \
+                                len(item[schedconfig_key_base]) - len(\
+                                schedconfig_exclude_query['%s__iendswith' % \
+                                (schedconfig_key_base)]):
+                    store = False
+            if '%s__icontains' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if str(item[schedconfig_key_base]).upper().find(\
+                        str(schedconfig_exclude_query['%s__icontains' % \
+                                (schedconfig_key_base)]).upper()) == -1:
+                    store = False
+            ### handle includes
+            if '%s__isnull' % (schedconfig_key_base) in \
+            schedconfig_query.keys():
+                if str(item[schedconfig_key_base]).upper() != 'NULL':
+                        store = False
+            if '%s__exact' % (schedconfig_key_base) in \
+            schedconfig_exclude_query.keys():
+                if str(schedconfig_query['%s__exact' % (schedconfig_key_base)]) != \
+                    str(item[schedconfig_key_base]):
+                    store = False
+            if '%s__in' % (schedconfig_key_base) in \
+            schedconfig_query.keys():
+                for sch_it in schedconfig_query['%s__in' % (schedconfig_key_base)]:
+                    if str(sch_it).upper() != str(item[schedconfig_key_base]).upper():
+                        store = False
+            if '%s__istartswith' % (schedconfig_key_base) in \
+            schedconfig_query.keys():
+                print '401', '%s__istartswith' % (schedconfig_key_base)
+                if str(item[schedconfig_key_base]).upper().find(\
+                            str(schedconfig_query['%s__istartswith' % \
+                                (schedconfig_key_base)]).upper()) != 0:
+                    print '401', store
+                    store = False
+                    print '401', store
+            if '%s__iendswith' % (schedconfig_key_base) in \
+            schedconfig_query.keys():
+                for sch_it in schedconfig_query['%s__iendswith' % (schedconfig_key_base)]:
+                    if str(item[schedconfig_key_base]).upper().find(\
+                                str(sch_it).upper()) != \
+                                len(item[schedconfig_key_base]) - len(sch_it):
+                        store = False
+            if '%s__icontains' % (schedconfig_key_base) in \
+            schedconfig_query.keys():
+                if str(item[schedconfig_key_base]).upper().find(\
+                                str(schedconfig_query['%s__icontains' % \
+                                (schedconfig_key_base)]).upper()) == -1:
                     store = False
         if store:
             ### get records for this computingsite
@@ -337,7 +451,5 @@ def summarize_data(data, query, exclude_query, schedconfig_query, \
     ### sort result
     result = sort_data_by_cloud(result)
     return result
-
-
 
 
