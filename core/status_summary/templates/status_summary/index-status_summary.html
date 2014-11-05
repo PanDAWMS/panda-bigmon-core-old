@@ -15,12 +15,6 @@
 {% block header-nav-chain-6 %}{% endblock %}
 {% block left_menu %}{% endblock %}
 {% block body_mobile %}{% endblock %}
-
-{% block extra_js %}
-	<script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}/js/highcharts/highcharts.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}/js/highcharts/modules/exporting.js"></script>
-{% endblock %}
 {% block body %}
 {% if errors_GET %}
 {% if errors_GET.noparams %}
@@ -64,33 +58,15 @@
 	</div>
 {% if data %}
 <br/><br/>
-<table>
-<theader>
-<tr>
-<th>Cloud</th>
-<th>ATLAS site</th>
-<th>MCP Cloud</th>
-<th>PanDA Resource</th>
-<th>Core count</th>
-<th>Status / Comment</th>
-<th>defined</th>
-<th>waiting</th>
-<th>pending</th>
-<th>assigned</th>
-<th>throttled</th>
-<th>activated</th>
-<th>sent</th>
-<th>starting</th>
-<th>running</th>
-<th>holding</th>
-<th>transferring</th>
-<th>finished</th>
-<th>failed</th>
-<th>cancelled</th>
-<th>merging</th>
-</tr>
-</theader>
+<table id="dataset">
+<thead>
+    {% include "status_summary/header-status_summary.html" %}
+</thead>
+<tbody>
 {% for item in data %}
+{% if forloop.counter|divisibleby:"10" %}
+    {% include "status_summary/header-status_summary.html" %}
+{% endif %}
 <tr>
 <td>{{item.cloud}}</td>
 <td>{{item.atlas_site}}</td>
@@ -115,6 +91,10 @@
 <td>{{item.merging|default_if_none:"&mdash;"}}</td>
 </tr>
 {% endfor %}
+</tbody>
+<tfoot>
+    {% include "status_summary/header-status_summary.html" %}
+</tfoot>
 </table>
 	<div><span style="color: navy; font-weight: bold;">
 	Filters and API documentation:</span> available in 
