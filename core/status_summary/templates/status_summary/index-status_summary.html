@@ -71,24 +71,24 @@
 <td>{{item.cloud}}</td>
 <td>{{item.atlas_site}}</td>
 <td>{{item.mcp_cloud}}</td>
-<td>{{item.computingsite}}</td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}">{{item.computingsite}}</a></td>
 <td>{{item.corecount|default_if_none:"1"}}</td>
 <td>{{item.status}} / {{item.comment|default_if_none:"&mdash;"}}</td>
-<td>{{item.defined|default_if_none:"&mdash;"}}</td>
-<td>{{item.waiting|default_if_none:"&mdash;"}}</td>
-<td>{{item.pending|default_if_none:"&mdash;"}}</td>
-<td>{{item.assigned|default_if_none:"&mdash;"}}</td>
-<td>{{item.throttled|default_if_none:"&mdash;"}}</td>
-<td>{{item.activated|default_if_none:"&mdash;"}}</td>
-<td>{{item.sent|default_if_none:"&mdash;"}}</td>
-<td>{{item.starting|default_if_none:"&mdash;"}}</td>
-<td>{{item.running|default_if_none:"&mdash;"}}</td>
-<td>{{item.holding|default_if_none:"&mdash;"}}</td>
-<td>{{item.transferring|default_if_none:"&mdash;"}}</td>
-<td>{{item.finished|default_if_none:"&mdash;"}}</td>
-<td>{{item.failed|default_if_none:"&mdash;"}}</td>
-<td>{{item.cancelled|default_if_none:"&mdash;"}}</td>
-<td>{{item.merging|default_if_none:"&mdash;"}}</td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=defined">{{item.defined|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=waiting">{{item.waiting|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=pending">{{item.pending|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=assigned">{{item.assigned|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=throttled">{{item.throttled|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=activated">{{item.activated|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=sent">{{item.sent|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=starting">{{item.starting|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=running">{{item.running|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=holding">{{item.holding|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=transferring">{{item.transferring|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=finished">{{item.finished|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=failed">{{item.failed|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=cancelled">{{item.cancelled|default_if_none:"&mdash;"}}</a></td>
+<td><a href="/jobs/?display_limit=100&amp;computingsite={{item.computingsite}}&amp;jobstatus=merging">{{item.merging|default_if_none:"&mdash;"}}</a></td>
 </tr>
 {% endfor %}
 </tbody>
