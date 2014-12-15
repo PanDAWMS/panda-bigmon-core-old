@@ -109,7 +109,8 @@ class PandaJob(models.Model):
     jeditaskid = models.BigIntegerField(null=True, db_column='JEDITASKID', blank=True) # Field name made lowercase.
     jobstatus = models.CharField(null=True, max_length=80, db_column='JOBSTATUS', blank=True)
     actualcorecount = models.IntegerField(null=True, db_column='ACTUALCORECOUNT', blank=True)
-
+    reqid = models.BigIntegerField(null=True, db_column='REQID', blank=True) # Field name made lowercase.
+    
     def __str__(self):
         return 'PanDA:' + str(self.pandaid)
 
