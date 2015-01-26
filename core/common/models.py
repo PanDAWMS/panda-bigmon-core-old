@@ -1437,6 +1437,19 @@ class Redirect(models.Model):
     class Meta:
         db_table = u'redirect'
 
+class RequestStat(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='ID')
+    server = models.CharField(max_length=40, db_column='server')
+    remote = models.CharField(max_length=40, db_column='remote')
+    qtime = models.DateTimeField(db_column='qtime')
+    qduration = models.DateTimeField(db_column='qduration')
+    load = models.CharField(max_length=40, db_column='load')
+    mem = models.CharField(max_length=40, db_column='mem')
+    urls = models.CharField(max_length=40, db_column='url')
+    description = models.CharField(max_length=12000, db_column='description')
+    class Meta:
+        db_table = u'request_stats'
+
 class Savedpages(models.Model):
     name = models.CharField(max_length=90, db_column='NAME', primary_key=True)
     flag = models.CharField(max_length=60, db_column='FLAG', primary_key=True)
