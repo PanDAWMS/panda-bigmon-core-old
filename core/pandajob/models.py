@@ -16,6 +16,65 @@ models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
                                  'primaryColumns', 'secondaryColumns', \
                                  'columnTitles', 'filterFields',)
 
+class GetRWWithPrioJedi3DAYS(models.Model):
+    jeditaskid = models.BigIntegerField(db_column='JEDITASKID')
+    datasetid = models.BigIntegerField(db_column='DATASETID')
+    modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME')
+    cloud = models.CharField(max_length=150, db_column='CLOUD', blank=True) 
+    nrem = models.BigIntegerField(db_column='NREM')
+    walltime = models.BigIntegerField(db_column='WALLTIME')
+    fsize = models.BigIntegerField(db_column='FSIZE')
+    startevent = models.BigIntegerField(db_column='STARTEVENT')
+    endevent = models.BigIntegerField(db_column='ENDEVENT')
+    nevents = models.BigIntegerField(db_column='NEVENTS')
+   
+    def get_all_fields(self):
+        """Returns a list of all field names on the instance."""
+        fields = []
+        kys = {}
+        for f in self._meta.fields:
+            kys[f.name] = f
+        kys1 = kys.keys()
+        kys1.sort()
+        for k in kys1:
+            f = kys[k]
+            fname = f.name        
+            # resolve picklists/choices, with get_xyz_display() function
+            get_choice = 'get_'+fname+'_display'
+            if hasattr( self, get_choice):
+                value = getattr( self, get_choice)()
+            else:
+                try :
+                    value = getattr(self, fname)
+                except User.DoesNotExist:
+                    value = None
+
+            # only display fields with values and skip some fields entirely
+            if f.editable and value :
+
+                fields.append(
+                  {
+                   'label':f.verbose_name, 
+                   'name':f.name, 
+                   'value':value,
+                  }
+                )
+        return fields
+
+    # __getattr__
+    def __getattr__(self, name):
+        return super(PandaJob, self).__getattr__(name)
+
+    # __getitem__
+    def __getitem__(self, name):
+#        return super(HTCondorJob, self).__getattr__(name)
+        return self.__dict__[name]
+
+    class Meta:
+        db_table = u'"ATLAS_PANDABIGMON"."GETRWWITHPRIOJEDI3DAYS"'
+
+
+
 class PandaJob(models.Model):
     pandaid = models.BigIntegerField(primary_key=True, db_column='PANDAID') # Field name made lowercase.
     jobdefinitionid = models.BigIntegerField(db_column='JOBDEFINITIONID') # Field name made lowercase.
