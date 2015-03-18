@@ -204,6 +204,7 @@ setup(
         'core.datatables',
         'core.datatables.templatetags',
         'core.gspread',
+        'core.status_summary',
     ],
     data_files=[ #FIXME
                 # config files 
@@ -221,6 +222,7 @@ setup(
                     "core/resource/templates",
                     "core/datatables/templates",
                     "core/datatables/static",
+                    "core/status_summary/templates",
                 )
     ,         
     cmdclass={'install': install_panda,
