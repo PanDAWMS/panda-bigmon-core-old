@@ -1443,6 +1443,7 @@ class RequestStat(models.Model):
     remote = models.CharField(max_length=40, db_column='remote')
     qtime = models.DateTimeField(db_column='qtime')
     qduration = models.DateTimeField(db_column='qduration')
+    duration = models.CharField(max_length=40, db_column='duration')
     load = models.CharField(max_length=40, db_column='load')
     mem = models.CharField(max_length=40, db_column='mem')
     urls = models.CharField(max_length=40, db_column='url')
