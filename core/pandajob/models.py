@@ -16,6 +16,17 @@ models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
                                  'primaryColumns', 'secondaryColumns', \
                                  'columnTitles', 'filterFields',)
 
+class MonitorUsers(models.Model):
+    userid = models.BigIntegerField(db_column='ID')
+    dname = models.CharField(max_length=200, db_column='DNAME', blank=True) 
+    username = models.CharField(max_length=200, db_column='USERNAME', blank=True) 
+    firstdate = models.DateTimeField(db_column='FIRSTLOGINDATE') # Field name made lowercase.
+    isactive = models.SmallIntegerField(db_column='ISACTIVE') # Field name made lowercase.
+    description = models.BinaryField(db_column='DESCRIPTION')
+    class Meta:
+        db_table = u'MONITOR_USERS'
+
+
 class GetRWWithPrioJedi3DAYS(models.Model):
     jeditaskid = models.BigIntegerField(db_column='JEDITASKID')
     datasetid = models.BigIntegerField(db_column='DATASETID')
