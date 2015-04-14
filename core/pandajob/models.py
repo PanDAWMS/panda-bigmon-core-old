@@ -18,7 +18,8 @@ models.options.DEFAULT_NAMES += ('allColumns', 'orderColumns', \
 
 class MonitorUsers(models.Model):
     userid = models.BigIntegerField(db_column='ID')
-    dname = models.CharField(max_length=200, db_column='DNAME', blank=True) 
+    dname = models.CharField(max_length=200, db_column='DNAME', blank=True)
+    email = models.CharField(max_length=100, db_column='EMAIL', blank=True)     
     username = models.CharField(max_length=200, db_column='USERNAME', blank=True) 
     firstdate = models.DateTimeField(db_column='FIRSTLOGINDATE') # Field name made lowercase.
     isactive = models.SmallIntegerField(db_column='ISACTIVE') # Field name made lowercase.
