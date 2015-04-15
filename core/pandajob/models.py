@@ -23,7 +23,6 @@ class MonitorUsers(models.Model):
     username = models.CharField(max_length=200, db_column='USERNAME', blank=True) 
     firstdate = models.DateTimeField(db_column='FIRSTLOGINDATE') # Field name made lowercase.
     isactive = models.SmallIntegerField(db_column='ISACTIVE') # Field name made lowercase.
-    description = models.BinaryField(db_column='DESCRIPTION')
     class Meta:
         db_table = u'MONITOR_USERS'
 
