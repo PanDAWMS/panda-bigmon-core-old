@@ -31,13 +31,19 @@ class GetRWWithPrioJedi3DAYS(models.Model):
     jeditaskid = models.BigIntegerField(db_column='JEDITASKID')
     datasetid = models.BigIntegerField(db_column='DATASETID')
     modificationtime = models.DateTimeField(db_column='MODIFICATIONTIME')
-    cloud = models.CharField(max_length=150, db_column='CLOUD', blank=True) 
+    cloud = models.CharField(max_length=10, db_column='CLOUD', blank=True)
+    corecount = models.IntegerField(db_column='CORECOUNT')
+    processingtype = models.CharField(max_length=64, db_column='PROCESSINGTYPE')
+    ramcount = models.IntegerField(db_column='RAMCOUNT')
+    ramunit = models.CharField(max_length=32, db_column='RAMUNIT')
+    prodsourcelabel = models.CharField(max_length=20, db_column='PRODSOURCELABEL')
     nrem = models.BigIntegerField(db_column='NREM')
     walltime = models.BigIntegerField(db_column='WALLTIME')
     fsize = models.BigIntegerField(db_column='FSIZE')
     startevent = models.BigIntegerField(db_column='STARTEVENT')
     endevent = models.BigIntegerField(db_column='ENDEVENT')
     nevents = models.BigIntegerField(db_column='NEVENTS')
+    
    
     def get_all_fields(self):
         """Returns a list of all field names on the instance."""
