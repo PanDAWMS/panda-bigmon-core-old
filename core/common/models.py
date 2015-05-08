@@ -546,9 +546,18 @@ class JediTasks(models.Model):
     ticketsystemtype = models.CharField(max_length=16, db_column='TICKETSYSTEMTYPE', blank=True) 
     statechangetime = models.DateTimeField(null=True, db_column='STATECHANGETIME', blank=True) 
     superstatus = models.CharField(max_length=64, db_column='SUPERSTATUS', blank=True) 
-    campaign = models.CharField(max_length=72, db_column='CAMPAIGN', blank=True) 
+    campaign = models.CharField(max_length=72, db_column='CAMPAIGN', blank=True)
     class Meta:
         db_table = u'jedi_tasks'
+
+
+class GetEventsForTask(models.Model):
+    jeditaskid = models.BigIntegerField(db_column='JEDITASKID', primary_key=True)
+    totevrem = models.BigIntegerField(db_column='totevrem')
+    totev = models.BigIntegerField(db_column='totev')
+    class Meta:
+        db_table = u'"ATLAS_PANDABIGMON"."GETEVENTSFORTASK"'
+
 
 class JediWorkQueue(models.Model):
     queue_id = models.IntegerField(primary_key=True, db_column='QUEUE_ID')
