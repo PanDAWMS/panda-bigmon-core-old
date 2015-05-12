@@ -9,7 +9,7 @@ import core
 #import atlas
 
 ADMINS = (
-    ('Jaroslava Schovancova', 'jschovan@gmail.com'),
+    ('Sergey Padolski', 'spadolski@bnl.gov'),
 )
 MANAGERS = ADMINS
 
